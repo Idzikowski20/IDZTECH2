@@ -108,7 +108,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 relative z-50">
           <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
-          <span className="text-xl font-bold">Premium Digital</span>
+          <span className="text-xl font-bold">IDZ.TECH</span>
         </Link>
 
         {/* Desktop Navigation */}

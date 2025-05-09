@@ -28,7 +28,7 @@ const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Agencja marketingowa <span className="bg-premium-gradient text-transparent bg-clip-text">Premium Digital</span>
+              Agencja marketingowa <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span>
             </h1>
             
             <p className="text-xl text-premium-light/70 max-w-lg">

@@ -19,7 +19,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-6">
               <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
-              <span className="text-xl font-bold">Premium Digital</span>
+              <span className="text-xl font-bold">IDZ.TECH</span>
             </div>
             <p className="text-premium-light/70 mb-6">
               Dostarczamy kompleksowe rozwiązania marketingowe, które pomagają firmom osiągać realne wyniki i zyskać przewagę konkurencyjną.
@@ -86,7 +86,7 @@ const Footer = () => {
         <div className="border-t border-white/10 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-premium-light/60 text-sm mb-4 md:mb-0">
-              &copy; {new Date().getFullYear()} Premium Digital. Wszystkie prawa zastrzeżone.
+              &copy; {new Date().getFullYear()} IDZ.TECH Wszystkie prawa zastrzeżone.
             </p>
             
             <div className="flex space-x-6">

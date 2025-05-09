@@ -67,13 +67,13 @@ const About = () => {
           
           {/* Right Side Content */}
           <div className="w-full lg:w-1/2 space-y-6">
-            <span className="text-premium-purple font-medium">O Premium Digital</span>
+            <span className="text-premium-purple font-medium">O IDZ.TECH</span>
             <h2 className="text-3xl lg:text-4xl font-bold">
               Kompleksowa agencja marketingowa, która przynosi realne rezultaty
             </h2>
             
             <p className="text-premium-light/70">
-              Premium Digital to zespół doświadczonych specjalistów z pasją do marketingu cyfrowego. Łączymy kreatywność z analitycznym podejściem, aby dostarczać rozwiązania, które nie tylko wyglądają dobrze, ale przede wszystkim działają efektywnie.
+              IDZ.TECH to zespół doświadczonych specjalistów z pasją do marketingu cyfrowego. Łączymy kreatywność z analitycznym podejściem, aby dostarczać rozwiązania, które nie tylko wyglądają dobrze, ale przede wszystkim działają efektywnie.
             </p>
             
             <div className="space-y-4">
