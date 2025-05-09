@@ -149,7 +149,7 @@ const Navbar = () => {
       position: 'absolute'
     }}>
           <div ref={servicesRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex items-start justify-center pt-2">
-            <div className="bg-premium-dark/95 border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-4 gap-10 transform transition-all duration-300 animate-fade-in bg-gray-950 rounded-xl">
+            <div className="bg-premium-dark/95 border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-4 gap-10 transform transition-all duration-300 animate-fade-in rounded-xl bg-[#000a0e]/[0.52]">
               {servicesCategories.map((category, index) => <div key={index} className="flex flex-col">
                   <h3 className="text-lg font-medium text-premium-light mb-4">{category.title}</h3>
                   <div className="flex flex-col space-y-3">
