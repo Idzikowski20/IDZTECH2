@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
   const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const servicesButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,9 +33,27 @@ const Navbar = () => {
       }
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close services menu when clicking outside
+      if (
+        isServicesOpen && 
+        servicesRef.current && 
+        !servicesRef.current.contains(event.target as Node) &&
+        servicesButtonRef.current &&
+        !servicesButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsServicesOpen(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isServicesOpen]);
 
   const menuItems = [
     { label: 'Strona główna', href: '/' },
@@ -64,14 +84,14 @@ const Navbar = () => {
       title: 'Strony www',
       links: [
         { label: 'Tworzenie stron www', href: '/tworzenie-stron-www' },
-        { label: 'Tworzenie sklepów internetowych', href: '#e-commerce' }
+        { label: 'Tworzenie sklepów internetowych', href: '/tworzenie-sklepow-internetowych' }
       ]
     },
     {
       title: 'Pozycjonowanie (SEO)',
       links: [
-        { label: 'Pozycjonowanie stron internetowych', href: '#seo-services' },
-        { label: 'Pozycjonowanie lokalne', href: '#local-seo' },
+        { label: 'Pozycjonowanie stron internetowych', href: '/pozycjonowanie-stron-internetowych' },
+        { label: 'Pozycjonowanie lokalne', href: '/pozycjonowanie-lokalne' },
         { label: 'Audyt SEO', href: '#seo-audit' },
         { label: 'Optymalizacja SEO', href: '#seo-optimization' },
         { label: 'Copywriting SEO', href: '#seo-copywriting' },
@@ -117,6 +137,7 @@ const Navbar = () => {
             <div key={index} className="relative">
               {item.submenu ? (
                 <button 
+                  ref={servicesButtonRef}
                   onClick={toggleServicesMenu}
                   className="text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1"
                 >
@@ -166,10 +187,14 @@ const Navbar = () => {
 
       {/* Services Mega Menu (Desktop) */}
       {isServicesOpen && (
-        <div className="fixed inset-0 z-40" onClick={toggleServicesMenu}>
+        <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-premium-dark/80 backdrop-blur-md"></div>
-          <div className="absolute inset-0 flex items-start justify-center pt-24" onClick={e => e.stopPropagation()}>
-            <div className="bg-premium-dark/95 border border-premium-light/10 rounded-lg p-12 w-full max-w-5xl grid grid-cols-4 gap-10">
+          <div 
+            ref={servicesRef}
+            className="absolute inset-0 flex items-start justify-center pt-24" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-premium-dark/95 border border-premium-light/10 rounded-lg p-12 w-full max-w-5xl grid grid-cols-4 gap-10 transform transition-all duration-300 animate-fade-in">
               {servicesCategories.map((category, index) => (
                 <div key={index} className="flex flex-col">
                   <h3 className="text-lg font-medium text-premium-light mb-4">{category.title}</h3>
@@ -178,10 +203,11 @@ const Navbar = () => {
                       <Link 
                         key={linkIndex} 
                         to={link.href}
-                        onClick={toggleServicesMenu}
-                        className="text-premium-light/70 hover:text-premium-blue transition-colors text-sm"
+                        onClick={() => setIsServicesOpen(false)}
+                        className="text-premium-light/70 hover:text-premium-blue transition-colors text-sm group relative overflow-hidden"
                       >
-                        {link.label}
+                        <span className="relative z-10">{link.label}</span>
+                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-premium-blue transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                       </Link>
                     ))}
                   </div>
@@ -195,11 +221,11 @@ const Navbar = () => {
       {/* Mobile Navigation */}
       <div
         className={cn(
-          "lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-sm flex flex-col justify-center items-center transition-all duration-300 ease-in-out z-40",
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          "lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-sm z-40",
+          isOpen ? "flex flex-col justify-center items-center opacity-100 pointer-events-auto transition-opacity duration-300 ease-in-out" : "opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out"
         )}
       >
-        <div className="flex flex-col items-center space-y-6 w-full px-8">
+        <div className="flex flex-col items-center space-y-6 w-full px-8 max-h-[80vh] overflow-y-auto py-8">
           {menuItems.map((item, index) => (
             <div key={index} className="w-full text-center">
               {item.submenu ? (
@@ -216,7 +242,7 @@ const Navbar = () => {
                   </button>
                   
                   {activeSubmenu === index && (
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 w-full bg-premium-dark/80 rounded-lg p-4 border border-white/5 animate-fade-in">
                       {servicesCategories.map((category, catIndex) => (
                         <div key={catIndex} className="mb-4">
                           <h4 className="text-premium-purple font-medium mb-2">{category.title}</h4>
