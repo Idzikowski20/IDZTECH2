@@ -1,11 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-
 const CTA = () => {
-  return (
-    <section className="py-20 relative overflow-hidden">
+  return <section className="py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-premium-gradient opacity-10"></div>
       <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/30 rounded-full blur-[100px] -z-10"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/30 rounded-full blur-[100px] -z-10"></div>
@@ -24,14 +21,12 @@ const CTA = () => {
               Darmowa konsultacja
               <ArrowRight size={18} className="ml-2" />
             </Button>
-            <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6">
+            <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50">
               Zobacz nasze realizacje
             </Button>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default CTA;
