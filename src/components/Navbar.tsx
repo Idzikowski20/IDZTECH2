@@ -4,11 +4,23 @@ import { Menu, X, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,12 +40,7 @@ const Navbar = () => {
     { 
       label: 'Usługi', 
       href: '#services',
-      submenu: [
-        { label: 'Tworzenie stron WWW', href: '/tworzenie-stron-www' },
-        { label: 'Marketing w Google', href: '#marketing' },
-        { label: 'Pozycjonowanie', href: '#seo' },
-        { label: 'Media społecznościowe', href: '#social' },
-      ]
+      submenu: true
     },
     { label: 'O nas', href: '#about' },
     { label: 'Realizacje', href: '#projects' },
@@ -47,6 +54,48 @@ const Navbar = () => {
       setActiveSubmenu(index);
     }
   };
+
+  const toggleServicesMenu = () => {
+    setIsServicesOpen(!isServicesOpen);
+  };
+
+  const servicesCategories = [
+    {
+      title: 'Strony www',
+      links: [
+        { label: 'Tworzenie stron www', href: '/tworzenie-stron-www' },
+        { label: 'Tworzenie sklepów internetowych', href: '#e-commerce' }
+      ]
+    },
+    {
+      title: 'Pozycjonowanie (SEO)',
+      links: [
+        { label: 'Pozycjonowanie stron internetowych', href: '#seo-services' },
+        { label: 'Pozycjonowanie lokalne', href: '#local-seo' },
+        { label: 'Audyt SEO', href: '#seo-audit' },
+        { label: 'Optymalizacja SEO', href: '#seo-optimization' },
+        { label: 'Copywriting SEO', href: '#seo-copywriting' },
+        { label: 'Content Plan', href: '#content-plan' },
+      ]
+    },
+    {
+      title: 'SEM - PPC',
+      links: [
+        { label: 'Kampanie Google ads', href: '#google-ads' },
+        { label: 'Kampanie Meta Ads', href: '#meta-ads' },
+        { label: 'Audyt Google Ads', href: '#google-ads-audit' },
+      ]
+    },
+    {
+      title: 'Inne Usługi',
+      links: [
+        { label: 'Marketing lokalny', href: '#local-marketing' },
+        { label: 'Email Marketing', href: '#email-marketing' },
+        { label: 'Filmy Reklamowe', href: '#video-ads' },
+        { label: 'Content Marketing', href: '#content-marketing' },
+      ]
+    }
+  ];
 
   return (
     <nav 
@@ -65,51 +114,18 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center space-x-8">
           {menuItems.map((item, index) => (
-            <div key={index} className="relative group">
+            <div key={index} className="relative">
               {item.submenu ? (
-                <>
-                  <button 
-                    onClick={() => toggleSubmenu(index)}
-                    className={cn(
-                      "text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1"
-                    )}
-                  >
-                    {item.label}
-                    <ChevronDown size={16} className={cn(
-                      "transition-transform",
-                      activeSubmenu === index ? "rotate-180" : ""
-                    )} />
-                  </button>
-                  
-                  <div className={cn(
-                    "absolute top-full left-0 mt-2 w-48 rounded-md shadow-lg bg-premium-dark/90 backdrop-blur-sm transition-all",
-                    activeSubmenu === index ? "block" : "hidden"
-                  )}>
-                    <div className="py-1">
-                      {item.submenu.map((subitem, subindex) => (
-                        subitem.href.startsWith('/') ? (
-                          <Link
-                            key={subindex}
-                            to={subitem.href}
-                            className="block px-4 py-2 text-sm text-premium-light/80 hover:text-premium-light hover:bg-premium-purple/20 transition-colors"
-                            onClick={() => setActiveSubmenu(null)}
-                          >
-                            {subitem.label}
-                          </Link>
-                        ) : (
-                          <a
-                            key={subindex}
-                            href={subitem.href}
-                            className="block px-4 py-2 text-sm text-premium-light/80 hover:text-premium-light hover:bg-premium-purple/20 transition-colors"
-                            onClick={() => setActiveSubmenu(null)}
-                          >
-                            {subitem.label}
-                          </a>
-                        )
-                      ))}
-                    </div>
-                  </div>
-                </>
+                <button 
+                  onClick={toggleServicesMenu}
+                  className="text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1"
+                >
+                  {item.label}
+                  <ChevronDown size={16} className={cn(
+                    "transition-transform",
+                    isServicesOpen ? "rotate-180" : ""
+                  )} />
+                </button>
               ) : (
                 item.href.startsWith('/') ? (
                   <Link 
@@ -148,10 +164,38 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Services Mega Menu (Desktop) */}
+      {isServicesOpen && (
+        <div className="fixed inset-0 z-40" onClick={toggleServicesMenu}>
+          <div className="absolute inset-0 bg-premium-dark/80 backdrop-blur-md"></div>
+          <div className="absolute inset-0 flex items-start justify-center pt-24" onClick={e => e.stopPropagation()}>
+            <div className="bg-premium-dark/95 border border-premium-light/10 rounded-lg p-12 w-full max-w-5xl grid grid-cols-4 gap-10">
+              {servicesCategories.map((category, index) => (
+                <div key={index} className="flex flex-col">
+                  <h3 className="text-lg font-medium text-premium-light mb-4">{category.title}</h3>
+                  <div className="flex flex-col space-y-3">
+                    {category.links.map((link, linkIndex) => (
+                      <Link 
+                        key={linkIndex} 
+                        to={link.href}
+                        onClick={toggleServicesMenu}
+                        className="text-premium-light/70 hover:text-premium-blue transition-colors text-sm"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Navigation */}
       <div
         className={cn(
-          "lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-sm flex flex-col justify-center items-center transition-all duration-300 ease-in-out",
+          "lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-sm flex flex-col justify-center items-center transition-all duration-300 ease-in-out z-40",
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
       >
@@ -172,32 +216,26 @@ const Navbar = () => {
                   </button>
                   
                   {activeSubmenu === index && (
-                    <div className="mt-4 space-y-2 w-full">
-                      {item.submenu.map((subitem, subindex) => (
-                        <div key={subindex} className="w-full">
-                          {subitem.href.startsWith('/') ? (
-                            <Link
-                              to={subitem.href}
-                              onClick={() => {
-                                setActiveSubmenu(null);
-                                setIsOpen(false);
-                              }}
-                              className="block text-sm text-premium-light/70 hover:text-premium-light transition-colors py-1"
-                            >
-                              {subitem.label}
-                            </Link>
-                          ) : (
-                            <a
-                              href={subitem.href}
-                              onClick={() => {
-                                setActiveSubmenu(null);
-                                setIsOpen(false);
-                              }}
-                              className="block text-sm text-premium-light/70 hover:text-premium-light transition-colors py-1"
-                            >
-                              {subitem.label}
-                            </a>
-                          )}
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                      {servicesCategories.map((category, catIndex) => (
+                        <div key={catIndex} className="mb-4">
+                          <h4 className="text-premium-purple font-medium mb-2">{category.title}</h4>
+                          <div className="space-y-2">
+                            {category.links.map((link, linkIndex) => (
+                              <div key={linkIndex} className="w-full">
+                                <Link
+                                  to={link.href}
+                                  onClick={() => {
+                                    setActiveSubmenu(null);
+                                    setIsOpen(false);
+                                  }}
+                                  className="block text-sm text-premium-light/70 hover:text-premium-light transition-colors py-1"
+                                >
+                                  {link.label}
+                                </Link>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
