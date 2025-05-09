@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,24 +27,6 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-  
-  useEffect(() => {
-    // Handle clicks outside the services menu to close it
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isServicesOpen && 
-          servicesRef.current && 
-          !servicesRef.current.contains(event.target as Node) && 
-          servicesButtonRef.current && 
-          !servicesButtonRef.current.contains(event.target as Node)) {
-        setIsServicesOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isServicesOpen]);
   
   const menuItems = [{
     label: 'Strona główna',
@@ -134,8 +116,13 @@ const Navbar = () => {
     setIsServicesOpen(false);
   };
 
+  // Function to handle mobile submenu toggles
+  const toggleMobileSubmenu = (index: number) => {
+    setActiveSubmenu(activeSubmenu === index ? null : index);
+  };
+
   return (
-    <nav className={cn("fixed top-0 w-full z-50 transition-all duration-300", scrolled ? "bg-premium-dark/90 backdrop-blur-sm py-4" : "bg-transparent py-6")}>
+    <nav className={cn("fixed top-0 w-full z-50 transition-all duration-300", scrolled ? "bg-premium-dark/90 py-4" : "bg-transparent py-6")}>
       <div className="container mx-auto px-4 lg:px-8 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 relative z-50">
@@ -180,15 +167,14 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Services Mega Menu (Desktop) */}
+      {/* Services Mega Menu (Desktop) - NO BLUR */}
       {isServicesOpen && (
-        <div className="fixed inset-0 z-40" style={{ position: 'fixed' }}>
-          <div className="absolute inset-0 bg-premium-dark/80 backdrop-blur-md"></div>
+        <div className="absolute w-full z-40" style={{ position: 'absolute' }}>
           <div 
             ref={servicesRef} 
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
-            className="fixed inset-0 flex items-start justify-center pt-24"
+            className="flex items-start justify-center pt-2"
           >
             <div className="bg-premium-dark/95 border border-premium-light/10 rounded-lg p-12 w-full max-w-5xl grid grid-cols-4 gap-10 transform transition-all duration-300 animate-fade-in">
               {servicesCategories.map((category, index) => (
@@ -216,7 +202,7 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       <div className={cn(
-        "lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-sm z-40 flex flex-col justify-center items-center", 
+        "lg:hidden fixed inset-0 bg-premium-dark/98 z-40 flex flex-col justify-center items-center", 
         isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       )} style={{ transition: "opacity 300ms ease-in-out" }}>
         <div className="flex flex-col items-center space-y-6 w-full px-8 max-h-[80vh] overflow-y-auto py-8">
@@ -224,7 +210,7 @@ const Navbar = () => {
             <div key={index} className="w-full text-center">
               {item.submenu ? (
                 <div className="flex flex-col items-center">
-                  <button onClick={() => toggleSubmenu(index)} className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1">
+                  <button onClick={() => toggleMobileSubmenu(index)} className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1">
                     {item.label}
                     <ChevronDown size={16} className={cn("transition-transform", activeSubmenu === index ? "rotate-180" : "")} />
                   </button>
