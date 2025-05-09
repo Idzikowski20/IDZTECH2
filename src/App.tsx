@@ -10,6 +10,10 @@ import WebDevelopment from "./pages/WebDevelopment";
 import ECommerce from "./pages/ECommerce";
 import Seo from "./pages/Seo";
 import LocalSeo from "./pages/LocalSeo";
+import SeoAudit from "./pages/SeoAudit";
+import SeoOptimization from "./pages/SeoOptimization";
+import SeoCopywriting from "./pages/SeoCopywriting";
+import ContentPlan from "./pages/ContentPlan";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +29,10 @@ const App = () => (
           <Route path="/tworzenie-sklepow-internetowych" element={<ECommerce />} />
           <Route path="/pozycjonowanie-stron-internetowych" element={<Seo />} />
           <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
+          <Route path="/audyt-seo" element={<SeoAudit />} />
+          <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
+          <Route path="/copywriting-seo" element={<SeoCopywriting />} />
+          <Route path="/content-plan" element={<ContentPlan />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
