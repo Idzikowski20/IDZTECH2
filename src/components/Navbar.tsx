@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +40,14 @@ const Navbar = () => {
     { label: 'Kontakt', href: '#contact' },
   ];
 
+  const toggleSubmenu = (index: number) => {
+    if (activeSubmenu === index) {
+      setActiveSubmenu(null);
+    } else {
+      setActiveSubmenu(index);
+    }
+  };
+
   return (
     <nav 
       className={cn(
@@ -59,17 +68,23 @@ const Navbar = () => {
             <div key={index} className="relative group">
               {item.submenu ? (
                 <>
-                  <a 
-                    href={item.href} 
+                  <button 
+                    onClick={() => toggleSubmenu(index)}
                     className={cn(
                       "text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1"
                     )}
                   >
                     {item.label}
-                    <ChevronDown size={16} />
-                  </a>
+                    <ChevronDown size={16} className={cn(
+                      "transition-transform",
+                      activeSubmenu === index ? "rotate-180" : ""
+                    )} />
+                  </button>
                   
-                  <div className="absolute top-full left-0 mt-2 w-48 rounded-md shadow-lg bg-premium-dark/90 backdrop-blur-sm hidden group-hover:block transition-all">
+                  <div className={cn(
+                    "absolute top-full left-0 mt-2 w-48 rounded-md shadow-lg bg-premium-dark/90 backdrop-blur-sm transition-all",
+                    activeSubmenu === index ? "block" : "hidden"
+                  )}>
                     <div className="py-1">
                       {item.submenu.map((subitem, subindex) => (
                         subitem.href.startsWith('/') ? (
@@ -77,6 +92,7 @@ const Navbar = () => {
                             key={subindex}
                             to={subitem.href}
                             className="block px-4 py-2 text-sm text-premium-light/80 hover:text-premium-light hover:bg-premium-purple/20 transition-colors"
+                            onClick={() => setActiveSubmenu(null)}
                           >
                             {subitem.label}
                           </Link>
@@ -85,6 +101,7 @@ const Navbar = () => {
                             key={subindex}
                             href={subitem.href}
                             className="block px-4 py-2 text-sm text-premium-light/80 hover:text-premium-light hover:bg-premium-purple/20 transition-colors"
+                            onClick={() => setActiveSubmenu(null)}
                           >
                             {subitem.label}
                           </a>
@@ -141,22 +158,69 @@ const Navbar = () => {
         <div className="flex flex-col items-center space-y-6 w-full px-8">
           {menuItems.map((item, index) => (
             <div key={index} className="w-full text-center">
-              {item.href.startsWith('/') ? (
-                <Link
-                  to={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors"
-                >
-                  {item.label}
-                </Link>
+              {item.submenu ? (
+                <div className="flex flex-col items-center">
+                  <button
+                    onClick={() => toggleSubmenu(index)}
+                    className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1"
+                  >
+                    {item.label}
+                    <ChevronDown size={16} className={cn(
+                      "transition-transform",
+                      activeSubmenu === index ? "rotate-180" : ""
+                    )} />
+                  </button>
+                  
+                  {activeSubmenu === index && (
+                    <div className="mt-4 space-y-2 w-full">
+                      {item.submenu.map((subitem, subindex) => (
+                        <div key={subindex} className="w-full">
+                          {subitem.href.startsWith('/') ? (
+                            <Link
+                              to={subitem.href}
+                              onClick={() => {
+                                setActiveSubmenu(null);
+                                setIsOpen(false);
+                              }}
+                              className="block text-sm text-premium-light/70 hover:text-premium-light transition-colors py-1"
+                            >
+                              {subitem.label}
+                            </Link>
+                          ) : (
+                            <a
+                              href={subitem.href}
+                              onClick={() => {
+                                setActiveSubmenu(null);
+                                setIsOpen(false);
+                              }}
+                              className="block text-sm text-premium-light/70 hover:text-premium-light transition-colors py-1"
+                            >
+                              {subitem.label}
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ) : (
-                <a
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors"
-                >
-                  {item.label}
-                </a>
+                item.href.startsWith('/') ? (
+                  <Link
+                    to={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors"
+                  >
+                    {item.label}
+                  </a>
+                )
               )}
             </div>
           ))}
