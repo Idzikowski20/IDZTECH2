@@ -23,21 +23,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     localStorage.setItem('theme', theme);
     
-    // Apply dark mode class to HTML element for Tailwind styles
+    // Apply the appropriate class to HTML element for Tailwind styles
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
-      document.body.classList.add('bg-premium-dark');
-      document.body.classList.add('text-premium-light');
-      document.body.classList.remove('bg-premium-light');
-      document.body.classList.remove('text-premium-dark');
     } else {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
-      document.body.classList.remove('bg-premium-dark');
-      document.body.classList.remove('text-premium-light');
-      document.body.classList.add('bg-white'); // Using white instead of premium-light for better contrast
-      document.body.classList.add('text-premium-dark');
     }
     
     // Update color scheme meta tag

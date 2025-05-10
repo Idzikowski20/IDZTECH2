@@ -40,7 +40,7 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "text-premium-purple" : ""}`}>Start</Link>
+          <Link to="/" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "text-premium-purple" : ""}`}>Start</Link>
           
           <NavigationMenu>
             <NavigationMenuList>
@@ -84,14 +84,14 @@ const Navbar = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-          <Link to="/projects" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
-          <Link to="/about-us" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
+          <Link to="/projects" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
+          <Link to="/about-us" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
           
-          <Link to="/blog" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>
+          <Link to="/blog" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>
             Blog
           </Link>
           
-          <Link to="/contact" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
+          <Link to="/contact" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -102,14 +102,14 @@ const Navbar = () => {
               setTheme(theme === "light" ? "dark" : "light");
               trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
             }} 
-            className="text-white dark:text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+            className="text-white hover:bg-white hover:text-black"
           >
             {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
           
           <Link to="/contact" className="hidden md:block">
-            <Button className="bg-black text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black">
+            <Button className="bg-black text-white hover:bg-white hover:text-black">
               Umów spotkanie
             </Button>
           </Link>
@@ -118,7 +118,7 @@ const Navbar = () => {
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="text-white dark:text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+                className="text-white hover:bg-white hover:text-black"
               >
                 Admin
               </Button>
@@ -126,7 +126,7 @@ const Navbar = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-white dark:text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+                className="text-white hover:bg-white hover:text-black"
               >
                 <LogIn className="h-[1.2rem] w-[1.2rem]" />
                 <span className="sr-only">Zaloguj</span>
