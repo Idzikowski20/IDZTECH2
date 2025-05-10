@@ -273,7 +273,8 @@ export const useBlogStore = create<BlogStore>()(
       hasUserLiked: (postId, userId) => {
         const { posts } = get();
         const post = posts.find(p => p.id === postId);
-        return post ? post.likes.includes(userId) : false;
+        // Add null check to ensure post and post.likes exist before using includes()
+        return post ? (post.likes && post.likes.includes(userId)) : false;
       }
     }),
     {

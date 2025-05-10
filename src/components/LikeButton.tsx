@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -28,7 +27,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
     if (isAuthenticated && user) {
       toggleLike(postId, user.id);
       
-      const isLiked = hasUserLiked(postId, user.id);
+      // Make this safe by checking hasUserLiked after toggling
+      const isLiked = user && hasUserLiked(postId, user.id);
       
       if (isLiked) {
         toast({
@@ -64,8 +64,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
     });
   };
 
-  // Check if the post is liked by current user (or guest) - with null check
-  const isLiked = user ? hasUserLiked(postId, user.id) : false;
+  // Check if the post is liked by current user (or guest) - with null/undefined checks
+  const isLiked = user && postId ? hasUserLiked(postId, user.id) : false;
 
   return (
     <>
