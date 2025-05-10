@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Lock } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
 import DotAnimation from '@/components/DotAnimation';

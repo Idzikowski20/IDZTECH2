@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -35,6 +34,7 @@ import { ThemeProvider } from "./utils/themeContext";
 import { AuthProvider } from "./utils/AuthProvider";
 import { initGA, trackPageView } from "./utils/analytics";
 import RequireAuth from "./components/RequireAuth";
+import Navbar from './components/navbar';
 
 const queryClient = new QueryClient();
 
