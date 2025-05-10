@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,13 +12,15 @@ import { Moon, Sun } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/utils/auth';
 import AdminLayout from '@/components/AdminLayout';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/utils/themeContext';
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(6, 'Current password must be at least 6 characters'),
-  newPassword: z.string().min(6, 'New password must be at least 6 characters'),
-  confirmPassword: z.string().min(6, 'Confirm password must be at least 6 characters'),
+  currentPassword: z.string().min(6, 'Aktualne hasło musi mieć co najmniej 6 znaków'),
+  newPassword: z.string().min(6, 'Nowe hasło musi mieć co najmniej 6 znaków'),
+  confirmPassword: z.string().min(6, 'Hasło potwierdzające musi mieć co najmniej 6 znaków'),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
+  message: "Hasła nie pasują do siebie",
   path: ["confirmPassword"],
 });
 
@@ -28,12 +30,20 @@ const notificationsSchema = z.object({
 });
 
 const AdminSettings = () => {
-  const { user, updatePassword } = useAuth();
+  const { user, updatePassword, isAuthenticated } = useAuth();
   const { toast } = useToast();
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Password form
+  // Przekieruj jeśli nie jest zalogowany
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Formularz hasła
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
@@ -43,7 +53,7 @@ const AdminSettings = () => {
     },
   });
 
-  // Notifications form
+  // Formularz powiadomień
   const notificationsForm = useForm<z.infer<typeof notificationsSchema>>({
     resolver: zodResolver(notificationsSchema),
     defaultValues: {
@@ -58,15 +68,15 @@ const AdminSettings = () => {
       await updatePassword(values.currentPassword, values.newPassword);
       
       toast({
-        title: "Password updated",
-        description: "Your password has been successfully changed",
+        title: "Hasło zaktualizowane",
+        description: "Twoje hasło zostało pomyślnie zmienione",
       });
       
       passwordForm.reset();
     } catch (error) {
       toast({
-        title: "Update error",
-        description: "Failed to update password. Please check your current password.",
+        title: "Błąd aktualizacji",
+        description: "Nie udało się zaktualizować hasła. Sprawdź poprawność aktualnego hasła.",
         variant: "destructive",
       });
     } finally {
@@ -76,34 +86,29 @@ const AdminSettings = () => {
 
   const onNotificationsSubmit = (values: z.infer<typeof notificationsSchema>) => {
     toast({
-      title: "Notification preferences saved",
-      description: "Your notification settings have been updated",
+      title: "Preferencje powiadomień zapisane",
+      description: "Twoje ustawienia powiadomień zostały zaktualizowane",
     });
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    // In a real app, this would apply the theme to the document
-    toast({
-      title: `${!isDarkMode ? 'Dark' : 'Light'} mode enabled`,
-      description: `Theme has been changed to ${!isDarkMode ? 'dark' : 'light'} mode`,
-    });
-  };
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <AdminLayout>
       <div className="p-6">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Settings</h1>
+          <h1 className="text-2xl font-bold mb-2">Ustawienia</h1>
           <p className="text-premium-light/70">
-            Manage your account settings and preferences.
+            Zarządzaj ustawieniami swojego konta i preferencjami.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Password Settings */}
+          {/* Ustawienia hasła */}
           <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Password Settings</h2>
+            <h2 className="text-xl font-semibold mb-4">Ustawienia hasła</h2>
             
             <Form {...passwordForm}>
               <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
@@ -112,9 +117,9 @@ const AdminSettings = () => {
                   name="currentPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Current Password</FormLabel>
+                      <FormLabel>Aktualne hasło</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Enter current password" {...field} />
+                        <Input type="password" placeholder="Wprowadź aktualne hasło" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -126,9 +131,9 @@ const AdminSettings = () => {
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Password</FormLabel>
+                      <FormLabel>Nowe hasło</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Enter new password" {...field} />
+                        <Input type="password" placeholder="Wprowadź nowe hasło" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -140,9 +145,9 @@ const AdminSettings = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>Potwierdź hasło</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Confirm new password" {...field} />
+                        <Input type="password" placeholder="Potwierdź nowe hasło" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -154,36 +159,36 @@ const AdminSettings = () => {
                   className="bg-premium-gradient hover:scale-105 transition-transform"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Updating..." : "Update Password"}
+                  {isLoading ? "Aktualizowanie..." : "Aktualizuj hasło"}
                 </Button>
               </form>
             </Form>
           </div>
 
-          {/* Appearance Settings */}
+          {/* Ustawienia wyglądu */}
           <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Appearance</h2>
+            <h2 className="text-xl font-semibold mb-4">Wygląd</h2>
             
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="font-medium">Dark Mode</h3>
+                  <h3 className="font-medium">Tryb ciemny</h3>
                   <p className="text-sm text-premium-light/70">
-                    Toggle between light and dark mode
+                    Przełącz między trybem jasnym i ciemnym
                   </p>
                 </div>
                 
                 <Toggle 
                   pressed={isDarkMode} 
                   onPressedChange={toggleDarkMode} 
-                  className="bg-transparent hover:bg-premium-light/10 data-[state=on]:bg-premium-gradient"
+                  className="bg-transparent hover:bg-premium-light/10 data-[state=on]:bg-premium-gradient hover:text-white"
                 >
                   {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
                 </Toggle>
               </div>
               
               <div className="pb-4 border-b border-premium-light/10">
-                <h3 className="font-medium mb-2">Theme Color</h3>
+                <h3 className="font-medium mb-2">Kolor motywu</h3>
                 <div className="flex gap-2">
                   {['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'].map((color) => (
                     <button
@@ -192,8 +197,8 @@ const AdminSettings = () => {
                       style={{ backgroundColor: color }}
                       onClick={() => {
                         toast({
-                          title: "Theme color updated",
-                          description: "Your theme color preference has been saved",
+                          title: "Kolor motywu zaktualizowany",
+                          description: "Twoje preferencje koloru motywu zostały zapisane",
                         });
                       }}
                     />
@@ -203,9 +208,9 @@ const AdminSettings = () => {
             </div>
           </div>
 
-          {/* Notification Settings */}
+          {/* Ustawienia powiadomień */}
           <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Notification Settings</h2>
+            <h2 className="text-xl font-semibold mb-4">Ustawienia powiadomień</h2>
             
             <Form {...notificationsForm}>
               <form onSubmit={notificationsForm.handleSubmit(onNotificationsSubmit)} className="space-y-6">
@@ -215,9 +220,9 @@ const AdminSettings = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border border-premium-light/10 p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Email Notifications</FormLabel>
+                        <FormLabel className="text-base">Powiadomienia e-mail</FormLabel>
                         <p className="text-sm text-premium-light/70">
-                          Receive email about your account activity
+                          Otrzymuj e-maile o aktywnościach na Twoim koncie
                         </p>
                       </div>
                       <FormControl>
@@ -236,9 +241,9 @@ const AdminSettings = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border border-premium-light/10 p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">Marketing Emails</FormLabel>
+                        <FormLabel className="text-base">E-maile marketingowe</FormLabel>
                         <p className="text-sm text-premium-light/70">
-                          Receive emails about new features, products and offers
+                          Otrzymuj e-maile o nowych funkcjach, produktach i ofertach
                         </p>
                       </div>
                       <FormControl>
@@ -255,61 +260,61 @@ const AdminSettings = () => {
                   type="submit" 
                   className="bg-premium-gradient hover:scale-105 transition-transform"
                 >
-                  Save Preferences
+                  Zapisz preferencje
                 </Button>
               </form>
             </Form>
           </div>
 
-          {/* Account Settings */}
+          {/* Ustawienia konta */}
           <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
+            <h2 className="text-xl font-semibold mb-4">Ustawienia konta</h2>
             
             <div className="space-y-6">
               <div className="flex justify-between items-center pb-4 border-b border-premium-light/10">
                 <div>
-                  <h3 className="font-medium">Account Type</h3>
+                  <h3 className="font-medium">Typ konta</h3>
                   <p className="text-sm text-premium-light/70">
-                    {user?.role === 'admin' ? 'Administrator' : 'Regular User'}
+                    {user?.role === 'admin' ? 'Administrator' : 'Zwykły użytkownik'}
                   </p>
                 </div>
                 
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
                   user?.role === 'admin' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'
                 }`}>
-                  {user?.role === 'admin' ? 'Admin' : 'User'}
+                  {user?.role === 'admin' ? 'Admin' : 'Użytkownik'}
                 </span>
               </div>
               
               <div className="pb-4 border-b border-premium-light/10">
-                <h3 className="font-medium mb-2">Session Management</h3>
+                <h3 className="font-medium mb-2">Zarządzanie sesją</h3>
                 <Button 
                   variant="outline" 
                   className="w-full mt-2 hover:bg-premium-light/10 hover:text-white transition-colors"
                   onClick={() => {
                     toast({
-                      title: "All other sessions logged out",
-                      description: "You have been logged out from all other devices",
+                      title: "Wylogowano z innych sesji",
+                      description: "Zostałeś wylogowany ze wszystkich innych urządzeń",
                     });
                   }}
                 >
-                  Log out from all other devices
+                  Wyloguj ze wszystkich innych urządzeń
                 </Button>
               </div>
               
               <div className="pb-4">
-                <h3 className="font-medium mb-2 text-red-500">Danger Zone</h3>
+                <h3 className="font-medium mb-2 text-red-500">Strefa niebezpieczna</h3>
                 <Button 
                   variant="outline" 
                   className="w-full border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                   onClick={() => {
                     toast({
-                      title: "Account deletion requested",
-                      description: "Please check your email to confirm account deletion",
+                      title: "Żądanie usunięcia konta",
+                      description: "Sprawdź swoją skrzynkę e-mail, aby potwierdzić usunięcie konta",
                     });
                   }}
                 >
-                  Delete Account
+                  Usuń konto
                 </Button>
               </div>
             </div>

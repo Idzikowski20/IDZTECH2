@@ -26,6 +26,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Profile from "./pages/Profile";
 import AdminStats from "./pages/AdminStats";
+import AdminSettings from "./pages/AdminSettings";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/stats" element={<AdminStats />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/new-post" element={<BlogPostEditor />} />
           <Route path="/admin/edit-post/:id" element={<BlogPostEditor />} />
           <Route path="/blog" element={<Blog />} />
