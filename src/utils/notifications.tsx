@@ -8,9 +8,10 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: string;
-  is_read: boolean;
-  created_at: string;
+  type: string | null;
+  is_read: boolean | null;
+  created_at: string | null;
+  user_id: string | null;
 }
 
 export const useNotifications = () => {

@@ -19,7 +19,7 @@ type UserProfile = {
   last_login: string;
   name: string;
   role: string;
-  // Add the missing properties
+  // Add these missing properties to match the form fields
   lastName?: string;
   bio?: string;
   jobTitle?: string;
