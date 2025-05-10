@@ -1,31 +1,27 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  BarChart, 
-  Users, 
-  FileText, 
-  Plus,
-  Edit,
-  Trash2
-} from 'lucide-react';
-
+import { BarChart, Users, FileText, Plus, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '@/utils/auth';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
-
 const Admin = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
-  const { posts, deletePost } = useBlogStore();
+  const {
+    isAuthenticated,
+    user
+  } = useAuth();
+  const {
+    posts,
+    deletePost
+  } = useBlogStore();
   const [analytics, setAnalytics] = useState({
     totalVisits: 0,
     uniqueVisitors: 0,
     blogViews: 0,
-    averageSessionTime: '0:00',
+    averageSessionTime: '0:00'
   });
-  
+
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
@@ -37,32 +33,28 @@ const Admin = () => {
   useEffect(() => {
     // Calculate total blog views
     const totalBlogViews = posts.reduce((total, post) => total + post.views, 0);
-    
+
     // Estimate unique visitors (in real app this would come from analytics)
     const estimatedUniqueVisitors = Math.floor(totalBlogViews * 0.7);
-    
+
     // Estimate total visits (in real app this would come from analytics)
     const estimatedTotalVisits = Math.floor(totalBlogViews * 1.5);
-    
+
     // Calculate average session time based on views (simplified for demo)
-    const minutes = Math.floor((totalBlogViews % 500) / 60) + 2;
-    const seconds = Math.floor((totalBlogViews % 60));
+    const minutes = Math.floor(totalBlogViews % 500 / 60) + 2;
+    const seconds = Math.floor(totalBlogViews % 60);
     const averageTime = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-    
     setAnalytics({
       totalVisits: estimatedTotalVisits,
       uniqueVisitors: estimatedUniqueVisitors,
       blogViews: totalBlogViews,
-      averageSessionTime: averageTime,
+      averageSessionTime: averageTime
     });
   }, [posts]);
-
   if (!isAuthenticated) {
     return null;
   }
-
-  return (
-    <AdminLayout>
+  return <AdminLayout>
       <div className="p-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
@@ -118,10 +110,7 @@ const Admin = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Zarządzanie blogiem</h2>
-            <Button 
-              onClick={() => navigate('/admin/new-post')} 
-              className="bg-premium-gradient"
-            >
+            <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient">
               <Plus size={16} className="mr-2" /> Dodaj nowy post
             </Button>
           </div>
@@ -138,15 +127,11 @@ const Admin = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
-                  {posts.length === 0 ? (
-                    <tr>
+                  {posts.length === 0 ? <tr>
                       <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
                         Brak postów. Dodaj pierwszy post, aby zacząć.
                       </td>
-                    </tr>
-                  ) : (
-                    posts.map((post) => (
-                      <tr key={post.id}>
+                    </tr> : posts.map(post => <tr key={post.id}>
                         <td className="py-3 px-4 font-medium">{post.title}</td>
                         <td className="py-3 px-4 text-premium-light/70">
                           {new Date(post.date).toLocaleDateString('pl-PL')}
@@ -154,34 +139,21 @@ const Admin = () => {
                         <td className="py-3 px-4">{post.views}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => navigate(`/admin/edit-post/${post.id}`)}
-                            >
+                            <Button variant="outline" size="sm" onClick={() => navigate(`/admin/edit-post/${post.id}`)} className="text-gray-950">
                               <Edit size={14} />
                             </Button>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="text-red-500 hover:text-red-600"
-                              onClick={() => deletePost(post.id)}
-                            >
+                            <Button variant="outline" size="sm" className="text-red-500 hover:text-red-600" onClick={() => deletePost(post.id)}>
                               <Trash2 size={14} />
                             </Button>
                           </div>
                         </td>
-                      </tr>
-                    ))
-                  )}
+                      </tr>)}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
       </div>
-    </AdminLayout>
-  );
+    </AdminLayout>;
 };
-
 export default Admin;
