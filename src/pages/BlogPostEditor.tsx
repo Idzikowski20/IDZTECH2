@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useBlogStore, BlogPost } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
+import RichTextEditor from '@/components/RichTextEditor';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -179,7 +180,12 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Treść posta w formacie HTML" rows={15} className="font-mono text-sm bg-slate-950" />
+                      <RichTextEditor 
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Treść posta w formacie HTML"
+                        rows={15}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

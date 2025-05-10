@@ -1,11 +1,20 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye } from 'lucide-react';
+import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply } from 'lucide-react';
 import { useAuth } from '@/utils/auth';
 import { Button } from '@/components/ui/button';
-import { useBlogStore } from '@/utils/blog';
+import { useBlogStore, BlogComment } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -15,8 +24,12 @@ const Admin = () => {
   } = useAuth();
   const {
     posts,
-    deletePost
+    deletePost,
+    getPostComments,
+    addComment,
+    deleteComment
   } = useBlogStore();
+  
   const [analytics, setAnalytics] = useState({
     totalVisits: 0,
     uniqueVisitors: 0,
@@ -29,6 +42,10 @@ const Admin = () => {
     uniqueVisitors: 0,
     blogViews: 0
   });
+  
+  const [recentComments, setRecentComments] = useState<(BlogComment & { postTitle: string })[]>([]);
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
+  const [isReplying, setIsReplying] = useState<Record<string, boolean>>({});
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -36,6 +53,23 @@ const Admin = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
+  
+  // Get all comments from all posts
+  useEffect(() => {
+    const allComments = posts.flatMap(post => 
+      post.comments.map(comment => ({
+        ...comment,
+        postTitle: post.title
+      }))
+    );
+    
+    // Sort by date, newest first
+    const sortedComments = allComments.sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    ).slice(0, 5); // Get only 5 most recent
+    
+    setRecentComments(sortedComments);
+  }, [posts]);
 
   // Calculate real blog statistics
   useEffect(() => {
@@ -83,6 +117,50 @@ const Admin = () => {
     
     return () => clearInterval(timer);
   }, [posts]);
+  
+  const handleReply = (commentId: string) => {
+    setIsReplying({
+      ...isReplying,
+      [commentId]: !isReplying[commentId]
+    });
+  };
+  
+  const submitReply = (commentId: string, postId: string) => {
+    if (replyText[commentId] && user) {
+      addComment(
+        postId,
+        user.id,
+        user.name,
+        user.profilePicture,
+        `@${recentComments.find(c => c.id === commentId)?.userName}: ${replyText[commentId]}`
+      );
+      
+      // Reset reply state
+      setReplyText({
+        ...replyText,
+        [commentId]: ''
+      });
+      setIsReplying({
+        ...isReplying,
+        [commentId]: false
+      });
+      
+      toast({
+        title: "Odpowiedź dodana",
+        description: "Twoja odpowiedź została pomyślnie dodana."
+      });
+    }
+  };
+  
+  const handleDeleteComment = (commentId: string, postId: string) => {
+    if (confirm("Czy na pewno chcesz usunąć ten komentarz?")) {
+      deleteComment(postId, commentId);
+      toast({
+        title: "Komentarz usunięty",
+        description: "Komentarz został pomyślnie usunięty."
+      });
+    }
+  };
   
   if (!isAuthenticated) {
     return null;
@@ -139,6 +217,95 @@ const Admin = () => {
             </div>
             <div className="text-3xl font-bold">{analytics.averageSessionTime}</div>
           </div>
+        </div>
+
+        {/* Recent Comments */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">Ostatnie komentarze</h2>
+          </div>
+
+          <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden mb-8">
+            {recentComments.length === 0 ? (
+              <div className="p-6 text-center text-premium-light/70">
+                Brak komentarzy do wyświetlenia.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Użytkownik</TableHead>
+                    <TableHead>Treść</TableHead>
+                    <TableHead>Post</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>Akcje</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentComments.map(comment => (
+                    <TableRow key={comment.id}>
+                      <TableCell className="font-medium">{comment.userName}</TableCell>
+                      <TableCell>{comment.content}</TableCell>
+                      <TableCell>{comment.postTitle}</TableCell>
+                      <TableCell>{new Date(comment.date).toLocaleDateString('pl-PL')}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleReply(comment.id)}
+                            className="text-blue-400 hover:text-white hover:bg-blue-500"
+                          >
+                            <Reply size={14} />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDeleteComment(comment.id, comment.postId)}
+                            className="text-red-400 hover:text-white hover:bg-red-500"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+          
+          {/* Reply boxes */}
+          {recentComments.map(comment => (
+            isReplying[comment.id] && (
+              <div key={`reply-${comment.id}`} className="mb-6 bg-premium-dark/30 border border-premium-light/10 rounded-lg p-4">
+                <p className="mb-2 text-sm">Odpowiadasz na komentarz użytkownika: <strong>{comment.userName}</strong></p>
+                <Textarea 
+                  value={replyText[comment.id] || ''}
+                  onChange={e => setReplyText({...replyText, [comment.id]: e.target.value})}
+                  placeholder="Wpisz swoją odpowiedź..."
+                  className="mb-3 bg-slate-950"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleReply(comment.id)}
+                  >
+                    Anuluj
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={() => submitReply(comment.id, comment.postId)}
+                    className="bg-premium-gradient"
+                    disabled={!replyText[comment.id]}
+                  >
+                    Wyślij odpowiedź
+                  </Button>
+                </div>
+              </div>
+            )
+          ))}
         </div>
 
         {/* Blog Posts Management */}

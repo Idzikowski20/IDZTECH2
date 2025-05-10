@@ -1,10 +1,10 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, Monitor, Code, LineChart, Zap, Users, Globe, Lock } from "lucide-react";
+
 const WebDevelopment = () => {
   return <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -12,8 +12,8 @@ const WebDevelopment = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
         {/* Background elements */}
-        <div className="absolute top-32 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute top-32 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10 fixed"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10 fixed"></div>
         
         <div className="container mx-auto px-4 lg:px-8">
           {/* Breadcrumb */}
@@ -55,27 +55,12 @@ const WebDevelopment = () => {
               </div>
             </div>
             
-            <div className="relative">
-              <div className="relative z-10">
-                <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 shadow-lg">
-                  <div className="w-full aspect-video relative overflow-hidden rounded-lg">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-premium-purple to-premium-blue opacity-10"></div>
-                    <img src="https://img.freepik.com/free-vector/website-development-banner_33099-1687.jpg" alt="Tworzenie stron www - ilustracja" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mt-3">
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://img.freepik.com/free-vector/responsive-web-design-concept-with-different-devices_23-2148812639.jpg" alt="Responsywne strony www" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://img.freepik.com/free-vector/web-design-production-maintenance-websites-web-graphic-interface-design-responsive-website-software-engineering-development-colorful-icon_335657-2699.jpg" alt="Projektowanie stron www" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://img.freepik.com/free-vector/digital-marketing-concept-with-online-services-symbols-flat-illustration_1284-31452.jpg" alt="Marketing stron www" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute inset-0 bg-premium-purple/20 rounded-full blur-[80px] -z-10 transform translate-x-10 translate-y-10"></div>
+            <div className="flex justify-center">
+              <img 
+                src="/lovable-uploads/4eaa25a8-fb84-4c19-ae4f-8536407401c1.png" 
+                alt="Tworzenie stron WWW - usługi" 
+                className="max-w-full h-auto"
+              />
             </div>
           </div>
         </div>

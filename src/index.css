@@ -75,7 +75,7 @@
   }
 
   body {
-    @apply bg-premium-dark text-premium-light font-montserrat dark:bg-premium-dark dark:text-premium-light;
+    @apply bg-background text-foreground font-montserrat;
   }
   
   .light {
@@ -86,7 +86,13 @@
     @apply bg-premium-dark text-premium-light;
   }
   
-  .light .text-premium-light\/70 {
+  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
+  .light p, .light span {
     @apply text-premium-dark;
+  }
+  
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
+  .dark p, .dark span {
+    @apply text-premium-light;
   }
 }
