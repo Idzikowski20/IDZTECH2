@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -33,6 +32,8 @@ interface AuthState {
   updateUserRole: (userId: string, role: UserRole) => boolean;
   getUserById: (userId: string) => User | undefined;
   getTopUser: () => User | undefined;
+  forgotPassword: (email: string) => Promise<boolean>;
+  resetPassword: (email: string, token: string, newPassword: string) => Promise<boolean>;
 }
 
 // Mock user database
@@ -87,6 +88,14 @@ const passwords: Record<string, string> = {
   'mod@idztech.pl': 'mod123',
   'blogger@idztech.pl': 'blog123',
 };
+
+// Mock reset token storage
+interface ResetToken {
+  email: string;
+  token: string;
+  expires: Date;
+}
+const resetTokens: ResetToken[] = [];
 
 export const useAuth = create<AuthState>()(
   persist(
@@ -201,6 +210,59 @@ export const useAuth = create<AuthState>()(
       getTopUser: () => {
         if (users.length === 0) return undefined;
         return [...users].sort((a, b) => (b.totalViews || 0) - (a.totalViews || 0))[0];
+      },
+      forgotPassword: async (email: string) => {
+        // Check if the user exists
+        const user = users.find((u) => u.email === email);
+        if (!user) {
+          // We don't want to reveal if the email exists or not for security reasons
+          console.log(`Password reset requested for non-existent user: ${email}`);
+          return true;
+        }
+        
+        // Generate a token
+        const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        
+        // Set expiration to 24 hours from now
+        const expires = new Date();
+        expires.setHours(expires.getHours() + 24);
+        
+        // Store the reset token
+        resetTokens.push({
+          email,
+          token,
+          expires
+        });
+        
+        // In a real app, this would send an email with the reset link
+        console.log('Password reset requested for:', email);
+        console.log('Reset link:', `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
+        
+        // Check if it's our specific test email
+        if (email === 'patryk.idzikowski@interia.pl') {
+          alert(`Link do resetu hasła: ${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
+        }
+        
+        return true;
+      },
+      resetPassword: async (email: string, token: string, newPassword: string) => {
+        // Find the token
+        const tokenIndex = resetTokens.findIndex(
+          (rt) => rt.email === email && rt.token === token && new Date() < rt.expires
+        );
+        
+        if (tokenIndex === -1) {
+          // Token not found or expired
+          return false;
+        }
+        
+        // Token is valid, update the password
+        passwords[email] = newPassword;
+        
+        // Remove the used token
+        resetTokens.splice(tokenIndex, 1);
+        
+        return true;
       }
     }),
     {
@@ -208,3 +270,12 @@ export const useAuth = create<AuthState>()(
     }
   )
 );
+
+// Helper functions
+export const forgotPassword = (email: string) => {
+  return useAuth.getState().forgotPassword(email);
+};
+
+export const resetPassword = (email: string, token: string, newPassword: string) => {
+  return useAuth.getState().resetPassword(email, token, newPassword);
+};

@@ -102,7 +102,12 @@ const Login = () => {
                 name="password" 
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hasło</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Hasło</FormLabel>
+                      <Link to="/forgot-password" className="text-xs text-premium-purple hover:underline">
+                        Nie pamiętam hasła
+                      </Link>
+                    </div>
                     <FormControl>
                       <Input type="password" placeholder="••••••••" className="bg-slate-950" {...field} />
                     </FormControl>
