@@ -24,19 +24,19 @@ const AdminStats = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Calculate real blog statistics
+  // Calculate real blog statistics based on actual post views
   useEffect(() => {
-    // Calculate total blog views
+    // Calculate total blog views from actual post data
     const totalBlogViews = posts.reduce((total, post) => total + post.views, 0);
 
-    // Estimate unique visitors (in real app this would come from analytics)
+    // Estimate unique visitors (in real app this would come from analytics API)
     const estimatedUniqueVisitors = Math.floor(totalBlogViews * 0.7);
 
-    // Estimate total visits (in real app this would come from analytics)
+    // Estimate total visits (in real app this would come from analytics API)
     const estimatedTotalVisits = Math.floor(totalBlogViews * 1.5);
 
-    // Calculate average session time based on views (simplified for demo)
-    const minutes = Math.floor(totalBlogViews % 500 / 60) + 2;
+    // Calculate average session time based on views
+    const minutes = Math.floor((totalBlogViews % 500) / 60) + 2;
     const seconds = Math.floor(totalBlogViews % 60);
     const averageTime = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
     
@@ -64,7 +64,7 @@ const AdminStats = () => {
 
         {/* Analytics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl">
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-colors duration-300">
             <div className="flex items-center mb-4">
               <div className="p-3 bg-blue-500/10 rounded-lg">
                 <BarChart className="text-blue-500" size={24} />
@@ -74,7 +74,7 @@ const AdminStats = () => {
             <div className="text-3xl font-bold">{analytics.totalVisits}</div>
           </div>
           
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl">
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-colors duration-300">
             <div className="flex items-center mb-4">
               <div className="p-3 bg-purple-500/10 rounded-lg">
                 <Users className="text-purple-500" size={24} />
@@ -84,7 +84,7 @@ const AdminStats = () => {
             <div className="text-3xl font-bold">{analytics.uniqueVisitors}</div>
           </div>
           
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl">
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-colors duration-300">
             <div className="flex items-center mb-4">
               <div className="p-3 bg-green-500/10 rounded-lg">
                 <FileText className="text-green-500" size={24} />
@@ -94,7 +94,7 @@ const AdminStats = () => {
             <div className="text-3xl font-bold">{analytics.blogViews}</div>
           </div>
           
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl">
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-colors duration-300">
             <div className="flex items-center mb-4">
               <div className="p-3 bg-amber-500/10 rounded-lg">
                 <BarChart className="text-amber-500" size={24} />

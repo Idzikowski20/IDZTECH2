@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -11,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useBlogStore, BlogPost } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
+
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
   slug: z.string().min(5, 'Slug musi mieć co najmniej 5 znaków').regex(/^[a-z0-9-]+$/, 'Slug może zawierać tylko małe litery, cyfry i myślniki'),
@@ -21,22 +23,14 @@ const blogPostSchema = z.object({
   categories: z.string().min(2, 'Kategorie są wymagane'),
   tags: z.string().min(2, 'Tagi są wymagane')
 });
+
 type FormValues = z.infer<typeof blogPostSchema>;
+
 const BlogPostEditor = () => {
-  const {
-    id
-  } = useParams<{
-    id: string;
-  }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
-  const {
-    posts,
-    addPost,
-    updatePost
-  } = useBlogStore();
+  const { toast } = useToast();
+  const { posts, addPost, updatePost } = useBlogStore();
   const [isLoading, setIsLoading] = useState(false);
 
   // Find existing post if editing
@@ -57,6 +51,7 @@ const BlogPostEditor = () => {
       tags: existingPost?.tags.join(', ') || ''
     }
   });
+
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
@@ -70,6 +65,7 @@ const BlogPostEditor = () => {
         categories: values.categories.split(',').map(cat => cat.trim()),
         tags: values.tags.split(',').map(tag => tag.trim())
       };
+
       if (isEditing && existingPost) {
         updatePost(existingPost.id, postData);
         toast({
@@ -103,7 +99,9 @@ const BlogPostEditor = () => {
       form.setValue('slug', slug);
     }
   };
-  return <AdminLayout>
+
+  return (
+    <AdminLayout>
       <div className="p-6">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -124,94 +122,133 @@ const BlogPostEditor = () => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="title" render={({
-                field
-              }) => <FormItem>
+                <FormField 
+                  control={form.control} 
+                  name="title" 
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Tytuł</FormLabel>
                       <FormControl>
-                        <Input placeholder="Tytuł posta" onBlur={() => {
-                    if (!isEditing) generateSlug();
-                  }} className="bg-slate-950" />
+                        <Input 
+                          {...field} 
+                          placeholder="Tytuł posta" 
+                          onBlur={() => {
+                            if (!isEditing) generateSlug();
+                          }} 
+                          className="bg-slate-950" 
+                        />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>} />
+                    </FormItem>
+                  )} 
+                />
                 
-                <FormField control={form.control} name="slug" render={({
-                field
-              }) => <FormItem>
+                <FormField 
+                  control={form.control} 
+                  name="slug" 
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Slug</FormLabel>
                       <FormControl>
-                        <Input placeholder="url-posta" className="bg-slate-950" />
+                        <Input {...field} placeholder="url-posta" className="bg-slate-950" />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>} />
+                    </FormItem>
+                  )} 
+                />
               </div>
               
-              <FormField control={form.control} name="excerpt" render={({
-              field
-            }) => <FormItem>
+              <FormField 
+                control={form.control} 
+                name="excerpt" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="bg-slate-950" />
+                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="bg-slate-950" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
+                  </FormItem>
+                )} 
+              />
               
-              <FormField control={form.control} name="content" render={({
-              field
-            }) => <FormItem>
+              <FormField 
+                control={form.control} 
+                name="content" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Treść posta w formacie HTML" rows={15} className="font-mono text-sm bg-slate-950" />
+                      <Textarea {...field} placeholder="Treść posta w formacie HTML" rows={15} className="font-mono text-sm bg-slate-950" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
+                  </FormItem>
+                )} 
+              />
               
-              <FormField control={form.control} name="featuredImage" render={({
-              field
-            }) => <FormItem>
+              <FormField 
+                control={form.control} 
+                name="featuredImage" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>URL zdjęcia głównego</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://example.com/image.jpg" className="bg-slate-950" />
+                      <Input {...field} placeholder="https://example.com/image.jpg" className="bg-slate-950" />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
+                  </FormItem>
+                )} 
+              />
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField control={form.control} name="author" render={({
-                field
-              }) => <FormItem>
+                <FormField 
+                  control={form.control} 
+                  name="author" 
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Autor</FormLabel>
                       <FormControl>
-                        <Input placeholder="Jan Kowalski" className="bg-slate-950" />
+                        <Input {...field} placeholder="Jan Kowalski" className="bg-slate-950" />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>} />
+                    </FormItem>
+                  )} 
+                />
                 
-                <FormField control={form.control} name="categories" render={({
-                field
-              }) => <FormItem>
+                <FormField 
+                  control={form.control} 
+                  name="categories" 
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
                       <FormControl>
-                        <Input placeholder="SEO, Marketing Cyfrowy" className="bg-slate-950" />
+                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="bg-slate-950" />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>} />
+                    </FormItem>
+                  )} 
+                />
                 
-                <FormField control={form.control} name="tags" render={({
-                field
-              }) => <FormItem>
+                <FormField 
+                  control={form.control} 
+                  name="tags" 
+                  render={({ field }) => (
+                    <FormItem>
                       <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
                       <FormControl>
-                        <Input placeholder="pozycjonowanie, SEO, Google" className="bg-slate-950" />
+                        <Input {...field} placeholder="pozycjonowanie, SEO, Google" className="bg-slate-950" />
                       </FormControl>
                       <FormMessage />
-                    </FormItem>} />
+                    </FormItem>
+                  )} 
+                />
               </div>
             </form>
           </Form>
         </div>
       </div>
-    </AdminLayout>;
+    </AdminLayout>
+  );
 };
+
 export default BlogPostEditor;
