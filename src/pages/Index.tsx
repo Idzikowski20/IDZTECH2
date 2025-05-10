@@ -9,8 +9,15 @@ import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FAQ from "@/components/FAQ";
+import { initGA, trackPageView } from "@/utils/analytics";
 
 const Index = () => {
+  // Initialize Google Analytics
+  useEffect(() => {
+    initGA();
+    trackPageView(window.location.pathname);
+  }, []);
+
   // Ensure scroll to top on page load
   useEffect(() => {
     window.scrollTo({

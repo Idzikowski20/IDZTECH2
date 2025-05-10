@@ -28,7 +28,7 @@ const CTA = () => {
               </Button>
             </Link>
             <Link to="/projects">
-              <Button className="border border-gray-200 text-slate-50 rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white">
+              <Button className="border border-gray-200 text-slate-50 rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-premium-dark/70 hover:text-white">
                 Zobacz nasze realizacje
               </Button>
             </Link>

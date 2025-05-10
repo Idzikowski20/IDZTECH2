@@ -25,7 +25,7 @@ interface BlogStore {
   getPostBySlug: (slug: string) => BlogPost | undefined;
 }
 
-// Sample blog posts
+// Sample blog posts with reset view counts
 const initialPosts: BlogPost[] = [
   {
     id: '1',
@@ -51,7 +51,7 @@ const initialPosts: BlogPost[] = [
     `,
     featuredImage: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1474&q=80',
     date: '2023-06-15T12:00:00Z',
-    views: 253,
+    views: 0,
     author: 'Jan Kowalski',
     categories: ['SEO', 'Marketing Cyfrowy'],
     tags: ['pozycjonowanie', 'SEO', 'Google', 'treści']
@@ -79,7 +79,7 @@ const initialPosts: BlogPost[] = [
     `,
     featuredImage: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
     date: '2023-05-22T10:30:00Z',
-    views: 187,
+    views: 0,
     author: 'Anna Nowak',
     categories: ['Web Development', 'UX Design'],
     tags: ['responsywność', 'mobile-first', 'design', 'UX']
