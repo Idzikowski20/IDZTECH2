@@ -1,13 +1,15 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
 import { useAuth } from '@/utils/auth';
+import CommentSection from '@/components/CommentSection';
+import LikeButton from '@/components/LikeButton';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -66,16 +68,32 @@ const BlogPost = () => {
           
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center text-sm text-premium-light/60 mb-4">
-              <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+              <div className="flex items-center">
+                <Clock size={14} className="mr-1" />
+                <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+              </div>
               <span className="mx-2">•</span>
               <span>{post.categories.join(', ')}</span>
               <span className="mx-2">•</span>
-              <span>{post.views} wyświetleń</span>
+              <div className="flex items-center">
+                <Eye size={14} className="mr-1" />
+                <span>{post.views} wyświetleń</span>
+              </div>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <MessageCircle size={14} className="mr-1" />
+                <span>{post.comments.length} komentarzy</span>
+              </div>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <Heart size={14} className="mr-1" />
+                <span>{post.likes.length} polubień</span>
+              </div>
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
-            <div className="flex items-center mb-8">
+            <div className="flex items-center mb-4">
               {user?.profilePicture ? (
                 <img 
                   src={user.profilePicture} 
@@ -92,6 +110,10 @@ const BlogPost = () => {
                 <div className="text-sm text-premium-light/60">Autor</div>
               </div>
             </div>
+
+            <div className="mb-6">
+              <LikeButton postId={post.id} />
+            </div>
           </div>
         </div>
       </section>
@@ -106,13 +128,13 @@ const BlogPost = () => {
       </div>
       
       {/* Post Content */}
-      <section className="pb-24">
+      <section className="pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
           
-          <div className="max-w-3xl mx-auto mt-12 pt-8 border-t border-premium-light/10">
+          <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag, index) => (
                 <span
@@ -123,6 +145,11 @@ const BlogPost = () => {
                 </span>
               ))}
             </div>
+          </div>
+
+          {/* Comments section */}
+          <div className="max-w-3xl mx-auto">
+            <CommentSection postId={post.id} />
           </div>
         </div>
       </section>

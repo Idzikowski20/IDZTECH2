@@ -1,43 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, ChevronDown, LogIn, ArrowRight, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
-import DotAnimation from './DotAnimation';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
 import { useAuth } from '@/utils/auth';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTheme } from '@/utils/themeContext';
+import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
+import { trackEvent } from '@/utils/analytics';
+import TypingAnimation from './TypingAnimation';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
-  const [isServicesOpen, setIsServicesOpen] = useState(false);
-  const servicesRef = useRef<HTMLDivElement>(null);
-  const servicesButtonRef = useRef<HTMLDivElement>(null);
-  const { isAuthenticated, user } = useAuth();
-  const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const location = useLocation();
 
-  // Add click outside handler for services menu
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isServicesOpen && servicesRef.current && !servicesRef.current.contains(event.target as Node) && servicesButtonRef.current && !servicesButtonRef.current.contains(event.target as Node)) {
-        setIsServicesOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isServicesOpen]);
-
-  // Add scroll handler to detect scrolling
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -45,211 +23,75 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  const handleLoginClick = () => {
-    if (isAuthenticated) {
-      navigate('/admin');
-    } else {
-      navigate('/login');
-    }
-  };
-
-  const menuItems = [{
-    label: 'Strona główna',
-    href: '/'
-  }, {
-    label: 'Usługi',
-    href: '#services',
-    submenu: true
-  }, {
-    label: 'O nas',
-    href: '/about-us'
-  }, {
-    label: 'Realizacje',
-    href: '/projects'
-  }, {
-    label: 'Blog',
-    href: '/blog'
-  }, {
-    label: 'Kontakt',
-    href: '/contact'
-  }];
   
-  const servicesCategories = [{
-    title: 'Strony www',
-    links: [{
-      label: 'Tworzenie stron www',
-      href: '/tworzenie-stron-www'
-    }, {
-      label: 'Tworzenie sklepów internetowych',
-      href: '/tworzenie-sklepow-internetowych'
-    }]
-  }, {
-    title: 'Pozycjonowanie (SEO)',
-    links: [{
-      label: 'Pozycjonowanie stron internetowych',
-      href: '/pozycjonowanie-stron-internetowych'
-    }, {
-      label: 'Pozycjonowanie lokalne',
-      href: '/pozycjonowanie-lokalne'
-    }, {
-      label: 'Audyt SEO',
-      href: '/audyt-seo'
-    }, {
-      label: 'Optymalizacja SEO',
-      href: '/optymalizacja-seo'
-    }, {
-      label: 'Copywriting SEO',
-      href: '/copywriting-seo'
-    }, {
-      label: 'Content Plan',
-      href: '/content-plan'
-    }]
-  }];
-
-  // Mouse enter/leave handlers for hover functionality
-  const handleMouseEnter = () => {
-    setIsServicesOpen(true);
-  };
-  const handleMouseLeave = () => {
-    setIsServicesOpen(false);
+  const handleLogout = () => {
+    logout();
+    trackEvent('logout', 'auth', 'User logged out');
   };
 
-  // Function to handle mobile submenu toggles
-  const toggleMobileSubmenu = (index: number) => {
-    setActiveSubmenu(activeSubmenu === index ? null : index);
-  };
-  
-  return <nav className={cn(
-    "fixed top-0 w-full z-50 transition-all duration-300", 
-    scrolled ? "bg-premium-dark/90 backdrop-blur-lg border-b border-premium-light/10 py-4" : "bg-transparent py-6"
-  )}>
-      <div className="container mx-auto px-4 lg:px-8 flex justify-between items-center">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 relative z-50">
-          <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
-          <span className="text-xl font-bold">IDZ<DotAnimation />TECH</span>
+  return (
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'py-3 bg-premium-dark/80 backdrop-blur-md shadow-lg' : 'py-5'}`}>
+      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+        <Link 
+          to="/" 
+          className="flex items-center text-white font-bold text-xl"
+        >
+          <img 
+            src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" 
+            alt="IDZ.TECH" 
+            className="h-8 mr-2" 
+          />
+          <TypingAnimation text="IDZ.TECH_" speed={120} />
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center space-x-8">
-          {menuItems.map((item, index) => <div key={index} className="relative">
-              {item.submenu ? <div ref={servicesButtonRef} onMouseEnter={handleMouseEnter} className="text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1 cursor-pointer">
-                  {item.label}
-                  <ChevronDown size={16} className={cn("transition-transform", isServicesOpen ? "rotate-180" : "")} />
-                </div> : item.href.startsWith('/') ? <Link to={item.href} className="text-premium-light/80 hover:text-premium-light transition-colors">
-                  {item.label}
-                </Link> : <a href={item.href} className="text-premium-light/80 hover:text-premium-light transition-colors">
-                  {item.label}
-                </a>}
-            </div>)}
-        </div>
-
-        {/* CTA Button */}
-        <div className="hidden lg:flex items-center gap-3">
-          <Link to="/contact">
-            <Button variant="default" className="bg-premium-gradient hover:opacity-90 transition-opacity">
-              Darmowa wycena
-              <ArrowRight size={16} className="ml-1" />
-            </Button>
-          </Link>
+        <div className="flex items-center space-x-4">
           <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={handleLoginClick}
-            className="border-premium-light/20 hover:bg-premium-light/10 hover:text-white transition-colors bg-[#000a00]/0 relative"
+            variant="ghost" 
+            size="sm"
+            onClick={() => {
+              setTheme(theme === "light" ? "dark" : "light");
+              trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
+            }}
           >
-            {isAuthenticated && user?.profilePicture ? (
-              <Avatar className="w-full h-full">
-                <AvatarImage src={user.profilePicture} alt={user.name} />
-                <AvatarFallback className="text-xs bg-premium-gradient">
-                  {user.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-            ) : (
-              <LogIn size={18} />
-            )}
+            {theme === "light" ? <MoonIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /> : <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />}
+            <span className="sr-only">Toggle theme</span>
           </Button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden flex items-center text-premium-light relative z-50">
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Services Mega Menu (Desktop) */}
-      {isServicesOpen && <div className="absolute left-0 right-0 w-full z-40">
-          <div ref={servicesRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex items-start justify-center pt-2">
-            <div className="bg-premium-dark/95 backdrop-blur-lg border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-2 gap-10 transform transition-all duration-300 animate-fade-in rounded-2xl">
-              {servicesCategories.map((category, index) => <div key={index} className="flex flex-col">
-                  <h3 className="text-lg text-premium-light mb-4 text-purple-600 font-bold">{category.title}</h3>
-                  <div className="flex flex-col space-y-3">
-                    {category.links.map((link, linkIndex) => <Link key={linkIndex} to={link.href.startsWith('#') ? `/${link.href}` : link.href} onClick={() => setIsServicesOpen(false)} className="text-premium-light/70 hover:text-premium-light transition-colors text-sm group relative overflow-hidden">
-                        <span className="relative z-10">{link.label}</span>
-                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-premium-blue transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
-                      </Link>)}
-                  </div>
-                </div>)}
-            </div>
-          </div>
-        </div>}
-
-      {/* Mobile Navigation */}
-      <div className={cn("lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-lg z-40 flex flex-col justify-center items-center", isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")} style={{
-      transition: "opacity 300ms ease-in-out"
-    }}>
-        <div className="flex flex-col items-center space-y-6 w-full px-8 max-h-[80vh] overflow-y-auto py-8">
-          {menuItems.map((item, index) => <div key={index} className="w-full text-center">
-              {item.submenu ? <div className="flex flex-col items-center">
-                  <button onClick={() => toggleMobileSubmenu(index)} className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors flex items-center gap-1">
-                    {item.label}
-                    <ChevronDown size={16} className={cn("transition-transform", activeSubmenu === index ? "rotate-180" : "")} />
-                  </button>
-                  
-                  {activeSubmenu === index && <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 w-full bg-premium-dark/80 rounded-lg p-4 border border-white/5 animate-fade-in">
-                      {servicesCategories.map((category, catIndex) => <div key={catIndex} className="mb-4">
-                          <h4 className="text-premium-purple font-medium mb-2">{category.title}</h4>
-                          <div className="space-y-2">
-                            {category.links.map((link, linkIndex) => <div key={linkIndex} className="w-full">
-                                <Link to={link.href.startsWith('#') ? `/${link.href}` : link.href} onClick={() => {
-                      setActiveSubmenu(null);
-                      setIsOpen(false);
-                    }} className="block text-sm text-premium-light/70 hover:text-premium-light transition-colors py-1">
-                                  {link.label}
-                                </Link>
-                              </div>)}
-                          </div>
-                        </div>)}
-                    </div>}
-                </div> : item.href.startsWith('/') ? <Link to={item.href} onClick={() => setIsOpen(false)} className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors">
-                  {item.label}
-                </Link> : <a href={item.href} onClick={() => setIsOpen(false)} className="text-xl font-medium text-premium-light/80 hover:text-premium-light transition-colors">
-                  {item.label}
-                </a>}
-            </div>)}
-          
-          <div className="flex flex-col gap-3 mt-6 w-full max-w-xs">
-            <Link to="/contact" onClick={() => setIsOpen(false)}>
-              <Button variant="default" className="w-full bg-premium-gradient hover:opacity-90 transition-opacity">
-                Darmowa wycena
-                <ArrowRight size={16} className="ml-1" />
+          {isAuthenticated ? (
+            <>
+              <Link to="/profile">
+                <Button variant="secondary" size="sm">
+                  Profil
+                </Button>
+              </Link>
+              {user?.role === 'admin' && (
+                <Link to="/admin">
+                  <Button variant="secondary" size="sm">
+                    Admin
+                  </Button>
+                </Link>
+              )}
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                Wyloguj
               </Button>
-            </Link>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => {
-                handleLoginClick();
-                setIsOpen(false);
-              }}
-            >
-              {isAuthenticated ? "Panel administracyjny" : "Logowanie"}
-              {isAuthenticated ? <User size={16} className="ml-1" /> : <LogIn size={16} className="ml-1" />}
-            </Button>
-          </div>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="secondary" size="sm">
+                  Zaloguj
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="outline" size="sm">
+                  Zarejestruj się
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
-    </nav>;
+    </nav>
+  );
 };
+
 export default Navbar;

@@ -1,166 +1,170 @@
-
-import React, { useState, ReactNode } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, LogOut, BarChart, Menu, X, User, Users } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Sidebar } from 'react-pro-sidebar';
 import { Button } from '@/components/ui/button';
+import { Menu, LogOut, Settings, User } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
-import DotAnimation from './DotAnimation';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import TypingAnimation from './TypingAnimation';
 
 interface AdminLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({
-  children
-}) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const {
-    logout,
-    user
-  } = useAuth();
-  const { isDarkMode } = useTheme();
-  const navigate = useNavigate();
-  const location = useLocation();
+const SidebarTrigger = ({ className }: { className?: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <Button 
+      variant="ghost" 
+      onClick={() => setIsOpen(!isOpen)}
+      className={className}
+    >
+      <Menu size={20} />
+    </Button>
+  );
+};
 
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
+  const { pathname } = useLocation();
+  
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const navItems = [{
-    icon: LayoutDashboard,
-    label: 'Dashboard',
-    path: '/admin'
-  }, {
-    icon: BarChart,
-    label: 'Statystyki',
-    path: '/admin/stats'
-  }, {
-    icon: Users,
-    label: 'Użytkownicy',
-    path: '/admin/users'
-  }, {
-    icon: User,
-    label: 'Profil',
-    path: '/profile'
-  }, {
-    icon: Settings,
-    label: 'Ustawienia',
-    path: '/admin/settings'
-  }];
-
-  const themeClass = isDarkMode ? 'bg-premium-dark text-premium-light' : 'bg-premium-light text-premium-dark';
-
-  return <div className={`flex h-screen ${themeClass} transition-colors duration-300`}>
-      {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button variant="outline" size="icon" onClick={() => setCollapsed(!collapsed)} 
-          className={isDarkMode 
-            ? "bg-premium-dark/50 border-premium-light/20" 
-            : "bg-premium-light/50 border-premium-dark/20"
-          }>
-          {collapsed ? <Menu size={20} /> : <X size={20} />}
-        </Button>
-      </div>
-      
-      {/* Sidebar */}
-      <div className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 transition-transform duration-300 lg:translate-x-0", 
-        collapsed ? "-translate-x-full" : "translate-x-0",
-        isDarkMode 
-          ? "bg-premium-dark border-r border-premium-light/10" 
-          : "bg-premium-light border-r border-premium-dark/10"
-      )}>
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className={cn(
-            "flex items-center gap-2 p-6 border-b",
-            isDarkMode ? "border-premium-light/10" : "border-premium-dark/10"
-          )}>
-            <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
-            <span className="text-xl font-bold">IDZ<DotAnimation />TECH</span>
-          </div>
+  return (
+    <div className="min-h-screen bg-premium-dark text-premium-light">
+      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center">
+        <div className="flex items-center">
+          <SidebarTrigger className="text-premium-light hover:text-white hover:bg-premium-light/10 inline-flex w-10 h-10 justify-center items-center rounded-lg transition-colors" />
           
-          {/* User info */}
-          {user && <div className={cn(
-            "px-4 py-4 border-b",
-            isDarkMode ? "border-premium-light/10" : "border-premium-dark/10"
-          )}>
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                  {user.profilePicture ? (
-                    <img 
-                      src={user.profilePicture} 
-                      alt={user.name} 
-                      className="w-full h-full rounded-full object-cover" 
-                    />
-                  ) : user.name.charAt(0)}
-                </div>
-                <div className="ml-3">
-                  <div className="font-medium">{user.name} {user.lastName}</div>
-                  <div className={cn(
-                    "text-sm",
-                    isDarkMode ? "text-premium-light/60" : "text-premium-dark/60"
-                  )}>
-                    {user.role === 'admin' ? 'Administrator' : 
-                     user.role === 'moderator' ? 'Moderator' : 
-                     user.role === 'blogger' ? 'Bloger' : 'Użytkownik'}
-                  </div>
-                </div>
-              </div>
-            </div>}
-          
-          {/* Navigation */}
-          <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-            {navItems.map(item => <Link 
-              key={item.path} 
-              to={item.path} 
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                isDarkMode
-                  ? "text-premium-light/80 hover:bg-premium-light/5 hover:text-white"
-                  : "text-premium-dark/80 hover:bg-premium-dark/5 hover:text-black",
-                location.pathname === item.path && (
-                  isDarkMode 
-                    ? "bg-premium-light/10 text-premium-light" 
-                    : "bg-premium-dark/10 text-premium-dark"
-                )
-              )}>
-                <item.icon size={20} />
-                <span>{item.label}</span>
-              </Link>)}
+          <nav className="hidden md:flex items-center ml-4">
+            <Link 
+              to="/admin" 
+              className={`px-3 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+            >
+              Dashboard
+            </Link>
+            <Link 
+              to="/admin/stats" 
+              className={`px-3 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+            >
+              Statystyki
+            </Link>
           </nav>
-          
-          {/* Logout */}
-          <div className={cn(
-            "p-4 border-t",
-            isDarkMode ? "border-premium-light/10" : "border-premium-dark/10"
-          )}>
-            <Button 
-              variant="ghost" 
-              onClick={handleLogout} 
-              className={cn(
-                "w-full justify-start",
-                isDarkMode
-                  ? "text-premium-light/80 hover:text-white bg-rose-900 hover:bg-rose-800"
-                  : "text-premium-dark/80 hover:text-black bg-rose-200 hover:bg-rose-300"
-              )}>
-              <LogOut size={20} className="mr-3" />
-              Wyloguj się
-            </Button>
+        </div>
+        
+        <div className="flex items-center">
+          <TypingAnimation text="IDZ.TECH_" speed={120} className="mr-4" />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar className="h-10 w-10">
+                  {user?.profilePicture ? (
+                    <AvatarImage src={user.profilePicture} alt={user.name} />
+                  ) : (
+                    <AvatarFallback className="bg-premium-gradient text-white">
+                      {user?.name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profil</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Ustawienia</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={handleLogout}
+                className="text-red-500 focus:text-red-500"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Wyloguj</span>
+              </DropdownMenuItem>
+            DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+
+      <div className="flex">
+        <Sidebar className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block">
+          <div className="p-4">
+            <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
+            <nav>
+              <ul>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/stats" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                  >
+                    Statystyki
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/users" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                  >
+                    Użytkownicy
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/new-post" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname.startsWith('/admin/new-post') ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                  >
+                    Nowy post
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/settings" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                  >
+                    Ustawienia
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           </div>
-        </div>
-      </div>
-      
-      {/* Main Content */}
-      <div className={cn("flex-1 transition-all duration-300", collapsed ? "ml-0" : "ml-0 lg:ml-64")}>
-        <div className="min-h-screen">
+        </Sidebar>
+
+        <main className="flex-1 p-4">
           {children}
-        </div>
+        </main>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default AdminLayout;

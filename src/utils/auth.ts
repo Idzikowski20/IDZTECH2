@@ -1,8 +1,19 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useBlogStore } from '@/utils/blog';
 
 export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
+
+export interface UserStats {
+  views: number;
+  posts: number;
+  comments: number;
+  likes: number;
+  pointsTotal: number;
+  pointsThisMonth: number;
+  lastUpdated: string;
+}
 
 export interface User {
   id: string;
@@ -17,6 +28,9 @@ export interface User {
   totalViews?: number;
   createdAt?: string;
   lastLogin?: string;
+  commentsCount?: number;
+  likesCount?: number;
+  stats: UserStats;
 }
 
 interface AuthState {
@@ -29,15 +43,21 @@ interface AuthState {
   updateProfile: (data: Partial<User>) => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
   getUsers: () => User[];
-  addUser: (userData: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'postsCreated' | 'totalViews'>, password: string) => boolean;
+  addUser: (userData: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'postsCreated' | 'totalViews' | 'commentsCount' | 'likesCount' | 'stats'>, password: string) => boolean;
   updateUserRole: (userId: string, role: UserRole) => boolean;
   getUserById: (userId: string) => User | undefined;
   getTopUser: () => User | undefined;
+  getTopUserOfMonth: () => User | undefined;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (email: string, token: string, newPassword: string) => Promise<boolean>;
   deleteUser: (userId: string) => boolean;
   refreshUserStats: () => void;
+  getUserRanking: () => User[];
 }
+
+const calculatePoints = (views: number, posts: number, comments: number, likes: number): number => {
+  return (views * 1) + (posts * 50) + (comments * 10) + (likes * 5);
+};
 
 // Mock user database
 const users: User[] = [
@@ -51,9 +71,20 @@ const users: User[] = [
     bio: 'Administrator serwisu IDZ.TECH',
     jobTitle: 'CEO',
     postsCreated: 5,
-    totalViews: 750,
+    totalViews: 0,
     createdAt: '2023-01-01T12:00:00Z',
     lastLogin: new Date().toISOString(),
+    commentsCount: 0,
+    likesCount: 0,
+    stats: {
+      views: 0,
+      posts: 5,
+      comments: 0,
+      likes: 0,
+      pointsTotal: 250, // 5 posts * 50 points
+      pointsThisMonth: 0,
+      lastUpdated: new Date().toISOString()
+    }
   },
   {
     id: '2',
@@ -65,9 +96,20 @@ const users: User[] = [
     bio: 'Moderator serwisu',
     jobTitle: 'Content Manager',
     postsCreated: 3,
-    totalViews: 320,
+    totalViews: 0,
     createdAt: '2023-05-15T10:30:00Z',
     lastLogin: '2023-05-20T14:22:00Z',
+    commentsCount: 0,
+    likesCount: 0,
+    stats: {
+      views: 0,
+      posts: 3,
+      comments: 0,
+      likes: 0,
+      pointsTotal: 150, // 3 posts * 50 points
+      pointsThisMonth: 0,
+      lastUpdated: new Date().toISOString()
+    }
   },
   {
     id: '3',
@@ -79,9 +121,20 @@ const users: User[] = [
     bio: 'Twórca treści',
     jobTitle: 'Writer',
     postsCreated: 8,
-    totalViews: 940,
+    totalViews: 0,
     createdAt: '2023-06-10T09:15:00Z',
     lastLogin: '2023-06-25T16:40:00Z',
+    commentsCount: 0,
+    likesCount: 0,
+    stats: {
+      views: 0,
+      posts: 8,
+      comments: 0,
+      likes: 0,
+      pointsTotal: 400, // 8 posts * 50 points
+      pointsThisMonth: 0,
+      lastUpdated: new Date().toISOString()
+    }
   }
 ];
 
@@ -139,6 +192,17 @@ export const useAuth = create<AuthState>()(
           totalViews: 0,
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),
+          commentsCount: 0,
+          likesCount: 0,
+          stats: {
+            views: 0,
+            posts: 0,
+            comments: 0,
+            likes: 0,
+            pointsTotal: 0,
+            pointsThisMonth: 0,
+            lastUpdated: new Date().toISOString()
+          }
         };
         
         // In a real app, you would hash the password and save to a database
@@ -196,6 +260,17 @@ export const useAuth = create<AuthState>()(
           totalViews: 0,
           createdAt: new Date().toISOString(),
           lastLogin: new Date().toISOString(),
+          commentsCount: 0,
+          likesCount: 0,
+          stats: {
+            views: 0,
+            posts: 0,
+            comments: 0,
+            likes: 0,
+            pointsTotal: 0,
+            pointsThisMonth: 0,
+            lastUpdated: new Date().toISOString()
+          }
         };
 
         users.push(newUser);
@@ -214,7 +289,14 @@ export const useAuth = create<AuthState>()(
       },
       getTopUser: () => {
         if (users.length === 0) return undefined;
-        return [...users].sort((a, b) => (b.totalViews || 0) - (a.totalViews || 0))[0];
+        return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal)[0];
+      },
+      getTopUserOfMonth: () => {
+        if (users.length === 0) return undefined;
+        return [...users].sort((a, b) => b.stats.pointsThisMonth - a.stats.pointsThisMonth)[0];
+      },
+      getUserRanking: () => {
+        return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal);
       },
       forgotPassword: async (email: string) => {
         // Check if the user exists
@@ -293,17 +375,82 @@ export const useAuth = create<AuthState>()(
         // Get blog posts from store to calculate real statistics
         const blogStore = useBlogStore.getState();
         const posts = blogStore.posts;
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
         
         // Calculate statistics for each user
         users.forEach(user => {
-          // Find posts created by this user - use author instead of authorId
+          // Get user-authored posts
           const userPosts = posts.filter(post => post.author === user.name);
           
-          // Update post count
-          user.postsCreated = userPosts.length;
+          // Count posts
+          const postsCount = userPosts.length;
           
           // Sum up total views from all user's posts
-          user.totalViews = userPosts.reduce((sum, post) => sum + post.views, 0);
+          const viewsCount = userPosts.reduce((sum, post) => sum + post.views, 0);
+          
+          // Count comments made by this user (across all posts)
+          const commentsCount = posts.reduce((sum, post) => {
+            return sum + post.comments.filter(comment => comment.userId === user.id).length;
+          }, 0);
+          
+          // Count likes given by this user (across all posts)
+          const likesCount = posts.reduce((sum, post) => {
+            return sum + (post.likes.includes(user.id) ? 1 : 0);
+          }, 0);
+          
+          // Calculate monthly stats
+          let pointsThisMonth = 0;
+          posts.forEach(post => {
+            const postDate = new Date(post.date);
+            
+            // Only count posts from current month
+            if (postDate.getMonth() === currentMonth && postDate.getFullYear() === currentYear) {
+              // Count contributions from this month
+              if (post.author === user.name) {
+                pointsThisMonth += 50; // Points for creating a post this month
+              }
+              
+              // Count views from this month's posts
+              if (post.author === user.name) {
+                pointsThisMonth += post.views;
+              }
+              
+              // Count comments from this month
+              post.comments.forEach(comment => {
+                if (comment.userId === user.id) {
+                  const commentDate = new Date(comment.date);
+                  if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
+                    pointsThisMonth += 10;
+                  }
+                }
+              });
+              
+              // Count likes from this month
+              if (post.likes.includes(user.id)) {
+                pointsThisMonth += 5;
+              }
+            }
+          });
+          
+          // Calculate total points
+          const pointsTotal = calculatePoints(viewsCount, postsCount, commentsCount, likesCount);
+          
+          // Update user stats
+          user.postsCreated = postsCount;
+          user.totalViews = viewsCount;
+          user.commentsCount = commentsCount;
+          user.likesCount = likesCount;
+          user.stats = {
+            views: viewsCount,
+            posts: postsCount,
+            comments: commentsCount,
+            likes: likesCount,
+            pointsTotal: pointsTotal,
+            pointsThisMonth: pointsThisMonth,
+            lastUpdated: new Date().toISOString()
+          };
         });
       }
     }),

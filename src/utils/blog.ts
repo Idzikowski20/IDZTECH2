@@ -2,6 +2,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export interface BlogComment {
+  id: string;
+  postId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  content: string;
+  date: string;
+}
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -14,15 +24,24 @@ export interface BlogPost {
   author: string;
   categories: string[];
   tags: string[];
+  comments: BlogComment[];
+  likes: string[]; // Array of user IDs who liked the post
 }
 
 interface BlogStore {
   posts: BlogPost[];
-  addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date'>) => void;
+  addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes'>) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
   incrementView: (id: string) => void;
   getPostBySlug: (slug: string) => BlogPost | undefined;
+  addComment: (postId: string, userId: string, userName: string, userAvatar: string | undefined, content: string) => void;
+  deleteComment: (postId: string, commentId: string) => void;
+  toggleLike: (postId: string, userId: string) => void;
+  getTotalComments: () => number;
+  getTotalLikes: () => number;
+  getPostComments: (postId: string) => BlogComment[];
+  hasUserLiked: (postId: string, userId: string) => boolean;
 }
 
 // Sample blog posts with reset view counts
@@ -54,7 +73,9 @@ const initialPosts: BlogPost[] = [
     views: 0,
     author: 'Jan Kowalski',
     categories: ['SEO', 'Marketing Cyfrowy'],
-    tags: ['pozycjonowanie', 'SEO', 'Google', 'treści']
+    tags: ['pozycjonowanie', 'SEO', 'Google', 'treści'],
+    comments: [],
+    likes: []
   },
   {
     id: '2',
@@ -82,7 +103,9 @@ const initialPosts: BlogPost[] = [
     views: 0,
     author: 'Anna Nowak',
     categories: ['Web Development', 'UX Design'],
-    tags: ['responsywność', 'mobile-first', 'design', 'UX']
+    tags: ['responsywność', 'mobile-first', 'design', 'UX'],
+    comments: [],
+    likes: []
   }
 ];
 
@@ -97,6 +120,8 @@ export const useBlogStore = create<BlogStore>()(
           id: Date.now().toString(),
           date: new Date().toISOString(),
           views: 0,
+          comments: [],
+          likes: []
         };
         
         set((state) => ({
@@ -129,6 +154,81 @@ export const useBlogStore = create<BlogStore>()(
       getPostBySlug: (slug) => {
         const { posts } = get();
         return posts.find((post) => post.slug === slug);
+      },
+
+      addComment: (postId, userId, userName, userAvatar, content) => {
+        set((state) => {
+          const newComment: BlogComment = {
+            id: Date.now().toString(),
+            postId,
+            userId,
+            userName,
+            userAvatar,
+            content,
+            date: new Date().toISOString(),
+          };
+
+          return {
+            posts: state.posts.map((post) => 
+              post.id === postId 
+                ? { ...post, comments: [...post.comments, newComment] } 
+                : post
+            )
+          };
+        });
+      },
+
+      deleteComment: (postId, commentId) => {
+        set((state) => ({
+          posts: state.posts.map((post) => 
+            post.id === postId 
+              ? { ...post, comments: post.comments.filter(comment => comment.id !== commentId) } 
+              : post
+          )
+        }));
+      },
+
+      toggleLike: (postId, userId) => {
+        set((state) => {
+          const post = state.posts.find(p => p.id === postId);
+          if (!post) return state;
+
+          const hasLiked = post.likes.includes(userId);
+          
+          const updatedLikes = hasLiked
+            ? post.likes.filter(id => id !== userId)
+            : [...post.likes, userId];
+          
+          return {
+            posts: state.posts.map((post) => 
+              post.id === postId 
+                ? { ...post, likes: updatedLikes } 
+                : post
+            )
+          };
+        });
+      },
+
+      getTotalComments: () => {
+        const { posts } = get();
+        return posts.reduce((total, post) => total + post.comments.length, 0);
+      },
+
+      getTotalLikes: () => {
+        const { posts } = get();
+        return posts.reduce((total, post) => total + post.likes.length, 0);
+      },
+
+      getPostComments: (postId) => {
+        const { posts } = get();
+        const post = posts.find(p => p.id === postId);
+        return post ? post.comments : [];
+      },
+
+      hasUserLiked: (postId, userId) => {
+        const { posts } = get();
+        const post = posts.find(p => p.id === postId);
+        return post ? post.likes.includes(userId) : false;
       }
     }),
     {
