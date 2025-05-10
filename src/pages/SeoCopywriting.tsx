@@ -1,13 +1,10 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 const SeoCopywriting = () => {
-  return (
-    <div className="min-h-screen bg-premium-dark">
+  return <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
       {/* Hero Section */}
@@ -20,10 +17,7 @@ const SeoCopywriting = () => {
             Profesjonalne teksty, które sprzedają i pozycjonują. Wykorzystaj moc słów do zwiększenia widoczności w Google.
           </p>
           <div className="pt-6">
-            <Button 
-              className="bg-premium-gradient hover:opacity-90 transition-all transform hover:scale-105"
-              size="lg"
-            >
+            <Button className="bg-premium-gradient hover:opacity-90 transition-all transform hover:scale-105" size="lg">
               Zamów copywriting SEO
             </Button>
           </div>
@@ -33,7 +27,9 @@ const SeoCopywriting = () => {
       {/* Main Content */}
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 animate-fade-in" style={{ animationDelay: "0.5s" }}>
+          <div className="space-y-6 animate-fade-in" style={{
+          animationDelay: "0.5s"
+        }}>
             <h2 className="text-3xl font-bold">Dlaczego warto inwestować w copywriting SEO?</h2>
             <p className="text-premium-light/80">
               Copywriting SEO to tworzenie treści, które są atrakcyjne zarówno dla użytkowników, jak i dla wyszukiwarek. Profesjonalnie napisane teksty nie tylko angażują czytelników, ale także poprawiają widoczność Twojej strony w Google.
@@ -57,12 +53,10 @@ const SeoCopywriting = () => {
               </li>
             </ul>
           </div>
-          <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.7s" }}>
-            <img 
-              src="https://img.freepik.com/free-vector/content-structure-concept-illustration_114360-8164.jpg" 
-              alt="Copywriting SEO - ilustracja" 
-              className="w-full h-auto object-cover"
-            />
+          <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in" style={{
+          animationDelay: "0.7s"
+        }}>
+            <img src="https://img.freepik.com/free-vector/content-structure-concept-illustration_114360-8164.jpg" alt="Copywriting SEO - ilustracja" className="w-full h-auto object-cover" />
           </div>
         </div>
       </section>
@@ -71,39 +65,32 @@ const SeoCopywriting = () => {
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto bg-premium-dark/50 rounded-3xl">
         <h2 className="text-3xl font-bold text-center mb-12">Rodzaje tekstów SEO</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Treści na stronę główną",
-              description: "Angażujące treści wprowadzające, prezentujące firmę i jej ofertę."
-            },
-            {
-              title: "Opisy kategorii i produktów",
-              description: "Unikalne i perswazyjne opisy zwiększające współczynnik konwersji."
-            },
-            {
-              title: "Artykuły blogowe",
-              description: "Wartościowe treści przyciągające użytkowników i budujące autorytet."
-            },
-            {
-              title: "Teksty na landing page",
-              description: "Treści zorientowane na konwersję i działanie użytkownika."
-            },
-            {
-              title: "Case studies i poradniki",
-              description: "Rozbudowane materiały edukacyjne budujące wizerunek eksperta."
-            },
-            {
-              title: "Treści contentowe na linkbuilding",
-              description: "Artykuły sponsorowane i gościnne optymalizowane pod linkowanie."
-            }
-          ].map((service, index) => (
-            <Card key={index} className="border border-premium-light/10 bg-premium-dark/70 hover:bg-premium-dark/90 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
+          {[{
+          title: "Treści na stronę główną",
+          description: "Angażujące treści wprowadzające, prezentujące firmę i jej ofertę."
+        }, {
+          title: "Opisy kategorii i produktów",
+          description: "Unikalne i perswazyjne opisy zwiększające współczynnik konwersji."
+        }, {
+          title: "Artykuły blogowe",
+          description: "Wartościowe treści przyciągające użytkowników i budujące autorytet."
+        }, {
+          title: "Teksty na landing page",
+          description: "Treści zorientowane na konwersję i działanie użytkownika."
+        }, {
+          title: "Case studies i poradniki",
+          description: "Rozbudowane materiały edukacyjne budujące wizerunek eksperta."
+        }, {
+          title: "Treści contentowe na linkbuilding",
+          description: "Artykuły sponsorowane i gościnne optymalizowane pod linkowanie."
+        }].map((service, index) => <Card key={index} className="border border-premium-light/10 bg-premium-dark/70 hover:bg-premium-dark/90 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{
+          animationDelay: `${0.5 + index * 0.2}s`
+        }}>
               <CardContent className="p-8">
                 <h3 className="text-xl font-bold mb-4 text-premium-purple">{service.title}</h3>
                 <p className="text-premium-light/80">{service.description}</p>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
       </section>
 
@@ -112,29 +99,25 @@ const SeoCopywriting = () => {
         <h2 className="text-3xl font-bold text-center mb-12">Jak tworzymy treści SEO?</h2>
         <div className="max-w-4xl mx-auto">
           <div className="space-y-12">
-            {[
-              {
-                step: "1",
-                title: "Analiza słów kluczowych",
-                description: "Badamy frazy i intencje użytkowników, aby dopasować treści do potrzeb."
-              },
-              {
-                step: "2",
-                title: "Planowanie struktury",
-                description: "Opracowujemy optymalną strukturę tekstu z nagłówkami i podpunktami."
-              },
-              {
-                step: "3",
-                title: "Tworzenie treści",
-                description: "Doświadczeni copywriterzy piszą angażujące, unikalne treści."
-              },
-              {
-                step: "4",
-                title: "Optymalizacja i korekta",
-                description: "Tekst przechodzi proces optymalizacji i korekty przed publikacją."
-              }
-            ].map((item, index) => (
-              <div key={index} className="flex gap-6 animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
+            {[{
+            step: "1",
+            title: "Analiza słów kluczowych",
+            description: "Badamy frazy i intencje użytkowników, aby dopasować treści do potrzeb."
+          }, {
+            step: "2",
+            title: "Planowanie struktury",
+            description: "Opracowujemy optymalną strukturę tekstu z nagłówkami i podpunktami."
+          }, {
+            step: "3",
+            title: "Tworzenie treści",
+            description: "Doświadczeni copywriterzy piszą angażujące, unikalne treści."
+          }, {
+            step: "4",
+            title: "Optymalizacja i korekta",
+            description: "Tekst przechodzi proces optymalizacji i korekty przed publikacją."
+          }].map((item, index) => <div key={index} className="flex gap-6 animate-fade-in" style={{
+            animationDelay: `${0.5 + index * 0.2}s`
+          }}>
                 <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center shrink-0">
                   <span className="font-bold text-premium-light">{item.step}</span>
                 </div>
@@ -142,8 +125,7 @@ const SeoCopywriting = () => {
                   <h3 className="text-xl font-bold mb-2">{item.title}</h3>
                   <p className="text-premium-light/80">{item.description}</p>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -152,58 +134,37 @@ const SeoCopywriting = () => {
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto">
         <h2 className="text-3xl font-bold text-center mb-12">Cennik copywritingu SEO</h2>
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {[
-            {
-              title: "Podstawowy",
-              price: "od 150 zł",
-              features: [
-                "Teksty do 2000 znaków",
-                "Podstawowa optymalizacja SEO",
-                "1 poprawka",
-                "Czas realizacji 3-5 dni"
-              ]
-            },
-            {
-              title: "Standardowy",
-              price: "od 250 zł",
-              features: [
-                "Teksty do 4000 znaków",
-                "Pełna optymalizacja SEO",
-                "2 poprawki",
-                "Czas realizacji 2-4 dni"
-              ]
-            },
-            {
-              title: "Premium",
-              price: "od 450 zł",
-              features: [
-                "Teksty do 8000 znaków",
-                "Zaawansowana optymalizacja SEO",
-                "Nieograniczone poprawki",
-                "Priorytetowa realizacja"
-              ]
-            }
-          ].map((plan, index) => (
-            <Card key={index} className={`border ${index === 1 ? 'bg-premium-gradient border-transparent' : 'border-premium-light/10 bg-premium-dark/70'} rounded-xl overflow-hidden animate-fade-in`} style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
-              <CardContent className="p-8">
-                <h3 className="text-2xl font-bold mb-2">{plan.title}</h3>
-                <div className="text-3xl font-bold mb-4 text-premium-purple">{plan.price}</div>
+          {[{
+          title: "Podstawowy",
+          price: "od 150 zł",
+          features: ["Teksty do 2000 znaków", "Podstawowa optymalizacja SEO", "1 poprawka", "Czas realizacji 3-5 dni"]
+        }, {
+          title: "Standardowy",
+          price: "od 250 zł",
+          features: ["Teksty do 4000 znaków", "Pełna optymalizacja SEO", "2 poprawki", "Czas realizacji 2-4 dni"]
+        }, {
+          title: "Premium",
+          price: "od 450 zł",
+          features: ["Teksty do 8000 znaków", "Zaawansowana optymalizacja SEO", "Nieograniczone poprawki", "Priorytetowa realizacja"]
+        }].map((plan, index) => <Card key={index} className={`border ${index === 1 ? 'bg-premium-gradient border-transparent' : 'border-premium-light/10 bg-premium-dark/70'} rounded-xl overflow-hidden animate-fade-in`} style={{
+          animationDelay: `${0.5 + index * 0.2}s`
+        }}>
+              <CardContent className="p-8 bg-zinc-950">
+                <h3 className="text-2xl font-bold mb-2 text-slate-50">{plan.title}</h3>
+                <div className="text-3xl font-bold mb-4 text-premium-purple bg-transparent">{plan.price}</div>
                 <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-2">
+                  {plan.features.map((feature, i) => <li key={i} className="flex items-center gap-2">
                       <div className="h-5 w-5 rounded-full bg-premium-purple/30 flex items-center justify-center">
                         <div className="h-2 w-2 rounded-full bg-premium-purple"></div>
                       </div>
                       <span className="text-premium-light/80">{feature}</span>
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
                 <Button className={`w-full ${index === 1 ? 'bg-white text-premium-purple hover:bg-white/90' : 'bg-premium-gradient hover:opacity-90'} transition-all`}>
                   Zamów teraz
                 </Button>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
       </section>
 
@@ -221,8 +182,6 @@ const SeoCopywriting = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default SeoCopywriting;
