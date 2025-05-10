@@ -10,6 +10,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
+import DotAnimation from '@/components/DotAnimation';
 
 interface LocationState {
   from?: {
@@ -64,6 +65,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
+      <DotAnimation />
       <div className="container mx-auto pt-32 pb-20">
         <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
@@ -122,7 +124,11 @@ const Login = () => {
             </div>
             
             <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
-              {isLoading ? "Logowanie..." : "Zaloguj się"}
+              {isLoading ? (
+                <>
+                  Logowanie<span className="animate-pulse">...</span>
+                </>
+              ) : "Zaloguj się"}
             </Button>
           </form>
         </div>
