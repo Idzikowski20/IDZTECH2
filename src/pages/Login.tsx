@@ -13,30 +13,39 @@ import { useAuth } from '@/utils/auth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const loginSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
-  password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków')
+  password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
+  rememberMe: z.boolean().optional().default(false)
 });
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate('/admin');
+    return null;
+  }
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
-      password: ''
+      password: '',
+      rememberMe: false
     }
   });
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
-      const success = await login(values.email, values.password);
+      const success = await login(values.email, values.password, values.rememberMe);
       if (success) {
         toast({
           title: "Logowanie udane",
@@ -101,6 +110,27 @@ const Login = () => {
                   </FormItem>
                 )} 
               />
+              
+              <FormField
+                control={form.control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Zapamiętaj mnie na 30 dni
+                      </FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              
               <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
                 {isLoading ? "Logowanie..." : "Zaloguj się"}
               </Button>

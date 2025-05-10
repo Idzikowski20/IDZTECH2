@@ -27,6 +27,7 @@ import BlogPost from "./pages/BlogPost";
 import Profile from "./pages/Profile";
 import AdminStats from "./pages/AdminStats";
 import AdminSettings from "./pages/AdminSettings";
+import AdminUsers from "./pages/AdminUsers";
 import { ThemeProvider } from "./utils/themeContext";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/stats" element={<AdminStats />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/new-post" element={<BlogPostEditor />} />
             <Route path="/admin/edit-post/:id" element={<BlogPostEditor />} />
             <Route path="/blog" element={<Blog />} />

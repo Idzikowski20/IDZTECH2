@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, ChevronDown, LogIn, ArrowRight } from 'lucide-react';
+import { Menu, X, ChevronDown, LogIn, ArrowRight, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DotAnimation from './DotAnimation';
+import { useAuth } from '@/utils/auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -11,19 +14,8 @@ const Navbar = () => {
   const [isServicesOpen, setIsServicesOpen] = useState(false);
   const servicesRef = useRef<HTMLDivElement>(null);
   const servicesButtonRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
   // Add click outside handler for services menu
   useEffect(() => {
@@ -37,6 +29,23 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isServicesOpen]);
+
+  const handleScroll = () => {
+    if (window.scrollY > 20) {
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+  };
+
+  const handleLoginClick = () => {
+    if (isAuthenticated) {
+      navigate('/admin');
+    } else {
+      navigate('/login');
+    }
+  };
+
   const menuItems = [{
     label: 'Strona główna',
     href: '/'
@@ -57,6 +66,7 @@ const Navbar = () => {
     label: 'Kontakt',
     href: '/contact'
   }];
+  
   const servicesCategories = [{
     title: 'Strony www',
     links: [{
@@ -101,6 +111,7 @@ const Navbar = () => {
   const toggleMobileSubmenu = (index: number) => {
     setActiveSubmenu(activeSubmenu === index ? null : index);
   };
+  
   return <nav className={cn("fixed top-0 w-full z-50 transition-all duration-300", scrolled ? "bg-premium-dark/90 py-4" : "bg-transparent py-6")}>
       <div className="container mx-auto px-4 lg:px-8 flex justify-between items-center">
         {/* Logo */}
@@ -131,11 +142,23 @@ const Navbar = () => {
               <ArrowRight size={16} className="ml-1" />
             </Button>
           </Link>
-          <Link to="/login">
-            <Button variant="outline" size="icon" className="border-premium-light/20 hover:bg-premium-dark/50 bg-[#000a00]/0">
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={handleLoginClick}
+            className="border-premium-light/20 hover:bg-premium-light/10 hover:text-white transition-colors bg-[#000a00]/0 relative"
+          >
+            {isAuthenticated && user?.profilePicture ? (
+              <Avatar className="w-full h-full">
+                <AvatarImage src={user.profilePicture} alt={user.name} />
+                <AvatarFallback className="text-xs bg-premium-gradient">
+                  {user.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            ) : (
               <LogIn size={18} />
-            </Button>
-          </Link>
+            )}
+          </Button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -202,12 +225,17 @@ const Navbar = () => {
                 <ArrowRight size={16} className="ml-1" />
               </Button>
             </Link>
-            <Link to="/login" onClick={() => setIsOpen(false)}>
-              <Button variant="outline" className="w-full">
-                Logowanie
-                <LogIn size={16} className="ml-1" />
-              </Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                handleLoginClick();
+                setIsOpen(false);
+              }}
+            >
+              {isAuthenticated ? "Panel administracyjny" : "Logowanie"}
+              {isAuthenticated ? <User size={16} className="ml-1" /> : <LogIn size={16} className="ml-1" />}
+            </Button>
           </div>
         </div>
       </div>

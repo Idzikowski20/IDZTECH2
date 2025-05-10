@@ -1,13 +1,16 @@
+
 import React, { useState, ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Settings, LogOut, BarChart, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, BarChart, Menu, X, User, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/utils/auth';
 import DotAnimation from './DotAnimation';
+
 interface AdminLayoutProps {
   children: ReactNode;
 }
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({
   children
 }) => {
@@ -18,10 +21,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
   const navItems = [{
     icon: LayoutDashboard,
     label: 'Dashboard',
@@ -31,6 +36,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     label: 'Statystyki',
     path: '/admin/stats'
   }, {
+    icon: Users,
+    label: 'Użytkownicy',
+    path: '/admin/users'
+  }, {
     icon: User,
     label: 'Profil',
     path: '/profile'
@@ -39,6 +48,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     label: 'Ustawienia',
     path: '/admin/settings'
   }];
+
   return <div className="flex h-screen bg-premium-dark">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
@@ -60,11 +70,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           {user && <div className="px-4 py-4 border-b border-premium-light/10">
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                  {user.profilePicture ? <img src={user.profilePicture} alt={user.name} className="w-full h-full rounded-full object-cover" /> : user.name.charAt(0)}
+                  {user.profilePicture ? (
+                    <img 
+                      src={user.profilePicture} 
+                      alt={user.name} 
+                      className="w-full h-full rounded-full object-cover" 
+                    />
+                  ) : user.name.charAt(0)}
                 </div>
                 <div className="ml-3">
                   <div className="font-medium">{user.name} {user.lastName}</div>
-                  <div className="text-sm text-premium-light/60">{user.role === 'admin' ? 'Administrator' : 'Użytkownik'}</div>
+                  <div className="text-sm text-premium-light/60">
+                    {user.role === 'admin' ? 'Administrator' : 
+                     user.role === 'moderator' ? 'Moderator' : 
+                     user.role === 'blogger' ? 'Bloger' : 'Użytkownik'}
+                  </div>
                 </div>
               </div>
             </div>}
@@ -95,4 +115,5 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       </div>
     </div>;
 };
+
 export default AdminLayout;

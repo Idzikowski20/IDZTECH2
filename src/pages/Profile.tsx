@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { User, Upload, Camera } from 'lucide-react';
@@ -29,6 +29,13 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Set preview image from user profile when component mounts
+  useEffect(() => {
+    if (user?.profilePicture) {
+      setPreviewImage(user.profilePicture);
+    }
+  }, [user?.profilePicture]);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -84,8 +91,14 @@ const Profile = () => {
       reader.onload = (event) => {
         const result = event.target?.result as string;
         setPreviewImage(result);
-        // Update the form value
+        
+        // Update the form value and immediately update profile
         form.setValue('profilePicture', result);
+        
+        // Immediately update the profile picture to ensure persistence
+        updateProfile({
+          profilePicture: result
+        });
       };
       reader.readAsDataURL(file);
     }

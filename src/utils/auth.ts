@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type UserRole = 'admin' | 'user';
+export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
 
 export interface User {
   id: string;
@@ -13,16 +13,26 @@ export interface User {
   lastName?: string;
   bio?: string;
   jobTitle?: string;
+  postsCreated?: number;
+  totalViews?: number;
+  createdAt?: string;
+  lastLogin?: string;
 }
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  rememberMe: boolean;
+  login: (email: string, password: string, remember?: boolean) => Promise<boolean>;
   register: (email: string, name: string, password: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  getUsers: () => User[];
+  addUser: (userData: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'postsCreated' | 'totalViews'>, password: string) => boolean;
+  updateUserRole: (userId: string, role: UserRole) => boolean;
+  getUserById: (userId: string) => User | undefined;
+  getTopUser: () => User | undefined;
 }
 
 // Mock user database
@@ -36,12 +46,46 @@ const users: User[] = [
     lastName: '',
     bio: 'Administrator serwisu IDZ.TECH',
     jobTitle: 'CEO',
+    postsCreated: 5,
+    totalViews: 750,
+    createdAt: '2023-01-01T12:00:00Z',
+    lastLogin: new Date().toISOString(),
   },
+  {
+    id: '2',
+    email: 'mod@idztech.pl',
+    name: 'Moderator',
+    role: 'moderator',
+    profilePicture: '',
+    lastName: 'Test',
+    bio: 'Moderator serwisu',
+    jobTitle: 'Content Manager',
+    postsCreated: 3,
+    totalViews: 320,
+    createdAt: '2023-05-15T10:30:00Z',
+    lastLogin: '2023-05-20T14:22:00Z',
+  },
+  {
+    id: '3',
+    email: 'blogger@idztech.pl',
+    name: 'Bloger',
+    role: 'blogger',
+    profilePicture: '',
+    lastName: 'Kowalski',
+    bio: 'Twórca treści',
+    jobTitle: 'Writer',
+    postsCreated: 8,
+    totalViews: 940,
+    createdAt: '2023-06-10T09:15:00Z',
+    lastLogin: '2023-06-25T16:40:00Z',
+  }
 ];
 
 // Password map (in a real app, these would be hashed)
 const passwords: Record<string, string> = {
   'admin@idztech.pl': 'admin123',
+  'mod@idztech.pl': 'mod123',
+  'blogger@idztech.pl': 'blog123',
 };
 
 export const useAuth = create<AuthState>()(
@@ -49,12 +93,15 @@ export const useAuth = create<AuthState>()(
     (set, get) => ({
       user: null,
       isAuthenticated: false,
-      login: async (email: string, password: string) => {
+      rememberMe: false,
+      login: async (email: string, password: string, remember = false) => {
         // Simple mock login - in a real app, you'd call an API
         const user = users.find((u) => u.email === email);
         
         if (user && passwords[email] === password) {
-          set({ user, isAuthenticated: true });
+          // Update last login time
+          user.lastLogin = new Date().toISOString();
+          set({ user, isAuthenticated: true, rememberMe: remember });
           return true;
         }
         
@@ -76,6 +123,10 @@ export const useAuth = create<AuthState>()(
           lastName: '',
           bio: '',
           jobTitle: '',
+          postsCreated: 0,
+          totalViews: 0,
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
         };
         
         // In a real app, you would hash the password and save to a database
@@ -115,6 +166,42 @@ export const useAuth = create<AuthState>()(
         passwords[user.email] = newPassword;
         return true;
       },
+      getUsers: () => {
+        return [...users];
+      },
+      addUser: (userData, password) => {
+        // Check if email already exists
+        if (users.some(u => u.email === userData.email)) {
+          return false;
+        }
+
+        const newUser: User = {
+          ...userData,
+          id: String(users.length + 1),
+          postsCreated: 0,
+          totalViews: 0,
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        };
+
+        users.push(newUser);
+        passwords[userData.email] = password;
+        return true;
+      },
+      updateUserRole: (userId, role) => {
+        const index = users.findIndex(u => u.id === userId);
+        if (index === -1) return false;
+        
+        users[index].role = role;
+        return true;
+      },
+      getUserById: (userId) => {
+        return users.find(u => u.id === userId);
+      },
+      getTopUser: () => {
+        if (users.length === 0) return undefined;
+        return [...users].sort((a, b) => (b.totalViews || 0) - (a.totalViews || 0))[0];
+      }
     }),
     {
       name: 'auth-storage',
