@@ -29,7 +29,7 @@ const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Tworzenie stron internetowych <span className="flex items-center">
+              Tworzymy najlepsze strony internetowe <span className="flex items-center">
                 IDZ.TECH<BlinkingUnderscore />
               </span>
             </h1>

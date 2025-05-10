@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageDotAnimation from "@/components/PageDotAnimation";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, Monitor, Code, LineChart, Zap, Users, Globe, Lock } from "lucide-react";
@@ -8,6 +9,7 @@ import { Check, ChevronRight, Monitor, Code, LineChart, Zap, Users, Globe, Lock 
 const WebDevelopment = () => {
   return <div className="min-h-screen bg-premium-dark">
       <Navbar />
+      <PageDotAnimation />
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">

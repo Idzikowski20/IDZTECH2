@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "@/components/ScrollToTop";
-import DotAnimation from "@/components/DotAnimation";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import WebDevelopment from "./pages/WebDevelopment";
@@ -35,7 +34,6 @@ import { ThemeProvider } from "./utils/themeContext";
 import { AuthProvider } from "./utils/AuthProvider";
 import { initGA, trackPageView } from "./utils/analytics";
 import RequireAuth from "./components/RequireAuth";
-import Navbar from './components/navbar';
 
 const queryClient = new QueryClient();
 
@@ -65,8 +63,6 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <AnalyticsTracker />
-            {/* Global dot animation appearing on every page */}
-            <DotAnimation />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
