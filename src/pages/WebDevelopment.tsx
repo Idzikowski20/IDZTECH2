@@ -1,9 +1,12 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, Monitor, Code, LineChart, Zap, Users, Globe, Lock } from "lucide-react";
+import ProcessAnimation from "@/components/ProcessAnimation";
+import BlinkingUnderscore from "@/components/BlinkingUnderscore";
 
 const WebDevelopment = () => {
   return <div className="min-h-screen bg-premium-dark">
@@ -39,11 +42,21 @@ const WebDevelopment = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="text-premium-purple font-medium">Tworzenie stron internetowych</span>
-              <h1 className="text-4xl lg:text-5xl font-bold mt-4 mb-6">Profesjonalne strony WWW dla Twojego biznesu</h1>
+              <span className="text-premium-purple font-medium">Tworzenie Stron Internetowych</span>
+              <h1 className="text-4xl lg:text-5xl font-bold mt-4 mb-6">
+                Twoja Wizja, 
+                <span className="relative">
+                  <span className="absolute -left-1 -right-1 h-1/2 bottom-0 bg-gradient-to-r from-premium-purple/40 to-premium-blue/20 z-0"></span>
+                  <span className="relative z-10">Nasze</span>
+                </span> 
+                {" "}Podejście
+                <br />
+                IDZ.TECH<BlinkingUnderscore />
+              </h1>
               <p className="text-premium-light/70 text-lg mb-8">
-                Projektujemy i tworzymy nowoczesne, responsywne strony internetowe, które nie tylko świetnie wyglądają, 
-                ale również skutecznie realizują cele biznesowe naszych klientów.
+                Profesjonalne strony WWW dla Twojego biznesu. Projektujemy i tworzymy nowoczesne, 
+                responsywne strony internetowe, które nie tylko świetnie wyglądają, 
+                ale również skutecznie realizują cele biznesowe.
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button size="lg" className="bg-premium-gradient hover:opacity-90 transition-opacity">
@@ -79,7 +92,7 @@ const WebDevelopment = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 hover:border-white/20 transition-colors">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-purple to-premium-blue flex items-center justify-center mb-4">
                 <Monitor className="text-premium-light" size={24} />
               </div>
@@ -104,7 +117,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Feature 2 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 hover:border-white/20 transition-colors">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-blue to-premium-pink flex items-center justify-center mb-4">
                 <Code className="text-premium-light" size={24} />
               </div>
@@ -129,7 +142,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Feature 3 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 hover:border-white/20 transition-colors">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-pink to-premium-purple flex items-center justify-center mb-4">
                 <LineChart className="text-premium-light" size={24} />
               </div>
@@ -169,7 +182,7 @@ const WebDevelopment = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Benefit 1 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-purple to-premium-blue mx-auto flex items-center justify-center mb-4">
                 <Zap className="text-premium-light" size={32} />
               </div>
@@ -180,7 +193,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Benefit 2 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-blue to-premium-pink mx-auto flex items-center justify-center mb-4">
                 <Users className="text-premium-light" size={32} />
               </div>
@@ -191,7 +204,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Benefit 3 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-pink to-premium-purple mx-auto flex items-center justify-center mb-4">
                 <Globe className="text-premium-light" size={32} />
               </div>
@@ -202,7 +215,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Benefit 4 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl p-6 text-center hover:border-white/20 transition-colors">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-purple to-premium-blue mx-auto flex items-center justify-center mb-4">
                 <Lock className="text-premium-light" size={32} />
               </div>
@@ -226,87 +239,7 @@ const WebDevelopment = () => {
             </p>
           </div>
           
-          <div className="relative">
-            {/* Process timeline line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-premium-purple via-premium-blue to-premium-pink -translate-x-1/2 hidden md:block"></div>
-            
-            <div className="space-y-12 md:space-y-0">
-              {/* Step 1 */}
-              <div className="flex flex-col md:flex-row md:items-center">
-                <div className="md:w-1/2 md:pr-16 md:text-right mb-6 md:mb-0 relative">
-                  <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <span className="text-premium-purple text-3xl font-bold">01</span>
-                    <h3 className="text-xl font-semibold mt-2 mb-3">Analiza i planowanie</h3>
-                    <p className="text-premium-light/70">
-                      Poznajemy Twoje potrzeby i cele biznesowe. Przeprowadzamy analizę konkurencji i tworzymy strategię działania.
-                    </p>
-                  </div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-premium-purple z-10 hidden md:block"></div>
-                </div>
-                <div className="md:w-1/2 md:pl-16"></div>
-              </div>
-              
-              {/* Step 2 */}
-              <div className="flex flex-col md:flex-row md:items-center">
-                <div className="md:w-1/2 md:pr-16"></div>
-                <div className="md:w-1/2 md:pl-16 relative">
-                  <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <span className="text-premium-blue text-3xl font-bold">02</span>
-                    <h3 className="text-xl font-semibold mt-2 mb-3">Projekt interfejsu</h3>
-                    <p className="text-premium-light/70">
-                      Projektujemy makiety, które przedstawiają wygląd i funkcjonalności strony, uwzględniając Twoje uwagi.
-                    </p>
-                  </div>
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-premium-blue z-10 hidden md:block"></div>
-                </div>
-              </div>
-              
-              {/* Step 3 */}
-              <div className="flex flex-col md:flex-row md:items-center">
-                <div className="md:w-1/2 md:pr-16 md:text-right mb-6 md:mb-0 relative">
-                  <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <span className="text-premium-pink text-3xl font-bold">03</span>
-                    <h3 className="text-xl font-semibold mt-2 mb-3">Kodowanie i wdrożenie</h3>
-                    <p className="text-premium-light/70">
-                      Programujemy stronę zgodnie z zatwierdzonym projektem, dbając o czysty kod i optymalizację.
-                    </p>
-                  </div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-premium-pink z-10 hidden md:block"></div>
-                </div>
-                <div className="md:w-1/2 md:pl-16"></div>
-              </div>
-              
-              {/* Step 4 */}
-              <div className="flex flex-col md:flex-row md:items-center">
-                <div className="md:w-1/2 md:pr-16"></div>
-                <div className="md:w-1/2 md:pl-16 relative">
-                  <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <span className="text-premium-purple text-3xl font-bold">04</span>
-                    <h3 className="text-xl font-semibold mt-2 mb-3">Testy i optymalizacja</h3>
-                    <p className="text-premium-light/70">
-                      Sprawdzamy działanie strony na różnych urządzeniach i przeglądarkach, optymalizujemy wydajność.
-                    </p>
-                  </div>
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-premium-purple z-10 hidden md:block"></div>
-                </div>
-              </div>
-              
-              {/* Step 5 */}
-              <div className="flex flex-col md:flex-row md:items-center">
-                <div className="md:w-1/2 md:pr-16 md:text-right relative">
-                  <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6">
-                    <span className="text-premium-blue text-3xl font-bold">05</span>
-                    <h3 className="text-xl font-semibold mt-2 mb-3">Uruchomienie i wsparcie</h3>
-                    <p className="text-premium-light/70">
-                      Publikujemy stronę i oferujemy wsparcie techniczne oraz szkolenie z obsługi panelu administracyjnego.
-                    </p>
-                  </div>
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-6 h-6 rounded-full bg-premium-blue z-10 hidden md:block"></div>
-                </div>
-                <div className="md:w-1/2 md:pl-16"></div>
-              </div>
-            </div>
-          </div>
+          <ProcessAnimation imageSrc="/lovable-uploads/b149e3ae-a413-4c99-bb58-3cf1dd7c8f2b.png" />
         </div>
       </section>
       

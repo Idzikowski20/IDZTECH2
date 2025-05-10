@@ -63,7 +63,7 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
+    --border: 240 5.9% 90%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
@@ -83,7 +83,7 @@
   }
   
   .dark {
-    @apply bg-premium-dark text-premium-light;
+    @apply bg-white text-premium-dark;
   }
   
   .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
@@ -93,6 +93,30 @@
   
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
   .dark p, .dark span {
-    @apply text-premium-light;
+    @apply text-premium-dark;
+  }
+  
+  .light a, .dark a {
+    @apply text-premium-dark hover:bg-white hover:text-black;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-white;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-purple-900;
+    border-radius: 6px;
+    border: 3px solid white;
+  }
+  
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.purple.900') white;
   }
 }

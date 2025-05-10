@@ -8,22 +8,17 @@ interface ProcessBoxProps {
   title: string;
   description: string;
   delay: number;
+  inView: boolean;
 }
 
-const ProcessBox: React.FC<ProcessBoxProps> = ({ number, title, description, delay }) => {
-  const [ref, inView] = useInView({
-    triggerOnce: false,
-    threshold: 0.2
-  });
-
+const ProcessBox: React.FC<ProcessBoxProps> = ({ number, title, description, delay, inView }) => {
   return (
     <motion.div 
-      ref={ref}
-      className={`relative border border-premium-light/10 rounded-xl p-6 transition-all duration-700 ${
+      className={`relative border border-gray-300 rounded-xl p-6 transition-all duration-700 ${
         inView ? 'bg-premium-dark/70 shadow-[0_0_15px_rgba(147,51,234,0.3)]' : 'bg-premium-dark/30'
       }`}
       initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0.7, y: 20 }}
       transition={{ duration: 0.6, delay: delay * 0.1 }}
     >
       <div className="flex items-center mb-4">
@@ -158,28 +153,40 @@ const ProcessAnimation: React.FC<ProcessAnimationProps> = ({ className = "", ima
     }
   ];
 
+  // Create separate refs for each process box
+  const [refs, inViews] = processes.map(() => {
+    const [ref, inView] = useInView({
+      triggerOnce: false,
+      threshold: 0.5,
+      rootMargin: '-100px 0px'
+    });
+    return [ref, inView];
+  });
+
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${className}`}>
       <div className="space-y-6">
         <h2 className="text-3xl font-bold mb-6">Proces tworzenia strony</h2>
         <div className="space-y-6">
           {processes.map((process, index) => (
-            <ProcessBox
-              key={index}
-              number={process.number}
-              title={process.title}
-              description={process.description}
-              delay={process.delay}
-            />
+            <div ref={refs[index]} key={index}>
+              <ProcessBox
+                number={process.number}
+                title={process.title}
+                description={process.description}
+                delay={process.delay}
+                inView={inViews[index]}
+              />
+            </div>
           ))}
         </div>
       </div>
       <div className="flex items-center justify-center">
         <div className="relative w-full max-w-md">
           <FloatingImage
-            src={imageSrc}
+            src={imageSrc || "/lovable-uploads/b149e3ae-a413-4c99-bb58-3cf1dd7c8f2b.png"}
             alt="Proces tworzenia strony"
-            className="rounded-xl shadow-lg border border-premium-light/10"
+            className="rounded-xl shadow-lg border border-gray-300"
           />
           <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-premium-gradient opacity-20 blur-3xl rounded-full"></div>
         </div>

@@ -32,7 +32,7 @@ const About = () => {
                 </div>
               </div>
               <div className="space-y-4">
-                <div className="bg-premium-dark border border-white/10 p-4 rounded-lg">
+                <div className="bg-premium-dark border border-gray-300 p-4 rounded-lg">
                   <h4 className="font-semibold mb-1">Indywidualne podejście</h4>
                   <p className="text-sm text-premium-light/70">Każdy projekt traktujemy wyjątkowo</p>
                 </div>
@@ -40,7 +40,7 @@ const About = () => {
                   <div className="absolute -inset-0.5 bg-premium-gradient rounded-xl blur-sm opacity-50"></div>
                   <div className="relative h-full">
                     <img 
-                      src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
+                      src="/lovable-uploads/b149e3ae-a413-4c99-bb58-3cf1dd7c8f2b.png" 
                       alt="Team collaboration" 
                       className="w-full h-full object-cover rounded-lg"
                     />
@@ -50,7 +50,7 @@ const About = () => {
             </div>
             
             <div className="flex justify-center mt-4">
-              <div className="grid grid-cols-4 gap-4 bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl py-6 px-4 -mt-24 relative z-10">
+              <div className="grid grid-cols-4 gap-4 bg-premium-dark/60 backdrop-blur-sm border border-gray-300 rounded-xl py-6 px-4 -mt-24 relative z-10">
                 {stats.map((stat, index) => (
                   <div key={index} className="flex flex-col items-center justify-center text-center">
                     <span className="text-2xl sm:text-3xl font-bold bg-premium-gradient text-transparent bg-clip-text">

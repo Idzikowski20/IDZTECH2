@@ -81,7 +81,7 @@ const NotificationBell: React.FC = () => {
                   onClick={() => handleNotificationClick(notification.id)}
                   className={`
                     p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
-                    ${notification.is_read ? '' : 'bg-slate-50 dark:bg-slate-900'}
+                    ${notification.isRead ? '' : 'bg-slate-50 dark:bg-slate-900'}
                   `}
                 >
                   <div className="flex gap-3">
@@ -90,7 +90,7 @@ const NotificationBell: React.FC = () => {
                       <div className="flex justify-between">
                         <h5 className="font-medium">{notification.title}</h5>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {formatNotificationDate(notification.created_at)}
+                          {formatNotificationDate(notification.createdAt)}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">
