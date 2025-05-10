@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut, Settings, User } from 'lucide-react';
+import { Home, LogOut, Settings, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,31 +15,18 @@ import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import BlinkingUnderscore from './BlinkingUnderscore';
-import NotificationBell from './NotificationBell';
+import { useNotifications } from '@/utils/notifications';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
-
-const SidebarTrigger = ({ className }: { className?: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  return (
-    <Button 
-      variant="ghost" 
-      onClick={() => setIsOpen(!isOpen)}
-      className={className}
-    >
-      <Menu size={20} />
-    </Button>
-  );
-};
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
+  const { unreadCount } = useNotifications();
   
   const handleLogout = () => {
     logout();
@@ -50,28 +37,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-premium-dark text-premium-light">
       <header className="p-4 border-b border-premium-light/10 flex justify-between items-center">
         <div className="flex items-center">
-          <SidebarTrigger className="text-premium-light hover:text-white hover:bg-premium-light/10 inline-flex w-10 h-10 justify-center items-center rounded-lg transition-colors" />
-          
-          <nav className="hidden md:flex items-center ml-4">
-            <Link 
-              to="/admin" 
-              className={`px-3 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+          <Link to="/">
+            <Button 
+              variant="ghost" 
+              className="text-premium-light hover:bg-premium-light/10 hover:text-black dark:hover:text-white flex gap-2 items-center"
             >
-              Dashboard
-            </Link>
-            <Link 
-              to="/admin/stats" 
-              className={`px-3 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
-            >
-              Statystyki
-            </Link>
-            <Link 
-              to="/admin/notifications" 
-              className={`px-3 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
-            >
-              Powiadomienia
-            </Link>
-          </nav>
+              <Home size={18} />
+              Wróć na stronę główną
+            </Button>
+          </Link>
         </div>
         
         <div className="flex items-center">
@@ -81,8 +55,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
 
           <div className="flex items-center ml-4">
-            <NotificationBell />
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -147,9 +119,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <li className="mb-2">
                   <Link 
                     to="/admin/notifications" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
                   >
                     Powiadomienia
+                    {unreadCount > 0 && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
                 <li className="mb-2">

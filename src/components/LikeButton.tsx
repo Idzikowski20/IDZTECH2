@@ -36,6 +36,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
         });
       }
     } else {
+      // For guest users, show dialog to enter name
       setShowDialog(true);
     }
   };
@@ -53,7 +54,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
     // Add guest like directly without approval
     const guestId = `guest-${Date.now()}`;
     addGuestLike(postId, guestId, guestName);
-    
+    setGuestName('');
     setShowDialog(false);
     
     toast({
@@ -62,6 +63,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
     });
   };
 
+  // Check if the post is liked by current user (or guest)
   const isLiked = user ? hasUserLiked(postId, user.id) : false;
 
   return (
@@ -72,7 +74,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
         onClick={handleLikeClick}
         className={cn(
           "flex items-center gap-2 transition-colors",
-          isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-white"
+          isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-black dark:hover:text-white"
         )}
       >
         <Heart 

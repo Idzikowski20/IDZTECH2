@@ -13,15 +13,12 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { useNotifications } from '@/utils/notifications';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { theme, setTheme } = useTheme();
-  const { unreadCount } = useNotifications();
   const location = useLocation();
 
   useEffect(() => {
@@ -35,11 +32,6 @@ const Navbar = () => {
     };
   }, []);
   
-  const handleLogout = () => {
-    logout();
-    trackEvent('logout', 'auth', 'User logged out');
-  };
-
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'py-3 bg-premium-dark/80 backdrop-blur-md shadow-lg' : 'py-5'}`}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
@@ -135,7 +127,7 @@ const Navbar = () => {
           {isAuthenticated ? (
             <Link to="/admin">
               <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
-                Admin {unreadCount > 0 && <span className="ml-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{unreadCount}</span>}
+                Admin
               </Button>
             </Link>
           ) : (
