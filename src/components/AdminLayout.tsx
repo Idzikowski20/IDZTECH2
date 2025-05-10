@@ -60,7 +60,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
                     {user?.profilePicture ? (
-                      <AvatarImage src={user.profilePicture} alt={user.name} />
+                      <AvatarImage src={user.profilePicture} alt={user.name || 'User'} />
                     ) : (
                       <AvatarFallback className="bg-premium-gradient text-white">
                         {user?.name?.charAt(0) || 'U'}

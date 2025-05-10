@@ -3,11 +3,18 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "./supabaseClient";
 
+// Extended user type to include profile properties
+interface ExtendedUser extends User {
+  name?: string;
+  profilePicture?: string;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: ExtendedUser | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  isAuthenticated: boolean;
+  signIn: (email: string, password: string, remember?: boolean) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
@@ -16,16 +23,39 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     // Najpierw ustaw nasłuchiwanie zmian stanu autoryzacji
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         setSession(currentSession);
-        setUser(currentSession?.user ?? null);
+        
+        if (currentSession?.user) {
+          // Fetch user profile data to get name and profile picture
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('name, profilePicture')
+            .eq('id', currentSession.user.id)
+            .single();
+          
+          // Extend the user object with profile data
+          const extendedUser: ExtendedUser = {
+            ...currentSession.user,
+            name: profile?.name || '',
+            profilePicture: profile?.profilePicture || ''
+          };
+          
+          setUser(extendedUser);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+        
         setLoading(false);
         
         // Aktualizacja czasu ostatniego logowania w profilu, jeśli to zalogowanie
@@ -38,9 +68,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     // Następnie sprawdź istniejącą sesję
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       setSession(currentSession);
-      setUser(currentSession?.user ?? null);
+      
+      if (currentSession?.user) {
+        // Fetch user profile data to get name and profile picture
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name, profilePicture')
+          .eq('id', currentSession.user.id)
+          .single();
+        
+        // Extend the user object with profile data
+        const extendedUser: ExtendedUser = {
+          ...currentSession.user,
+          name: profile?.name || '',
+          profilePicture: profile?.profilePicture || ''
+        };
+        
+        setUser(extendedUser);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+      
       setLoading(false);
       
       // Aktualizacja czasu ostatniego logowania dla istniejącej sesji
@@ -66,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, remember = false) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ 
         email, 
@@ -81,6 +133,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setUser(null);
+      setIsAuthenticated(false);
     } catch (error) {
       console.error('Błąd wylogowania:', error);
     }
@@ -110,6 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
+    isAuthenticated,
     signIn,
     signOut,
     resetPassword,

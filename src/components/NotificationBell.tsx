@@ -81,7 +81,7 @@ const NotificationBell: React.FC = () => {
                   onClick={() => handleNotificationClick(notification.id)}
                   className={`
                     p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
-                    ${notification.isRead ? '' : 'bg-slate-50 dark:bg-slate-900'}
+                    ${notification.status === 'unread' ? 'bg-slate-50 dark:bg-slate-900' : ''}
                   `}
                 >
                   <div className="flex gap-3">
