@@ -162,7 +162,7 @@ const Navbar = () => {
           <div ref={servicesRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex items-start justify-center pt-2">
             <div className="bg-premium-dark/95 border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-4 gap-10 transform transition-all duration-300 animate-fade-in rounded-2xl">
               {servicesCategories.map((category, index) => <div key={index} className="flex flex-col">
-                  <h3 className="text-lg font-medium text-premium-light mb-4 text-fuchsia-500">{category.title}</h3>
+                  <h3 className="text-lg font-medium text-premium-light mb-4 text-fuchsia-300">{category.title}</h3>
                   <div className="flex flex-col space-y-3">
                     {category.links.map((link, linkIndex) => <Link key={linkIndex} to={link.href.startsWith('#') ? `/${link.href}` : link.href} onClick={() => setIsServicesOpen(false)} className="text-premium-light/70 hover:text-premium-blue transition-colors text-sm group relative overflow-hidden">
                         <span className="relative z-10">{link.label}</span>
