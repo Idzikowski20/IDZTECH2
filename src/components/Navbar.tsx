@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import DotAnimation from './DotAnimation';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +55,9 @@ const Navbar = () => {
     label: 'Realizacje',
     href: '/projects'
   }, {
+    label: 'Blog',
+    href: '/blog'
+  }, {
     label: 'Kontakt',
     href: '/contact'
   }];
@@ -88,33 +92,6 @@ const Navbar = () => {
       label: 'Content Plan',
       href: '/content-plan'
     }]
-  }, {
-    title: 'SEM - PPC',
-    links: [{
-      label: 'Kampanie Google ads',
-      href: '/google-ads-campaigns'
-    }, {
-      label: 'Kampanie Meta Ads',
-      href: '/meta-ads-campaigns'
-    }, {
-      label: 'Audyt Google Ads',
-      href: '/google-ads-audit'
-    }]
-  }, {
-    title: 'Inne Usługi',
-    links: [{
-      label: 'Marketing lokalny',
-      href: '#local-marketing'
-    }, {
-      label: 'Email Marketing',
-      href: '#email-marketing'
-    }, {
-      label: 'Filmy Reklamowe',
-      href: '#video-ads'
-    }, {
-      label: 'Content Marketing',
-      href: '#content-marketing'
-    }]
   }];
 
   // Mouse enter/leave handlers for hover functionality
@@ -137,7 +114,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 relative z-50">
           <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
-          <span className="text-xl font-bold">IDZ.TECH</span>
+          <span className="text-xl font-bold">IDZ<DotAnimation />TECH</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -167,11 +144,19 @@ const Navbar = () => {
         </div>
 
         {/* CTA Button */}
-        <Link to="/contact">
-          <Button variant="default" className="hidden lg:block bg-premium-gradient hover:opacity-90 transition-opacity">
-            Darmowa wycena
-          </Button>
-        </Link>
+        <div className="hidden lg:flex items-center gap-3">
+          <Link to="/contact">
+            <Button variant="default" className="bg-premium-gradient hover:opacity-90 transition-opacity">
+              Darmowa wycena
+              <ArrowRight size={16} className="ml-1" />
+            </Button>
+          </Link>
+          <Link to="/login">
+            <Button variant="outline" size="icon" className="border-premium-light/20 hover:bg-premium-dark/50">
+              <LogIn size={18} />
+            </Button>
+          </Link>
+        </div>
 
         {/* Mobile Menu Button */}
         <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden flex items-center text-premium-light relative z-50">
@@ -188,7 +173,7 @@ const Navbar = () => {
             onMouseLeave={handleMouseLeave}
             className="flex items-start justify-center pt-2"
           >
-            <div className="bg-premium-dark/95 border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-4 gap-10 transform transition-all duration-300 animate-fade-in rounded-2xl">
+            <div className="bg-premium-dark/95 border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-2 gap-10 transform transition-all duration-300 animate-fade-in rounded-2xl">
               {servicesCategories.map((category, index) => (
                 <div key={index} className="flex flex-col">
                   <h3 className="text-lg text-premium-light mb-4 text-purple-600 font-bold">{category.title}</h3>
@@ -275,11 +260,20 @@ const Navbar = () => {
             </div>
           ))}
           
-          <Link to="/contact" onClick={() => setIsOpen(false)}>
-            <Button variant="default" className="mt-6 w-full max-w-xs bg-premium-gradient hover:opacity-90 transition-opacity">
-              Darmowa wycena
-            </Button>
-          </Link>
+          <div className="flex flex-col gap-3 mt-6 w-full max-w-xs">
+            <Link to="/contact" onClick={() => setIsOpen(false)}>
+              <Button variant="default" className="w-full bg-premium-gradient hover:opacity-90 transition-opacity">
+                Darmowa wycena
+                <ArrowRight size={16} className="ml-1" />
+              </Button>
+            </Link>
+            <Link to="/login" onClick={() => setIsOpen(false)}>
+              <Button variant="outline" className="w-full">
+                Logowanie
+                <LogIn size={16} className="ml-1" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </nav>

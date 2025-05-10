@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Star } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import DotAnimation from './DotAnimation';
+
 const Hero = () => {
   return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
       {/* Background Elements */}
@@ -27,7 +29,7 @@ const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Tworzenie stron internetowych <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span>
+              Tworzenie stron internetowych IDZ<DotAnimation />TECH
             </h1>
             
             <p className="text-xl text-premium-light/70 max-w-lg">
@@ -68,7 +70,7 @@ const Hero = () => {
           {/* Right Side Image - Made bigger */}
           <div className="w-full lg:w-full animate-slide-up">
             <div className="relative animate-float">
-              <img alt="Web Development Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl animate-float object-contain max-h-[500px]" />
+              <img alt="Web Development Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl animate-float object-contain max-h-[600px]" />
             </div>
           </div>
         </div>
