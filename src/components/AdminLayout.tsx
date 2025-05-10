@@ -1,6 +1,6 @@
 
 import React, { useState, ReactNode } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -9,7 +9,8 @@ import {
   LogOut,
   BarChart,
   Menu,
-  X
+  X,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -22,8 +23,9 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
@@ -47,9 +49,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       path: '/admin/stats' 
     },
     { 
-      icon: Users, 
-      label: 'Użytkownicy', 
-      path: '/admin/users' 
+      icon: User, 
+      label: 'Profil', 
+      path: '/profile' 
     },
     { 
       icon: Settings, 
@@ -85,6 +87,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
             <span className="text-xl font-bold">IDZ<DotAnimation />TECH</span>
           </div>
+          
+          {/* User info */}
+          {user && (
+            <div className="px-4 py-4 border-b border-premium-light/10">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
+                  {user.profilePicture ? (
+                    <img src={user.profilePicture} alt={user.name} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    user.name.charAt(0)
+                  )}
+                </div>
+                <div className="ml-3">
+                  <div className="font-medium">{user.name} {user.lastName}</div>
+                  <div className="text-sm text-premium-light/60">{user.role === 'admin' ? 'Administrator' : 'Użytkownik'}</div>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Navigation */}
           <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">

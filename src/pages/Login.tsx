@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { LogIn, User } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -12,19 +13,18 @@ import { useAuth } from '@/utils/auth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
+
 const loginSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
   password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków')
 });
+
 const Login = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
-  const {
-    login
-  } = useAuth();
+  const { toast } = useToast();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -32,6 +32,7 @@ const Login = () => {
       password: ''
     }
   });
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
     try {
@@ -59,7 +60,9 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  return <div className="min-h-screen bg-premium-dark">
+
+  return (
+    <div className="min-h-screen bg-premium-dark">
       <Navbar />
       <div className="container mx-auto pt-32 pb-20">
         <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
@@ -72,24 +75,32 @@ const Login = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField control={form.control} name="email" render={({
-              field
-            }) => <FormItem>
+              <FormField 
+                control={form.control} 
+                name="email" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="nazwa@example.com" className="bg-gray-950" />
+                      <Input placeholder="nazwa@example.com" className="bg-gray-950" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
-              <FormField control={form.control} name="password" render={({
-              field
-            }) => <FormItem>
+                  </FormItem>
+                )} 
+              />
+              <FormField 
+                control={form.control} 
+                name="password" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Hasło</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" className="bg-slate-950" />
+                      <Input type="password" placeholder="••••••••" className="bg-slate-950" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
+                  </FormItem>
+                )} 
+              />
               <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
                 {isLoading ? "Logowanie..." : "Zaloguj się"}
               </Button>
@@ -107,6 +118,8 @@ const Login = () => {
         </div>
       </div>
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Login;

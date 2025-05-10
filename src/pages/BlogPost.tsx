@@ -7,11 +7,13 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
+import { useAuth } from '@/utils/auth';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { getPostBySlug, incrementView } = useBlogStore();
+  const { user } = useAuth();
   const viewCountUpdated = useRef(false);
   
   const post = slug ? getPostBySlug(slug) : undefined;
@@ -45,6 +47,10 @@ const BlogPost = () => {
     );
   }
 
+  // Get author details (in a real app this would come from a user database)
+  const authorDisplayName = user ? `${user.name} ${user.lastName || ''}`.trim() : post.author;
+  const authorInitial = authorDisplayName.charAt(0);
+
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -70,11 +76,19 @@ const BlogPost = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
             <div className="flex items-center mb-8">
-              <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                {post.author.charAt(0)}
-              </div>
+              {user?.profilePicture ? (
+                <img 
+                  src={user.profilePicture} 
+                  alt={authorDisplayName} 
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
+                  {authorInitial}
+                </div>
+              )}
               <div className="ml-3">
-                <div className="font-medium">{post.author}</div>
+                <div className="font-medium">{authorDisplayName}</div>
                 <div className="text-sm text-premium-light/60">Autor</div>
               </div>
             </div>

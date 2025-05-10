@@ -9,6 +9,8 @@ export interface User {
   email: string;
   name: string;
   role: UserRole;
+  profilePicture?: string;
+  lastName?: string;
 }
 
 interface AuthState {
@@ -17,6 +19,7 @@ interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   register: (email: string, name: string, password: string) => Promise<boolean>;
   logout: () => void;
+  updateProfile: (data: Partial<User>) => void;
 }
 
 // Mock user database
@@ -26,6 +29,8 @@ const users: User[] = [
     email: 'admin@idztech.pl',
     name: 'Admin',
     role: 'admin',
+    profilePicture: '',
+    lastName: '',
   },
 ];
 
@@ -36,7 +41,7 @@ const passwords: Record<string, string> = {
 
 export const useAuth = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       login: async (email: string, password: string) => {
@@ -62,6 +67,8 @@ export const useAuth = create<AuthState>()(
           email,
           name,
           role: 'user',
+          profilePicture: '',
+          lastName: '',
         };
         
         // In a real app, you would hash the password and save to a database
@@ -74,6 +81,19 @@ export const useAuth = create<AuthState>()(
       },
       logout: () => {
         set({ user: null, isAuthenticated: false });
+      },
+      updateProfile: (data) => {
+        const { user } = get();
+        if (user) {
+          const updatedUser = { ...user, ...data };
+          set({ user: updatedUser });
+          
+          // Update in "database" as well
+          const index = users.findIndex(u => u.id === user.id);
+          if (index !== -1) {
+            users[index] = updatedUser;
+          }
+        }
       },
     }),
     {
