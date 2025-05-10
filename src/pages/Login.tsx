@@ -5,13 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Lock } from 'lucide-react';
+import { Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
-import DotAnimation from '@/components/DotAnimation';
-import { Loader2 } from 'lucide-react';
+import PageDotAnimation from '@/components/PageDotAnimation';
 
 interface LocationState {
   from?: {
@@ -76,7 +75,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
-      <DotAnimation />
+      <PageDotAnimation />
       <div className="container mx-auto pt-32 pb-20">
         <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
@@ -146,6 +145,18 @@ const Login = () => {
                 </span>
               ) : "Zaloguj się"}
             </Button>
+            
+            <div className="text-center mt-4">
+              <span className="text-premium-light/70">Nie masz jeszcze konta? </span>
+              <Button
+                variant="link"
+                type="button"
+                className="p-0"
+                onClick={() => navigate('/register')}
+              >
+                Zarejestruj się
+              </Button>
+            </div>
           </form>
         </div>
       </div>

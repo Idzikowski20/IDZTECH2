@@ -2,17 +2,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/utils/auth';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import PageDotAnimation from '@/components/PageDotAnimation';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Imię musi mieć co najmniej 2 znaki'),
@@ -23,7 +24,6 @@ const registerSchema = z.object({
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { register: registerUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -38,24 +38,34 @@ const Register = () => {
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
     try {
-      const success = await registerUser(values.email, values.name, values.password);
-      if (success) {
-        toast({
-          title: "Rejestracja udana",
-          description: "Przekierowujemy do panelu administratora"
-        });
-        navigate('/admin');
-      } else {
+      // Register the user with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            name: values.name,
+          },
+        }
+      });
+      
+      if (error) {
         toast({
           title: "Błąd rejestracji",
-          description: "Konto z tym adresem email już istnieje",
+          description: error.message,
           variant: "destructive"
         });
+      } else {
+        toast({
+          title: "Rejestracja udana",
+          description: "Teraz możesz się zalogować"
+        });
+        navigate('/login');
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Błąd rejestracji",
-        description: "Spróbuj ponownie później",
+        description: error.message || "Spróbuj ponownie później",
         variant: "destructive"
       });
     } finally {
@@ -63,8 +73,10 @@ const Register = () => {
     }
   };
 
-  return <div className="min-h-screen bg-premium-dark">
+  return (
+    <div className="min-h-screen bg-premium-dark">
       <Navbar />
+      <PageDotAnimation />
       <div className="container mx-auto pt-32 pb-20">
         <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
@@ -116,7 +128,12 @@ const Register = () => {
                 )} 
               />
               <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
-                {isLoading ? "Rejestracja..." : "Zarejestruj się"}
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Rejestracja...
+                  </span>
+                ) : "Zarejestruj się"}
               </Button>
             </form>
           </Form>
@@ -132,7 +149,8 @@ const Register = () => {
         </div>
       </div>
       <Footer />
-    </div>;
+    </div>
+  );
 };
 
 export default Register;

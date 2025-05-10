@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { KeyRound } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
-import Navbar from '@/components/Navbar';
+import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
+import PageDotAnimation from '@/components/PageDotAnimation';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -52,6 +53,7 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
+      <PageDotAnimation />
       <div className="container mx-auto pt-32 pb-20">
         <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">

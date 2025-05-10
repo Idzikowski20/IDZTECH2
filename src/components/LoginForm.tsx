@@ -43,23 +43,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   });
 
   const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
-    const { error } = await signIn(data.email, data.password, data.rememberMe);
-    
-    if (!error) {
-      toast({
-        title: "Zalogowano pomyślnie",
-        description: "Witamy z powrotem!"
-      });
+    try {
+      const { error } = await signIn(data.email, data.password, data.rememberMe);
       
-      if (onSuccess) {
-        onSuccess();
+      if (!error) {
+        toast({
+          title: "Zalogowano pomyślnie",
+          description: "Witamy z powrotem!"
+        });
+        
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/admin');
+        }
       } else {
-        navigate('/admin');
+        toast({
+          title: "Błąd logowania",
+          description: error.message || "Nieprawidłowy email lub hasło",
+          variant: "destructive"
+        });
       }
-    } else {
+    } catch (error) {
       toast({
         title: "Błąd logowania",
-        description: "Nieprawidłowy email lub hasło",
+        description: "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
     }

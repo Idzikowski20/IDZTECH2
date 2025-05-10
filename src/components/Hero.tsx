@@ -1,83 +1,92 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import BlinkingUnderscore from '@/components/ui/BlinkingUnderscore';
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { CheckCircle2 } from "lucide-react";
+import { useTheme } from "@/utils/themeContext";
+import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
 
 const Hero = () => {
-  return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-      {/* Background Elements */}
-      <div className="w-full h-full overflow-hidden z-0">
-        <div className="fixed top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
-        <div className="fixed bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
-      </div>
-
-      <div className="container mx-auto relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
-          {/* Left Side Content */}
-          <div className="w-full lg:w-1/2 space-y-8 animate-fade-in">
-            <div className="inline-flex items-center rounded-full bg-premium-dark border border-premium-purple/30 px-4 py-1 text-sm">
-              <span className="flex items-center gap-1">
-                <Star size={14} className="fill-premium-purple text-premium-purple" />
-                <Star size={14} className="fill-premium-purple text-premium-purple" />
-                <Star size={14} className="fill-premium-purple text-premium-purple" />
-                <Star size={14} className="fill-premium-purple text-premium-purple" />
-                <Star size={14} className="fill-premium-purple text-premium-purple" />
-              </span>
-              <span className="ml-2 text-premium-light/70 dark:text-premium-light/70">Najlepsze strony internetowe</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Tworzymy najlepsze strony internetowe <span className="flex items-center">
-                IDZ.TECH<BlinkingUnderscore />
-              </span>
-            </h1>
-            
-            <p className="text-xl text-premium-light/70 dark:text-premium-light/70">
-              Zwiększ swoją sprzedaż z wykorzystaniem nowoczesnych stron internetowych i optymalizacji SEO. Zaufało nam już ponad 200 firm.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link to="/contact">
-                <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white rounded-full px-8 py-6">
-                  Darmowa wycena
-                  <ArrowRight size={18} className="ml-2" />
-                </Button>
-              </Link>
-              <Link to="/projects">
-                <Button variant="project">
-                  Zobacz nasze realizacje
-                  <ArrowRight size={18} className="ml-2" />
-                </Button>
-              </Link>
-            </div>
-            
-            <div className="flex flex-wrap gap-4 pt-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70 dark:text-premium-light/70">Gwarancja rezultatów</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70 dark:text-premium-light/70">Ponad 200 projektów</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70 dark:text-premium-light/70">Nowoczesne technologie</span>
-              </div>
-            </div>
-          </div>
+  const { theme } = useTheme();
+  
+  return (
+    <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative overflow-hidden">
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-6"
+          >
+            <span className="bg-clip-text text-transparent bg-premium-gradient font-mono font-bold">
+              IDZ.TECH_
+            </span>
+          </motion.div>
           
-          {/* Right Side Image */}
-          <div className="w-full lg:w-full animate-slide-up">
-            <div className="relative animate-float">
-              <img alt="Web Development Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl animate-float object-contain max-h-[600px]" />
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-aeonik"
+          >
+            Tworzymy najlepsze strony internetowe<BlinkingUnderscore />
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl text-premium-light/80 mb-8 leading-relaxed"
+          >
+            Dostarczamy rozwiązania, które budują online obecność i konwertują odwiedzających w klientów. Specjalizujemy się w tworzeniu stron www, SEO i marketingu cyfrowym.
+          </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
+          >
+            <Link to="/contact">
+              <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full sm:w-auto">
+                Skontaktuj się
+              </Button>
+            </Link>
+            <Link to="/projects">
+              <Button size="lg" variant="outline" className="hover:bg-white hover:text-black w-full sm:w-auto">
+                Zobacz projekty
+              </Button>
+            </Link>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-col md:flex-row gap-4 md:gap-8 justify-center text-sm text-premium-light/70"
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="text-premium-purple h-5 w-5" />
+              <span>Szybkie strony</span>
             </div>
-          </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="text-premium-purple h-5 w-5" />
+              <span>Najlepsza wydajność</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="text-premium-purple h-5 w-5" />
+              <span>Nowoczesne technologie</span>
+            </div>
+          </motion.div>
         </div>
       </div>
-    </section>;
+      
+      {/* Circle blur effect */}
+      <div className="absolute -left-32 -bottom-32 w-96 h-96 bg-premium-purple/30 rounded-full blur-3xl opacity-20"></div>
+      <div className="absolute -right-32 top-10 w-96 h-96 bg-premium-blue/30 rounded-full blur-3xl opacity-20"></div>
+    </section>
+  );
 };
 
 export default Hero;

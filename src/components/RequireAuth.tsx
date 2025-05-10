@@ -11,7 +11,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   const location = useLocation();
 
   if (loading) {
-    // Wyświetl ładowanie podczas weryfikacji sesji
+    // Display loading indicator while verifying the session
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple"></div>
@@ -20,7 +20,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   }
 
   if (!user) {
-    // Przekieruj do logowania jeśli użytkownik nie jest zalogowany
+    // Redirect to login if user is not logged in
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
