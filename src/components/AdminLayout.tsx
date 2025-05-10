@@ -34,13 +34,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-premium-dark text-premium-light">
-      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center">
+    <div className="min-h-screen bg-premium-dark text-premium-light dark:bg-premium-light dark:text-premium-dark">
+      <header className="p-4 border-b border-premium-light/10 dark:border-premium-dark/10 flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/">
             <Button 
               variant="ghost" 
-              className="text-premium-light hover:bg-premium-light/10 hover:text-black dark:hover:text-white flex gap-2 items-center"
+              className="text-premium-light hover:bg-premium-light hover:text-black dark:text-premium-dark dark:hover:text-white dark:hover:bg-premium-dark flex gap-2 items-center"
             >
               <Home size={18} />
               Wróć na stronę główną
@@ -50,7 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         
         <div className="flex items-center">
           <div className="flex items-center">
-            <span className="font-mono">IDZ.TECH</span>
+            <span className="font-mono dark:text-premium-dark">IDZ.TECH</span>
             <BlinkingUnderscore />
           </div>
 
@@ -62,7 +62,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     {user?.profilePicture ? (
                       <AvatarImage src={user.profilePicture} alt={user.name} />
                     ) : (
-                      <AvatarFallback className="bg-premium-gradient text-white">
+                      <AvatarFallback className="bg-premium-gradient text-white dark:text-premium-dark">
                         {user?.name?.charAt(0) || 'U'}
                       </AvatarFallback>
                     )}
@@ -95,15 +95,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </header>
 
       <div className="flex">
-        <div className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block">
+        <div className="h-screen sticky top-0 border-r border-premium-light/10 dark:border-premium-dark/10 w-64 hidden md:block">
           <div className="p-4">
-            <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
+            <h2 className="text-lg font-bold mb-4 dark:text-premium-dark">Panel administracyjny</h2>
             <nav>
               <ul>
                 <li className="mb-2">
                   <Link 
                     to="/admin" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white dark:bg-premium-dark/10 dark:text-premium-dark' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white dark:text-premium-dark/70 dark:hover:bg-premium-dark/5 dark:hover:text-premium-dark'}`}
                   >
                     Dashboard
                   </Link>
@@ -111,7 +111,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <li className="mb-2">
                   <Link 
                     to="/admin/stats" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white dark:bg-premium-dark/10 dark:text-premium-dark' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white dark:text-premium-dark/70 dark:hover:bg-premium-dark/5 dark:hover:text-premium-dark'}`}
                   >
                     Statystyki
                   </Link>
@@ -119,7 +119,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <li className="mb-2">
                   <Link 
                     to="/admin/notifications" 
-                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white dark:bg-premium-dark/10 dark:text-premium-dark' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white dark:text-premium-dark/70 dark:hover:bg-premium-dark/5 dark:hover:text-premium-dark'}`}
                   >
                     Powiadomienia
                     {unreadCount > 0 && (
@@ -132,7 +132,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <li className="mb-2">
                   <Link 
                     to="/admin/users" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white dark:bg-premium-dark/10 dark:text-premium-dark' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white dark:text-premium-dark/70 dark:hover:bg-premium-dark/5 dark:hover:text-premium-dark'}`}
                   >
                     Użytkownicy
                   </Link>
@@ -140,7 +140,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <li className="mb-2">
                   <Link 
                     to="/admin/new-post" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname.startsWith('/admin/new-post') ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname.startsWith('/admin/new-post') ? 'bg-premium-light/10 text-white dark:bg-premium-dark/10 dark:text-premium-dark' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white dark:text-premium-dark/70 dark:hover:bg-premium-dark/5 dark:hover:text-premium-dark'}`}
                   >
                     Nowy post
                   </Link>
@@ -148,7 +148,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <li className="mb-2">
                   <Link 
                     to="/admin/settings" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white dark:bg-premium-dark/10 dark:text-premium-dark' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white dark:text-premium-dark/70 dark:hover:bg-premium-dark/5 dark:hover:text-premium-dark'}`}
                   >
                     Ustawienia
                   </Link>
