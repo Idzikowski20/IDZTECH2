@@ -7,21 +7,21 @@ import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import BlinkingUnderscore from './BlinkingUnderscore';
-import NotificationBell from './NotificationBell';
 import { 
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import { useNotifications } from '@/utils/notifications';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { unreadCount } = useNotifications();
   const location = useLocation();
 
   useEffect(() => {
@@ -104,7 +104,11 @@ const Navbar = () => {
           
           <Link to="/projects" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
           <Link to="/about-us" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
-          <Link to="/blog" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>Blog</Link>
+          
+          <Link to="/blog" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>
+            Blog
+          </Link>
+          
           <Link to="/contact" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
         </div>
 
@@ -129,24 +133,11 @@ const Navbar = () => {
           </Link>
           
           {isAuthenticated ? (
-            <>
-              <NotificationBell />
-              <Link to="/profile">
-                <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
-                  Profil
-                </Button>
-              </Link>
-              {user?.role === 'admin' && (
-                <Link to="/admin">
-                  <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
-                    Admin
-                  </Button>
-                </Link>
-              )}
-              <Button variant="outline" size="sm" onClick={handleLogout} className="hover:text-black hover:bg-white">
-                Wyloguj
+            <Link to="/admin">
+              <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
+                Admin {unreadCount > 0 && <span className="ml-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">{unreadCount}</span>}
               </Button>
-            </>
+            </Link>
           ) : (
             <Link to="/login">
               <Button variant="ghost" size="icon" className="text-white hover:text-black hover:bg-white">

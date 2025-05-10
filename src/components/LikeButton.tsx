@@ -9,7 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { sendApprovalRequest } from '@/utils/notifications';
 
 interface LikeButtonProps {
   postId: string;
@@ -19,7 +18,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
   const [showDialog, setShowDialog] = useState(false);
   const [guestName, setGuestName] = useState('');
   const { isAuthenticated, user } = useAuth();
-  const { toggleLike, hasUserLiked } = useBlogStore();
+  const { toggleLike, hasUserLiked, addGuestLike } = useBlogStore();
   const { toast } = useToast();
   
   const post = useBlogStore.getState().posts.find(p => p.id === postId);
@@ -51,21 +50,15 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
       return;
     }
     
-    // Send notification to admin for approval
-    sendApprovalRequest(
-      'guest', // Guest user ID
-      guestName, // Guest name
-      postId,
-      'post',
-      'Prośba o polubienie postu',
-      `Gość "${guestName}" chce polubić post "${post?.title || 'Unknown post'}".`
-    );
+    // Add guest like directly without approval
+    const guestId = `guest-${Date.now()}`;
+    addGuestLike(postId, guestId, guestName);
     
     setShowDialog(false);
     
     toast({
       title: "Dziękujemy!",
-      description: "Twoja prośba o polubienie postu została wysłana do zatwierdzenia."
+      description: "Twoja reakcja została dodana."
     });
   };
 
@@ -101,7 +94,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
           <DialogHeader>
             <DialogTitle>Polub jako gość</DialogTitle>
             <DialogDescription>
-              Podaj swoje imię, aby polubić ten post. Twoja prośba zostanie wysłana do zatwierdzenia.
+              Podaj swoje imię, aby polubić ten post.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
@@ -119,7 +112,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
                 Anuluj
               </Button>
               <Button onClick={handleGuestLike}>
-                Wyślij prośbę
+                Polub
               </Button>
             </div>
           </div>

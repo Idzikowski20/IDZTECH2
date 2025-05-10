@@ -12,6 +12,11 @@ export interface BlogComment {
   date: string;
 }
 
+export interface GuestLike {
+  id: string;
+  name: string;
+}
+
 export interface BlogPost {
   id: string;
   title: string;
@@ -26,11 +31,12 @@ export interface BlogPost {
   tags: string[];
   comments: BlogComment[];
   likes: string[]; // Array of user IDs who liked the post
+  guestLikes: GuestLike[]; // Array of guest likes
 }
 
 interface BlogStore {
   posts: BlogPost[];
-  addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes'>) => void;
+  addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes' | 'guestLikes'>) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
   incrementView: (id: string) => void;
@@ -38,6 +44,8 @@ interface BlogStore {
   addComment: (postId: string, userId: string, userName: string, userAvatar: string | undefined, content: string) => void;
   deleteComment: (postId: string, commentId: string) => void;
   toggleLike: (postId: string, userId: string) => void;
+  addGuestLike: (postId: string, guestId: string, guestName: string) => void;
+  removeGuestLike: (postId: string, guestId: string) => void;
   getTotalComments: () => number;
   getTotalLikes: () => number;
   getPostComments: (postId: string) => BlogComment[];
@@ -75,7 +83,8 @@ const initialPosts: BlogPost[] = [
     categories: ['SEO', 'Marketing Cyfrowy'],
     tags: ['pozycjonowanie', 'SEO', 'Google', 'treści'],
     comments: [],
-    likes: []
+    likes: [],
+    guestLikes: []
   },
   {
     id: '2',
@@ -105,7 +114,8 @@ const initialPosts: BlogPost[] = [
     categories: ['Web Development', 'UX Design'],
     tags: ['responsywność', 'mobile-first', 'design', 'UX'],
     comments: [],
-    likes: []
+    likes: [],
+    guestLikes: []
   }
 ];
 
@@ -121,7 +131,8 @@ export const useBlogStore = create<BlogStore>()(
           date: new Date().toISOString(),
           views: 0,
           comments: [],
-          likes: []
+          likes: [],
+          guestLikes: []
         };
         
         set((state) => ({
@@ -208,6 +219,39 @@ export const useBlogStore = create<BlogStore>()(
           };
         });
       },
+      
+      addGuestLike: (postId, guestId, guestName) => {
+        set((state) => {
+          const post = state.posts.find(p => p.id === postId);
+          if (!post) return state;
+
+          const newGuestLike: GuestLike = {
+            id: guestId,
+            name: guestName
+          };
+          
+          return {
+            posts: state.posts.map((post) => 
+              post.id === postId 
+                ? { ...post, guestLikes: [...post.guestLikes, newGuestLike] } 
+                : post
+            )
+          };
+        });
+      },
+      
+      removeGuestLike: (postId, guestId) => {
+        set((state) => ({
+          posts: state.posts.map((post) => 
+            post.id === postId 
+              ? { 
+                  ...post, 
+                  guestLikes: post.guestLikes.filter(like => like.id !== guestId) 
+                } 
+              : post
+          )
+        }));
+      },
 
       getTotalComments: () => {
         const { posts } = get();
@@ -216,7 +260,8 @@ export const useBlogStore = create<BlogStore>()(
 
       getTotalLikes: () => {
         const { posts } = get();
-        return posts.reduce((total, post) => total + post.likes.length, 0);
+        return posts.reduce((total, post) => 
+          total + post.likes.length + post.guestLikes.length, 0);
       },
 
       getPostComments: (postId) => {

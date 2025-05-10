@@ -10,8 +10,10 @@ import { pl } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import LoginForm from '@/components/LoginForm';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Trash2, Heart, MessageCircle } from 'lucide-react';
+import { sendApprovalRequest } from '@/utils/notifications';
 
 interface CommentSectionProps {
   postId: string;
@@ -19,7 +21,8 @@ interface CommentSectionProps {
 
 const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [comment, setComment] = useState('');
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [showGuestDialog, setShowGuestDialog] = useState(false);
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
   const { isAuthenticated, user } = useAuth();
   const { addComment, deleteComment, getPostComments } = useBlogStore();
@@ -28,11 +31,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const comments = getPostComments(postId);
 
   const handleCommentSubmit = () => {
-    if (!isAuthenticated || !user) {
-      setShowLoginDialog(true);
-      return;
-    }
-
     if (!comment.trim()) {
       toast({
         title: "Błąd",
@@ -42,20 +40,58 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       return;
     }
 
-    addComment(
-      postId, 
-      user.id, 
-      `${user.name} ${user.lastName || ''}`.trim(), 
-      user.profilePicture, 
-      comment.trim()
+    if (!isAuthenticated) {
+      setShowGuestDialog(true);
+      return;
+    }
+
+    if (user) {
+      addComment(
+        postId, 
+        user.id, 
+        `${user.name} ${user.lastName || ''}`.trim(), 
+        user.profilePicture, 
+        comment.trim()
+      );
+      
+      toast({
+        title: "Sukces",
+        description: "Komentarz został dodany"
+      });
+      
+      setComment('');
+    }
+  };
+
+  const handleGuestCommentSubmit = () => {
+    if (!guestName.trim()) {
+      toast({
+        title: "Wymagane imię",
+        description: "Proszę podać swoje imię",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const post = useBlogStore.getState().posts.find(p => p.id === postId);
+    
+    // Send notification to admin for approval
+    sendApprovalRequest(
+      'guest', // Guest user ID
+      guestName, // Guest name
+      postId,
+      'comment',
+      'Prośba o dodanie komentarza',
+      `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}".`
     );
     
-    toast({
-      title: "Sukces",
-      description: "Komentarz został dodany"
-    });
-    
+    setShowGuestDialog(false);
     setComment('');
+    
+    toast({
+      title: "Dziękujemy!",
+      description: "Twój komentarz został wysłany do zatwierdzenia."
+    });
   };
 
   const handleDeleteComment = (commentId: string) => {
@@ -87,17 +123,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       {/* Add comment form */}
       <div className="mb-8">
         <Textarea 
-          placeholder={isAuthenticated ? "Dodaj komentarz..." : "Zaloguj się, aby dodać komentarz"}
+          placeholder="Dodaj komentarz..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           className="mb-3 h-24"
-          disabled={!isAuthenticated}
         />
         <div className="flex justify-end">
           <Button 
             onClick={handleCommentSubmit} 
             className="bg-premium-gradient hover:opacity-90"
-            disabled={!isAuthenticated || !comment.trim()}
+            disabled={!comment.trim()}
           >
             Dodaj komentarz
           </Button>
@@ -151,17 +186,33 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         )}
       </div>
 
-      {/* Login dialog */}
-      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+      {/* Guest comment dialog */}
+      <Dialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Zaloguj się, aby dodać komentarz</DialogTitle>
+            <DialogTitle>Dodaj komentarz jako gość</DialogTitle>
             <DialogDescription>
-              Tylko zalogowani użytkownicy mogą dodawać komentarze. Zaloguj się lub utwórz konto.
+              Podaj swoje imię, aby dodać komentarz. Twój komentarz zostanie wysłany do zatwierdzenia.
             </DialogDescription>
           </DialogHeader>
-          <div className="pt-4">
-            <LoginForm hideHeader={true} onSuccess={() => setShowLoginDialog(false)} />
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Twoje imię</Label>
+              <Input 
+                id="name" 
+                placeholder="Jan Kowalski" 
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowGuestDialog(false)}>
+                Anuluj
+              </Button>
+              <Button onClick={handleGuestCommentSubmit}>
+                Wyślij komentarz
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
