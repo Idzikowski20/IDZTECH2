@@ -1,301 +1,333 @@
-import React, { useState, useEffect } from 'react';
+
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/utils/AuthProvider';
+import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/utils/supabaseClient';
-import { useAuth } from '@/utils/auth';
-import AdminLayout from '@/components/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTheme } from '@/utils/themeContext';
-
-// Updated type definition to match the database schema
-type UserProfile = {
-  created_at: string;
-  email: string;
-  id: string;
-  last_login: string;
-  name: string;
-  role: string;
-  lastName?: string;
-  bio?: string;
-  jobTitle?: string;
-  profilePicture?: string;
-};
+import { supabase } from '@/utils/supabaseClient';
+import TaskManager from '@/components/TaskManager';
 
 const AdminSettings = () => {
-  const { user } = useAuth();
+  const { user, updatePassword } = useAuth();
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
-  
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState({
     name: '',
     lastName: '',
-    email: '',
     bio: '',
     jobTitle: '',
-    profilePicture: ''
+    profilePicture: '',
   });
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
+  // Pobieranie profilu użytkownika
+  const fetchProfile = async () => {
+    if (!user) return;
 
-  const fetchUserProfile = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
+        .eq('id', user.id)
         .single();
 
       if (error) throw error;
-      
+
       if (data) {
-        setUserProfile(data as UserProfile);
-        setFormData({
+        setProfile({
           name: data.name || '',
           lastName: data.lastName || '',
-          email: data.email || '',
           bio: data.bio || '',
           jobTitle: data.jobTitle || '',
-          profilePicture: data.profilePicture || ''
+          profilePicture: data.profilePicture || '',
         });
       }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: 'Could not fetch your profile data',
-        variant: 'destructive'
+        title: 'Błąd przy pobieraniu profilu',
+        description: error.message,
+        variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Aktualizacja profilu użytkownika
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     try {
-      setIsLoading(true);
-      
+      setLoading(true);
       const { error } = await supabase
         .from('profiles')
         .update({
-          name: formData.name,
-          email: formData.email,
-          lastName: formData.lastName,
-          bio: formData.bio,
-          jobTitle: formData.jobTitle,
-          profilePicture: formData.profilePicture
+          name: profile.name,
+          lastName: profile.lastName,
+          bio: profile.bio,
+          jobTitle: profile.jobTitle,
         })
-        .eq('id', user?.id);
+        .eq('id', user.id);
 
       if (error) throw error;
-      
+
       toast({
-        title: 'Success',
-        description: 'Profile updated successfully'
+        title: 'Profil zaktualizowany',
+        description: 'Twój profil został pomyślnie zaktualizowany',
       });
-      
-      fetchUserProfile();
-    } catch (error) {
-      console.error('Error updating profile:', error);
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: 'Could not update your profile',
-        variant: 'destructive'
+        title: 'Błąd przy aktualizacji profilu',
+        description: error.message,
+        variant: 'destructive',
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
-  const handleChangePassword = async () => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user?.email || '', {
-        redirectTo: `${window.location.origin}/reset-password`
+  // Zmiana hasła
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      toast({
+        title: 'Błąd',
+        description: 'Nowe hasła nie są identyczne',
+        variant: 'destructive',
       });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { error } = await updatePassword(passwords.newPassword);
       
       if (error) throw error;
-      
+
       toast({
-        title: 'Email sent',
-        description: 'Check your email for the password reset link'
+        title: 'Hasło zmienione',
+        description: 'Twoje hasło zostało pomyślnie zmienione',
       });
-    } catch (error) {
-      console.error('Error sending reset password email:', error);
+      setPasswords({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: 'Could not send reset password email',
-        variant: 'destructive'
+        title: 'Błąd przy zmianie hasła',
+        description: error.message,
+        variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Obsługa uploadowania zdjęcia
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files.length) return;
+    if (!user) return;
+
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const filePath = `profiles/${user.id}/${Math.random()}.${fileExt}`;
+
+    try {
+      setUploading(true);
+
+      // Załaduj plik do Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Pobierz publiczny URL
+      const { data } = await supabase.storage.from('avatars').getPublicUrl(filePath);
+
+      // Aktualizuj URL zdjęcia w profilu
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          profilePicture: data.publicUrl,
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile({
+        ...profile,
+        profilePicture: data.publicUrl,
+      });
+
+      toast({
+        title: 'Zdjęcie zaktualizowane',
+        description: 'Twoje zdjęcie profilowe zostało zaktualizowane',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Błąd',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
     <AdminLayout>
-      <div className="container mx-auto py-6">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-6">Ustawienia</h1>
         
-        <Tabs defaultValue="profile">
-          <TabsList className="mb-6">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="profile">Profil</TabsTrigger>
+            <TabsTrigger value="security">Bezpieczeństwo</TabsTrigger>
+            <TabsTrigger value="tasks">Zadania</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="profile">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your profile information</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Name</Label>
-                      <Input 
-                        id="name" 
-                        name="name" 
-                        value={formData.name} 
-                        onChange={handleChange} 
-                        placeholder="Your name" 
-                      />
+          <TabsContent value="profile" className="space-y-6">
+            <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
+              <h2 className="text-xl font-bold mb-4">Informacje o profilu</h2>
+              
+              <form onSubmit={handleProfileUpdate} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Imię</Label>
+                    <Input
+                      id="name"
+                      value={profile.name}
+                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                      className="bg-slate-950"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Nazwisko</Label>
+                    <Input
+                      id="lastName"
+                      value={profile.lastName}
+                      onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                      className="bg-slate-950"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="jobTitle">Stanowisko</Label>
+                  <Input
+                    id="jobTitle"
+                    value={profile.jobTitle}
+                    onChange={(e) => setProfile({ ...profile, jobTitle: e.target.value })}
+                    className="bg-slate-950"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
+                    value={profile.bio}
+                    onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                    className="bg-slate-950"
+                    rows={4}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="picture">Zdjęcie profilowe</Label>
+                  <div className="flex items-center space-x-4">
+                    <div className="h-16 w-16 rounded-full overflow-hidden bg-premium-dark border border-premium-light/20">
+                      {profile.profilePicture ? (
+                        <img
+                          src={profile.profilePicture}
+                          alt="Profile"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-premium-light/50">
+                          {profile.name ? profile.name[0].toUpperCase() : 'U'}
+                        </div>
+                      )}
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input 
-                        id="lastName" 
-                        name="lastName" 
-                        value={formData.lastName} 
-                        onChange={handleChange} 
-                        placeholder="Your last name" 
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      name="email" 
-                      type="email" 
-                      value={formData.email} 
-                      onChange={handleChange} 
-                      placeholder="Your email" 
-                      disabled={!!user?.email}
-                    />
-                    {!!user?.email && (
-                      <p className="text-sm text-muted-foreground">
-                        Email can't be changed directly. Contact support if needed.
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="jobTitle">Job Title</Label>
-                    <Input 
-                      id="jobTitle" 
-                      name="jobTitle" 
-                      value={formData.jobTitle} 
-                      onChange={handleChange} 
-                      placeholder="Your position" 
+                    <Input
+                      id="picture"
+                      type="file"
+                      onChange={handleImageUpload}
+                      accept="image/*"
+                      className="bg-slate-950"
+                      disabled={uploading}
                     />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea 
-                      id="bio" 
-                      name="bio" 
-                      value={formData.bio} 
-                      onChange={handleChange} 
-                      placeholder="Short bio" 
-                      rows={4} 
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="profilePicture">Profile Picture URL</Label>
-                    <Input 
-                      id="profilePicture" 
-                      name="profilePicture" 
-                      value={formData.profilePicture} 
-                      onChange={handleChange} 
-                      placeholder="https://example.com/your-image.jpg" 
-                    />
-                  </div>
-                  
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="appearance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance</CardTitle>
-                <CardDescription>Customize the appearance of the application</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium">Theme</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Select the theme for the application
-                    </p>
-                  </div>
-                  <Button onClick={toggleTheme}>
-                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                </div>
+                
+                <div className="pt-4">
+                  <Button type="submit" className="bg-premium-gradient" disabled={loading}>
+                    {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </form>
+            </div>
           </TabsContent>
           
-          <TabsContent value="security">
-            <Card>
-              <CardHeader>
-                <CardTitle>Security</CardTitle>
-                <CardDescription>Manage your account security</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-medium">Password</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Change your password
-                    </p>
-                  </div>
-                  <Button onClick={handleChangePassword}>
-                    Reset Password
+          <TabsContent value="security" className="space-y-6">
+            <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
+              <h2 className="text-xl font-bold mb-4">Zmiana hasła</h2>
+              
+              <form onSubmit={handlePasswordChange} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="newPassword">Nowe hasło</Label>
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    value={passwords.newPassword}
+                    onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+                    className="bg-slate-950"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Potwierdź nowe hasło</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={passwords.confirmPassword}
+                    onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+                    className="bg-slate-950"
+                    required
+                    minLength={6}
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <Button type="submit" className="bg-premium-gradient" disabled={loading}>
+                    {loading ? 'Aktualizowanie...' : 'Zmień hasło'}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </form>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="tasks">
+            <TaskManager />
           </TabsContent>
         </Tabs>
       </div>

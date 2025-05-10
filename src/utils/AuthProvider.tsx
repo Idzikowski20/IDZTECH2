@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string, rememberMe?: boolean) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
@@ -66,30 +66,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signIn = async (email: string, password: string, rememberMe = false) => {
+  const signIn = async (email: string, password: string) => {
     try {
-      // Set the session expiration based on rememberMe
-      const options = {
-        email, 
-        password,
-        options: {
-          // If rememberMe is true, set session to expire in 30 days, otherwise default (1 hour)
-          expiresIn: rememberMe ? 60 * 60 * 24 * 30 : undefined
-        }
-      };
-
-      console.log('Attempting to sign in with:', { email, rememberMe });
-      const { error } = await supabase.auth.signInWithPassword(options);
-      
-      if (error) {
-        console.error('SignIn error:', error);
-      } else {
-        console.log('SignIn successful');
-      }
-      
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       return { error };
     } catch (error) {
-      console.error('Unexpected SignIn error:', error);
       return { error };
     }
   };

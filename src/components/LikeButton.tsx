@@ -28,8 +28,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
     if (isAuthenticated && user) {
       toggleLike(postId, user.id);
       
-      // Make this safe by checking hasUserLiked after toggling
-      const isLiked = user && hasUserLiked(postId, user.id);
+      const isLiked = hasUserLiked(postId, user.id);
       
       if (isLiked) {
         toast({
@@ -65,8 +64,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
     });
   };
 
-  // Check if the post is liked by current user (or guest) - with null/undefined checks
-  const isLiked = user && postId ? hasUserLiked(postId, user.id) : false;
+  // Check if the post is liked by current user (or guest) - with null check
+  const isLiked = user ? hasUserLiked(postId, user.id) : false;
 
   return (
     <>
@@ -76,7 +75,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
         onClick={handleLikeClick}
         className={cn(
           "flex items-center gap-2 transition-colors",
-          isLiked ? "text-red-500 hover:text-black" : "text-premium-light/70 hover:text-black"
+          isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-white dark:hover:text-white"
         )}
       >
         <Heart 
@@ -115,7 +114,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
               <Button variant="outline" onClick={() => setShowDialog(false)} className="hover:text-black">
                 Anuluj
               </Button>
-              <Button onClick={handleGuestLike} className="hover:text-black">
+              <Button onClick={handleGuestLike} className="hover:text-white">
                 Polub
               </Button>
             </div>

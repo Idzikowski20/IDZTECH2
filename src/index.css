@@ -38,47 +38,61 @@
     --radius: 0.5rem;
   }
 
-  body {
-    @apply bg-premium-dark text-white font-montserrat;
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 262 100% 65%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
-  
-  /* Properly define hover states for buttons and links */
-  button, a {
-    @apply text-white transition-colors;
-  }
-  
-  /* On hover, text should be white on dark background and black on white background */
-  button:hover, a:hover {
-    @apply bg-white text-black;
-  }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 12px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-premium-dark;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-purple-900;
-    border-radius: 6px;
-    border: 3px solid #0a0a0a;
-  }
-  
+}
+
+@layer base {
   * {
-    scrollbar-width: thin;
-    scrollbar-color: theme('colors.purple.900') #0a0a0a;
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-montserrat;
   }
   
-  /* Box styling with gray borders instead of white */
-  .box-component {
-    @apply border-gray-600;
+  .light {
+    @apply bg-white text-premium-dark;
   }
   
-  /* Image containers should have no border */
-  .image-container img {
-    @apply border-0;
+  .dark {
+    @apply bg-premium-dark text-premium-light;
+  }
+  
+  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
+  .light p, .light span {
+    @apply text-premium-dark;
+  }
+  
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
+  .dark p, .dark span {
+    @apply text-premium-light;
   }
 }

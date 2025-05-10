@@ -180,29 +180,22 @@ export const useBlogStore = create<BlogStore>()(
           };
 
           return {
-            posts: state.posts.map((post) => {
-              if (post.id === postId) {
-                // Ensure post.comments is always initialized as an array
-                const comments = Array.isArray(post.comments) ? post.comments : [];
-                return { ...post, comments: [...comments, newComment] };
-              }
-              return post;
-            })
+            posts: state.posts.map((post) => 
+              post.id === postId 
+                ? { ...post, comments: [...post.comments, newComment] } 
+                : post
+            )
           };
         });
       },
 
       deleteComment: (postId, commentId) => {
         set((state) => ({
-          posts: state.posts.map((post) => {
-            if (post.id === postId && Array.isArray(post.comments)) {
-              return { 
-                ...post, 
-                comments: post.comments.filter(comment => comment.id !== commentId) 
-              };
-            }
-            return post;
-          })
+          posts: state.posts.map((post) => 
+            post.id === postId 
+              ? { ...post, comments: post.comments.filter(comment => comment.id !== commentId) } 
+              : post
+          )
         }));
       },
 
@@ -211,12 +204,11 @@ export const useBlogStore = create<BlogStore>()(
           const post = state.posts.find(p => p.id === postId);
           if (!post) return state;
 
-          const likes = Array.isArray(post.likes) ? post.likes : [];
-          const hasLiked = likes.includes(userId);
+          const hasLiked = post.likes.includes(userId);
           
           const updatedLikes = hasLiked
-            ? likes.filter(id => id !== userId)
-            : [...likes, userId];
+            ? post.likes.filter(id => id !== userId)
+            : [...post.likes, userId];
           
           return {
             posts: state.posts.map((post) => 
@@ -233,7 +225,6 @@ export const useBlogStore = create<BlogStore>()(
           const post = state.posts.find(p => p.id === postId);
           if (!post) return state;
 
-          const guestLikes = Array.isArray(post.guestLikes) ? post.guestLikes : [];
           const newGuestLike: GuestLike = {
             id: guestId,
             name: guestName
@@ -242,7 +233,7 @@ export const useBlogStore = create<BlogStore>()(
           return {
             posts: state.posts.map((post) => 
               post.id === postId 
-                ? { ...post, guestLikes: [...guestLikes, newGuestLike] } 
+                ? { ...post, guestLikes: [...post.guestLikes, newGuestLike] } 
                 : post
             )
           };
@@ -251,47 +242,38 @@ export const useBlogStore = create<BlogStore>()(
       
       removeGuestLike: (postId, guestId) => {
         set((state) => ({
-          posts: state.posts.map((post) => {
-            if (post.id === postId && Array.isArray(post.guestLikes)) {
-              return { 
-                ...post, 
-                guestLikes: post.guestLikes.filter(like => like.id !== guestId) 
-              };
-            }
-            return post;
-          })
+          posts: state.posts.map((post) => 
+            post.id === postId 
+              ? { 
+                  ...post, 
+                  guestLikes: post.guestLikes.filter(like => like.id !== guestId) 
+                } 
+              : post
+          )
         }));
       },
 
       getTotalComments: () => {
         const { posts } = get();
-        return posts.reduce((total, post) => {
-          if (Array.isArray(post.comments)) {
-            return total + post.comments.length;
-          }
-          return total;
-        }, 0);
+        return posts.reduce((total, post) => total + post.comments.length, 0);
       },
 
       getTotalLikes: () => {
         const { posts } = get();
-        return posts.reduce((total, post) => {
-          const likesCount = Array.isArray(post.likes) ? post.likes.length : 0;
-          const guestLikesCount = Array.isArray(post.guestLikes) ? post.guestLikes.length : 0;
-          return total + likesCount + guestLikesCount;
-        }, 0);
+        return posts.reduce((total, post) => 
+          total + post.likes.length + post.guestLikes.length, 0);
       },
 
       getPostComments: (postId) => {
         const { posts } = get();
         const post = posts.find(p => p.id === postId);
-        return post && Array.isArray(post.comments) ? post.comments : [];
+        return post ? post.comments : [];
       },
 
       hasUserLiked: (postId, userId) => {
         const { posts } = get();
         const post = posts.find(p => p.id === postId);
-        return post && Array.isArray(post.likes) ? post.likes.includes(userId) : false;
+        return post ? post.likes.includes(userId) : false;
       }
     }),
     {
