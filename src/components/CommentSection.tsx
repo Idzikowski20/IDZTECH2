@@ -42,25 +42,35 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     }
 
     if (!isAuthenticated) {
+      // For guest users, show dialog to enter name
       setShowGuestDialog(true);
       return;
     }
 
     if (user) {
-      addComment(
-        postId, 
-        user.id, 
-        `${user.name} ${user.lastName || ''}`.trim(), 
-        user.profilePicture, 
-        comment.trim()
-      );
-      
-      toast({
-        title: "Sukces",
-        description: "Komentarz został dodany"
-      });
-      
-      setComment('');
+      try {
+        addComment(
+          postId, 
+          user.id, 
+          `${user.name} ${user.lastName || ''}`.trim(), 
+          user.profilePicture, 
+          comment.trim()
+        );
+        
+        toast({
+          title: "Sukces",
+          description: "Komentarz został dodany"
+        });
+        
+        setComment('');
+      } catch (error) {
+        console.error("Error adding comment:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się dodać komentarza",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -76,23 +86,32 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     
     const post = useBlogStore.getState().posts.find(p => p.id === postId);
     
-    // Send notification to admin for approval
-    sendApprovalRequest(
-      'guest', // Guest user ID
-      guestName, // Guest name
-      postId,
-      'comment',
-      'Prośba o dodanie komentarza',
-      `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}".`
-    );
-    
-    setShowGuestDialog(false);
-    setComment('');
-    
-    toast({
-      title: "Dziękujemy!",
-      description: "Twój komentarz został wysłany do zatwierdzenia."
-    });
+    try {
+      // Send notification to admin for approval
+      sendApprovalRequest(
+        'guest', // Guest user ID
+        guestName, // Guest name
+        postId,
+        'comment',
+        'Prośba o dodanie komentarza',
+        `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}".`
+      );
+      
+      setShowGuestDialog(false);
+      setComment('');
+      
+      toast({
+        title: "Dziękujemy!",
+        description: "Twój komentarz został wysłany do zatwierdzenia."
+      });
+    } catch (error) {
+      console.error("Error submitting guest comment:", error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił problem podczas wysyłania komentarza",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDeleteComment = (commentId: string) => {
@@ -114,14 +133,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     setCommentToDelete(null);
   };
 
-  // Ensure comments is defined before rendering
-  const commentsLength = comments ? comments.length : 0;
-
   return (
     <div className="mt-10 pt-8 border-t border-premium-light/10">
       <h3 className="text-xl font-bold mb-6 flex items-center">
         <MessageCircle size={20} className="mr-2 text-premium-light/70" />
-        Komentarze ({commentsLength})
+        Komentarze ({comments.length})
       </h3>
 
       {/* Add comment form */}
@@ -135,7 +151,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         <div className="flex justify-end">
           <Button 
             onClick={handleCommentSubmit} 
-            className="bg-premium-gradient hover:opacity-90"
+            className="bg-premium-gradient hover:opacity-90 hover:text-white"
             disabled={!comment.trim()}
           >
             Dodaj komentarz
@@ -149,7 +165,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           comments.map((comment: BlogComment) => (
             <div 
               key={comment.id} 
-              className="p-4 rounded-lg bg-premium-dark/50 border border-premium-light/10"
+              className="p-4 rounded-lg bg-premium-dark/50 border border-gray-600"
             >
               <div className="flex justify-between mb-3">
                 <div className="flex items-center">
@@ -210,10 +226,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowGuestDialog(false)}>
+              <Button variant="outline" onClick={() => setShowGuestDialog(false)} className="hover:text-black">
                 Anuluj
               </Button>
-              <Button onClick={handleGuestCommentSubmit}>
+              <Button onClick={handleGuestCommentSubmit} className="hover:text-white">
                 Wyślij komentarz
               </Button>
             </div>
@@ -231,8 +247,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDeleteComment}>Anuluj</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteComment} className="bg-red-500 text-white hover:bg-red-600">
+            <AlertDialogCancel onClick={cancelDeleteComment} className="hover:text-black">Anuluj</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteComment} className="bg-red-500 text-white hover:bg-red-600 hover:text-white">
               Usuń
             </AlertDialogAction>
           </AlertDialogFooter>

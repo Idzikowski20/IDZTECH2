@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -75,7 +76,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
         onClick={handleLikeClick}
         className={cn(
           "flex items-center gap-2 transition-colors",
-          isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-white dark:hover:text-white"
+          isLiked ? "text-red-500 hover:text-black" : "text-premium-light/70 hover:text-black"
         )}
       >
         <Heart 
@@ -114,7 +115,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
               <Button variant="outline" onClick={() => setShowDialog(false)} className="hover:text-black">
                 Anuluj
               </Button>
-              <Button onClick={handleGuestLike} className="hover:text-white">
+              <Button onClick={handleGuestLike} className="hover:text-black">
                 Polub
               </Button>
             </div>

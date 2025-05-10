@@ -9,6 +9,7 @@ import { Lock } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface LocationState {
   from?: {
@@ -19,6 +20,7 @@ interface LocationState {
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,9 +35,11 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
+      // Pass rememberMe value to signIn function
+      const { error } = await signIn(email, password, rememberMe);
       
       if (error) {
+        console.error("Login error:", error);
         toast({
           title: "Błąd logowania",
           description: error.message || "Niepoprawny email lub hasło",
@@ -49,6 +53,7 @@ const Login = () => {
         navigate(from);
       }
     } catch (error) {
+      console.error("Unexpected login error:", error);
       toast({
         title: "Błąd logowania",
         description: "Wystąpił nieoczekiwany błąd podczas logowania",
@@ -63,7 +68,7 @@ const Login = () => {
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
       <div className="container mx-auto pt-32 pb-20">
-        <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
+        <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-gray-600 shadow-lg">
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
               <Lock className="text-white" size={24} />
@@ -90,7 +95,7 @@ const Login = () => {
                 <Label htmlFor="password">Hasło</Label>
                 <Button 
                   variant="link" 
-                  className="p-0 h-auto text-premium-purple"
+                  className="p-0 h-auto text-premium-purple hover:text-premium-purple hover:bg-transparent"
                   type="button"
                   onClick={() => navigate('/forgot-password')}
                 >
@@ -108,7 +113,22 @@ const Login = () => {
               />
             </div>
             
-            <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
+            {/* Remember Me checkbox */}
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="rememberMe" 
+                checked={rememberMe} 
+                onCheckedChange={() => setRememberMe(!rememberMe)}
+              />
+              <Label 
+                htmlFor="rememberMe" 
+                className="text-sm cursor-pointer"
+              >
+                Zapamiętaj mnie na 30 dni
+              </Label>
+            </div>
+            
+            <Button type="submit" className="w-full bg-premium-gradient hover:text-white" disabled={isLoading}>
               {isLoading ? "Logowanie..." : "Zaloguj się"}
             </Button>
           </form>

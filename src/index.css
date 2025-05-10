@@ -38,66 +38,18 @@
     --radius: 0.5rem;
   }
 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 262 100% 65%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
     @apply bg-premium-dark text-white font-montserrat;
   }
   
-  .light {
-    @apply bg-premium-dark text-white;
+  /* Properly define hover states for buttons and links */
+  button, a {
+    @apply text-white transition-colors;
   }
   
-  .dark {
-    @apply bg-premium-dark text-white;
-  }
-  
-  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
-  .light p, .light span {
-    @apply text-white;
-  }
-  
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
-  .dark p, .dark span {
-    @apply text-white;
-  }
-  
-  .light a, .dark a {
-    @apply text-white hover:bg-white hover:text-black;
+  /* On hover, text should be white on dark background and black on white background */
+  button:hover, a:hover {
+    @apply bg-white text-black;
   }
   
   /* Custom scrollbar */
@@ -118,5 +70,15 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: theme('colors.purple.900') #0a0a0a;
+  }
+  
+  /* Box styling with gray borders instead of white */
+  .box-component {
+    @apply border-gray-600;
+  }
+  
+  /* Image containers should have no border */
+  .image-container img {
+    @apply border-0;
   }
 }
