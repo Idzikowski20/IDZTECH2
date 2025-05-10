@@ -19,6 +19,11 @@ const Index = () => {
     });
   }, []);
   
+  // Update document title to reflect web agency focus
+  useEffect(() => {
+    document.title = "IDZ.TECH - Agencja Witryn Internetowych";
+  }, []);
+  
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />

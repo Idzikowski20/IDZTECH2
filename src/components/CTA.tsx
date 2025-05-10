@@ -15,10 +15,10 @@ const CTA = () => {
         <div className="max-w-4xl mx-auto text-center">
           <span className="text-premium-purple font-medium">Zaczynamy współpracę</span>
           <h2 className="text-3xl lg:text-5xl font-bold mt-3 mb-6">
-            Gotowy na zwiększenie sprzedaży swojego biznesu?
+            Gotowy na zwiększenie efektywności swojego biznesu online?
           </h2>
           <p className="text-premium-light/70 text-lg mb-8 max-w-2xl mx-auto">
-            Skontaktuj się z nami już dziś i odkryj, jak nasze rozwiązania marketingowe mogą pomóc Twojej firmie osiągnąć sukces w internecie.
+            Skontaktuj się z nami już dziś i odkryj, jak nasze rozwiązania webowe mogą pomóc Twojej firmie osiągnąć sukces w internecie.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/contact">

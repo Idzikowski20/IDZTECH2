@@ -77,7 +77,7 @@ const AdminStats = () => {
     for (let i = 0; i < updatedMonthlyStats.length; i++) {
       const monthIndex = i + 4; // Starting from May (4)
       
-      if (monthIndex < currentMonth) {
+      if (monthIndex <= currentMonth) {
         // Generate historical data for past months
         const postsInThisMonth = posts.filter(post => {
           const postDate = new Date(post.date);
@@ -122,9 +122,9 @@ const AdminStats = () => {
     }, interval);
     
     return () => clearInterval(timer);
-  }, [posts]);
+  }, [posts, monthlyStats]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -273,7 +273,7 @@ const AdminStats = () => {
           <div className={`${themeClass} p-6 rounded-xl`}>
             <div className="space-y-4">
               <p className={isDarkMode ? "text-premium-light/80" : "text-premium-dark/80"}>
-                Statystyki są zbierane na podstawie rzeczywistych danych z Google Analytics oraz aktywności użytkowników na Twoim blogu. System automatycznie zlicza:
+                Statystyki są zbierane na podstawie rzeczywistych danych z Google Analytics oraz aktywności użytkowników na Twojej witrynie. System automatycznie zlicza:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Ilość wyświetleń każdego artykułu</li>

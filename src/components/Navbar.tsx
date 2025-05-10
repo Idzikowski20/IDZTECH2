@@ -30,13 +30,21 @@ const Navbar = () => {
     };
   }, [isServicesOpen]);
 
-  const handleScroll = () => {
-    if (window.scrollY > 20) {
-      setScrolled(true);
-    } else {
-      setScrolled(false);
-    }
-  };
+  // Add scroll handler to detect scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const handleLoginClick = () => {
     if (isAuthenticated) {
@@ -112,7 +120,10 @@ const Navbar = () => {
     setActiveSubmenu(activeSubmenu === index ? null : index);
   };
   
-  return <nav className={cn("fixed top-0 w-full z-50 transition-all duration-300", scrolled ? "bg-premium-dark/90 py-4" : "bg-transparent py-6")}>
+  return <nav className={cn(
+    "fixed top-0 w-full z-50 transition-all duration-300", 
+    scrolled ? "bg-premium-dark/90 backdrop-blur-lg border-b border-premium-light/10 py-4" : "bg-transparent py-6"
+  )}>
       <div className="container mx-auto px-4 lg:px-8 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 relative z-50">
@@ -170,11 +181,11 @@ const Navbar = () => {
       {/* Services Mega Menu (Desktop) */}
       {isServicesOpen && <div className="absolute left-0 right-0 w-full z-40">
           <div ref={servicesRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex items-start justify-center pt-2">
-            <div className="bg-premium-dark/95 border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-2 gap-10 transform transition-all duration-300 animate-fade-in rounded-2xl">
+            <div className="bg-premium-dark/95 backdrop-blur-lg border border-premium-light/10 p-12 w-full max-w-5xl grid grid-cols-2 gap-10 transform transition-all duration-300 animate-fade-in rounded-2xl">
               {servicesCategories.map((category, index) => <div key={index} className="flex flex-col">
                   <h3 className="text-lg text-premium-light mb-4 text-purple-600 font-bold">{category.title}</h3>
                   <div className="flex flex-col space-y-3">
-                    {category.links.map((link, linkIndex) => <Link key={linkIndex} to={link.href.startsWith('#') ? `/${link.href}` : link.href} onClick={() => setIsServicesOpen(false)} className="text-premium-light/70 hover:text-premium-blue transition-colors text-sm group relative overflow-hidden">
+                    {category.links.map((link, linkIndex) => <Link key={linkIndex} to={link.href.startsWith('#') ? `/${link.href}` : link.href} onClick={() => setIsServicesOpen(false)} className="text-premium-light/70 hover:text-premium-light transition-colors text-sm group relative overflow-hidden">
                         <span className="relative z-10">{link.label}</span>
                         <span className="absolute bottom-0 left-0 w-full h-0.5 bg-premium-blue transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"></span>
                       </Link>)}
@@ -185,7 +196,7 @@ const Navbar = () => {
         </div>}
 
       {/* Mobile Navigation */}
-      <div className={cn("lg:hidden fixed inset-0 bg-premium-dark/98 z-40 flex flex-col justify-center items-center", isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")} style={{
+      <div className={cn("lg:hidden fixed inset-0 bg-premium-dark/98 backdrop-blur-lg z-40 flex flex-col justify-center items-center", isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")} style={{
       transition: "opacity 300ms ease-in-out"
     }}>
         <div className="flex flex-col items-center space-y-6 w-full px-8 max-h-[80vh] overflow-y-auto py-8">
