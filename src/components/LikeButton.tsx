@@ -5,36 +5,68 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/utils/auth';
 import { useBlogStore } from '@/utils/blog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import LoginForm from '@/components/LoginForm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { sendApprovalRequest } from '@/utils/notifications';
 
 interface LikeButtonProps {
   postId: string;
 }
 
 const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [guestName, setGuestName] = useState('');
   const { isAuthenticated, user } = useAuth();
-  const { toggleLike, hasUserLiked } = useBlogStore();
+  const { toggleLike, hasUserLiked, getPosts } = useBlogStore();
   const { toast } = useToast();
+  
+  const post = useBlogStore.getState().posts.find(p => p.id === postId);
 
   const handleLikeClick = () => {
-    if (!isAuthenticated || !user) {
-      setShowLoginDialog(true);
+    if (isAuthenticated && user) {
+      toggleLike(postId, user.id);
+      
+      const isLiked = hasUserLiked(postId, user.id);
+      
+      if (isLiked) {
+        toast({
+          title: "Polubiono post",
+          description: "Dziękujemy za Twoją reakcję"
+        });
+      }
+    } else {
+      setShowDialog(true);
+    }
+  };
+  
+  const handleGuestLike = () => {
+    if (!guestName.trim()) {
+      toast({
+        title: "Wymagane imię",
+        description: "Proszę podać swoje imię",
+        variant: "destructive"
+      });
       return;
     }
-
-    toggleLike(postId, user.id);
     
-    const isLiked = hasUserLiked(postId, user.id);
+    // Send notification to admin for approval
+    sendApprovalRequest(
+      'guest', // Guest user ID
+      guestName, // Guest name
+      postId,
+      'post',
+      'Prośba o polubienie postu',
+      `Gość "${guestName}" chce polubić post "${post?.title || 'Unknown post'}".`
+    );
     
-    if (isLiked) {
-      toast({
-        title: "Polubiono post",
-        description: "Dziękujemy za Twoją reakcję"
-      });
-    }
+    setShowDialog(false);
+    
+    toast({
+      title: "Dziękujemy!",
+      description: "Twoja prośba o polubienie postu została wysłana do zatwierdzenia."
+    });
   };
 
   const isLiked = user ? hasUserLiked(postId, user.id) : false;
@@ -63,17 +95,33 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
         </span>
       </Button>
 
-      {/* Login dialog */}
-      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+      {/* Guest like dialog */}
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Zaloguj się, aby polubić post</DialogTitle>
+            <DialogTitle>Polub jako gość</DialogTitle>
             <DialogDescription>
-              Tylko zalogowani użytkownicy mogą polubić posty. Zaloguj się lub utwórz konto.
+              Podaj swoje imię, aby polubić ten post. Twoja prośba zostanie wysłana do zatwierdzenia.
             </DialogDescription>
           </DialogHeader>
-          <div className="pt-4">
-            <LoginForm hideHeader={true} onSuccess={() => setShowLoginDialog(false)} />
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Twoje imię</Label>
+              <Input 
+                id="name" 
+                placeholder="Jan Kowalski" 
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowDialog(false)}>
+                Anuluj
+              </Button>
+              <Button onClick={handleGuestLike}>
+                Wyślij prośbę
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

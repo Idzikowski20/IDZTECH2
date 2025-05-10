@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,7 +20,6 @@ import ContactPage from "./pages/ContactPage";
 import AboutUs from "./pages/AboutUs";
 import Projects from "./pages/Projects";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
@@ -30,7 +30,7 @@ import Profile from "./pages/Profile";
 import AdminStats from "./pages/AdminStats";
 import AdminSettings from "./pages/AdminSettings";
 import AdminUsers from "./pages/AdminUsers";
-import AdminNotifications from "./pages/AdminNotifications"; // New route
+import AdminNotifications from "./pages/AdminNotifications";
 import { ThemeProvider } from "./utils/themeContext";
 import { initGA, trackPageView } from "./utils/analytics";
 
@@ -75,7 +75,6 @@ const App = () => (
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/admin" element={<Admin />} />

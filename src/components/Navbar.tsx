@@ -4,9 +4,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import BlinkingUnderscore from './BlinkingUnderscore';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -59,8 +60,10 @@ const Navbar = () => {
             {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
+          
           {isAuthenticated ? (
             <>
+              <NotificationBell />
               <Link to="/profile">
                 <Button variant="secondary" size="sm">
                   Profil
@@ -78,13 +81,12 @@ const Navbar = () => {
               </Button>
             </>
           ) : (
-            <>
-              <Link to="/login">
-                <Button variant="secondary" size="sm">
-                  Zaloguj
-                </Button>
-              </Link>
-            </>
+            <Link to="/login">
+              <Button variant="ghost" size="icon">
+                <LogIn className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Zaloguj</span>
+              </Button>
+            </Link>
           )}
         </div>
       </div>
