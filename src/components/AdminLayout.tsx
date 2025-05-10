@@ -33,6 +33,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     navigate('/login');
   };
 
+  const displayName = user?.email ? user.email.split('@')[0] : 'User';
+  const userAvatar = user?.user_metadata?.avatar_url || '';
+
   return (
     <div className="min-h-screen">
       <header className="p-4 border-b border-premium-light/10 flex justify-between items-center">
@@ -60,11 +63,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    {user?.profilePicture ? (
-                      <AvatarImage src={user.profilePicture} alt={user.name || 'User'} />
+                    {userAvatar ? (
+                      <AvatarImage src={userAvatar} alt={displayName} />
                     ) : (
                       <AvatarFallback className="bg-premium-gradient text-white">
-                        {user?.name?.charAt(0) || 'U'}
+                        {displayName.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     )}
                   </Avatar>

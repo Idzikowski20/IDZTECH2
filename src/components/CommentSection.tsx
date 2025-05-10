@@ -47,14 +47,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     }
 
     if (user) {
-      // Fix: Use optional chaining for lastName and create a displayName that handles cases where lastName is undefined
-      const displayName = `${user.name || ''} ${user.lastName || ''}`.trim();
+      // Get display name from email or user_metadata if available
+      const displayName = user.user_metadata?.name || 
+                        (user.email ? user.email.split('@')[0] : 'Anonymous');
+      
+      const profilePicture = user.user_metadata?.avatar_url || '';
       
       addComment(
         postId, 
         user.id, 
         displayName,
-        user.profilePicture, 
+        profilePicture, 
         comment.trim()
       );
       
