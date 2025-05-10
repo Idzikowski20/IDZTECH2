@@ -23,7 +23,7 @@ const NotificationBell: React.FC = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button variant="ghost" size="icon" className="relative text-white hover:text-black hover:bg-white">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center transform translate-x-1/3 -translate-y-1/3">
@@ -75,7 +75,7 @@ const NotificationBell: React.FC = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="w-full"
+            className="w-full hover:text-black hover:bg-white"
             onClick={() => navigate('/admin/notifications')}
           >
             Zobacz wszystkie

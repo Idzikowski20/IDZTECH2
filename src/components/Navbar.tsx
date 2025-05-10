@@ -48,6 +48,14 @@ const Navbar = () => {
           </span>
         </Link>
 
+        <div className="hidden md:flex items-center space-x-4">
+          <Link to="/tworzenie-stron-www" className="text-white hover:text-premium-purple transition-colors">Web Development</Link>
+          <Link to="/tworzenie-sklepow-internetowych" className="text-white hover:text-premium-purple transition-colors">E-commerce</Link>
+          <Link to="/pozycjonowanie-stron-internetowych" className="text-white hover:text-premium-purple transition-colors">SEO</Link>
+          <Link to="/blog" className="text-white hover:text-premium-purple transition-colors">Blog</Link>
+          <Link to="/contact" className="text-white hover:text-premium-purple transition-colors">Kontakt</Link>
+        </div>
+
         <div className="flex items-center space-x-4">
           <Button 
             variant="ghost" 
@@ -56,6 +64,7 @@ const Navbar = () => {
               setTheme(theme === "light" ? "dark" : "light");
               trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
             }}
+            className="text-white hover:text-black hover:bg-white"
           >
             {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
@@ -65,24 +74,24 @@ const Navbar = () => {
             <>
               <NotificationBell />
               <Link to="/profile">
-                <Button variant="secondary" size="sm">
+                <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
                   Profil
                 </Button>
               </Link>
               {user?.role === 'admin' && (
                 <Link to="/admin">
-                  <Button variant="secondary" size="sm">
+                  <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
                     Admin
                   </Button>
                 </Link>
               )}
-              <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="hover:text-black hover:bg-white">
                 Wyloguj
               </Button>
             </>
           ) : (
             <Link to="/login">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-white hover:text-black hover:bg-white">
                 <LogIn className="h-[1.2rem] w-[1.2rem]" />
                 <span className="sr-only">Zaloguj</span>
               </Button>
