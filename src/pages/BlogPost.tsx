@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
@@ -12,6 +12,7 @@ const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { getPostBySlug, incrementView } = useBlogStore();
+  const viewCountUpdated = useRef(false);
   
   const post = slug ? getPostBySlug(slug) : undefined;
   
@@ -21,11 +22,12 @@ const BlogPost = () => {
       behavior: 'smooth'
     });
     
-    // Increment view count
-    if (post?.id) {
+    // Increment view count only once per component mount
+    if (post?.id && !viewCountUpdated.current) {
       incrementView(post.id);
+      viewCountUpdated.current = true;
     }
-  }, [post, incrementView]);
+  }, [post?.id, incrementView]);
   
   if (!post) {
     return (
