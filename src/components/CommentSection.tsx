@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/AuthProvider';
 import { useBlogStore, BlogComment } from '@/utils/blog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Heart, MessageCircle } from 'lucide-react';
+import { Trash2, MessageCircle } from 'lucide-react';
 import { sendApprovalRequest } from '@/utils/notifications';
 
 interface CommentSectionProps {
@@ -50,7 +50,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       addComment(
         postId, 
         user.id, 
-        `${user.name} ${user.lastName || ''}`.trim(), 
+        `${user.name || ''} ${user.lastName || ''}`.trim(), 
         user.profilePicture, 
         comment.trim()
       );
@@ -138,7 +138,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             className="bg-premium-gradient hover:opacity-90"
             disabled={!comment.trim()}
           >
-            Dodaj komentarz
+            {isAuthenticated ? "Dodaj komentarz" : "Dodaj komentarz jako gość"}
           </Button>
         </div>
       </div>

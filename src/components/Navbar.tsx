@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
@@ -12,7 +12,8 @@ import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMe
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const {
-    isAuthenticated
+    isAuthenticated,
+    user
   } = useAuth();
   const {
     theme,
@@ -114,24 +115,16 @@ const Navbar = () => {
             </Button>
           </Link>
           
-          {isAuthenticated ? <Link to="/admin">
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                className="text-white hover:bg-white hover:text-black"
-              >
-                Admin
-              </Button>
-            </Link> : <Link to="/login">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-white hover:bg-white hover:text-black"
-              >
-                <LogIn className="h-[1.2rem] w-[1.2rem]" />
-                <span className="sr-only">Zaloguj</span>
-              </Button>
-            </Link>}
+          <Link to={isAuthenticated ? "/admin" : "/login"}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-white hover:bg-white hover:text-black"
+            >
+              <LogIn className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>;

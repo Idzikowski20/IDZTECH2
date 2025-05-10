@@ -16,6 +16,7 @@ import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import BlinkingUnderscore from './BlinkingUnderscore';
 import { useNotifications } from '@/utils/notifications';
+import NotificationBell from './NotificationBell';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -48,11 +49,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </Link>
         </div>
         
-        <div className="flex items-center">
+        <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <span className="font-mono">IDZ.TECH</span>
             <BlinkingUnderscore />
           </div>
+
+          <NotificationBell />
 
           <div className="flex items-center ml-4">
             <DropdownMenu>
@@ -72,7 +75,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
@@ -118,6 +121,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </li>
                 <li className="mb-2">
                   <Link 
+                    to="/admin/profile" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Profil
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
                     to="/admin/notifications" 
                     className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
@@ -135,14 +146,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
                     Użytkownicy
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/new-post" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname.startsWith('/admin/new-post') ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Nowy post
                   </Link>
                 </li>
                 <li className="mb-2">

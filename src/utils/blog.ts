@@ -32,11 +32,13 @@ export interface BlogPost {
   comments: BlogComment[];
   likes: string[]; // Array of user IDs who liked the post
   guestLikes: GuestLike[]; // Array of guest likes
+  deviceLikes: string[]; // Array of device IDs that liked the post
 }
 
 interface BlogStore {
   posts: BlogPost[];
-  addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes' | 'guestLikes'>) => void;
+  deviceId: string; // Unique identifier for the current device
+  addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes' | 'guestLikes' | 'deviceLikes'>) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
   incrementView: (id: string) => void;
@@ -46,11 +48,18 @@ interface BlogStore {
   toggleLike: (postId: string, userId: string) => void;
   addGuestLike: (postId: string, guestId: string, guestName: string) => void;
   removeGuestLike: (postId: string, guestId: string) => void;
+  hasDeviceLiked: (postId: string) => boolean;
+  toggleDeviceLike: (postId: string) => void;
   getTotalComments: () => number;
   getTotalLikes: () => number;
   getPostComments: (postId: string) => BlogComment[];
   hasUserLiked: (postId: string, userId: string) => boolean;
 }
+
+// Generate a unique device ID
+const generateDeviceId = () => {
+  return 'device_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
 
 // Sample blog posts with reset view counts
 const initialPosts: BlogPost[] = [
@@ -84,7 +93,8 @@ const initialPosts: BlogPost[] = [
     tags: ['pozycjonowanie', 'SEO', 'Google', 'treści'],
     comments: [],
     likes: [],
-    guestLikes: []
+    guestLikes: [],
+    deviceLikes: []
   },
   {
     id: '2',
@@ -115,7 +125,8 @@ const initialPosts: BlogPost[] = [
     tags: ['responsywność', 'mobile-first', 'design', 'UX'],
     comments: [],
     likes: [],
-    guestLikes: []
+    guestLikes: [],
+    deviceLikes: []
   }
 ];
 
@@ -123,6 +134,7 @@ export const useBlogStore = create<BlogStore>()(
   persist(
     (set, get) => ({
       posts: initialPosts,
+      deviceId: generateDeviceId(),
       
       addPost: (post) => {
         const newPost: BlogPost = {
@@ -132,7 +144,8 @@ export const useBlogStore = create<BlogStore>()(
           views: 0,
           comments: [],
           likes: [],
-          guestLikes: []
+          guestLikes: [],
+          deviceLikes: []
         };
         
         set((state) => ({
@@ -182,7 +195,7 @@ export const useBlogStore = create<BlogStore>()(
           return {
             posts: state.posts.map((post) => 
               post.id === postId 
-                ? { ...post, comments: [...post.comments, newComment] } 
+                ? { ...post, comments: [...(post.comments || []), newComment] } 
                 : post
             )
           };
@@ -193,7 +206,7 @@ export const useBlogStore = create<BlogStore>()(
         set((state) => ({
           posts: state.posts.map((post) => 
             post.id === postId 
-              ? { ...post, comments: post.comments.filter(comment => comment.id !== commentId) } 
+              ? { ...post, comments: post.comments && post.comments.filter(comment => comment.id !== commentId) } 
               : post
           )
         }));
@@ -257,6 +270,37 @@ export const useBlogStore = create<BlogStore>()(
           )
         }));
       },
+      
+      hasDeviceLiked: (postId) => {
+        const { deviceId, posts } = get();
+        const post = posts.find(p => p.id === postId);
+        return post?.deviceLikes ? post.deviceLikes.includes(deviceId) : false;
+      },
+      
+      toggleDeviceLike: (postId) => {
+        const { deviceId } = get();
+        
+        set((state) => {
+          const post = state.posts.find(p => p.id === postId);
+          if (!post) return state;
+          
+          // Ensure deviceLikes exists
+          const deviceLikes = post.deviceLikes || [];
+          const hasLiked = deviceLikes.includes(deviceId);
+          
+          const updatedDeviceLikes = hasLiked
+            ? deviceLikes.filter(id => id !== deviceId)
+            : [...deviceLikes, deviceId];
+          
+          return {
+            posts: state.posts.map((p) => 
+              p.id === postId 
+                ? { ...p, deviceLikes: updatedDeviceLikes } 
+                : p
+            )
+          };
+        });
+      },
 
       getTotalComments: () => {
         const { posts } = get();
@@ -266,7 +310,7 @@ export const useBlogStore = create<BlogStore>()(
       getTotalLikes: () => {
         const { posts } = get();
         return posts.reduce((total, post) => 
-          total + (post.likes?.length || 0) + (post.guestLikes?.length || 0), 0);
+          total + (post.likes?.length || 0) + (post.guestLikes?.length || 0) + (post.deviceLikes?.length || 0), 0);
       },
 
       getPostComments: (postId) => {
@@ -278,7 +322,7 @@ export const useBlogStore = create<BlogStore>()(
       hasUserLiked: (postId, userId) => {
         const { posts } = get();
         const post = posts.find(p => p.id === postId);
-        // Fix: Add null check before accessing post.likes
+        // Add null check before accessing post.likes
         return post && post.likes ? post.likes.includes(userId) : false;
       }
     }),

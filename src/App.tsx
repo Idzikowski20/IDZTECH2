@@ -23,7 +23,6 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
-import BlogPostEditor from "./pages/BlogPostEditor";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Profile from "./pages/Profile";
@@ -84,12 +83,10 @@ const App = () => (
               <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
               <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
               <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
-              <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
-              <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
               <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
+              <Route path="/admin/profile" element={<RequireAuth><Profile /></RequireAuth>} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
-              <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

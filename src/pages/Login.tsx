@@ -9,6 +9,7 @@ import { Lock } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface LocationState {
   from?: {
@@ -19,6 +20,7 @@ interface LocationState {
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,7 +35,7 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(email, password, rememberMe);
       
       if (error) {
         toast({
@@ -106,6 +108,17 @@ const Login = () => {
                 required
                 className="bg-slate-950"
               />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="rememberMe" 
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked === true)}
+              />
+              <Label htmlFor="rememberMe" className="text-sm">
+                Zapamiętaj mnie na tym urządzeniu (30 dni)
+              </Label>
             </div>
             
             <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
