@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useBlogStore } from '@/utils/blog';
@@ -297,8 +296,8 @@ export const useAuth = create<AuthState>()(
         
         // Calculate statistics for each user
         users.forEach(user => {
-          // Find posts created by this user
-          const userPosts = posts.filter(post => post.authorId === user.id);
+          // Find posts created by this user - use author instead of authorId
+          const userPosts = posts.filter(post => post.author === user.name);
           
           // Update post count
           user.postsCreated = userPosts.length;

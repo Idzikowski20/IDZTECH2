@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Eye, Trash2, UserPlus, Shield } from 'lucide-react';
@@ -58,15 +57,19 @@ const userFormSchema = z.object({
   role: z.enum(['admin', 'moderator', 'blogger', 'user'] as const),
 });
 
-// Add the deleteUser function to auth.ts
-interface ExtendedAuth extends ReturnType<typeof useAuth> {
-  deleteUser?: (userId: string) => boolean;
+// Fixed interface to properly extend the ReturnType
+type AuthStore = ReturnType<typeof useAuth>;
+
+// Add the deleteUser function type
+interface ExtendedAuth extends AuthStore {
+  deleteUser: (userId: string) => boolean;
 }
 
 const AdminUsers = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById, deleteUser } = useAuth() as ExtendedAuth;
+  const auth = useAuth() as ExtendedAuth;
+  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById, deleteUser } = auth;
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);

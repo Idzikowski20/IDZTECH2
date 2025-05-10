@@ -1,6 +1,6 @@
 
 // Google Analytics measurement ID
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // Replace with your actual GA measurement ID
+const GA_MEASUREMENT_ID = 'G-6Z3B7DMZQV'; // Google Analytics ID from the screenshot
 
 // Initialize Google Analytics
 export const initGA = () => {
