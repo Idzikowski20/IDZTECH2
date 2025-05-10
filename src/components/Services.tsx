@@ -1,11 +1,7 @@
-
 import React from 'react';
-import { 
-  Search, Globe, ShoppingCart, Code
-} from 'lucide-react';
+import { Search, Globe, ShoppingCart, Code } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-
 interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
@@ -13,19 +9,17 @@ interface ServiceCardProps {
   gradient: string;
   link: string;
 }
-
-const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gradient, link }) => {
-  return (
-    <div className="group relative">
-      <div className={cn(
-        "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl rounded-xl -z-10",
-        gradient
-      )}></div>
-      <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full flex flex-col hover:border-white/20 transition-colors">
-        <div className={cn(
-          "w-12 h-12 rounded-lg flex items-center justify-center mb-4",
-          gradient
-        )}>
+const ServiceCard: React.FC<ServiceCardProps> = ({
+  icon,
+  title,
+  description,
+  gradient,
+  link
+}) => {
+  return <div className="group relative">
+      <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl rounded-xl -z-10", gradient)}></div>
+      <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full flex flex-col hover:border-white/20 ">
+        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center mb-4", gradient)}>
           {icon}
         </div>
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
@@ -33,62 +27,42 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gra
         <div className="mt-4">
           <Link to={link} className="inline-flex items-center text-sm font-medium">
             Dowiedz się więcej
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="16" 
-              height="16" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="ml-1"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
               <path d="M5 12h14"></path>
               <path d="m12 5 7 7-7 7"></path>
             </svg>
           </Link>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 const Services = () => {
-  const services = [
-    {
-      icon: <Globe size={24} className="text-premium-light" />,
-      title: "Tworzenie stron www",
-      description: "Projektujemy i tworzymy profesjonalne, szybkie i responsywne strony internetowe.",
-      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
-      link: "/tworzenie-stron-www"
-    },
-    {
-      icon: <ShoppingCart size={24} className="text-premium-light" />,
-      title: "Tworzenie sklepów internetowych",
-      description: "Kompleksowe rozwiązania e-commerce dostosowane do potrzeb Twojego biznesu.",
-      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink",
-      link: "/tworzenie-sklepow-internetowych"
-    },
-    {
-      icon: <Search size={24} className="text-premium-light" />,
-      title: "Pozycjonowanie SEO",
-      description: "Poprawimy widoczność Twojej strony w wyszukiwarce Google i zwiększymy organiczny ruch.",
-      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
-      link: "/pozycjonowanie-stron-internetowych"
-    },
-    {
-      icon: <Search size={24} className="text-premium-light" />,
-      title: "Pozycjonowanie lokalne",
-      description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
-      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
-      link: "/pozycjonowanie-lokalne"
-    }
-  ];
-
-  return (
-    <section id="services" className="py-20 relative overflow-hidden">
+  const services = [{
+    icon: <Globe size={24} className="text-premium-light" />,
+    title: "Tworzenie stron www",
+    description: "Projektujemy i tworzymy profesjonalne, szybkie i responsywne strony internetowe.",
+    gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
+    link: "/tworzenie-stron-www"
+  }, {
+    icon: <ShoppingCart size={24} className="text-premium-light" />,
+    title: "Tworzenie sklepów internetowych",
+    description: "Kompleksowe rozwiązania e-commerce dostosowane do potrzeb Twojego biznesu.",
+    gradient: "bg-gradient-to-r from-premium-blue to-premium-pink",
+    link: "/tworzenie-sklepow-internetowych"
+  }, {
+    icon: <Search size={24} className="text-premium-light" />,
+    title: "Pozycjonowanie SEO",
+    description: "Poprawimy widoczność Twojej strony w wyszukiwarce Google i zwiększymy organiczny ruch.",
+    gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
+    link: "/pozycjonowanie-stron-internetowych"
+  }, {
+    icon: <Search size={24} className="text-premium-light" />,
+    title: "Pozycjonowanie lokalne",
+    description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
+    gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
+    link: "/pozycjonowanie-lokalne"
+  }];
+  return <section id="services" className="py-20 relative overflow-hidden">
       {/* Background elements */}
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
@@ -103,20 +77,9 @@ const Services = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service, index) => (
-            <ServiceCard 
-              key={index}
-              icon={service.icon}
-              title={service.title}
-              description={service.description}
-              gradient={service.gradient}
-              link={service.link}
-            />
-          ))}
+          {services.map((service, index) => <ServiceCard key={index} icon={service.icon} title={service.title} description={service.description} gradient={service.gradient} link={service.link} />)}
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Services;
