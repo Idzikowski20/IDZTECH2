@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Star } from 'lucide-react';
@@ -41,8 +42,8 @@ const Hero = () => {
                 </Button>
               </Link>
               <Link to="/projects">
-                <Button className="border-gray-200 hover:bg-black/0 transition-opacity rounded-full px-8 py-6 text-center font-normal text-slate-50 border bg-black/0">
-                  Poznaj nasze usługi
+                <Button className="border border-gray-200 text-slate-50 rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white">
+                  Zobacz nasze realizacje
                   <ArrowRight size={18} className="ml-2" />
                 </Button>
               </Link>

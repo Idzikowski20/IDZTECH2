@@ -122,6 +122,9 @@ export default {
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'premium-gradient': 'linear-gradient(45deg, #784dff, #00a0ff, #ff4d8c)',
+			},
+			transitionDuration: {
+				'800': '800ms',
 			}
 		}
 	},
