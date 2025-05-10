@@ -19,7 +19,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
   const [showDialog, setShowDialog] = useState(false);
   const [guestName, setGuestName] = useState('');
   const { isAuthenticated, user } = useAuth();
-  const { toggleLike, hasUserLiked, getPosts } = useBlogStore();
+  const { toggleLike, hasUserLiked } = useBlogStore();
   const { toast } = useToast();
   
   const post = useBlogStore.getState().posts.find(p => p.id === postId);
@@ -79,7 +79,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
         onClick={handleLikeClick}
         className={cn(
           "flex items-center gap-2 transition-colors",
-          isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-premium-light"
+          isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-white"
         )}
       >
         <Heart 
