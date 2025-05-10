@@ -8,6 +8,15 @@ import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import BlinkingUnderscore from './BlinkingUnderscore';
 import NotificationBell from './NotificationBell';
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -48,12 +57,55 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-4">
-          <Link to="/tworzenie-stron-www" className="text-white hover:text-premium-purple transition-colors">Web Development</Link>
-          <Link to="/tworzenie-sklepow-internetowych" className="text-white hover:text-premium-purple transition-colors">E-commerce</Link>
-          <Link to="/pozycjonowanie-stron-internetowych" className="text-white hover:text-premium-purple transition-colors">SEO</Link>
-          <Link to="/blog" className="text-white hover:text-premium-purple transition-colors">Blog</Link>
-          <Link to="/contact" className="text-white hover:text-premium-purple transition-colors">Kontakt</Link>
+        <div className="hidden md:flex items-center space-x-6">
+          <Link to="/" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "text-premium-purple" : ""}`}>Start</Link>
+          
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-white hover:text-black hover:bg-white">Oferta</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-2 gap-3 p-4 w-[500px]">
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Strony www</h3>
+                      <Link to="/tworzenie-stron-www" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Tworzenie stron www
+                      </Link>
+                      <Link to="/tworzenie-sklepow-internetowych" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Tworzenie sklepów internetowych
+                      </Link>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Pozycjonowanie (SEO)</h3>
+                      <Link to="/pozycjonowanie-stron-internetowych" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Pozycjonowanie stron internetowych
+                      </Link>
+                      <Link to="/pozycjonowanie-lokalne" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Pozycjonowanie lokalne
+                      </Link>
+                      <Link to="/audyt-seo" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Audyt SEO
+                      </Link>
+                      <Link to="/optymalizacja-seo" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Optymalizacja SEO
+                      </Link>
+                      <Link to="/copywriting-seo" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Copywriting SEO
+                      </Link>
+                      <Link to="/content-plan" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                        Content Plan
+                      </Link>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          
+          <Link to="/projects" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
+          <Link to="/about-us" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
+          <Link to="/blog" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>Blog</Link>
+          <Link to="/contact" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -69,6 +121,12 @@ const Navbar = () => {
             {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
+          
+          <Link to="/contact" className="hidden md:block">
+            <Button className="bg-black text-white hover:text-black hover:bg-white">
+              Umów spotkanie
+            </Button>
+          </Link>
           
           {isAuthenticated ? (
             <>
