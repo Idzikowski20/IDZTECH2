@@ -9,6 +9,10 @@ interface Dot {
   color: string;
   animationDuration: number;
   animationDelay: number;
+  direction: {
+    x: number;
+    y: number;
+  };
 }
 
 const DotAnimation: React.FC = () => {
@@ -37,6 +41,10 @@ const DotAnimation: React.FC = () => {
           color: colors[Math.floor(Math.random() * colors.length)],
           animationDuration: Math.random() * 20 + 15, // Between 15s and 35s
           animationDelay: Math.random() * 5, // Between 0s and 5s
+          direction: {
+            x: Math.random() > 0.5 ? 1 : -1,
+            y: Math.random() > 0.5 ? 1 : -1
+          }
         });
       }
       
@@ -54,8 +62,14 @@ const DotAnimation: React.FC = () => {
     
     // Set interval to update dots positions every 30 seconds
     const interval = setInterval(() => {
-      generateDots();
-    }, 30000);
+      setDots(prevDots => prevDots.map(dot => ({
+        ...dot,
+        direction: {
+          x: Math.random() > 0.7 ? -dot.direction.x : dot.direction.x,
+          y: Math.random() > 0.7 ? -dot.direction.y : dot.direction.y
+        }
+      })));
+    }, 15000);
     
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -76,7 +90,9 @@ const DotAnimation: React.FC = () => {
             height: `${dot.size}px`,
             animationDuration: `${dot.animationDuration}s`,
             animationDelay: `${dot.animationDelay}s`,
-          }}
+            '--direction-x': dot.direction.x,
+            '--direction-y': dot.direction.y,
+          } as React.CSSProperties}
         />
       ))}
     </div>

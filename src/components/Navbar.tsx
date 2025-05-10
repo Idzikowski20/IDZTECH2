@@ -4,24 +4,25 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
-import { Moon, Sun, LogIn, Menu } from 'lucide-react';
+import { Moon, Sun, LogIn, Menu, ChevronDown, ChevronRight } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import BlinkingUnderscore from './BlinkingUnderscore';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from "@/components/ui/accordion";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const {
-    isAuthenticated,
-    user
-  } = useAuth();
-  const {
-    theme,
-    toggleDarkMode
-  } = useTheme();
+  const [isOfferExpanded, setIsOfferExpanded] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+  const { theme, toggleDarkMode } = useTheme();
   const location = useLocation();
   const isMobile = useIsMobile();
   
@@ -54,7 +55,7 @@ const Navbar = () => {
   
   const DesktopNavigation = () => (
     <div className="hidden md:flex items-center space-x-6">
-      <Link to="/" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "text-premium-purple" : ""}`}>Start</Link>
+      <Link to="/" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}>Start</Link>
       
       <NavigationMenu>
         <NavigationMenuList>
@@ -98,14 +99,14 @@ const Navbar = () => {
         </NavigationMenuList>
       </NavigationMenu>
       
-      <Link to="/projects" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
-      <Link to="/about-us" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
+      <Link to="/projects" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "bg-white/20" : ""}`}>Portfolio</Link>
+      <Link to="/about-us" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "bg-white/20" : ""}`}>O nas</Link>
       
-      <Link to="/blog" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>
+      <Link to="/blog" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "bg-white/20" : ""}`}>
         Blog
       </Link>
       
-      <Link to="/contact" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
+      <Link to="/contact" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "bg-white/20" : ""}`}>Kontakt</Link>
     </div>
   );
 
@@ -152,7 +153,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <nav className="flex-1 flex flex-col space-y-6">
+          <nav className="flex-1 overflow-y-auto pr-2 flex flex-col space-y-2">
             <Link to="/" 
               className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}
               onClick={() => setIsMenuOpen(false)}
@@ -160,37 +161,68 @@ const Navbar = () => {
               Start
             </Link>
             
-            <div className="space-y-2">
-              <h3 className="text-white/70 text-sm font-semibold px-3">Strony www</h3>
-              <Link to="/tworzenie-stron-www" 
-                className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-stron-www" ? "bg-white/20" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Tworzenie stron www
-              </Link>
-              <Link to="/tworzenie-sklepow-internetowych" 
-                className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-sklepow-internetowych" ? "bg-white/20" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Tworzenie sklepów internetowych
-              </Link>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="text-white/70 text-sm font-semibold px-3">Pozycjonowanie (SEO)</h3>
-              <Link to="/pozycjonowanie-stron-internetowych" 
-                className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-stron-internetowych" ? "bg-white/20" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Pozycjonowanie stron internetowych
-              </Link>
-              <Link to="/pozycjonowanie-lokalne" 
-                className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-white/20" : ""}`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Pozycjonowanie lokalne
-              </Link>
-            </div>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="offer" className="border-white/10">
+                <AccordionTrigger className="text-white text-lg px-3 py-2">
+                  Oferta
+                </AccordionTrigger>
+                <AccordionContent className="max-h-[250px] overflow-y-auto">
+                  <div className="space-y-2 pl-2">
+                    <h3 className="text-white/70 text-sm font-semibold px-3 mt-2">Strony www</h3>
+                    <Link to="/tworzenie-stron-www" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-stron-www" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Tworzenie stron www
+                    </Link>
+                    <Link to="/tworzenie-sklepow-internetowych" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-sklepow-internetowych" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Tworzenie sklepów internetowych
+                    </Link>
+                  
+                    <h3 className="text-white/70 text-sm font-semibold px-3 mt-4">Pozycjonowanie (SEO)</h3>
+                    <Link to="/pozycjonowanie-stron-internetowych" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-stron-internetowych" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Pozycjonowanie stron internetowych
+                    </Link>
+                    <Link to="/pozycjonowanie-lokalne" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Pozycjonowanie lokalne
+                    </Link>
+                    <Link to="/audyt-seo" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/audyt-seo" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Audyt SEO
+                    </Link>
+                    <Link to="/optymalizacja-seo" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/optymalizacja-seo" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Optymalizacja SEO
+                    </Link>
+                    <Link to="/copywriting-seo" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/copywriting-seo" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Copywriting SEO
+                    </Link>
+                    <Link to="/content-plan" 
+                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/content-plan" ? "bg-white/20" : ""}`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Content Plan
+                    </Link>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
             
             <Link to="/projects" 
               className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/projects" ? "bg-white/20" : ""}`}

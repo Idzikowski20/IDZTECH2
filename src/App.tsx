@@ -64,6 +64,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <AnalyticsTracker />
+            {/* Global dot animation appearing on every page */}
             <DotAnimation />
             <Routes>
               <Route path="/" element={<Index />} />

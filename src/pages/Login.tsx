@@ -11,6 +11,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
 import DotAnimation from '@/components/DotAnimation';
+import { Loader2 } from 'lucide-react';
 
 interface LocationState {
   from?: {
@@ -44,6 +45,7 @@ const Login = () => {
           description: error.message || "Niepoprawny email lub hasło",
           variant: "destructive"
         });
+        setIsLoading(false);
       } else {
         toast({
           title: "Zalogowano pomyślnie",
@@ -57,7 +59,6 @@ const Login = () => {
         description: "Wystąpił nieoczekiwany błąd podczas logowania",
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -86,6 +87,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="bg-slate-950"
+                disabled={isLoading}
               />
             </div>
             
@@ -97,6 +99,7 @@ const Login = () => {
                   className="p-0 h-auto text-premium-purple"
                   type="button"
                   onClick={() => navigate('/forgot-password')}
+                  disabled={isLoading}
                 >
                   Nie pamiętasz hasła?
                 </Button>
@@ -109,6 +112,7 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="bg-slate-950"
+                disabled={isLoading}
               />
             </div>
             
@@ -117,6 +121,7 @@ const Login = () => {
                 id="rememberMe" 
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked === true)}
+                disabled={isLoading}
               />
               <Label htmlFor="rememberMe" className="text-sm">
                 Zapamiętaj mnie na tym urządzeniu (30 dni)
@@ -125,9 +130,10 @@ const Login = () => {
             
             <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
               {isLoading ? (
-                <>
-                  Logowanie<span className="animate-pulse">...</span>
-                </>
+                <span className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logowanie
+                </span>
               ) : "Zaloguj się"}
             </Button>
           </form>
