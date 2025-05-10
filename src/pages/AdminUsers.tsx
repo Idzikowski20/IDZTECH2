@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Eye, Trash2, UserPlus, Shield } from 'lucide-react';
@@ -381,46 +380,46 @@ const AdminUsers = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => (
-                    <TableRow key={user.id}>
+                  {users.map((listUser) => (
+                    <TableRow key={listUser.id}>
                       <TableCell className="py-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.profilePicture} alt={user.name} />
+                            <AvatarImage src={listUser.profilePicture} alt={listUser.name} />
                             <AvatarFallback className="text-xs bg-premium-gradient">
-                              {user.name.charAt(0)}
+                              {listUser.name.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{user.name} {user.lastName}</p>
+                            <p className="font-medium">{listUser.name} {listUser.lastName}</p>
                             <p className="text-xs text-premium-light/60">
-                              Dołączył: {new Date(user.createdAt || '').toLocaleDateString('pl-PL')}
+                              Dołączył: {new Date(listUser.createdAt || '').toLocaleDateString('pl-PL')}
                             </p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{listUser.email}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className={cn(
                             "w-2 h-2 rounded-full",
-                            user.role === 'admin' ? "bg-red-500" : 
-                            user.role === 'moderator' ? "bg-amber-500" : 
-                            user.role === 'blogger' ? "bg-green-500" : 
+                            listUser.role === 'admin' ? "bg-red-500" : 
+                            listUser.role === 'moderator' ? "bg-amber-500" : 
+                            listUser.role === 'blogger' ? "bg-green-500" : 
                             "bg-blue-500"
                           )}></div>
-                          {userRoles[user.role]}
+                          {userRoles[listUser.role]}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-4">
                           <div>
                             <p className="text-xs text-premium-light/60">Posty</p>
-                            <p className="font-semibold">{user.postsCreated}</p>
+                            <p className="font-semibold">{listUser.postsCreated}</p>
                           </div>
                           <div>
                             <p className="text-xs text-premium-light/60">Wyświetlenia</p>
-                            <p className="font-semibold">{user.totalViews}</p>
+                            <p className="font-semibold">{listUser.totalViews}</p>
                           </div>
                         </div>
                       </TableCell>
@@ -429,7 +428,7 @@ const AdminUsers = () => {
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            onClick={() => handleUserProfileClick(user.id)}
+                            onClick={() => handleUserProfileClick(listUser.id)}
                             className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
                           >
                             <Eye size={14} />
@@ -439,7 +438,7 @@ const AdminUsers = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => handleRoleChange(user.id)}
+                              onClick={() => handleRoleChange(listUser.id)}
                               className="text-amber-400 hover:text-white hover:bg-amber-500 transition-colors"
                             >
                               <Shield size={14} />
@@ -450,9 +449,9 @@ const AdminUsers = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => handleDeleteUser(user.id)}
+                              onClick={() => handleDeleteUser(listUser.id)}
                               className="text-red-400 hover:text-white hover:bg-red-500 transition-colors"
-                              disabled={(user?.role === 'moderator' && user?.role === 'admin')}
+                              disabled={(user?.role === 'moderator' && listUser.role === 'admin')}
                             >
                               <Trash2 size={14} />
                             </Button>
