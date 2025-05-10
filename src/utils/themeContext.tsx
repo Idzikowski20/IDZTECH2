@@ -16,7 +16,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    // Można tutaj dodać więcej logiki związanej z aplikowaniem motywu do dokumentu HTML
+    
+    // Aplikowanie klasy dark do elementu HTML dla stylów Tailwind
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('bg-premium-dark');
+      document.body.classList.add('text-premium-light');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('bg-premium-dark');
+      document.body.classList.remove('text-premium-light');
+    }
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
