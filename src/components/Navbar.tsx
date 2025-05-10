@@ -42,7 +42,7 @@ const Navbar = () => {
             alt="IDZ.TECH" 
             className="h-8 mr-2" 
           />
-          <TypingAnimation text="IDZ.TECH_" speed={120} />
+          <TypingAnimation text="IDZ.TECH" speed={120} />
         </Link>
 
         <div className="flex items-center space-x-4">

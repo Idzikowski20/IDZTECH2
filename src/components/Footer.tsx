@@ -19,7 +19,7 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-6">
               <div className="h-8 w-8 rounded-full bg-premium-gradient"></div>
-              <span className="text-xl font-bold">IDZ.TECH</span>
+              <span className="text-xl font-bold">IDZ.TECH_</span>
             </div>
             <p className="text-premium-light/70 mb-6">
               Dostarczamy kompleksowe rozwiązania marketingowe, które pomagają firmom osiągać realne wyniki i zyskać przewagę konkurencyjną.
