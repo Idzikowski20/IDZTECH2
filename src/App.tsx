@@ -17,9 +17,6 @@ import SeoCopywriting from "./pages/SeoCopywriting";
 import ContentPlan from "./pages/ContentPlan";
 import ContactPage from "./pages/ContactPage";
 import AboutUs from "./pages/AboutUs";
-import GoogleAdsCampaigns from "./pages/GoogleAdsCampaigns";
-import MetaAdsCampaigns from "./pages/MetaAdsCampaigns";
-import GoogleAdsAudit from "./pages/GoogleAdsAudit";
 import Projects from "./pages/Projects";
 
 const queryClient = new QueryClient();
@@ -43,9 +40,6 @@ const App = () => (
           <Route path="/content-plan" element={<ContentPlan />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/google-ads-campaigns" element={<GoogleAdsCampaigns />} />
-          <Route path="/meta-ads-campaigns" element={<MetaAdsCampaigns />} />
-          <Route path="/google-ads-audit" element={<GoogleAdsAudit />} />
           <Route path="/projects" element={<Projects />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

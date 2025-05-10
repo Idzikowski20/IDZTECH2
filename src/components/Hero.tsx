@@ -23,15 +23,15 @@ const Hero = () => {
                 <Star size={14} className="fill-premium-purple text-premium-purple" />
                 <Star size={14} className="fill-premium-purple text-premium-purple" />
               </span>
-              <span className="ml-2 text-premium-light/70">Najlepsza agencja marketingowa</span>
+              <span className="ml-2 text-premium-light/70">Najlepsze strony internetowe</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Agencja marketingowa <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span>
+              Tworzenie stron internetowych <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span>
             </h1>
             
             <p className="text-xl text-premium-light/70 max-w-lg">
-              Zwiększ swoją sprzedaż z wykorzystaniem nowoczesnych rozwiązań marketingowych. Zaufało nam już ponad 200 firm.
+              Zwiększ swoją sprzedaż z wykorzystaniem nowoczesnych stron internetowych i optymalizacji SEO. Zaufało nam już ponad 200 firm.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -60,7 +60,7 @@ const Hero = () => {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70">Certyfikowany partner Google</span>
+                <span className="text-sm text-premium-light/70">Nowoczesne technologie</span>
               </div>
             </div>
           </div>
@@ -68,7 +68,7 @@ const Hero = () => {
           {/* Right Side Image - Made bigger */}
           <div className="w-full lg:w-full animate-slide-up">
             <div className="relative animate-float">
-              <img alt="Marketing Digital Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl animate-float object-contain max-h-[500px]" />
+              <img alt="Web Development Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl animate-float object-contain max-h-[500px]" />
             </div>
           </div>
         </div>

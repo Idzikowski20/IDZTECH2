@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-  Search, LineChart, Instagram, Globe, Code, ShoppingCart
+  Search, Globe, ShoppingCart, Code
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -84,21 +84,7 @@ const Services = () => {
       description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
       gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
       link: "/pozycjonowanie-lokalne"
-    },
-    {
-      icon: <LineChart size={24} className="text-premium-light" />,
-      title: "Kampanie Google Ads",
-      description: "Stworzymy i zoptymalizujemy kampanie reklamowe, które przyciągną nowych klientów.",
-      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink",
-      link: "/google-ads-campaigns"
-    },
-    {
-      icon: <Instagram size={24} className="text-premium-light" />,
-      title: "Kampanie Meta Ads",
-      description: "Skuteczne kampanie reklamowe w mediach społecznościowych Facebook i Instagram.",
-      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
-      link: "/meta-ads-campaigns"
-    },
+    }
   ];
 
   return (
@@ -110,13 +96,13 @@ const Services = () => {
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-premium-purple font-medium">Co oferujemy</span>
-          <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Nasze usługi marketingowe</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Nasze usługi webowe</h2>
           <p className="text-premium-light/70 text-lg">
-            Oferujemy kompleksowe rozwiązania, które pomogą Twojej firmie zyskać przewagę konkurencyjną i zwiększyć sprzedaż.
+            Oferujemy kompleksowe rozwiązania, które pomogą Twojej firmie zyskać przewagę konkurencyjną i zwiększyć sprzedaż online.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((service, index) => (
             <ServiceCard 
               key={index}

@@ -11,8 +11,7 @@ const Projects = () => {
     { id: 'all', name: 'Wszystkie' },
     { id: 'web', name: 'Strony WWW' },
     { id: 'ecommerce', name: 'Sklepy internetowe' },
-    { id: 'seo', name: 'SEO' },
-    { id: 'sem', name: 'Google Ads' }
+    { id: 'seo', name: 'SEO' }
   ];
   
   const portfolioItems = [
@@ -28,13 +27,6 @@ const Projects = () => {
       title: 'Sklep internetowy z meblami',
       category: 'ecommerce',
       image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-      link: '#'
-    },
-    {
-      id: 3,
-      title: 'Kampania Google Ads dla firmy budowlanej',
-      category: 'sem',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
       link: '#'
     },
     {
@@ -56,13 +48,6 @@ const Projects = () => {
       title: 'Sklep internetowy z kosmetykami',
       category: 'ecommerce',
       image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1376&q=80',
-      link: '#'
-    },
-    {
-      id: 7,
-      title: 'Kampania Google Ads dla firmy szkoleniowej',
-      category: 'sem',
-      image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
       link: '#'
     },
     {
@@ -116,7 +101,7 @@ const Projects = () => {
               Portfolio projektów <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span>
             </h1>
             <p className="text-xl text-premium-light/70">
-              Poznaj nasze najlepsze realizacje w zakresie stron internetowych, sklepów e-commerce, pozycjonowania i reklamy Google Ads.
+              Poznaj nasze najlepsze realizacje w zakresie stron internetowych, sklepów e-commerce i pozycjonowania.
             </p>
           </div>
           
@@ -159,7 +144,6 @@ const Projects = () => {
                     {item.category === 'web' && 'Strona internetowa'}
                     {item.category === 'ecommerce' && 'Sklep internetowy'}
                     {item.category === 'seo' && 'Pozycjonowanie'}
-                    {item.category === 'sem' && 'Kampania Google Ads'}
                   </p>
                   <a 
                     href={item.link} 
@@ -200,17 +184,17 @@ const Projects = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-premium-dark to-transparent opacity-70"></div>
                   <span className="absolute bottom-4 left-4 bg-premium-purple/90 text-white px-3 py-1 rounded text-sm">
-                    {item === 1 ? 'SEO' : 'Google Ads'}
+                    {item === 1 ? 'SEO' : 'Web Development'}
                   </span>
                 </div>
                 <div className="p-6">
                   <h3 className="text-2xl font-semibold mb-2">
-                    {item === 1 ? 'Wzrost ruchu organicznego o 320% dla firmy z branży medycznej' : 'Obniżenie kosztu konwersji o 45% dla sklepu e-commerce'}
+                    {item === 1 ? 'Wzrost ruchu organicznego o 320% dla firmy z branży medycznej' : 'Strona internetowa zwiększająca konwersję dla sklepu e-commerce'}
                   </h3>
                   <p className="text-premium-light/70 mb-4">
                     {item === 1 
                       ? 'Dzięki kompleksowej strategii SEO, udało nam się znacząco zwiększyć widoczność online klienta z branży medycznej, co przełożyło się na trzykrotny wzrost ruchu organicznego.' 
-                      : 'Przeprojektowaliśmy strukturę kampanii Google Ads i wprowadziliśmy automatyczne strategie licytacji, co pozwoliło znacznie obniżyć koszt pozyskania klienta.'}
+                      : 'Zaprojektowaliśmy i wdrożyliśmy responsywną stronę internetową zorientowaną na konwersję, co pozwoliło zwiększyć sprzedaż online o 45%.'}
                   </p>
                   <a href="#" className="inline-flex items-center text-premium-purple hover:text-premium-blue transition-colors">
                     Czytaj całe case study

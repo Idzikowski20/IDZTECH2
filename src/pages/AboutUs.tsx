@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,11 +22,11 @@ const AboutUs = () => {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             <div className="w-full lg:w-1/2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                Poznaj <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span> - Twoją Agencję Marketingową
+                Poznaj <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span> - Twojego partnera w web developmencie
               </h1>
               
               <p className="text-xl text-premium-light/80 mb-8">
-                Jesteśmy zespołem pasjonatów marketingu internetowego, którzy od lat pomagają firmom rozwijać się w świecie online. Naszą misją jest dostarczanie kompleksowych i skutecznych rozwiązań marketingowych.
+                Jesteśmy zespołem pasjonatów tworzenia stron internetowych, którzy od lat pomagają firmom rozwijać się w świecie online. Naszą misją jest dostarczanie kompleksowych i skutecznych rozwiązań webowych.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
@@ -97,7 +98,7 @@ const AboutUs = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Innowacyjność</h3>
               <p className="text-premium-light/70">
-                Nieustannie śledzimy trendy i wprowadzamy innowacyjne rozwiązania do naszych strategii marketingowych.
+                Nieustannie śledzimy trendy i wprowadzamy innowacyjne rozwiązania do naszych projektów stron.
               </p>
             </div>
             
@@ -124,7 +125,7 @@ const AboutUs = () => {
             <span className="text-premium-purple font-medium">Nasz Zespół</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Poznaj ekspertów IDZ.TECH</h2>
             <p className="text-premium-light/70 text-lg">
-              Nasz zespół to doświadczeni specjaliści z różnych dziedzin marketingu internetowego, którzy łączą swoje umiejętności, aby zapewnić Ci najlepsze wyniki.
+              Nasz zespół to doświadczeni specjaliści z dziedziny tworzenia stron internetowych i SEO, którzy łączą swoje umiejętności, aby zapewnić Ci najlepsze wyniki.
             </p>
           </div>
           
@@ -140,9 +141,9 @@ const AboutUs = () => {
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-semibold mb-1">Jan Kowalski</h3>
-                  <p className="text-premium-purple mb-3">Marketing Director</p>
+                  <p className="text-premium-purple mb-3">Web Developer</p>
                   <p className="text-premium-light/70 text-sm">
-                    Ekspert z 10-letnim doświadczeniem w prowadzeniu kampanii marketingowych dla firm z różnych branż.
+                    Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.
                   </p>
                 </div>
               </div>
@@ -158,7 +159,7 @@ const AboutUs = () => {
             <span className="text-premium-purple font-medium">Dlaczego my?</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Co nas wyróżnia</h2>
             <p className="text-premium-light/70 text-lg">
-              Wybierając IDZ.TECH, wybierasz agencję, która naprawdę dba o Twój biznes. Oto, co nas wyróżnia:
+              Wybierając IDZ.TECH, wybierasz firmę, która naprawdę dba o Twój biznes w sieci. Oto, co nas wyróżnia:
             </p>
           </div>
           
@@ -167,7 +168,7 @@ const AboutUs = () => {
               <div className="flex flex-col space-y-6">
                 {[
                   "Indywidualne podejście do każdego klienta",
-                  "Kompleksowa obsługa marketingowa",
+                  "Kompleksowa obsługa w zakresie stron WWW i SEO",
                   "Przejrzyste zasady współpracy",
                   "Regularne raportowanie wyników",
                   "Zespół certyfikowanych specjalistów",
