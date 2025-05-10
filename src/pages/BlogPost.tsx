@@ -65,7 +65,7 @@ const BlogPost = () => {
       <section className="pt-32 pb-10">
         <div className="container mx-auto px-4">
           <Link to="/blog">
-            <Button variant="ghost" className="mb-6 hover:bg-premium-light/5">
+            <Button variant="ghost" className="mb-6 hover:bg-premium-light/5 hover:text-white">
               <ArrowLeft size={18} className="mr-2" /> Wróć do bloga
             </Button>
           </Link>
@@ -140,10 +140,10 @@ const BlogPost = () => {
           
           <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
             <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag, index) => (
+              {post.tags && post.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm"
+                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
                 >
                   #{tag}
                 </span>

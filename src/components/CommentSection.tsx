@@ -28,7 +28,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const { addComment, deleteComment, getPostComments } = useBlogStore();
   const { toast } = useToast();
   
-  const comments = getPostComments(postId);
+  // Add null check and default to empty array if comments are undefined
+  const comments = getPostComments(postId) || [];
 
   const handleCommentSubmit = () => {
     if (!comment.trim()) {
@@ -113,11 +114,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     setCommentToDelete(null);
   };
 
+  // Ensure comments is defined before rendering
+  const commentsLength = comments ? comments.length : 0;
+
   return (
     <div className="mt-10 pt-8 border-t border-premium-light/10">
       <h3 className="text-xl font-bold mb-6 flex items-center">
         <MessageCircle size={20} className="mr-2 text-premium-light/70" />
-        Komentarze ({comments.length})
+        Komentarze ({commentsLength})
       </h3>
 
       {/* Add comment form */}
@@ -141,7 +145,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
       {/* Comments list */}
       <div className="space-y-6">
-        {comments.length > 0 ? (
+        {comments && comments.length > 0 ? (
           comments.map((comment: BlogComment) => (
             <div 
               key={comment.id} 
