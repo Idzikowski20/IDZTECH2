@@ -1,4 +1,3 @@
-
 import React, { useState, ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Settings, LogOut, BarChart, Menu, X, User } from 'lucide-react';
@@ -6,11 +5,9 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/utils/auth';
 import DotAnimation from './DotAnimation';
-
 interface AdminLayoutProps {
   children: ReactNode;
 }
-
 const AdminLayout: React.FC<AdminLayoutProps> = ({
   children
 }) => {
@@ -21,12 +18,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-  
   const navItems = [{
     icon: LayoutDashboard,
     label: 'Dashboard',
@@ -44,7 +39,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     label: 'Ustawienia',
     path: '/admin/settings'
   }];
-
   return <div className="flex h-screen bg-premium-dark">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
@@ -85,7 +79,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           
           {/* Logout */}
           <div className="p-4 border-t border-premium-light/10">
-            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-premium-light/80 bg-zinc-600 hover:bg-zinc-500 hover:text-white">
+            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-premium-light/80 hover:text-white bg-rose-900 hover:bg-rose-800">
               <LogOut size={20} className="mr-3" />
               Wyloguj się
             </Button>
@@ -101,5 +95,4 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       </div>
     </div>;
 };
-
 export default AdminLayout;
