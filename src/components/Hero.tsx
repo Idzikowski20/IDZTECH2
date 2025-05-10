@@ -1,7 +1,9 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
 const Hero = () => {
   return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
       {/* Background Elements */}
@@ -64,13 +66,14 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Right Side Image */}
+          {/* Right Side Image - Adjusted with animation */}
           <div className="w-full lg:w-1/2 animate-slide-up">
-            <div className="relative">
-              <div className="absolute -inset-0.5 bg-premium-gradient rounded-xl blur-sm opacity-75"></div>
-              <div className="relative bg-premium-dark p-1 rounded-xl overflow-hidden">
-                <img alt="Marketing Digital Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto  object-cover aspect-video" />
-              </div>
+            <div className="relative animate-float">
+              <img 
+                alt="Marketing Digital Team" 
+                src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" 
+                className="w-full h-auto rounded-xl object-cover aspect-video animate-float" 
+              />
             </div>
           </div>
         </div>
