@@ -59,8 +59,8 @@ const SeoCopywriting = () => {
           </div>
           <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.7s" }}>
             <img 
-              src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" 
-              alt="Copywriting SEO" 
+              src="https://img.freepik.com/free-vector/content-structure-concept-illustration_114360-8164.jpg" 
+              alt="Copywriting SEO - ilustracja" 
               className="w-full h-auto object-cover"
             />
           </div>

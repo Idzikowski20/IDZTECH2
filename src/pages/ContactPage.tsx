@@ -40,6 +40,12 @@ const ContactPage = () => {
                 <h3 className="text-2xl font-semibold mb-6">Informacje o spotkaniu</h3>
                 
                 <div className="space-y-6">
+                  <img 
+                    src="https://img.freepik.com/free-vector/contact-us-concept-illustration_114360-3147.jpg" 
+                    alt="Kontakt - ilustracja" 
+                    className="w-full h-auto mb-6 rounded-lg shadow-lg max-h-[250px] object-contain" 
+                  />
+                  
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center mr-4">
                       <Clock size={20} className="text-white" />
@@ -82,13 +88,6 @@ const ContactPage = () => {
                       <Check size={18} className="text-premium-purple mt-1 flex-shrink-0" />
                       <p className="text-premium-light/70">Porady ekspertów z wieloletnim doświadczeniem</p>
                     </div>
-                  </div>
-                  
-                  <div className="bg-premium-purple/10 rounded-lg p-4 border border-premium-purple/30 mt-6">
-                    <p className="text-center text-sm">
-                      Konsultacja jest całkowicie bezpłatna i niezobowiązująca.
-                      <br />Skorzystaj z wiedzy naszych ekspertów!
-                    </p>
                   </div>
                 </div>
               </div>

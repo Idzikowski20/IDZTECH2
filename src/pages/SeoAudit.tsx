@@ -61,8 +61,8 @@ const SeoAudit = () => {
           </div>
           <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.7s" }}>
             <img 
-              src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7" 
-              alt="Audyt SEO" 
+              src="https://img.freepik.com/free-vector/seo-concept-illustration_114360-5846.jpg" 
+              alt="Audyt SEO - ilustracja" 
               className="w-full h-auto object-cover"
             />
           </div>

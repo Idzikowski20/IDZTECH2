@@ -65,10 +65,10 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Right Side Image - Adjusted with animation */}
+          {/* Right Side Image - Made bigger */}
           <div className="w-full lg:w-full animate-slide-up">
             <div className="relative animate-float">
-              <img alt="Marketing Digital Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl aspect-video animate-float object-contain" />
+              <img alt="Marketing Digital Team" src="/lovable-uploads/14354e6c-0dfa-410a-86da-d56b37d05fd2.png" className="w-full h-auto rounded-xl animate-float object-contain max-h-[500px]" />
             </div>
           </div>
         </div>

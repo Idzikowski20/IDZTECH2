@@ -1,3 +1,4 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -59,17 +60,17 @@ const WebDevelopment = () => {
                 <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 shadow-lg">
                   <div className="w-full aspect-video relative overflow-hidden rounded-lg">
                     <div className="absolute inset-0 bg-gradient-to-tr from-premium-purple to-premium-blue opacity-10"></div>
-                    <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Strona internetowa" className="w-full h-full object-cover" />
+                    <img src="https://img.freepik.com/free-vector/website-development-banner_33099-1687.jpg" alt="Tworzenie stron www - ilustracja" className="w-full h-full object-cover" />
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Projekt strony" className="w-full h-full object-cover" />
+                      <img src="https://img.freepik.com/free-vector/responsive-web-design-concept-with-different-devices_23-2148812639.jpg" alt="Responsywne strony www" className="w-full h-full object-cover" />
                     </div>
                     <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1559028012-481c04fa702d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Projekt strony" className="w-full h-full object-cover" />
+                      <img src="https://img.freepik.com/free-vector/web-design-production-maintenance-websites-web-graphic-interface-design-responsive-website-software-engineering-development-colorful-icon_335657-2699.jpg" alt="Projektowanie stron www" className="w-full h-full object-cover" />
                     </div>
                     <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Projekt strony" className="w-full h-full object-cover" />
+                      <img src="https://img.freepik.com/free-vector/digital-marketing-concept-with-online-services-symbols-flat-illustration_1284-31452.jpg" alt="Marketing stron www" className="w-full h-full object-cover" />
                     </div>
                   </div>
                 </div>
