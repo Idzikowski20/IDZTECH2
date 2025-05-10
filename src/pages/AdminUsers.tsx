@@ -6,6 +6,7 @@ import { useAuth, UserRole, User } from '@/utils/auth';
 import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils'; // Add this import for the cn utility
 import {
   Dialog,
   DialogContent,
