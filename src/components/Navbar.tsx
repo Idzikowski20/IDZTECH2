@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,6 @@ import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import BlinkingUnderscore from './BlinkingUnderscore';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const {
@@ -28,7 +26,6 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-  
   return <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'py-3 bg-premium-dark/80 backdrop-blur-md shadow-lg dark:bg-premium-light/80' : 'py-5'}`}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center text-white font-bold text-xl dark:text-premium-dark">
@@ -97,7 +94,7 @@ const Navbar = () => {
           <Button variant="ghost" size="sm" onClick={() => {
           setTheme(theme === "light" ? "dark" : "light");
           trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
-        }} className="text-white hover:bg-white hover:text-black dark:text-premium-dark dark:hover:bg-premium-dark dark:hover:text-white">
+        }} className="text-white hover:text-black hover:bg-white dark:text-premium-dark dark:hover:text-white dark:hover:bg-premium-dark">
             {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
@@ -109,11 +106,11 @@ const Navbar = () => {
           </Link>
           
           {isAuthenticated ? <Link to="/admin">
-              <Button variant="secondary" size="sm" className="hover:bg-white hover:text-black dark:hover:bg-premium-dark dark:hover:text-white">
+              <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white dark:hover:text-white dark:hover:bg-premium-dark">
                 Admin
               </Button>
             </Link> : <Link to="/login">
-              <Button variant="ghost" size="icon" className="text-white hover:bg-white hover:text-black dark:text-premium-dark dark:hover:bg-premium-dark dark:hover:text-white">
+              <Button variant="ghost" size="icon" className="text-white hover:text-black hover:bg-white dark:text-premium-dark dark:hover:text-white dark:hover:bg-premium-dark">
                 <LogIn className="h-[1.2rem] w-[1.2rem]" />
                 <span className="sr-only">Zaloguj</span>
               </Button>
@@ -122,5 +119,4 @@ const Navbar = () => {
       </div>
     </nav>;
 };
-
 export default Navbar;
