@@ -58,7 +58,7 @@ const ContactForm = () => {
       // Wyświetlenie pełnej odpowiedzi z Formspree w konsoli
       console.log("Odpowiedź Formspree:", response);
       
-      if (formspreeState.errors && formspreeState.errors.length > 0) {
+      if (formspreeState.errors && Array.isArray(formspreeState.errors) && formspreeState.errors.length > 0) {
         throw new Error(formspreeState.errors[0].message);
       }
       
@@ -86,12 +86,12 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
-      {formspreeState.errors && formspreeState.errors.length > 0 && (
+      {formspreeState.errors && Array.isArray(formspreeState.errors) && formspreeState.errors.length > 0 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Błąd wysyłania formularza</AlertTitle>
           <AlertDescription>
-            {formspreeState.errors.map((error, index) => (
+            {formspreeState.errors.map((error: any, index: number) => (
               <p key={index}>{error.message}</p>
             ))}
           </AlertDescription>

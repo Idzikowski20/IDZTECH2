@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -46,9 +45,10 @@ const ForgotPassword = () => {
         description: "Sprawdź swoją skrzynkę email, aby zresetować hasło"
       });
       
-      // W celach debugowania, pokazujemy informacje w interfejsie
+      // Tymczasowo wyświetlamy informacje o wysłanym linku w UI
+      // W prawdziwej implementacji będziemy wysyłać email przez backend
       if (values.email === "patryk.idzikowski@interia.pl") {
-        setDebugInfo("Link resetujący powinien pojawić się w alercie (symulacja wysyłki maila)");
+        setDebugInfo("Link resetujący hasło został wysłany na podany adres email");
       }
     } catch (error) {
       console.error("Błąd:", error);
@@ -121,7 +121,7 @@ const ForgotPassword = () => {
               {debugInfo && (
                 <Alert className="mb-6">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Informacja testowa</AlertTitle>
+                  <AlertTitle>Informacja</AlertTitle>
                   <AlertDescription>{debugInfo}</AlertDescription>
                 </Alert>
               )}

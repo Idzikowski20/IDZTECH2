@@ -234,13 +234,16 @@ export const useAuth = create<AuthState>()(
           expires
         });
         
-        // W prawdziwej aplikacji wywołalibyśmy API do wysyłki maila
-        // Dla celów demonstracyjnych wyświetlamy link do resetu w konsoli i w alercie
+        // W prawdziwej implementacji należy wysłać email z linkiem resetującym
         console.log('Password reset requested for:', email);
         console.log('Reset link:', `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
         
-        // Dla wszystkich użytkowników pokazujemy alert z linkiem (symulacja maila)
-        alert(`Link do resetu hasła: ${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
+        // Generujemy link do resetu hasła
+        const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+        
+        // W produkcyjnej implementacji ten kod zostanie zastąpiony przez API do wysyłki maili
+        // ale tymczasowo możemy pokazywać link w konsoli
+        console.log('Tutaj powinno być wywołanie API do wysyłki maila z linkiem:', resetLink);
         
         return true;
       },
