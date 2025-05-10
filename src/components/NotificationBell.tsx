@@ -13,6 +13,16 @@ import { useNotifications } from '@/utils/notifications';
 import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
+// Definiowanie właściwego typu dla powiadomień
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type?: string;
+  isRead: boolean;  // zmienione z is_read na isRead
+  createdAt: string; // zmienione z created_at na createdAt
+}
+
 const NotificationBell: React.FC = () => {
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const navigate = useNavigate();
@@ -75,13 +85,13 @@ const NotificationBell: React.FC = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {notifications.slice(0, 5).map((notification) => (
+              {notifications.slice(0, 5).map((notification: any) => (
                 <div 
                   key={notification.id} 
                   onClick={() => handleNotificationClick(notification.id)}
                   className={`
                     p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
-                    ${!notification.is_read ? 'bg-slate-50 dark:bg-slate-900' : ''}
+                    ${!notification.isRead ? 'bg-slate-50 dark:bg-slate-900' : ''}
                   `}
                 >
                   <div className="flex gap-3">
@@ -90,7 +100,7 @@ const NotificationBell: React.FC = () => {
                       <div className="flex justify-between">
                         <h5 className="font-medium">{notification.title}</h5>
                         <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {notification.created_at ? formatNotificationDate(notification.created_at) : ''}
+                          {notification.createdAt ? formatNotificationDate(notification.createdAt) : ''}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2">

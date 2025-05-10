@@ -75,29 +75,29 @@
   }
 
   body {
-    @apply bg-background text-foreground font-montserrat;
+    @apply bg-premium-dark text-white font-montserrat;
   }
   
   .light {
-    @apply bg-white text-premium-dark;
+    @apply bg-premium-dark text-white;
   }
   
   .dark {
-    @apply bg-white text-premium-dark;
+    @apply bg-premium-dark text-white;
   }
   
   .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
   .light p, .light span {
-    @apply text-premium-dark;
+    @apply text-white;
   }
   
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
   .dark p, .dark span {
-    @apply text-premium-dark;
+    @apply text-white;
   }
   
   .light a, .dark a {
-    @apply text-premium-dark hover:bg-white hover:text-black;
+    @apply text-white hover:bg-white hover:text-black;
   }
   
   /* Custom scrollbar */
@@ -106,17 +106,17 @@
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-white;
+    @apply bg-premium-dark;
   }
   
   ::-webkit-scrollbar-thumb {
     @apply bg-purple-900;
     border-radius: 6px;
-    border: 3px solid white;
+    border: 3px solid #0a0a0a;
   }
   
   * {
     scrollbar-width: thin;
-    scrollbar-color: theme('colors.purple.900') white;
+    scrollbar-color: theme('colors.purple.900') #0a0a0a;
   }
 }

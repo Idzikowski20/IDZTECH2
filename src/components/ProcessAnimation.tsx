@@ -29,9 +29,9 @@ const ProcessBox: React.FC<ProcessBoxProps> = ({ number, title, description, del
         `}>
           {number}
         </div>
-        <h3 className="text-xl font-bold">{title}</h3>
+        <h3 className="text-xl font-bold text-white">{title}</h3>
       </div>
-      <p className="text-premium-light/70">{description}</p>
+      <p className="text-white">{description}</p>
     </motion.div>
   );
 };
@@ -153,22 +153,25 @@ const ProcessAnimation: React.FC<ProcessAnimationProps> = ({ className = "", ima
     }
   ];
 
-  // Create separate refs for each process box using the useInView hook
-  const inViewRefs = processes.map(() => useInView({
-    triggerOnce: false,
-    threshold: 0.5,
-    rootMargin: '-100px 0px'
-  }));
+  // Poprawnie typujemy hooki useInView
+  const inViewRefs = processes.map(() => {
+    const [ref, inView] = useInView({
+      triggerOnce: false,
+      threshold: 0.5,
+      rootMargin: '-100px 0px'
+    });
+    return { ref, inView };
+  });
 
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${className}`}>
       <div className="space-y-6">
-        <h2 className="text-3xl font-bold mb-6">Proces tworzenia strony</h2>
+        <h2 className="text-3xl font-bold mb-6 text-white">Proces tworzenia strony</h2>
         <div className="space-y-6">
           {processes.map((process, index) => {
-            const [ref, inView] = inViewRefs[index];
+            const { ref, inView } = inViewRefs[index];
             return (
-              <div ref={ref} key={index}>
+              <div key={index} ref={ref}>
                 <ProcessBox
                   number={process.number}
                   title={process.title}

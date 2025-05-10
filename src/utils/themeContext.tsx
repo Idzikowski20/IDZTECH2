@@ -27,17 +27,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
-      document.body.style.backgroundColor = "white"; // Set white background in dark mode
+      document.body.style.backgroundColor = "#0a0a0a"; // Ciemne tło w trybie dark
     } else {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
-      document.body.style.backgroundColor = ""; // Reset to default in light mode
+      document.body.style.backgroundColor = "#0a0a0a"; // Również ciemne tło w trybie light
     }
     
     // Update color scheme meta tag
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', theme === 'dark' ? '#ffffff' : '#ffffff');
+      metaThemeColor.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#0a0a0a');
     }
     
   }, [theme]);
