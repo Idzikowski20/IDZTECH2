@@ -1,13 +1,16 @@
+
 import React, { useState, ReactNode } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, Settings, LogOut, BarChart, Menu, X, User } from 'lucide-react';
+import { LayoutDashboard, Settings, LogOut, BarChart, Menu, X, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/utils/auth';
 import DotAnimation from './DotAnimation';
+
 interface AdminLayoutProps {
   children: ReactNode;
 }
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({
   children
 }) => {
@@ -18,18 +21,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+  
   const navItems = [{
     icon: LayoutDashboard,
     label: 'Dashboard',
     path: '/admin'
-  }, {
-    icon: FileText,
-    label: 'Zarządzanie blogiem',
-    path: '/admin/posts'
   }, {
     icon: BarChart,
     label: 'Statystyki',
@@ -43,6 +44,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     label: 'Ustawienia',
     path: '/admin/settings'
   }];
+
   return <div className="flex h-screen bg-premium-dark">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
@@ -75,7 +77,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           
           {/* Navigation */}
           <nav className="flex-1 py-6 px-4 space-y-1 overflow-y-auto">
-            {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-premium-light/80 hover:bg-premium-light/5 hover:text-premium-light transition-colors", location.pathname === item.path && "bg-premium-light/10 text-premium-light")}>
+            {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center gap-3 px-4 py-3 rounded-lg text-premium-light/80 hover:bg-premium-light/5 hover:text-white transition-colors", location.pathname === item.path && "bg-premium-light/10 text-premium-light")}>
                 <item.icon size={20} />
                 <span>{item.label}</span>
               </Link>)}
@@ -83,7 +85,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           
           {/* Logout */}
           <div className="p-4 border-t border-premium-light/10">
-            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-premium-light/80 bg-zinc-600 hover:bg-zinc-500 text-slate-50">
+            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-premium-light/80 bg-zinc-600 hover:bg-zinc-500 hover:text-white">
               <LogOut size={20} className="mr-3" />
               Wyloguj się
             </Button>
@@ -99,4 +101,5 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
       </div>
     </div>;
 };
+
 export default AdminLayout;

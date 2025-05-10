@@ -11,6 +11,8 @@ export interface User {
   role: UserRole;
   profilePicture?: string;
   lastName?: string;
+  bio?: string;
+  jobTitle?: string;
 }
 
 interface AuthState {
@@ -20,6 +22,7 @@ interface AuthState {
   register: (email: string, name: string, password: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
 }
 
 // Mock user database
@@ -31,6 +34,8 @@ const users: User[] = [
     role: 'admin',
     profilePicture: '',
     lastName: '',
+    bio: 'Administrator serwisu IDZ.TECH',
+    jobTitle: 'CEO',
   },
 ];
 
@@ -69,6 +74,8 @@ export const useAuth = create<AuthState>()(
           role: 'user',
           profilePicture: '',
           lastName: '',
+          bio: '',
+          jobTitle: '',
         };
         
         // In a real app, you would hash the password and save to a database
@@ -94,6 +101,19 @@ export const useAuth = create<AuthState>()(
             users[index] = updatedUser;
           }
         }
+      },
+      updatePassword: async (currentPassword: string, newPassword: string) => {
+        const { user } = get();
+        if (!user) return false;
+        
+        // Verify the current password
+        if (passwords[user.email] !== currentPassword) {
+          return false;
+        }
+        
+        // Update the password
+        passwords[user.email] = newPassword;
+        return true;
       },
     }),
     {
