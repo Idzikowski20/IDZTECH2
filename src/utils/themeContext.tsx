@@ -17,7 +17,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
     
-    // Aplikowanie klasy dark do elementu HTML dla stylów Tailwind
+    // Apply dark mode class to HTML element for Tailwind styles
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
       document.body.classList.add('bg-premium-dark');
@@ -26,7 +26,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.remove('dark');
       document.body.classList.remove('bg-premium-dark');
       document.body.classList.remove('text-premium-light');
+      document.body.classList.add('bg-premium-light');
+      document.body.classList.add('text-premium-dark');
     }
+
+    // Clean up function
+    return () => {
+      if (!isDarkMode) {
+        document.body.classList.remove('bg-premium-light');
+        document.body.classList.remove('text-premium-dark');
+      }
+    };
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {

@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, Eye, Edit, Trash2, UserPlus, Shield } from 'lucide-react';
+import { User as UserIcon, Eye, Trash2, UserPlus, Shield } from 'lucide-react';
 import { useAuth, UserRole, User } from '@/utils/auth';
 import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils'; // Add this import for the cn utility
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -30,6 +40,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import UserProfileDialog from '@/components/UserProfileDialog';
+import { trackEvent } from '@/utils/analytics';
 
 const userRoles: Record<UserRole, string> = {
   'admin': 'Administrator',
@@ -46,14 +58,22 @@ const userFormSchema = z.object({
   role: z.enum(['admin', 'moderator', 'blogger', 'user'] as const),
 });
 
+// Add the deleteUser function to auth.ts
+interface ExtendedAuth extends ReturnType<typeof useAuth> {
+  deleteUser?: (userId: string) => boolean;
+}
+
 const AdminUsers = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById } = useAuth();
+  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById, deleteUser } = useAuth() as ExtendedAuth;
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole>('user');
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   
   // Form handling
   const form = useForm<z.infer<typeof userFormSchema>>({
@@ -76,16 +96,12 @@ const AdminUsers = () => {
   const users = getUsers();
   
   const handleUserProfileClick = (userId: string) => {
-    // In a real app, this would navigate to a user profile page
     const profileUser = getUserById(userId);
     if (profileUser) {
       setSelectedUser(profileUser);
-      // Navigate to user profile view
-      // For now we'll just show a toast
-      toast({
-        title: "Profil użytkownika",
-        description: `Wyświetlanie profilu: ${profileUser.name} ${profileUser.lastName || ''}`,
-      });
+      setShowProfileDialog(true);
+      // Track profile view event
+      trackEvent('view_profile', 'user_management', `Profile ${profileUser.name}`);
     }
   };
   
@@ -107,6 +123,8 @@ const AdminUsers = () => {
           description: `Rola użytkownika ${selectedUser.name} została zmieniona na ${userRoles[userRole]}`
         });
         setShowRoleDialog(false);
+        // Track role update event
+        trackEvent('update_role', 'user_management', `User ${selectedUser.name} to ${userRole}`);
       } else {
         toast({
           title: "Błąd",
@@ -114,6 +132,45 @@ const AdminUsers = () => {
           variant: "destructive"
         });
       }
+    }
+  };
+  
+  const handleDeleteUser = (userId: string) => {
+    const userToRemove = getUserById(userId);
+    if (userToRemove) {
+      // Admin check: moderator can't delete admin
+      if (user?.role === 'moderator' && userToRemove.role === 'admin') {
+        toast({
+          title: "Brak uprawnień",
+          description: "Moderator nie może usunąć administratora",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      setUserToDelete(userToRemove);
+      setShowDeleteDialog(true);
+    }
+  };
+  
+  const confirmDeleteUser = () => {
+    if (userToDelete && deleteUser) {
+      const success = deleteUser(userToDelete.id);
+      if (success) {
+        toast({
+          title: "Użytkownik usunięty",
+          description: `Użytkownik ${userToDelete.name} został usunięty`
+        });
+        // Track user deletion event
+        trackEvent('delete_user', 'user_management', `User ${userToDelete.name}`);
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się usunąć użytkownika",
+          variant: "destructive"
+        });
+      }
+      setShowDeleteDialog(false);
     }
   };
   
@@ -132,6 +189,8 @@ const AdminUsers = () => {
       });
       setShowAddUserDialog(false);
       form.reset();
+      // Track user creation event
+      trackEvent('add_user', 'user_management', `User ${data.name}`);
     } else {
       toast({
         title: "Błąd",
@@ -392,18 +451,13 @@ const AdminUsers = () => {
                             </Button>
                           )}
                           
-                          {user?.role === 'admin' && (
+                          {canManageUsers && (
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => {
-                                // W rzeczywistej aplikacji tutaj byłaby opcja usuwania
-                                toast({
-                                  title: "Opcja niedostępna",
-                                  description: "Ta funkcja nie jest jeszcze dostępna",
-                                });
-                              }}
+                              onClick={() => handleDeleteUser(user.id)}
                               className="text-red-400 hover:text-white hover:bg-red-500 transition-colors"
+                              disabled={(user?.role === 'moderator' && user?.role === 'admin')}
                             >
                               <Trash2 size={14} />
                             </Button>
@@ -454,6 +508,31 @@ const AdminUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* User Profile Dialog */}
+      <UserProfileDialog 
+        user={selectedUser} 
+        open={showProfileDialog} 
+        onOpenChange={setShowProfileDialog} 
+      />
+
+      {/* Delete User Confirmation */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Czy na pewno chcesz usunąć tego użytkownika?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ta akcja jest nieodwracalna. Użytkownik {userToDelete?.name} {userToDelete?.lastName} zostanie usunięty z systemu.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteUser} className="bg-red-500 text-white hover:bg-red-600">
+              Usuń
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };

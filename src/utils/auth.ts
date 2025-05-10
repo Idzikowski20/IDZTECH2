@@ -1,5 +1,7 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useBlogStore } from '@/utils/blog';
 
 export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
 
@@ -34,6 +36,8 @@ interface AuthState {
   getTopUser: () => User | undefined;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (email: string, token: string, newPassword: string) => Promise<boolean>;
+  deleteUser: (userId: string) => boolean;
+  refreshUserStats: () => void;
 }
 
 // Mock user database
@@ -176,6 +180,8 @@ export const useAuth = create<AuthState>()(
         return true;
       },
       getUsers: () => {
+        // Refresh user stats before returning users
+        get().refreshUserStats();
         return [...users];
       },
       addUser: (userData, password) => {
@@ -265,6 +271,41 @@ export const useAuth = create<AuthState>()(
         resetTokens.splice(tokenIndex, 1);
         
         return true;
+      },
+      deleteUser: (userId: string) => {
+        const index = users.findIndex(u => u.id === userId);
+        if (index === -1) return false;
+        
+        // Check if trying to delete the current user (shouldn't delete yourself)
+        const { user } = get();
+        if (user?.id === userId) return false;
+        
+        // Delete the user
+        const deletedUser = users.splice(index, 1)[0];
+        
+        // Clean up password record
+        if (deletedUser.email in passwords) {
+          delete passwords[deletedUser.email];
+        }
+        
+        return true;
+      },
+      refreshUserStats: () => {
+        // Get blog posts from store to calculate real statistics
+        const blogStore = useBlogStore.getState();
+        const posts = blogStore.posts;
+        
+        // Calculate statistics for each user
+        users.forEach(user => {
+          // Find posts created by this user
+          const userPosts = posts.filter(post => post.authorId === user.id);
+          
+          // Update post count
+          user.postsCreated = userPosts.length;
+          
+          // Sum up total views from all user's posts
+          user.totalViews = userPosts.reduce((sum, post) => sum + post.views, 0);
+        });
       }
     }),
     {

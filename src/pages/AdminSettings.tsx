@@ -1,322 +1,224 @@
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Toggle } from '@/components/ui/toggle';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/utils/auth';
 import AdminLayout from '@/components/AdminLayout';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useTheme } from '@/utils/themeContext';
-
-const passwordSchema = z.object({
-  currentPassword: z.string().min(6, 'Aktualne hasło musi mieć co najmniej 6 znaków'),
-  newPassword: z.string().min(6, 'Nowe hasło musi mieć co najmniej 6 znaków'),
-  confirmPassword: z.string().min(6, 'Hasło potwierdzające musi mieć co najmniej 6 znaków'),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Hasła nie pasują do siebie",
-  path: ["confirmPassword"],
-});
-
-const notificationsSchema = z.object({
-  emailNotifications: z.boolean(),
-  marketingEmails: z.boolean(),
-});
+import { trackEvent } from '@/utils/analytics';
 
 const AdminSettings = () => {
-  const { user, updatePassword, isAuthenticated } = useAuth();
-  const { toast } = useToast();
-  const { isDarkMode, toggleDarkMode } = useTheme();
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
-  // Przekieruj jeśli nie jest zalogowany
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate]);
-
-  // Formularz hasła
-  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
-    resolver: zodResolver(passwordSchema),
-    defaultValues: {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    },
+  const [notificationSettings, setNotificationSettings] = useState({
+    emailNotifications: true,
+    newComments: true,
+    postUpdates: false,
+    siteStats: true,
   });
 
-  // Formularz powiadomień
-  const notificationsForm = useForm<z.infer<typeof notificationsSchema>>({
-    resolver: zodResolver(notificationsSchema),
-    defaultValues: {
-      emailNotifications: true,
-      marketingEmails: false,
-    },
+  const [privacySettings, setPrivacySettings] = useState({
+    showEmail: false,
+    showProfile: true,
   });
 
-  const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
-    setIsLoading(true);
-    try {
-      await updatePassword(values.currentPassword, values.newPassword);
-      
-      toast({
-        title: "Hasło zaktualizowane",
-        description: "Twoje hasło zostało pomyślnie zmienione",
-      });
-      
-      passwordForm.reset();
-    } catch (error) {
-      toast({
-        title: "Błąd aktualizacji",
-        description: "Nie udało się zaktualizować hasła. Sprawdź poprawność aktualnego hasła.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onNotificationsSubmit = (values: z.infer<typeof notificationsSchema>) => {
-    toast({
-      title: "Preferencje powiadomień zapisane",
-      description: "Twoje ustawienia powiadomień zostały zaktualizowane",
-    });
-  };
-
+  // Redirect if not authenticated
   if (!isAuthenticated) {
+    navigate('/login');
     return null;
   }
+
+  const handleThemeModeChange = () => {
+    toggleDarkMode();
+    trackEvent(
+      'toggle_theme',
+      'settings',
+      isDarkMode ? 'light_mode' : 'dark_mode'
+    );
+  };
+
+  const handleNotificationChange = (key: keyof typeof notificationSettings) => {
+    setNotificationSettings(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+    trackEvent(
+      'toggle_notification',
+      'settings',
+      `${key}_${!notificationSettings[key]}`
+    );
+  };
+
+  const handlePrivacyChange = (key: keyof typeof privacySettings) => {
+    setPrivacySettings(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+    trackEvent(
+      'toggle_privacy',
+      'settings',
+      `${key}_${!privacySettings[key]}`
+    );
+  };
+
+  const clearCache = () => {
+    // Simulate clearing cache
+    trackEvent('clear_cache', 'settings', 'cache_cleared');
+    setTimeout(() => {
+      alert('Cache wyczyszczona pomyślnie.');
+    }, 1000);
+  };
 
   return (
     <AdminLayout>
       <div className="p-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Ustawienia</h1>
-          <p className="text-premium-light/70">
-            Zarządzaj ustawieniami swojego konta i preferencjami.
+          <p className="text-premium-light/70 dark:text-premium-light/70">
+            Dostosuj ustawienia panelu administracyjnego.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Ustawienia hasła */}
-          <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Ustawienia hasła</h2>
-            
-            <Form {...passwordForm}>
-              <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-                <FormField
-                  control={passwordForm.control}
-                  name="currentPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Aktualne hasło</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Wprowadź aktualne hasło" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={passwordForm.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nowe hasło</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Wprowadź nowe hasło" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={passwordForm.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Potwierdź hasło</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Potwierdź nowe hasło" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button 
-                  type="submit" 
-                  className="bg-premium-gradient hover:scale-105 transition-transform"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Aktualizowanie..." : "Aktualizuj hasło"}
-                </Button>
-              </form>
-            </Form>
-          </div>
-
-          {/* Ustawienia wyglądu */}
-          <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Wygląd</h2>
-            
-            <div className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-medium">Tryb ciemny</h3>
-                  <p className="text-sm text-premium-light/70">
-                    Przełącz między trybem jasnym i ciemnym
-                  </p>
-                </div>
-                
-                <Toggle 
-                  pressed={isDarkMode} 
-                  onPressedChange={toggleDarkMode} 
-                  className="bg-transparent hover:bg-premium-light/10 data-[state=on]:bg-premium-gradient hover:text-white"
-                >
-                  {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                </Toggle>
+        {/* Appearance Settings */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Wygląd</h2>
+          <div className="bg-premium-dark/50 dark:bg-premium-dark/50 border border-premium-light/10 dark:border-premium-light/10 p-6 rounded-xl">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-semibold mb-1">Tryb ciemny</h3>
+                <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                  Przełącz między jasnym a ciemnym motywem.
+                </p>
               </div>
-              
-              <div className="pb-4 border-b border-premium-light/10">
-                <h3 className="font-medium mb-2">Kolor motywu</h3>
-                <div className="flex gap-2">
-                  {['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'].map((color) => (
-                    <button
-                      key={color}
-                      className="w-8 h-8 rounded-full focus:ring-2 focus:ring-premium-light hover:scale-110 transition-transform"
-                      style={{ backgroundColor: color }}
-                      onClick={() => {
-                        toast({
-                          title: "Kolor motywu zaktualizowany",
-                          description: "Twoje preferencje koloru motywu zostały zapisane",
-                        });
-                      }}
-                    />
-                  ))}
-                </div>
+              <div className="flex items-center">
+                <Sun className="mr-2 h-4 w-4 text-premium-light/70 dark:text-premium-light/70" />
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={handleThemeModeChange}
+                />
+                <Moon className="ml-2 h-4 w-4 text-premium-light/70 dark:text-premium-light/70" />
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Ustawienia powiadomień */}
-          <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Ustawienia powiadomień</h2>
-            
-            <Form {...notificationsForm}>
-              <form onSubmit={notificationsForm.handleSubmit(onNotificationsSubmit)} className="space-y-6">
-                <FormField
-                  control={notificationsForm.control}
-                  name="emailNotifications"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-premium-light/10 p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Powiadomienia e-mail</FormLabel>
-                        <p className="text-sm text-premium-light/70">
-                          Otrzymuj e-maile o aktywnościach na Twoim koncie
-                        </p>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={notificationsForm.control}
-                  name="marketingEmails"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-premium-light/10 p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">E-maile marketingowe</FormLabel>
-                        <p className="text-sm text-premium-light/70">
-                          Otrzymuj e-maile o nowych funkcjach, produktach i ofertach
-                        </p>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <Button 
-                  type="submit" 
-                  className="bg-premium-gradient hover:scale-105 transition-transform"
-                >
-                  Zapisz preferencje
-                </Button>
-              </form>
-            </Form>
-          </div>
-
-          {/* Ustawienia konta */}
-          <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-            <h2 className="text-xl font-semibold mb-4">Ustawienia konta</h2>
-            
+        {/* Notification Settings */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Powiadomienia</h2>
+          <div className="bg-premium-dark/50 dark:bg-premium-dark/50 border border-premium-light/10 dark:border-premium-light/10 p-6 rounded-xl">
             <div className="space-y-6">
-              <div className="flex justify-between items-center pb-4 border-b border-premium-light/10">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-medium">Typ konta</h3>
-                  <p className="text-sm text-premium-light/70">
-                    {user?.role === 'admin' ? 'Administrator' : 'Zwykły użytkownik'}
+                  <h3 className="font-semibold mb-1">Powiadomienia e-mail</h3>
+                  <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                    Otrzymuj powiadomienia e-mail.
                   </p>
                 </div>
-                
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  user?.role === 'admin' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'
-                }`}>
-                  {user?.role === 'admin' ? 'Admin' : 'Użytkownik'}
-                </span>
+                <Switch
+                  checked={notificationSettings.emailNotifications}
+                  onCheckedChange={() => handleNotificationChange('emailNotifications')}
+                />
               </div>
-              
-              <div className="pb-4 border-b border-premium-light/10">
-                <h3 className="font-medium mb-2">Zarządzanie sesją</h3>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-2 hover:bg-premium-light/10 hover:text-white transition-colors"
-                  onClick={() => {
-                    toast({
-                      title: "Wylogowano z innych sesji",
-                      description: "Zostałeś wylogowany ze wszystkich innych urządzeń",
-                    });
-                  }}
-                >
-                  Wyloguj ze wszystkich innych urządzeń
-                </Button>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Nowe komentarze</h3>
+                  <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                    Powiadamiaj o nowych komentarzach.
+                  </p>
+                </div>
+                <Switch
+                  checked={notificationSettings.newComments}
+                  onCheckedChange={() => handleNotificationChange('newComments')}
+                />
               </div>
-              
-              <div className="pb-4">
-                <h3 className="font-medium mb-2 text-red-500">Strefa niebezpieczna</h3>
-                <Button 
-                  variant="outline" 
-                  className="w-full border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
-                  onClick={() => {
-                    toast({
-                      title: "Żądanie usunięcia konta",
-                      description: "Sprawdź swoją skrzynkę e-mail, aby potwierdzić usunięcie konta",
-                    });
-                  }}
-                >
-                  Usuń konto
-                </Button>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Aktualizacje postów</h3>
+                  <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                    Powiadamiaj o aktualizacjach postów.
+                  </p>
+                </div>
+                <Switch
+                  checked={notificationSettings.postUpdates}
+                  onCheckedChange={() => handleNotificationChange('postUpdates')}
+                />
               </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Statystyki strony</h3>
+                  <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                    Otrzymuj cotygodniowe statystyki.
+                  </p>
+                </div>
+                <Switch
+                  checked={notificationSettings.siteStats}
+                  onCheckedChange={() => handleNotificationChange('siteStats')}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Privacy Settings */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Prywatność</h2>
+          <div className="bg-premium-dark/50 dark:bg-premium-dark/50 border border-premium-light/10 dark:border-premium-light/10 p-6 rounded-xl">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Pokaż e-mail</h3>
+                  <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                    Wyświetlaj mój adres e-mail publicznie.
+                  </p>
+                </div>
+                <Switch
+                  checked={privacySettings.showEmail}
+                  onCheckedChange={() => handlePrivacyChange('showEmail')}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Widoczność profilu</h3>
+                  <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                    Pozwól innym zobaczyć mój profil.
+                  </p>
+                </div>
+                <Switch
+                  checked={privacySettings.showProfile}
+                  onCheckedChange={() => handlePrivacyChange('showProfile')}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Cache Settings */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-4">Zaawansowane</h2>
+          <div className="bg-premium-dark/50 dark:bg-premium-dark/50 border border-premium-light/10 dark:border-premium-light/10 p-6 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold mb-1">Wyczyść cache</h3>
+                <p className="text-sm text-premium-light/60 dark:text-premium-light/60">
+                  Wyczyść cache aplikacji.
+                </p>
+              </div>
+              <Button 
+                variant="outline"
+                onClick={clearCache}
+                className="border-premium-light/20 dark:border-premium-light/20 hover:bg-premium-light/10 dark:hover:bg-premium-light/10"
+              >
+                Wyczyść cache
+              </Button>
             </div>
           </div>
         </div>
