@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
-import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
+import { Moon as MoonIcon, Sun as SunIcon } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import TypingAnimation from './TypingAnimation';
 

@@ -1,7 +1,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
+type ThemeType = "light" | "dark";
+
 type ThemeContextType = {
+  theme: ThemeType;
+  setTheme: (theme: ThemeType) => void;
   isDarkMode: boolean;
   toggleDarkMode: () => void;
 };
@@ -9,19 +13,23 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    const savedTheme = localStorage.getItem('theme') as ThemeType;
+    return (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) ? 'dark' : 'light';
   });
+  
+  const isDarkMode = theme === 'dark';
 
   useEffect(() => {
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    localStorage.setItem('theme', theme);
     
     // Apply dark mode class to HTML element for Tailwind styles
-    if (isDarkMode) {
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
       document.body.classList.add('bg-premium-dark');
       document.body.classList.add('text-premium-light');
+      document.body.classList.remove('bg-premium-light');
+      document.body.classList.remove('text-premium-dark');
     } else {
       document.documentElement.classList.remove('dark');
       document.body.classList.remove('bg-premium-dark');
@@ -29,22 +37,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.body.classList.add('bg-premium-light');
       document.body.classList.add('text-premium-dark');
     }
-
-    // Clean up function
-    return () => {
-      if (!isDarkMode) {
-        document.body.classList.remove('bg-premium-light');
-        document.body.classList.remove('text-premium-dark');
-      }
-    };
-  }, [isDarkMode]);
+  }, [theme]);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(prev => !prev);
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ theme, setTheme, isDarkMode, toggleDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );

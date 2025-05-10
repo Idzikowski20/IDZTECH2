@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from 'react-pro-sidebar';
@@ -103,7 +104,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Wyloguj</span>
               </DropdownMenuItem>
-            DropdownMenuContent>
+            </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </header>
