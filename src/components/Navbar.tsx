@@ -55,7 +55,7 @@ const Navbar = () => {
   
   const DesktopNavigation = () => (
     <div className="hidden md:flex items-center space-x-6">
-      <Link to="/" className={`text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}>Start</Link>
+      <Link to="/" className={`bg-transparent text-white hover:bg-white hover:text-black px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}>Start</Link>
       
       <NavigationMenu>
         <NavigationMenuList>
