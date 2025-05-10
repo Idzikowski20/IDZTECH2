@@ -53,6 +53,10 @@ const BlogPost = () => {
   const authorDisplayName = user ? `${user.name} ${user.lastName || ''}`.trim() : post.author;
   const authorInitial = authorDisplayName.charAt(0);
 
+  // Safely access post properties with fallbacks for undefined values
+  const commentsCount = post.comments ? post.comments.length : 0;
+  const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
+
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -82,12 +86,12 @@ const BlogPost = () => {
               <span className="mx-2">•</span>
               <div className="flex items-center">
                 <MessageCircle size={14} className="mr-1" />
-                <span>{post.comments.length} komentarzy</span>
+                <span>{commentsCount} komentarzy</span>
               </div>
               <span className="mx-2">•</span>
               <div className="flex items-center">
                 <Heart size={14} className="mr-1" />
-                <span>{post.likes.length} polubień</span>
+                <span>{likesCount} polubień</span>
               </div>
             </div>
             
