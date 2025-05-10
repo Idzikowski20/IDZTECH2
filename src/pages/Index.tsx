@@ -9,7 +9,6 @@ import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FAQ from "@/components/FAQ";
-import ScrollToTop from "@/components/ScrollToTop";
 
 const Index = () => {
   // Ensure scroll to top on page load
@@ -22,7 +21,6 @@ const Index = () => {
   
   return (
     <div className="min-h-screen bg-premium-dark">
-      <ScrollToTop />
       <Navbar />
       <Hero />
       <Services />
