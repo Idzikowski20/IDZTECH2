@@ -2,10 +2,8 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Check, Calendar, Clock, Send } from 'lucide-react';
+import { Check, Calendar, Clock } from 'lucide-react';
+import ContactForm from '@/components/ContactForm';
 
 const ContactPage = () => {
   return (
@@ -32,85 +30,7 @@ const ContactPage = () => {
             <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-8">
                 <h3 className="text-2xl font-semibold mb-6">Wypełnij formularz</h3>
-                
-                <form className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label htmlFor="name" className="text-sm font-medium">Imię i nazwisko*</label>
-                      <Input
-                        id="name"
-                        placeholder="Jan Kowalski"
-                        className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="company" className="text-sm font-medium">Nazwa firmy*</label>
-                      <Input
-                        id="company"
-                        placeholder="Nazwa firmy"
-                        className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium">Email*</label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="jan@example.com"
-                        className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                        required
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="phone" className="text-sm font-medium">Telefon*</label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="+48 123 456 789"
-                        className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="service" className="text-sm font-medium">Usługa, którą jesteś zainteresowany</label>
-                    <select
-                      id="service"
-                      className="w-full bg-premium-dark/40 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20"
-                    >
-                      <option value="">Wybierz usługę</option>
-                      <option value="web-dev">Tworzenie stron www</option>
-                      <option value="ecommerce">Tworzenie sklepów internetowych</option>
-                      <option value="seo">Pozycjonowanie stron internetowych</option>
-                      <option value="local-seo">Pozycjonowanie lokalne</option>
-                      <option value="google-ads">Kampanie Google Ads</option>
-                      <option value="meta-ads">Kampanie Meta Ads</option>
-                    </select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="message" className="text-sm font-medium">Wiadomość</label>
-                    <Textarea
-                      id="message"
-                      placeholder="Opisz swoje potrzeby..."
-                      rows={5}
-                      className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20 resize-none"
-                    />
-                  </div>
-                  
-                  <Button type="submit" className="w-full bg-premium-gradient hover:opacity-90 transition-opacity">
-                    <Send size={16} className="mr-2" />
-                    Wyślij wiadomość
-                  </Button>
-                </form>
+                <ContactForm />
               </div>
             </div>
             

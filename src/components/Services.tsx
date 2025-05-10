@@ -1,19 +1,20 @@
 
 import React from 'react';
 import { 
-  Search, LineChart, Instagram, Globe, Mail, MousePointer, 
-  Smartphone, Code, ShoppingCart, Users
+  Search, LineChart, Instagram, Globe, Code, ShoppingCart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   gradient: string;
+  link: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gradient }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gradient, link }) => {
   return (
     <div className="group relative">
       <div className={cn(
@@ -30,7 +31,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gra
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
         <p className="text-premium-light/70 text-sm flex-grow">{description}</p>
         <div className="mt-4">
-          <a href="#" className="inline-flex items-center text-sm font-medium">
+          <Link to={link} className="inline-flex items-center text-sm font-medium">
             Dowiedz się więcej
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -47,7 +48,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gra
               <path d="M5 12h14"></path>
               <path d="m12 5 7 7-7 7"></path>
             </svg>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
@@ -57,52 +58,46 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gra
 const Services = () => {
   const services = [
     {
+      icon: <Globe size={24} className="text-premium-light" />,
+      title: "Tworzenie stron www",
+      description: "Projektujemy i tworzymy profesjonalne, szybkie i responsywne strony internetowe.",
+      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
+      link: "/tworzenie-stron-www"
+    },
+    {
+      icon: <ShoppingCart size={24} className="text-premium-light" />,
+      title: "Tworzenie sklepów internetowych",
+      description: "Kompleksowe rozwiązania e-commerce dostosowane do potrzeb Twojego biznesu.",
+      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink",
+      link: "/tworzenie-sklepow-internetowych"
+    },
+    {
       icon: <Search size={24} className="text-premium-light" />,
       title: "Pozycjonowanie SEO",
       description: "Poprawimy widoczność Twojej strony w wyszukiwarce Google i zwiększymy organiczny ruch.",
-      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue"
+      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
+      link: "/pozycjonowanie-stron-internetowych"
+    },
+    {
+      icon: <Search size={24} className="text-premium-light" />,
+      title: "Pozycjonowanie lokalne",
+      description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
+      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
+      link: "/pozycjonowanie-lokalne"
     },
     {
       icon: <LineChart size={24} className="text-premium-light" />,
-      title: "Google Ads",
+      title: "Kampanie Google Ads",
       description: "Stworzymy i zoptymalizujemy kampanie reklamowe, które przyciągną nowych klientów.",
-      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink"
+      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink",
+      link: "/google-ads-campaigns"
     },
     {
       icon: <Instagram size={24} className="text-premium-light" />,
-      title: "Social Media",
-      description: "Kompleksowa obsługa kanałów społecznościowych i budowanie zaangażowanej społeczności.",
-      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple"
-    },
-    {
-      icon: <Globe size={24} className="text-premium-light" />,
-      title: "Strony www",
-      description: "Projektujemy i tworzymy profesjonalne, szybkie i responsywne strony internetowe.",
-      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue"
-    },
-    {
-      icon: <Mail size={24} className="text-premium-light" />,
-      title: "Email Marketing",
-      description: "Zwiększymy Twoją sprzedaż poprzez skuteczne kampanie email marketingowe.",
-      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink"
-    },
-    {
-      icon: <MousePointer size={24} className="text-premium-light" />,
-      title: "UX/UI Design",
-      description: "Zaprojektujemy intuicyjne i atrakcyjne interfejsy, które zwiększą konwersje.",
-      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple"
-    },
-    {
-      icon: <Smartphone size={24} className="text-premium-light" />,
-      title: "Aplikacje mobilne",
-      description: "Tworzymy natywne i cross-platformowe aplikacje mobilne dla biznesu.",
-      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue"
-    },
-    {
-      icon: <Code size={24} className="text-premium-light" />,
-      title: "Web Development",
-      description: "Programowanie zaawansowanych rozwiązań webowych dostosowanych do potrzeb.",
-      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink"
+      title: "Kampanie Meta Ads",
+      description: "Skuteczne kampanie reklamowe w mediach społecznościowych Facebook i Instagram.",
+      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
+      link: "/meta-ads-campaigns"
     },
   ];
 
@@ -121,7 +116,7 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service, index) => (
             <ServiceCard 
               key={index}
@@ -129,6 +124,7 @@ const Services = () => {
               title={service.title}
               description={service.description}
               gradient={service.gradient}
+              link={service.link}
             />
           ))}
         </div>
