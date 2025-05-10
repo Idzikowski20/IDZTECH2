@@ -83,7 +83,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           
           {/* Logout */}
           <div className="p-4 border-t border-premium-light/10">
-            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-premium-light/80">
+            <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-premium-light/80 bg-zinc-600 hover:bg-zinc-500 text-slate-50">
               <LogOut size={20} className="mr-3" />
               Wyloguj się
             </Button>
