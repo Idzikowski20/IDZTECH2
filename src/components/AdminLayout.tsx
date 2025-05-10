@@ -14,7 +14,7 @@ import {
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import BlinkingUnderscore from './BlinkingUnderscore';
+import BlinkingUnderscore from '@/components/ui/BlinkingUnderscore';
 import { useNotifications } from '@/utils/notifications';
 import NotificationBell from './NotificationBell';
 

@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import BlinkingUnderscore from './BlinkingUnderscore';
+import BlinkingUnderscore from '@/components/ui/BlinkingUnderscore';
 
 const Hero = () => {
   return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
