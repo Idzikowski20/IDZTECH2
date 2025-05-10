@@ -7,9 +7,11 @@ import {
   PopoverTrigger 
 } from "@/components/ui/popover";
 import { Button } from '@/components/ui/button';
-import { useNotifications } from '@/utils/notifications';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '@/utils/notifications';
+import { format, formatDistanceToNow } from 'date-fns';
+import { pl } from 'date-fns/locale';
 
 const NotificationBell: React.FC = () => {
   const { notifications, unreadCount, markAsRead } = useNotifications();
@@ -18,6 +20,31 @@ const NotificationBell: React.FC = () => {
   const handleNotificationClick = (id: string) => {
     markAsRead(id);
     navigate('/admin/notifications');
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'success':
+        return <div className="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-1"></div>;
+      case 'error':
+        return <div className="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1"></div>;
+      case 'warning':
+        return <div className="flex-shrink-0 w-2 h-2 bg-amber-500 rounded-full mt-1"></div>;
+      default:
+        return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
+    }
+  };
+
+  const formatNotificationDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+    
+    if (diffInHours < 24) {
+      return formatDistanceToNow(date, { addSuffix: true, locale: pl });
+    }
+    
+    return format(date, 'dd.MM.yyyy, HH:mm', { locale: pl });
   };
 
   return (
@@ -54,18 +81,23 @@ const NotificationBell: React.FC = () => {
                   onClick={() => handleNotificationClick(notification.id)}
                   className={`
                     p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
-                    ${notification.status === 'unread' ? 'bg-slate-50 dark:bg-slate-900' : ''}
+                    ${notification.is_read ? '' : 'bg-slate-50 dark:bg-slate-900'}
                   `}
                 >
-                  <div className="flex justify-between">
-                    <h5 className="font-medium">{notification.title}</h5>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(notification.createdAt).toLocaleString('pl-PL')}
-                    </span>
+                  <div className="flex gap-3">
+                    {getNotificationIcon(notification.type)}
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h5 className="font-medium">{notification.title}</h5>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatNotificationDate(notification.created_at)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {notification.message}
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {notification.message}
-                  </p>
                 </div>
               ))}
             </div>

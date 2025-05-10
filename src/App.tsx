@@ -32,7 +32,9 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminUsers from "./pages/AdminUsers";
 import AdminNotifications from "./pages/AdminNotifications";
 import { ThemeProvider } from "./utils/themeContext";
+import { AuthProvider } from "./utils/AuthProvider";
 import { initGA, trackPageView } from "./utils/analytics";
+import RequireAuth from "./components/RequireAuth";
 
 const queryClient = new QueryClient();
 
@@ -55,43 +57,45 @@ if (typeof window !== 'undefined') {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <AnalyticsTracker />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
-            <Route path="/tworzenie-sklepow-internetowych" element={<ECommerce />} />
-            <Route path="/pozycjonowanie-stron-internetowych" element={<Seo />} />
-            <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
-            <Route path="/audyt-seo" element={<SeoAudit />} />
-            <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
-            <Route path="/copywriting-seo" element={<SeoCopywriting />} />
-            <Route path="/content-plan" element={<ContentPlan />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/projects" element={<Projects />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/stats" element={<AdminStats />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/new-post" element={<BlogPostEditor />} />
-            <Route path="/admin/edit-post/:id" element={<BlogPostEditor />} />
-            <Route path="/admin/notifications" element={<AdminNotifications />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <AnalyticsTracker />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
+              <Route path="/tworzenie-sklepow-internetowych" element={<ECommerce />} />
+              <Route path="/pozycjonowanie-stron-internetowych" element={<Seo />} />
+              <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
+              <Route path="/audyt-seo" element={<SeoAudit />} />
+              <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
+              <Route path="/copywriting-seo" element={<SeoCopywriting />} />
+              <Route path="/content-plan" element={<ContentPlan />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+              <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
+              <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+              <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
+              <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+              <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+              <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
 );

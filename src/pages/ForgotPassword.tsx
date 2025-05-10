@@ -1,75 +1,47 @@
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, AlertCircle } from 'lucide-react';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { KeyRound } from 'lucide-react';
+import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Link } from 'react-router-dom';
-import { forgotPassword } from '@/utils/auth';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useAuth } from '@/utils/auth';
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Wprowadź poprawny adres email')
-});
 
 const ForgotPassword = () => {
-  const { toast } = useToast();
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const { getUsers } = useAuth();
+  const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { resetPassword } = useAuth();
 
-  const form = useForm<z.infer<typeof forgotPasswordSchema>>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: {
-      email: ''
-    }
-  });
-
-  const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
-    setDebugInfo(null);
-    setEmailError(null);
     
     try {
-      // Check if email exists in the database
-      const users = getUsers();
-      const userExists = users.some(user => user.email === values.email);
+      const { error } = await resetPassword(email);
       
-      if (!userExists) {
-        setEmailError('Ten adres email nie istnieje w naszej bazie danych');
-        setIsLoading(false);
-        return;
-      }
-      
-      console.log("Próba wysłania linku resetującego na:", values.email);
-      
-      await forgotPassword(values.email);
-      setEmailSent(true);
-      
-      toast({
-        title: "Link resetujący hasło wysłany",
-        description: "Sprawdź swoją skrzynkę email, aby zresetować hasło"
-      });
-      
-      // Tymczasowo wyświetlamy informacje o wysłanym linku w UI
-      // W prawdziwej implementacji będziemy wysyłać email przez backend
-      if (values.email === "patryk.idzikowski@interia.pl") {
-        setDebugInfo("Link resetujący hasło został wysłany na podany adres email");
+      if (error) {
+        toast({
+          title: "Błąd",
+          description: error.message || "Wystąpił błąd podczas wysyłania linku resetującego hasło",
+          variant: "destructive"
+        });
+      } else {
+        setIsSuccess(true);
+        toast({
+          title: "Link został wysłany",
+          description: "Sprawdź swoją skrzynkę e-mail i kliknij link resetujący hasło"
+        });
       }
     } catch (error) {
-      console.error("Błąd:", error);
       toast({
-        title: "Wystąpił błąd",
-        description: "Nie udało się wysłać linku resetującego hasło",
+        title: "Błąd",
+        description: "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
     } finally {
@@ -84,81 +56,56 @@ const ForgotPassword = () => {
         <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
-              <Mail className="text-white" size={24} />
+              <KeyRound className="text-white" size={24} />
             </div>
           </div>
-          
-          {!emailSent ? (
-            <>
-              <h1 className="text-2xl font-bold text-center mb-6">Zapomniałeś hasła?</h1>
-              <p className="text-center text-gray-400 mb-6">
-                Podaj adres email, a wyślemy Ci link do zresetowania hasła
-              </p>
-              
-              {debugInfo && (
-                <Alert className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Informacja</AlertTitle>
-                  <AlertDescription>{debugInfo}</AlertDescription>
-                </Alert>
-              )}
+          <h1 className="text-2xl font-bold text-center mb-6">Resetowanie hasła</h1>
 
-              {emailError && (
-                <Alert className="mb-6" variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Błąd</AlertTitle>
-                  <AlertDescription>{emailError}</AlertDescription>
-                </Alert>
-              )}
-              
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField 
-                    control={form.control} 
-                    name="email" 
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="nazwa@example.com" className="bg-gray-950" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} 
-                  />
-                  
-                  <Button type="submit" className="w-full bg-premium-gradient hover:bg-premium-dark hover:text-white transition-colors" disabled={isLoading}>
-                    {isLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
-                  </Button>
-
-                  <div className="text-center mt-4">
-                    <Link to="/login" className="text-premium-purple hover:underline hover:text-white hover:bg-premium-dark transition-colors">
-                      Powrót do logowania
-                    </Link>
-                  </div>
-                </form>
-              </Form>
-            </>
-          ) : (
-            <div className="text-center">
-              <h1 className="text-2xl font-bold mb-6">Email wysłany!</h1>
-              <p className="text-gray-400 mb-6">
-                Na adres email {form.getValues().email} został wysłany link do resetowania hasła. 
-                Sprawdź swoją skrzynkę odbiorczą i postępuj zgodnie z instrukcjami.
+          {isSuccess ? (
+            <div className="text-center space-y-4">
+              <p className="text-premium-light/80">
+                Link do resetowania hasła został wysłany na adres <strong>{email}</strong>.
               </p>
-              
-              {debugInfo && (
-                <Alert className="mb-6">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Informacja</AlertTitle>
-                  <AlertDescription>{debugInfo}</AlertDescription>
-                </Alert>
-              )}
-              
-              <Button asChild variant="outline" className="mt-4">
-                <Link to="/login">Powrót do logowania</Link>
+              <p className="text-premium-light/80">
+                Sprawdź swoją skrzynkę e-mail i kliknij link, aby zresetować hasło.
+              </p>
+              <Button 
+                onClick={() => navigate('/login')} 
+                className="mt-4 bg-premium-gradient"
+              >
+                Powrót do logowania
               </Button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email"
+                  type="email"
+                  placeholder="nazwa@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-slate-950"
+                />
+              </div>
+              
+              <div className="space-y-4">
+                <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
+                  {isLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate('/login')}
+                >
+                  Powrót do logowania
+                </Button>
+              </div>
+            </form>
           )}
         </div>
       </div>

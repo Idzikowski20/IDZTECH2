@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { resetPassword } from '@/utils/auth';
+import { supabase } from '@/utils/supabaseClient';
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
@@ -23,9 +23,6 @@ const resetPasswordSchema = z.object({
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,8 +34,24 @@ const ResetPassword = () => {
     }
   });
 
-  // Check if we have token and email
-  if (!token || !email) {
+  // Sprawdź, czy użytkownik przybył tu z linku resetującego hasło (hash w URL)
+  const [validResetToken, setValidResetToken] = useState(false);
+  
+  useEffect(() => {
+    // Nasłuchuj na zmiany auth state, które mogą być spowodowane tokenem resetującym hasło
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setValidResetToken(true);
+      }
+    });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Jeśli nie mamy ważnego tokenu resetującego, wyświetl komunikat o błędzie
+  if (!validResetToken) {
     return (
       <div className="min-h-screen bg-premium-dark">
         <Navbar />
@@ -61,20 +74,22 @@ const ResetPassword = () => {
   const onSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
     setIsLoading(true);
     try {
-      const success = await resetPassword(email, token, values.password);
+      const { error } = await supabase.auth.updateUser({ 
+        password: values.password
+      });
       
-      if (success) {
+      if (error) {
+        toast({
+          title: "Wystąpił błąd",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
         toast({
           title: "Hasło zresetowane",
           description: "Możesz się teraz zalogować używając nowego hasła."
         });
         navigate('/login');
-      } else {
-        toast({
-          title: "Wystąpił błąd",
-          description: "Link resetujący wygasł lub jest nieprawidłowy.",
-          variant: "destructive"
-        });
       }
     } catch (error) {
       toast({
@@ -98,9 +113,6 @@ const ResetPassword = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-center mb-6">Ustaw nowe hasło</h1>
-          <p className="text-center text-gray-400 mb-6">
-            Wprowadź nowe hasło dla konta {email}
-          </p>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
