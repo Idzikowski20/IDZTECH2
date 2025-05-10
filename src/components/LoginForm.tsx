@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 
 const loginFormSchema = z.object({
@@ -30,7 +30,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -43,9 +43,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   });
 
   const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
-    const success = await login(data.email, data.password, data.rememberMe);
+    const { error } = await signIn(data.email, data.password, data.rememberMe);
     
-    if (success) {
+    if (!error) {
       toast({
         title: "Zalogowano pomyślnie",
         description: "Witamy z powrotem!"

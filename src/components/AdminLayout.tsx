@@ -14,7 +14,6 @@ import {
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import BlinkingUnderscore from '@/components/ui/BlinkingUnderscore';
 import { useNotifications } from '@/utils/notifications';
 import NotificationBell from './NotificationBell';
 
@@ -52,7 +51,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <span className="font-mono">IDZ.TECH</span>
-            <BlinkingUnderscore />
           </div>
 
           <NotificationBell />

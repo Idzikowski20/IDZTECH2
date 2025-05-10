@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "./supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 
 // Extended user type to include profile properties
 interface ExtendedUser extends User {
@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               .from('profiles')
               .select('name, lastName, profilePicture')
               .eq('id', currentSession.user.id)
-              .single();
+              .maybeSingle();
             
             // Extend the user object with profile data
             const extendedUser: ExtendedUser = {
