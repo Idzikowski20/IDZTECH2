@@ -49,27 +49,39 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bio: string | null
           created_at: string | null
           email: string
           id: string
+          jobTitle: string | null
           last_login: string | null
+          lastName: string | null
           name: string | null
+          profilePicture: string | null
           role: string | null
         }
         Insert: {
+          bio?: string | null
           created_at?: string | null
           email: string
           id: string
+          jobTitle?: string | null
           last_login?: string | null
+          lastName?: string | null
           name?: string | null
+          profilePicture?: string | null
           role?: string | null
         }
         Update: {
+          bio?: string | null
           created_at?: string | null
           email?: string
           id?: string
+          jobTitle?: string | null
           last_login?: string | null
+          lastName?: string | null
           name?: string | null
+          profilePicture?: string | null
           role?: string | null
         }
         Relationships: []

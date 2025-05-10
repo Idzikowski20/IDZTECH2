@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTheme } from '@/utils/themeContext';
 
+// Updated type definition to match the database schema
 type UserProfile = {
   created_at: string;
   email: string;
@@ -19,7 +19,6 @@ type UserProfile = {
   last_login: string;
   name: string;
   role: string;
-  // Add these missing properties to match the form fields
   lastName?: string;
   bio?: string;
   jobTitle?: string;
@@ -60,7 +59,7 @@ const AdminSettings = () => {
       if (error) throw error;
       
       if (data) {
-        setUserProfile(data);
+        setUserProfile(data as UserProfile);
         setFormData({
           name: data.name || '',
           lastName: data.lastName || '',
@@ -99,7 +98,6 @@ const AdminSettings = () => {
         .update({
           name: formData.name,
           email: formData.email,
-          // Include the additional fields here
           lastName: formData.lastName,
           bio: formData.bio,
           jobTitle: formData.jobTitle,
