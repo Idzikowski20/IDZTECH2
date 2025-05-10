@@ -139,7 +139,7 @@ const Profile = () => {
                   }) => <FormItem>
                           <FormLabel>Imię</FormLabel>
                           <FormControl>
-                            <Input placeholder="Imię" {...field} />
+                            <Input placeholder="Imię" className="bg-transparent" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>} />
@@ -149,7 +149,7 @@ const Profile = () => {
                   }) => <FormItem>
                           <FormLabel>Nazwisko</FormLabel>
                           <FormControl>
-                            <Input placeholder="Nazwisko" {...field} />
+                            <Input placeholder="Nazwisko" className="bg-transparent" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>} />
