@@ -6,7 +6,11 @@ import { supabase } from "./supabaseClient";
 // Extended user type to include profile properties
 interface ExtendedUser extends User {
   name?: string;
+  lastName?: string;
   profilePicture?: string;
+  role?: string;
+  bio?: string;
+  jobTitle?: string;
 }
 
 interface AuthContextType {
