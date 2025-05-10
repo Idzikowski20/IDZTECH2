@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
@@ -30,7 +29,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -65,13 +63,13 @@ const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => 
     case 'pending':
       return <Badge variant="secondary">Oczekujące</Badge>;
     case 'approved':
-      return <Badge variant="success" className="bg-green-500 hover:bg-green-600">Zaakceptowane</Badge>;
+      return <Badge variant="outline" className="bg-green-500 text-white hover:bg-green-600 hover:text-white">Zaakceptowane</Badge>;
     case 'rejected':
       return <Badge variant="destructive">Odrzucone</Badge>;
     case 'unread':
       return <Badge variant="outline">Nieprzeczytane</Badge>;
     case 'read':
-      return <Badge variant="outline" className="bg-gray-200 text-gray-700 hover:bg-gray-300">Przeczytane</Badge>;
+      return <Badge variant="outline" className="bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-black">Przeczytane</Badge>;
     default:
       return null;
   }

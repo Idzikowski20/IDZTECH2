@@ -67,7 +67,7 @@ export const useNotifications = create<NotificationStore>()(
       markAsRead: (id) => set((state) => {
         const updatedNotifications = state.notifications.map(notification => 
           notification.id === id && notification.status === 'unread'
-            ? { ...notification, status: 'read' }
+            ? { ...notification, status: 'read' as NotificationStatus }
             : notification
         );
         
@@ -83,7 +83,7 @@ export const useNotifications = create<NotificationStore>()(
       markAllAsRead: () => set((state) => {
         const updatedNotifications = state.notifications.map(notification => 
           notification.status === 'unread'
-            ? { ...notification, status: 'read' }
+            ? { ...notification, status: 'read' as NotificationStatus }
             : notification
         );
         
@@ -109,7 +109,7 @@ export const useNotifications = create<NotificationStore>()(
             (status === 'approved' || status === 'rejected') && 
             targetNotification.fromUserId) {
             
-          const responseType = status === 'approved' ? 'approval_accepted' : 'approval_rejected';
+          const responseType = status === 'approved' ? 'approval_accepted' as NotificationType : 'approval_rejected' as NotificationType;
           const responseTitle = status === 'approved' 
             ? 'Prośba zaakceptowana' 
             : 'Prośba odrzucona';

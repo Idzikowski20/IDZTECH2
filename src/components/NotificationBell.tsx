@@ -53,7 +53,7 @@ const NotificationBell: React.FC = () => {
                   key={notification.id} 
                   onClick={() => handleNotificationClick(notification.id)}
                   className={`
-                    p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800
+                    p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
                     ${notification.status === 'unread' ? 'bg-slate-50 dark:bg-slate-900' : ''}
                   `}
                 >
