@@ -21,7 +21,7 @@ const CTA = () => {
               Darmowa konsultacja
               <ArrowRight size={18} className="ml-2" />
             </Button>
-            <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50">
+            <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50 bg-black/0">
               Zobacz nasze realizacje
             </Button>
           </div>
