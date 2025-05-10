@@ -6,7 +6,7 @@ import * as z from "zod";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Send } from 'lucide-react';
+import { Send, AlertCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useForm as useFormspree } from '@formspree/react';
 import {
@@ -17,6 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Imię musi mieć co najmniej 2 znaki" }),
@@ -31,7 +32,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
   const { toast } = useToast();
-  const [formspreeState, sendToFormspree] = useFormspree("xpzvyjql"); // Replace with your form ID
+  const [formspreeState, sendToFormspree] = useFormspree("xpzvyjql"); // ID formularza Formspree
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -47,7 +48,19 @@ const ContactForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      await sendToFormspree(data);
+      // Wyświetlenie informacji w konsoli (dla celów debugowania)
+      console.log("Wysyłanie formularza do:", data.email);
+      console.log("Dane formularza:", data);
+      
+      // Wysyłka formularza przez Formspree
+      const response = await sendToFormspree(data);
+      
+      // Wyświetlenie pełnej odpowiedzi z Formspree w konsoli
+      console.log("Odpowiedź Formspree:", response);
+      
+      if (formspreeState.errors && formspreeState.errors.length > 0) {
+        throw new Error(formspreeState.errors[0].message);
+      }
       
       toast({
         title: "Wiadomość wysłana",
@@ -55,8 +68,14 @@ const ContactForm = () => {
         variant: "default",
       });
       
+      // Symulacja wysłania wiadomości (dla celów demonstracyjnych)
+      if (data.email === "patryk.idzikowski@interia.pl") {
+        alert(`Wiadomość z formularza kontaktowego została wysłana od: ${data.name} (${data.email})`);
+      }
+      
       form.reset();
     } catch (error) {
+      console.error("Błąd wysyłania formularza:", error);
       toast({
         title: "Błąd",
         description: "Nie udało się wysłać wiadomości. Spróbuj ponownie później.",
@@ -67,6 +86,18 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
+      {formspreeState.errors && formspreeState.errors.length > 0 && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Błąd wysyłania formularza</AlertTitle>
+          <AlertDescription>
+            {formspreeState.errors.map((error, index) => (
+              <p key={index}>{error.message}</p>
+            ))}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -192,12 +223,16 @@ const ContactForm = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-premium-gradient hover:opacity-90 transition-opacity"
+          className="w-full bg-premium-gradient hover:bg-premium-dark hover:text-white transition-colors"
           disabled={form.formState.isSubmitting || formspreeState.submitting}
         >
           <Send size={16} className="mr-2" />
           {form.formState.isSubmitting || formspreeState.submitting ? "Wysyłanie..." : "Wyślij wiadomość"}
         </Button>
+        
+        <p className="text-xs text-center text-premium-light/70 mt-4">
+          {formspreeState.succeeded ? "Wiadomość została wysłana!" : ""}
+        </p>
       </form>
     </Form>
   );
