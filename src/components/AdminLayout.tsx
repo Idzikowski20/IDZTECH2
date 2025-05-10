@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar } from 'react-pro-sidebar';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, Settings, User } from 'lucide-react';
 import {
@@ -16,6 +15,15 @@ import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import TypingAnimation from './TypingAnimation';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem
+} from '@/components/ui/sidebar';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -38,7 +46,7 @@ const SidebarTrigger = ({ className }: { className?: string }) => {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const { pathname } = useLocation();
   
   const handleLogout = () => {
@@ -110,7 +118,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </header>
 
       <div className="flex">
-        <Sidebar className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block">
+        <div className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block">
           <div className="p-4">
             <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
             <nav>
@@ -158,7 +166,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </ul>
             </nav>
           </div>
-        </Sidebar>
+        </div>
 
         <main className="flex-1 p-4">
           {children}
