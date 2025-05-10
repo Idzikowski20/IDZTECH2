@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply } from 'lucide-react';
@@ -56,11 +57,17 @@ const Admin = () => {
   
   // Get all comments from all posts
   useEffect(() => {
+    if (!Array.isArray(posts)) {
+      return;
+    }
+    
     const allComments = posts.flatMap(post => 
-      post.comments.map(comment => ({
-        ...comment,
-        postTitle: post.title
-      }))
+      Array.isArray(post.comments) 
+        ? post.comments.map(comment => ({
+            ...comment,
+            postTitle: post.title
+          }))
+        : []
     );
     
     // Sort by date, newest first
@@ -73,6 +80,10 @@ const Admin = () => {
 
   // Calculate real blog statistics
   useEffect(() => {
+    if (!Array.isArray(posts)) {
+      return;
+    }
+    
     // Calculate total blog views
     const totalBlogViews = posts.reduce((total, post) => total + post.views, 0);
 
@@ -226,7 +237,7 @@ const Admin = () => {
           </div>
 
           <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden mb-8">
-            {recentComments.length === 0 ? (
+            {!Array.isArray(recentComments) || recentComments.length === 0 ? (
               <div className="p-6 text-center text-premium-light/70">
                 Brak komentarzy do wyświetlenia.
               </div>
@@ -276,7 +287,7 @@ const Admin = () => {
           </div>
           
           {/* Reply boxes */}
-          {recentComments.map(comment => (
+          {Array.isArray(recentComments) && recentComments.map(comment => (
             isReplying[comment.id] && (
               <div key={`reply-${comment.id}`} className="mb-6 bg-premium-dark/30 border border-premium-light/10 rounded-lg p-4">
                 <p className="mb-2 text-sm">Odpowiadasz na komentarz użytkownika: <strong>{comment.userName}</strong></p>
@@ -329,7 +340,7 @@ const Admin = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
-                  {posts.length === 0 ? (
+                  {!Array.isArray(posts) || posts.length === 0 ? (
                     <tr>
                       <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
                         Brak postów. Dodaj pierwszy post, aby zacząć.
