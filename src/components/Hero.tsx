@@ -37,7 +37,7 @@ const Hero = () => {
                 Darmowa wycena
                 <ArrowRight size={18} className="ml-2" />
               </Button>
-              <Button className="border-gray-200 hover:opacity-90 transition-opacity rounded-full px-8 py-6 text-center font-normal text-slate-50 border bg-black/0">
+              <Button className="border-gray-200 hover:bg-black/0 transition-opacity rounded-full px-8 py-6 text-center font-normal text-slate-50 border bg-black/0">
                 Poznaj nasze usługi
                 <ArrowRight size={18} className="ml-2" />
               </Button>
