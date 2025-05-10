@@ -8,9 +8,9 @@ import BlinkingUnderscore from './BlinkingUnderscore';
 const Hero = () => {
   return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
       {/* Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
-        <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0">
+        <div className="fixed top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
+        <div className="fixed bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
       </div>
 
       <div className="container mx-auto relative z-10">
@@ -25,7 +25,7 @@ const Hero = () => {
                 <Star size={14} className="fill-premium-purple text-premium-purple" />
                 <Star size={14} className="fill-premium-purple text-premium-purple" />
               </span>
-              <span className="ml-2 text-premium-light/70">Najlepsze strony internetowe</span>
+              <span className="ml-2 text-premium-light/70 dark:text-premium-light/70 light:text-premium-dark">Najlepsze strony internetowe</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
@@ -34,7 +34,7 @@ const Hero = () => {
               </span>
             </h1>
             
-            <p className="text-xl text-premium-light/70 max-w-lg">
+            <p className="text-xl text-premium-light/70 dark:text-premium-light/70 light:text-premium-dark max-w-lg">
               Zwiększ swoją sprzedaż z wykorzystaniem nowoczesnych stron internetowych i optymalizacji SEO. Zaufało nam już ponad 200 firm.
             </p>
             
@@ -46,7 +46,7 @@ const Hero = () => {
                 </Button>
               </Link>
               <Link to="/projects">
-                <Button className="border border-gray-200 text-slate-50 rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white">
+                <Button className="border border-gray-200 text-slate-50 dark:text-slate-50 light:text-premium-dark rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white">
                   Zobacz nasze realizacje
                   <ArrowRight size={18} className="ml-2" />
                 </Button>
@@ -56,15 +56,15 @@ const Hero = () => {
             <div className="flex flex-wrap gap-4 pt-4">
               <div className="flex items-center gap-2">
                 <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70">Gwarancja rezultatów</span>
+                <span className="text-sm text-premium-light/70 dark:text-premium-light/70 light:text-premium-dark">Gwarancja rezultatów</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70">Ponad 200 projektów</span>
+                <span className="text-sm text-premium-light/70 dark:text-premium-light/70 light:text-premium-dark">Ponad 200 projektów</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle size={18} className="text-premium-purple" />
-                <span className="text-sm text-premium-light/70">Nowoczesne technologie</span>
+                <span className="text-sm text-premium-light/70 dark:text-premium-light/70 light:text-premium-dark">Nowoczesne technologie</span>
               </div>
             </div>
           </div>

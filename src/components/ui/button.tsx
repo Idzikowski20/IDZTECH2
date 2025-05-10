@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:text-black dark:hover:text-white",
         ghost: "hover:bg-accent hover:text-black dark:hover:text-white",
         link: "text-primary underline-offset-4 hover:underline",
-        project: "border border-gray-200 text-slate-50 rounded-full transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white hover:scale-105",
+        project: "border border-gray-200 text-slate-50 rounded-full transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white",
       },
       size: {
         default: "h-10 px-4 py-2",

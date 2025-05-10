@@ -75,6 +75,18 @@
   }
 
   body {
-    @apply bg-premium-dark text-premium-light font-montserrat;
+    @apply bg-premium-dark text-premium-light font-montserrat dark:bg-premium-dark dark:text-premium-light light:bg-white light:text-premium-dark;
+  }
+  
+  .light {
+    @apply text-premium-dark bg-white;
+  }
+  
+  .dark {
+    @apply text-premium-light bg-premium-dark;
+  }
+  
+  .light .text-premium-light\/70 {
+    @apply text-premium-dark;
   }
 }

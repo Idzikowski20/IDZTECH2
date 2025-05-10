@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import BlinkingUnderscore from './BlinkingUnderscore';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const {
@@ -17,6 +19,7 @@ const Navbar = () => {
     setTheme
   } = useTheme();
   const location = useLocation();
+  
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -26,6 +29,7 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
   return <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'py-3 bg-premium-dark/80 backdrop-blur-md shadow-lg' : 'py-5'}`}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center text-white font-bold text-xl">
@@ -36,7 +40,7 @@ const Navbar = () => {
         </Link>
 
         <div className="hidden md:flex items-center space-x-6">
-          <Link to="/" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "text-premium-purple" : ""}`}>Start</Link>
+          <Link to="/" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "text-premium-purple" : ""}`}>Start</Link>
           
           <NavigationMenu>
             <NavigationMenuList>
@@ -80,37 +84,50 @@ const Navbar = () => {
             </NavigationMenuList>
           </NavigationMenu>
           
-          <Link to="/projects" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
-          <Link to="/about-us" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
+          <Link to="/projects" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "text-premium-purple" : ""}`}>Portfolio</Link>
+          <Link to="/about-us" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/about-us" ? "text-premium-purple" : ""}`}>O nas</Link>
           
-          <Link to="/blog" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>
+          <Link to="/blog" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "text-premium-purple" : ""}`}>
             Blog
           </Link>
           
-          <Link to="/contact" className={`text-white hover:text-black hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
+          <Link to="/contact" className={`text-white dark:text-white hover:text-black hover:bg-white dark:hover:text-black dark:hover:bg-white px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "text-premium-purple" : ""}`}>Kontakt</Link>
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={() => {
-          setTheme(theme === "light" ? "dark" : "light");
-          trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
-        }} className="text-white hover:text-black hover:bg-white">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => {
+              setTheme(theme === "light" ? "dark" : "light");
+              trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
+            }} 
+            className="text-white dark:text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+          >
             {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
           
           <Link to="/contact" className="hidden md:block">
-            <Button className="bg-black text-white hover:text-black hover:bg-white">
+            <Button className="bg-black text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black">
               Umów spotkanie
             </Button>
           </Link>
           
           {isAuthenticated ? <Link to="/admin">
-              <Button variant="secondary" size="sm" className="hover:text-black hover:bg-white">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-white dark:text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+              >
                 Admin
               </Button>
             </Link> : <Link to="/login">
-              <Button variant="ghost" size="icon" className="text-white hover:text-black hover:bg-white">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white dark:text-white hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
+              >
                 <LogIn className="h-[1.2rem] w-[1.2rem]" />
                 <span className="sr-only">Zaloguj</span>
               </Button>
@@ -119,4 +136,5 @@ const Navbar = () => {
       </div>
     </nav>;
 };
+
 export default Navbar;
