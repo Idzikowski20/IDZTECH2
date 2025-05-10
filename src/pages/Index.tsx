@@ -6,7 +6,6 @@ import Services from "@/components/Services";
 import About from "@/components/About";
 import CTA from "@/components/CTA";
 import Testimonials from "@/components/Testimonials";
-import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import FAQ from "@/components/FAQ";
 import { initGA, trackPageView } from "@/utils/analytics";
@@ -40,7 +39,6 @@ const Index = () => {
       <About />
       <Testimonials />
       <CTA />
-      <Contact />
       <Footer />
     </div>
   );

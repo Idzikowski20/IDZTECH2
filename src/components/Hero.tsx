@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Star, LogIn } from 'lucide-react';
+import { ArrowRight, CheckCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import DotAnimation from './DotAnimation';
+import BlinkingUnderscore from './BlinkingUnderscore';
 
 const Hero = () => {
   return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
@@ -29,7 +29,9 @@ const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Tworzenie stron internetowych <span className="bg-clip-text text-transparent bg-premium-gradient">IDZ<DotAnimation /></span><span className="bg-clip-text text-transparent bg-premium-gradient">TECH_</span>
+              Tworzenie stron internetowych <span className="flex items-center">
+                IDZ.TECH<BlinkingUnderscore />
+              </span>
             </h1>
             
             <p className="text-xl text-premium-light/70 max-w-lg">
