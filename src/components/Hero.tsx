@@ -1,8 +1,12 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 const Hero = () => {
-  return <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+  return (
+    <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
@@ -33,14 +37,18 @@ const Hero = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white rounded-full px-8 py-6">
-                Darmowa wycena
-                <ArrowRight size={18} className="ml-2" />
-              </Button>
-              <Button className="border-gray-200 hover:bg-black/0 transition-opacity rounded-full px-8 py-6 text-center font-normal text-slate-50 border bg-black/0">
-                Poznaj nasze usługi
-                <ArrowRight size={18} className="ml-2" />
-              </Button>
+              <Link to="/contact">
+                <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white rounded-full px-8 py-6">
+                  Darmowa wycena
+                  <ArrowRight size={18} className="ml-2" />
+                </Button>
+              </Link>
+              <Link to="/projects">
+                <Button className="border-gray-200 hover:bg-black/0 transition-opacity rounded-full px-8 py-6 text-center font-normal text-slate-50 border bg-black/0">
+                  Poznaj nasze usługi
+                  <ArrowRight size={18} className="ml-2" />
+                </Button>
+              </Link>
             </div>
             
             <div className="flex flex-wrap gap-4 pt-4">
@@ -70,6 +78,8 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default Hero;

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Contact = () => {
   return (
@@ -19,6 +20,14 @@ const Contact = () => {
           <p className="text-premium-light/70 text-lg">
             Jesteśmy gotowi pomóc Twojej firmie w osiągnięciu sukcesu. Skontaktuj się z nami, aby omówić, jak możemy wspierać rozwój Twojego biznesu.
           </p>
+          <div className="mt-6">
+            <Link to="/contact">
+              <Button className="bg-premium-gradient hover:opacity-90 transition-opacity px-8 py-6 rounded-full">
+                Przejdź do formularza kontaktowego
+                <Send size={16} className="ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -89,57 +98,33 @@ const Contact = () => {
             </div>
           </div>
           
-          {/* Contact Form */}
+          {/* Map */}
           <div className="lg:col-span-2">
             <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full">
-              <h3 className="text-xl font-semibold mb-6">Wyślij wiadomość</h3>
+              <h3 className="text-xl font-semibold mb-6">Nasza lokalizacja</h3>
               
-              <form>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium">Imię i nazwisko</label>
-                    <Input
-                      id="name"
-                      placeholder="Jan Kowalski"
-                      className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="text-sm font-medium">Email</label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="jan@example.com"
-                      className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2 mb-4">
-                  <label htmlFor="subject" className="text-sm font-medium">Temat</label>
-                  <Input
-                    id="subject"
-                    placeholder="Temat wiadomości"
-                    className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
-                  />
-                </div>
-                
-                <div className="space-y-2 mb-6">
-                  <label htmlFor="message" className="text-sm font-medium">Wiadomość</label>
-                  <Textarea
-                    id="message"
-                    placeholder="Twoja wiadomość..."
-                    rows={5}
-                    className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20 resize-none"
-                  />
-                </div>
-                
-                <Button className="bg-premium-gradient hover:opacity-90 transition-opacity">
-                  <Send size={16} className="mr-2" />
-                  Wyślij wiadomość
-                </Button>
-              </form>
+              <div className="relative w-full h-[300px] rounded-lg overflow-hidden">
+                <iframe 
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2443.3364694928438!2d21.00731691608133!3d52.23262527976201!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x471ecc8cbd5c384d%3A0x3d1bef805c9d40f0!2zUGHFgmFjIEt1bHR1cnkgaSBOYXVraQ!5e0!3m2!1spl!2spl!4v1651670719196!5m2!1spl!2spl" 
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0 }} 
+                  allowFullScreen 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Google Maps Location"
+                ></iframe>
+              </div>
+              
+              <div className="mt-6 text-center">
+                <p className="text-premium-light/70 mb-4">Chcesz dowiedzieć się więcej o naszych usługach? Zapraszamy do naszego biura lub skontaktuj się z nami telefonicznie lub mailowo.</p>
+                <Link to="/contact">
+                  <Button className="bg-premium-gradient hover:opacity-90 transition-opacity">
+                    <Send size={16} className="mr-2" />
+                    Wyślij wiadomość
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
