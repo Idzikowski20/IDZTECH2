@@ -16,7 +16,7 @@ const Navbar = () => {
   } = useAuth();
   const {
     theme,
-    setTheme
+    toggleDarkMode
   } = useTheme();
   const location = useLocation();
   
@@ -99,7 +99,7 @@ const Navbar = () => {
             variant="ghost" 
             size="sm" 
             onClick={() => {
-              setTheme(theme === "light" ? "dark" : "light");
+              toggleDarkMode();
               trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
             }} 
             className="text-white hover:bg-white hover:text-black"

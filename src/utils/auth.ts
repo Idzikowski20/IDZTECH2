@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useBlogStore } from '@/utils/blog';
@@ -54,10 +53,6 @@ interface AuthState {
   refreshUserStats: () => void;
   getUserRanking: () => User[];
 }
-
-const calculatePoints = (views: number, posts: number, comments: number, likes: number): number => {
-  return (views * 1) + (posts * 50) + (comments * 10) + (likes * 5);
-};
 
 // Mock user database
 const users: User[] = [

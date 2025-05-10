@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/utils/AuthProvider';
@@ -11,12 +10,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/utils/supabaseClient';
 import TaskManager from '@/components/TaskManager';
+import { useTheme } from '@/utils/themeContext';
 
 const AdminSettings = () => {
   const { user, updatePassword } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState({
     name: '',
     lastName: '',

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { BarChart as BarChartIcon, Users, FileText, ArrowUp, ArrowDown, Heart, MessageCircle, Clock, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +29,8 @@ const AdminStats = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, refreshUserStats, getTopUser, getTopUserOfMonth } = useAuth();
   const { posts } = useBlogStore();
-  const { isDarkMode } = useTheme();
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
   
   const [analytics, setAnalytics] = useState({
     totalVisits: 0,

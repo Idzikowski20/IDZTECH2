@@ -23,13 +23,13 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
+  const { theme } = useTheme();
   const { pathname } = useLocation();
   const { unreadCount } = useNotifications();
   
   const handleLogout = () => {
-    logout();
+    signOut();
     navigate('/login');
   };
 
