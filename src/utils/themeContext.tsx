@@ -1,51 +1,42 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type ThemeType = "light" | "dark";
+type Theme = 'light' | 'dark';
 
-type ThemeContextType = {
-  theme: ThemeType;
-  setTheme: (theme: ThemeType) => void;
-  isDarkMode: boolean;
+interface ThemeContextType {
+  theme: Theme;
   toggleDarkMode: () => void;
-};
+  setTheme: (theme: Theme) => void;
+}
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeType>(() => {
-    const savedTheme = localStorage.getItem('theme') as ThemeType;
-    return (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) ? 'dark' : 'light';
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Check for saved theme preference in localStorage
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('theme') : null;
+    return (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : 'light';
   });
-  
-  const isDarkMode = theme === 'dark';
 
   useEffect(() => {
+    // Update localStorage when theme changes
     localStorage.setItem('theme', theme);
     
-    // Apply the appropriate class to HTML element for Tailwind styles
+    // Apply theme class to document
+    const htmlElement = document.documentElement;
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
+      htmlElement.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
+      htmlElement.classList.remove('dark');
     }
-    
-    // Update color scheme meta tag
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#ffffff');
-    }
-    
   }, [theme]);
 
   const toggleDarkMode = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, isDarkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ theme, toggleDarkMode, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

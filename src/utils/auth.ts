@@ -2,6 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useBlogStore } from '@/utils/blog';
 
+// Calculate user points based on activity
+const calculatePoints = (views: number, posts: number, comments: number, likes: number): number => {
+  return (views * 1) + (posts * 50) + (comments * 10) + (likes * 5);
+};
+
 export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
 
 export interface UserStats {

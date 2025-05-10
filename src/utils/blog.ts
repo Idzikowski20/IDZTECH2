@@ -204,17 +204,19 @@ export const useBlogStore = create<BlogStore>()(
           const post = state.posts.find(p => p.id === postId);
           if (!post) return state;
 
-          const hasLiked = post.likes.includes(userId);
+          // Ensure post.likes exists before accessing it
+          const likes = post.likes || [];
+          const hasLiked = likes.includes(userId);
           
           const updatedLikes = hasLiked
-            ? post.likes.filter(id => id !== userId)
-            : [...post.likes, userId];
+            ? likes.filter(id => id !== userId)
+            : [...likes, userId];
           
           return {
-            posts: state.posts.map((post) => 
-              post.id === postId 
-                ? { ...post, likes: updatedLikes } 
-                : post
+            posts: state.posts.map((p) => 
+              p.id === postId 
+                ? { ...p, likes: updatedLikes } 
+                : p
             )
           };
         });
@@ -230,11 +232,14 @@ export const useBlogStore = create<BlogStore>()(
             name: guestName
           };
           
+          // Ensure post.guestLikes exists before accessing it
+          const guestLikes = post.guestLikes || [];
+          
           return {
-            posts: state.posts.map((post) => 
-              post.id === postId 
-                ? { ...post, guestLikes: [...post.guestLikes, newGuestLike] } 
-                : post
+            posts: state.posts.map((p) => 
+              p.id === postId 
+                ? { ...p, guestLikes: [...guestLikes, newGuestLike] } 
+                : p
             )
           };
         });
@@ -243,7 +248,7 @@ export const useBlogStore = create<BlogStore>()(
       removeGuestLike: (postId, guestId) => {
         set((state) => ({
           posts: state.posts.map((post) => 
-            post.id === postId 
+            post.id === postId && post.guestLikes 
               ? { 
                   ...post, 
                   guestLikes: post.guestLikes.filter(like => like.id !== guestId) 
@@ -255,25 +260,26 @@ export const useBlogStore = create<BlogStore>()(
 
       getTotalComments: () => {
         const { posts } = get();
-        return posts.reduce((total, post) => total + post.comments.length, 0);
+        return posts.reduce((total, post) => total + (post.comments?.length || 0), 0);
       },
 
       getTotalLikes: () => {
         const { posts } = get();
         return posts.reduce((total, post) => 
-          total + post.likes.length + post.guestLikes.length, 0);
+          total + (post.likes?.length || 0) + (post.guestLikes?.length || 0), 0);
       },
 
       getPostComments: (postId) => {
         const { posts } = get();
         const post = posts.find(p => p.id === postId);
-        return post ? post.comments : [];
+        return post && post.comments ? post.comments : [];
       },
 
       hasUserLiked: (postId, userId) => {
         const { posts } = get();
         const post = posts.find(p => p.id === postId);
-        return post ? post.likes.includes(userId) : false;
+        // Fix: Add null check before accessing post.likes
+        return post && post.likes ? post.likes.includes(userId) : false;
       }
     }),
     {
