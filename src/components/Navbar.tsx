@@ -6,7 +6,6 @@ import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn, Menu, ChevronDown, ChevronRight } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
-import BlinkingUnderscore from './BlinkingUnderscore';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -268,7 +267,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center text-white font-bold text-xl">
           <span className="flex items-center">
-            IDZ.TECH<BlinkingUnderscore />
+            IDZ.TECH
           </span>
         </Link>
 

@@ -34,6 +34,16 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Błąd",
+        description: "Proszę wypełnić wszystkie pola",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -53,10 +63,10 @@ const Login = () => {
         });
         navigate(from);
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Błąd logowania",
-        description: "Wystąpił nieoczekiwany błąd podczas logowania",
+        description: error.message || "Wystąpił nieoczekiwany błąd podczas logowania",
         variant: "destructive"
       });
       setIsLoading(false);

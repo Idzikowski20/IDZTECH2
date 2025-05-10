@@ -33,28 +33,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Najpierw ustaw nasłuchiwanie zmian stanu autoryzacji
+    // First set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        console.log("Auth state changed:", event);
         setSession(currentSession);
         
         if (currentSession?.user) {
-          // Fetch user profile data to get name and profile picture
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('name, profilePicture')
-            .eq('id', currentSession.user.id)
-            .single();
-          
-          // Extend the user object with profile data
-          const extendedUser: ExtendedUser = {
-            ...currentSession.user,
-            name: profile?.name || '',
-            profilePicture: profile?.profilePicture || ''
-          };
-          
-          setUser(extendedUser);
-          setIsAuthenticated(true);
+          // Sync fetch to get profile data after login
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('name, lastName, profilePicture')
+              .eq('id', currentSession.user.id)
+              .single();
+            
+            // Extend the user object with profile data
+            const extendedUser: ExtendedUser = {
+              ...currentSession.user,
+              name: profile?.name || '',
+              lastName: profile?.lastName || '',
+              profilePicture: profile?.profilePicture || ''
+            };
+            
+            setUser(extendedUser);
+            setIsAuthenticated(true);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setUser(currentSession.user as ExtendedUser);
+            setIsAuthenticated(true);
+          }
         } else {
           setUser(null);
           setIsAuthenticated(false);
@@ -62,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setLoading(false);
         
-        // Aktualizacja czasu ostatniego logowania w profilu, jeśli to zalogowanie
+        // Update last login time if this is a sign in event
         if (event === 'SIGNED_IN' && currentSession?.user) {
           setTimeout(() => {
             updateLastLogin(currentSession.user.id);
@@ -71,46 +79,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Następnie sprawdź istniejącą sesję
-    supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      
-      if (currentSession?.user) {
-        // Fetch user profile data to get name and profile picture
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('name, profilePicture')
-          .eq('id', currentSession.user.id)
-          .single();
+    // Then check existing session
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
         
-        // Extend the user object with profile data
-        const extendedUser: ExtendedUser = {
-          ...currentSession.user,
-          name: profile?.name || '',
-          profilePicture: profile?.profilePicture || ''
-        };
+        if (currentSession?.user) {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('name, lastName, profilePicture')
+              .eq('id', currentSession.user.id)
+              .maybeSingle();
+            
+            // Extend the user object with profile data
+            const extendedUser: ExtendedUser = {
+              ...currentSession.user,
+              name: profile?.name || '',
+              lastName: profile?.lastName || '',
+              profilePicture: profile?.profilePicture || ''
+            };
+            
+            setUser(extendedUser);
+            setIsAuthenticated(true);
+          } catch (error) {
+            console.error("Error fetching user profile:", error);
+            setUser(currentSession.user as ExtendedUser);
+            setIsAuthenticated(true);
+          }
+        }
         
-        setUser(extendedUser);
-        setIsAuthenticated(true);
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
+        setSession(currentSession);
+        setLoading(false);
+        
+        // Update last login time for existing session
+        if (currentSession?.user) {
+          updateLastLogin(currentSession.user.id);
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+        setLoading(false);
       }
-      
-      setLoading(false);
-      
-      // Aktualizacja czasu ostatniego logowania dla istniejącej sesji
-      if (currentSession?.user) {
-        updateLastLogin(currentSession.user.id);
-      }
-    });
+    };
+    
+    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
-  // Funkcja do aktualizacji czasu ostatniego logowania
+  // Function to update last login time
   const updateLastLogin = async (userId: string) => {
     try {
       await supabase
@@ -118,26 +137,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .update({ last_login: new Date().toISOString() })
         .eq('id', userId);
     } catch (error) {
-      console.error('Błąd aktualizacji czasu logowania:', error);
+      console.error('Error updating login time:', error);
     }
   };
 
   const signIn = async (email: string, password: string, remember = false) => {
+    console.log("Attempting sign in with:", email);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ 
+      const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password
       });
       
-      // If remember me is checked, set session expiry to 30 days
-      if (remember && !error) {
-        // The session expiry is handled by Supabase automatically based on the expiresIn value
-        // Note: Setting session expiry needs to be done on the server side or through config
-        // This is handled through browser localStorage retention
+      console.log("Sign in response:", data, error);
+      
+      // If remember me is checked and login was successful
+      if (remember && !error && data.session) {
+        // The session expiry is handled by Supabase through browser localStorage
+        console.log("Remember me enabled");
       }
       
       return { error };
     } catch (error) {
+      console.error("Sign in error:", error);
       return { error };
     }
   };
@@ -146,9 +168,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
       setUser(null);
+      setSession(null);
       setIsAuthenticated(false);
     } catch (error) {
-      console.error('Błąd wylogowania:', error);
+      console.error('Sign out error:', error);
     }
   };
 
