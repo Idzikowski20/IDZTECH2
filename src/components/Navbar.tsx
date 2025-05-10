@@ -4,9 +4,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
-import { Moon as MoonIcon, Sun as SunIcon } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
-import TypingAnimation from './TypingAnimation';
+import BlinkingUnderscore from './BlinkingUnderscore';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -42,7 +42,9 @@ const Navbar = () => {
             alt="IDZ.TECH" 
             className="h-8 mr-2" 
           />
-          <TypingAnimation text="IDZ.TECH" speed={120} />
+          <span className="flex items-center">
+            IDZ.TECH<BlinkingUnderscore />
+          </span>
         </Link>
 
         <div className="flex items-center space-x-4">
@@ -54,7 +56,7 @@ const Navbar = () => {
               trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
             }}
           >
-            {theme === "light" ? <MoonIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" /> : <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />}
+            {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
           {isAuthenticated ? (
@@ -80,11 +82,6 @@ const Navbar = () => {
               <Link to="/login">
                 <Button variant="secondary" size="sm">
                   Zaloguj
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="outline" size="sm">
-                  Zarejestruj się
                 </Button>
               </Link>
             </>

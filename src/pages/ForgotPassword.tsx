@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,6 +13,7 @@ import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
 import { forgotPassword } from '@/utils/auth';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAuth } from '@/utils/auth';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email')
@@ -22,6 +24,8 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const { getUsers } = useAuth();
 
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -33,8 +37,19 @@ const ForgotPassword = () => {
   const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
     setIsLoading(true);
     setDebugInfo(null);
+    setEmailError(null);
     
     try {
+      // Check if email exists in the database
+      const users = getUsers();
+      const userExists = users.some(user => user.email === values.email);
+      
+      if (!userExists) {
+        setEmailError('Ten adres email nie istnieje w naszej bazie danych');
+        setIsLoading(false);
+        return;
+      }
+      
       console.log("Próba wysłania linku resetującego na:", values.email);
       
       await forgotPassword(values.email);
@@ -87,6 +102,14 @@ const ForgotPassword = () => {
                   <AlertDescription>{debugInfo}</AlertDescription>
                 </Alert>
               )}
+
+              {emailError && (
+                <Alert className="mb-6" variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Błąd</AlertTitle>
+                  <AlertDescription>{emailError}</AlertDescription>
+                </Alert>
+              )}
               
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -107,6 +130,12 @@ const ForgotPassword = () => {
                   <Button type="submit" className="w-full bg-premium-gradient hover:bg-premium-dark hover:text-white transition-colors" disabled={isLoading}>
                     {isLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
                   </Button>
+
+                  <div className="text-center mt-4">
+                    <Link to="/login" className="text-premium-purple hover:underline hover:text-white hover:bg-premium-dark transition-colors">
+                      Powrót do logowania
+                    </Link>
+                  </div>
                 </form>
               </Form>
             </>
@@ -131,14 +160,6 @@ const ForgotPassword = () => {
               </Button>
             </div>
           )}
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-premium-light/70">
-              <Link to="/login" className="text-premium-purple hover:underline hover:text-white hover:bg-premium-dark transition-colors">
-                Powrót do logowania
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
       <Footer />

@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -31,6 +30,7 @@ import Profile from "./pages/Profile";
 import AdminStats from "./pages/AdminStats";
 import AdminSettings from "./pages/AdminSettings";
 import AdminUsers from "./pages/AdminUsers";
+import AdminNotifications from "./pages/AdminNotifications"; // New route
 import { ThemeProvider } from "./utils/themeContext";
 import { initGA, trackPageView } from "./utils/analytics";
 
@@ -84,6 +84,7 @@ const App = () => (
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/new-post" element={<BlogPostEditor />} />
             <Route path="/admin/edit-post/:id" element={<BlogPostEditor />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/profile" element={<Profile />} />

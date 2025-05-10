@@ -14,16 +14,8 @@ import {
 import { useAuth } from '@/utils/auth';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import TypingAnimation from './TypingAnimation';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem
-} from '@/components/ui/sidebar';
+import BlinkingUnderscore from './BlinkingUnderscore';
+import NotificationBell from './NotificationBell';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -46,7 +38,7 @@ const SidebarTrigger = ({ className }: { className?: string }) => {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { pathname } = useLocation();
   
   const handleLogout = () => {
@@ -73,47 +65,60 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             >
               Statystyki
             </Link>
+            <Link 
+              to="/admin/notifications" 
+              className={`px-3 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+            >
+              Powiadomienia
+            </Link>
           </nav>
         </div>
         
         <div className="flex items-center">
-          <TypingAnimation text="IDZ.TECH_" speed={120} className="mr-4" />
+          <div className="flex items-center">
+            <span className="font-mono">IDZ.TECH</span>
+            <BlinkingUnderscore />
+          </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
-                  {user?.profilePicture ? (
-                    <AvatarImage src={user.profilePicture} alt={user.name} />
-                  ) : (
-                    <AvatarFallback className="bg-premium-gradient text-white">
-                      {user?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/profile')}>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profil</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Ustawienia</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={handleLogout}
-                className="text-red-500 focus:text-red-500"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Wyloguj</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center ml-4">
+            <NotificationBell />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    {user?.profilePicture ? (
+                      <AvatarImage src={user.profilePicture} alt={user.name} />
+                    ) : (
+                      <AvatarFallback className="bg-premium-gradient text-white">
+                        {user?.name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Ustawienia</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="text-red-500 focus:text-red-500"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Wyloguj</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 
@@ -137,6 +142,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
                   >
                     Statystyki
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/notifications" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-premium-light/5 hover:text-white'}`}
+                  >
+                    Powiadomienia
                   </Link>
                 </li>
                 <li className="mb-2">
