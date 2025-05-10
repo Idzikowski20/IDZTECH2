@@ -170,7 +170,7 @@ const Profile = () => {
                 }) => <FormItem>
                         <FormLabel>Stanowisko</FormLabel>
                         <FormControl>
-                          <Input placeholder="np. CEO, Marketing Manager, Developer" {...field} value={field.value || ''} />
+                          <Input placeholder="np. CEO, Marketing Manager, Developer" value={field.value || ''} className="bg-transparent" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>} />
@@ -180,7 +180,7 @@ const Profile = () => {
                 }) => <FormItem>
                         <FormLabel>URL zdjęcia profilowego</FormLabel>
                         <FormControl>
-                          <Input placeholder="https://example.com/your-image.jpg" {...field} value={field.value || ''} />
+                          <Input placeholder="https://example.com/your-image.jpg" value={field.value || ''} className="bg-transparent" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>} />
@@ -190,7 +190,7 @@ const Profile = () => {
                 }) => <FormItem>
                         <FormLabel>Bio</FormLabel>
                         <FormControl>
-                          <Input placeholder="Krótki opis o Tobie" {...field} value={field.value || ''} />
+                          <Input placeholder="Krótki opis o Tobie" value={field.value || ''} className="bg-transparent" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>} />
