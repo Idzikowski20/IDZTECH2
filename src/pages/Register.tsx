@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -12,20 +13,19 @@ import { useAuth } from '@/utils/auth';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
+
 const registerSchema = z.object({
   name: z.string().min(2, 'Imię musi mieć co najmniej 2 znaki'),
   email: z.string().email('Wprowadź poprawny adres email'),
   password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków')
 });
+
 const Register = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
-  const {
-    register
-  } = useAuth();
+  const { toast } = useToast();
+  const { register: registerUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -34,10 +34,11 @@ const Register = () => {
       password: ''
     }
   });
+
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
     try {
-      const success = await register(values.email, values.name, values.password);
+      const success = await registerUser(values.email, values.name, values.password);
       if (success) {
         toast({
           title: "Rejestracja udana",
@@ -61,6 +62,7 @@ const Register = () => {
       setIsLoading(false);
     }
   };
+
   return <div className="min-h-screen bg-premium-dark">
       <Navbar />
       <div className="container mx-auto pt-32 pb-20">
@@ -74,33 +76,45 @@ const Register = () => {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField control={form.control} name="name" render={({
-              field
-            }) => <FormItem>
+              <FormField 
+                control={form.control} 
+                name="name" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Imię</FormLabel>
                     <FormControl>
-                      <Input placeholder="Jan Kowalski" className="bg-slate-950" />
+                      <Input placeholder="Jan Kowalski" className="bg-slate-950" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
-              <FormField control={form.control} name="email" render={({
-              field
-            }) => <FormItem>
+                  </FormItem>
+                )} 
+              />
+              <FormField 
+                control={form.control} 
+                name="email" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="nazwa@example.com" className="bg-slate-950" />
+                      <Input placeholder="nazwa@example.com" className="bg-slate-950" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
-              <FormField control={form.control} name="password" render={({
-              field
-            }) => <FormItem>
+                  </FormItem>
+                )} 
+              />
+              <FormField 
+                control={form.control} 
+                name="password" 
+                render={({ field }) => (
+                  <FormItem>
                     <FormLabel>Hasło</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" className="bg-slate-950" />
+                      <Input type="password" placeholder="••••••••" className="bg-slate-950" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>} />
+                  </FormItem>
+                )} 
+              />
               <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
                 {isLoading ? "Rejestracja..." : "Zarejestruj się"}
               </Button>
@@ -120,4 +134,5 @@ const Register = () => {
       <Footer />
     </div>;
 };
+
 export default Register;

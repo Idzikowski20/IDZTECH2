@@ -25,6 +25,7 @@ import BlogPostEditor from "./pages/BlogPostEditor";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Profile from "./pages/Profile";
+import AdminStats from "./pages/AdminStats";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +35,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <ScrollToTop /> {/* Add ScrollToTop at the router level to apply to all routes */}
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/stats" element={<AdminStats />} />
           <Route path="/admin/new-post" element={<BlogPostEditor />} />
           <Route path="/admin/edit-post/:id" element={<BlogPostEditor />} />
           <Route path="/blog" element={<Blog />} />

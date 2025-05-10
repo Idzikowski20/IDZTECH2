@@ -29,7 +29,7 @@ const Hero = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-              Tworzenie stron internetowych IDZ<DotAnimation />TECH
+              Tworzenie stron internetowych <span className="bg-clip-text text-transparent bg-premium-gradient">IDZ<DotAnimation /></span><span className="bg-clip-text text-transparent bg-premium-gradient">TECH</span>
             </h1>
             
             <p className="text-xl text-premium-light/70 max-w-lg">
@@ -77,4 +77,5 @@ const Hero = () => {
       </div>
     </section>;
 };
+
 export default Hero;
