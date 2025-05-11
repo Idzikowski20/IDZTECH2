@@ -101,9 +101,9 @@ const ResetPassword = () => {
         <Navbar />
         <PageDotAnimation />
         <div className="container mx-auto pt-32 pb-20">
-          <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg text-center border border-gray-100">
-            <h1 className="text-2xl font-bold mb-6 text-black">Nieprawidłowy link</h1>
-            <p className="text-gray-700 mb-6">
+          <div className="max-w-md mx-auto bg-black p-8 rounded-xl shadow-lg text-center border border-gray-700">
+            <h1 className="text-2xl font-bold mb-6 text-white">Nieprawidłowy link</h1>
+            <p className="text-gray-300 mb-6">
               Link do resetowania hasła jest nieprawidłowy lub wygasł.
             </p>
             <Button onClick={() => navigate('/forgot-password')} className="bg-premium-gradient">
@@ -121,13 +121,13 @@ const ResetPassword = () => {
       <Navbar />
       <PageDotAnimation />
       <div className="container mx-auto pt-32 pb-20">
-        <div className="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <div className="max-w-md mx-auto bg-black p-8 rounded-xl shadow-lg border border-gray-700">
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
               <Lock className="text-white" size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6 text-black">Ustaw nowe hasło</h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-white">Ustaw nowe hasło</h1>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -136,9 +136,13 @@ const ResetPassword = () => {
                 name="password" 
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-800">Nowe hasło</FormLabel>
+                    <FormLabel className="text-gray-300">Nowe hasło</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" className="bg-white border-gray-300 text-black" {...field} />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -150,9 +154,13 @@ const ResetPassword = () => {
                 name="confirmPassword" 
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-800">Potwierdź hasło</FormLabel>
+                    <FormLabel className="text-gray-300">Potwierdź hasło</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" className="bg-white border-gray-300 text-black" {...field} />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

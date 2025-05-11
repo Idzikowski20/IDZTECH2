@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -66,10 +66,10 @@ const Projects = () => {
     }
   ];
   
-  const [activeCategory, setActiveCategory] = React.useState('all');
-  const [filteredItems, setFilteredItems] = React.useState(portfolioItems);
+  const [activeCategory, setActiveCategory] = useState('all');
+  const [filteredItems, setFilteredItems] = useState(portfolioItems);
   
-  const filterItems = (category: string) => {
+  const filterItems = (category) => {
     setActiveCategory(category);
     if (category === 'all') {
       setFilteredItems(portfolioItems);
@@ -79,7 +79,7 @@ const Projects = () => {
   };
   
   // Initially filter items on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     filterItems(activeCategory);
   }, []);
   
@@ -229,7 +229,7 @@ const Projects = () => {
                   <ArrowRight size={18} className="ml-2" />
                 </Button>
               </Link>
-              <Link to="/about-us">
+              <Link to="/about">
                 <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50 bg-black/0">
                   Poznaj nasz zespół
                 </Button>

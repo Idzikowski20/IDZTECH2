@@ -20,7 +20,7 @@ const DesktopNavigation = () => {
         <NavigationMenuList>
           <NavigationMenuItem>
             <NavigationMenuTrigger 
-              className={`bg-transparent hover:bg-black hover:text-white data-[state=open]:text-white data-[state=open]:bg-white/20 
+              className={`bg-transparent hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black data-[state=open]:text-white data-[state=open]:bg-white/20 
               ${isActiveSection("tworzenie-stron") || isActiveSection("/sklep") || isActiveSection("pozycjonowanie") || isActiveSection("seo") || isActiveSection("lokalne") ? 
                 "border-b-2 border-premium-purple" : ""}`}
             >
@@ -31,13 +31,13 @@ const DesktopNavigation = () => {
                 <div className="space-y-2">
                   <h3 className="font-medium">Strony www</h3>
                   <Link to="/tworzenie-stron-www" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/tworzenie-stron-www" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Tworzenie stron www
                   </Link>
                   <Link to="/sklepy-internetowe" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/sklepy-internetowe" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Tworzenie sklepów internetowych
@@ -46,37 +46,37 @@ const DesktopNavigation = () => {
                 <div className="space-y-2">
                   <h3 className="font-medium">Pozycjonowanie (SEO)</h3>
                   <Link to="/pozycjonowanie-stron" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/pozycjonowanie-stron" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Pozycjonowanie stron internetowych
                   </Link>
                   <Link to="/pozycjonowanie-lokalne" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Pozycjonowanie lokalne
                   </Link>
                   <Link to="/audyt-seo" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/audyt-seo" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Audyt SEO
                   </Link>
                   <Link to="/optymalizacja-seo" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/optymalizacja-seo" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Optymalizacja SEO
                   </Link>
                   <Link to="/copywriting-seo" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/copywriting-seo" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Copywriting SEO
                   </Link>
                   <Link to="/content-plan" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
+                    className={`block p-2 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black rounded 
                     ${location.pathname === "/content-plan" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
                   >
                     Content Plan
