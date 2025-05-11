@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/AuthProvider';
 import CommentSection from '@/components/CommentSection';
 import LikeButton from '@/components/LikeButton';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -62,7 +62,7 @@ const BlogPost = () => {
   const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
 
   // Check if user is admin, moderator or blogger (has special permissions)
-  const hasSpecialRoles = user && (user.roles?.includes('admin') || user.roles?.includes('moderator') || user.roles?.includes('blogger'));
+  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
 
   return (
     <div className="min-h-screen bg-premium-dark">
