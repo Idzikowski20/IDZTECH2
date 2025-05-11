@@ -6,24 +6,14 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const scrollToTop = () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'instant'
-      });
-    };
+    // Simple, reliable approach - scroll to top when the route changes
+    window.scrollTo({
+      top: 0,
+      behavior: 'auto'
+    });
     
-    // Use requestAnimationFrame to ensure the scroll happens after the DOM update
-    const timeoutId = setTimeout(() => {
-      requestAnimationFrame(scrollToTop);
-    }, 0);
-    
-    // Ensure body scroll is always enabled
+    // Always ensure body scroll is enabled on navigation
     document.body.style.overflow = '';
-    
-    return () => {
-      clearTimeout(timeoutId);
-    };
   }, [pathname]);
 
   return null;

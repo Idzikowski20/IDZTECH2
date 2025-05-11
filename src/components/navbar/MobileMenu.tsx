@@ -22,16 +22,14 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   // Handle menu opening/closing
   const handleMenuOpen = (open: boolean) => {
     setIsMenuOpen(open);
-    
-    // Only set overflow style if we're not navigating away
-    document.body.style.overflow = open ? 'hidden' : '';
   };
   
-  // Monitor location changes to close menu when navigating
+  // Close menu when route changes and ensure body scroll is managed properly
   useEffect(() => {
-    // Close mobile menu when route changes
-    setIsMenuOpen(false);
-  }, [location, setIsMenuOpen]);
+    if (isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  }, [location, setIsMenuOpen, isMenuOpen]);
   
   // Ensure body scroll is restored when component unmounts
   useEffect(() => {

@@ -17,7 +17,7 @@ const Navbar = () => {
   }, []);
   
   useEffect(() => {
-    // Add scroll event listener
+    // Add scroll event listener with passive flag for better performance
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Initial check for page that might be loaded scrolled down
@@ -31,6 +31,7 @@ const Navbar = () => {
 
   // Handle body scroll when mobile menu is open/closed
   useEffect(() => {
+    // Only modify body scroll if the menu state changes
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -38,6 +39,7 @@ const Navbar = () => {
     }
     
     return () => {
+      // Always cleanup by ensuring scroll is enabled when component unmounts
       document.body.style.overflow = '';
     };
   }, [isMenuOpen]);
