@@ -34,8 +34,10 @@ const Navbar = () => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      // Immediate restore of scrolling to prevent UI issues
-      document.body.style.overflow = '';
+      // Using RAF to ensure this happens at the right time
+      requestAnimationFrame(() => {
+        document.body.style.overflow = '';
+      });
     }
     
     // Always clean up by restoring scrolling when component unmounts

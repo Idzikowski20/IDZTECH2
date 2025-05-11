@@ -6,8 +6,8 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Wait for the next tick to ensure DOM is ready
-    setTimeout(() => {
+    // Safely restore scroll behavior with proper timing
+    const restoreScroll = () => {
       // Ensure body scroll is enabled
       document.body.style.overflow = '';
       
@@ -16,7 +16,12 @@ const ScrollToTop = () => {
         top: 0,
         behavior: 'smooth'
       });
-    }, 0);
+    };
+
+    // Use requestAnimationFrame to ensure DOM is ready
+    window.requestAnimationFrame(() => {
+      restoreScroll();
+    });
     
     // Cleanup function to ensure scroll is always enabled when component unmounts
     return () => {
