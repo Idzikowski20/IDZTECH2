@@ -50,7 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <Link to="/">
               <Button 
                 variant="ghost" 
-                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'light' ? 'text-black' : 'text-premium-light'}`}
+                className="hover:bg-white hover:text-black flex gap-2 items-center text-black dark:text-premium-light"
               >
                 <Home size={18} />
                 Wróć na stronę główną

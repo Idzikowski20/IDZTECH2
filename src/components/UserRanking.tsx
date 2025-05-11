@@ -1,10 +1,11 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/utils/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Award, Medal, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBlogStore } from '@/utils/blog';
+import { User } from '@/utils/auth';
 
 interface UserRankingProps {
   limit?: number;
@@ -19,13 +20,26 @@ const UserRanking: React.FC<UserRankingProps> = ({
 }) => {
   const { getUserRanking, refreshUserStats } = useAuth();
   const { posts } = useBlogStore();
+  const [users, setUsers] = useState<User[]>([]);
   
   // Force refresh user stats when component mounts to ensure data is up-to-date
   useEffect(() => {
     refreshUserStats?.();
+    
+    // Fetch and handle users data
+    const fetchUsers = async () => {
+      try {
+        const usersList = await getUserRanking();
+        setUsers(usersList);
+      } catch (error) {
+        console.error("Error fetching user ranking:", error);
+        setUsers([]);
+      }
+    };
+    
+    fetchUsers();
   }, [refreshUserStats, posts]);
   
-  const users = getUserRanking();
   const displayUsers = users.slice(0, limit);
   
   return (

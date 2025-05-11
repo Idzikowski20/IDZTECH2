@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useBlogStore } from '@/utils/blog';
@@ -150,7 +149,7 @@ export const useAuth = create<AuthState>()(
 
           if (supaUsers) {
             // Map Supabase users to our user format
-            const mappedUsers = supaUsers.users.map(supaUser => {
+            const mappedUsers: User[] = supaUsers.users.map(supaUser => {
               // Check if user already exists in our local store
               const existingUser = users.find(u => u.email === supaUser.email);
               
@@ -165,11 +164,13 @@ export const useAuth = create<AuthState>()(
               }
 
               // Create a new user if they don't exist
+              const role: UserRole = supaUser.email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
+              
               return {
                 id: supaUser.id,
                 email: supaUser.email || '',
                 name: supaUser.user_metadata?.name || supaUser.email?.split('@')[0] || 'User',
-                role: supaUser.email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user',
+                role,
                 profilePicture: supaUser.user_metadata?.avatar_url || '',
                 lastName: supaUser.user_metadata?.last_name || '',
                 bio: '',
@@ -213,11 +214,13 @@ export const useAuth = create<AuthState>()(
             
             if (!user) {
               // Create a new user entry if they don't exist locally
+              const role: UserRole = email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
+              
               user = {
                 id: supaData.user.id,
                 email: supaData.user.email || '',
                 name: supaData.user.user_metadata?.name || email.split('@')[0],
-                role: email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user',
+                role,
                 profilePicture: supaData.user.user_metadata?.avatar_url || '',
                 lastName: supaData.user.user_metadata?.last_name || '',
                 createdAt: supaData.user.created_at,
