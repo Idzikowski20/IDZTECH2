@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '@/utils/themeContext';
 import Brand from './Brand';
 import DesktopNavigation from './DesktopNavigation';
 import DesktopControls from './DesktopControls';
@@ -8,6 +9,7 @@ import MobileMenu from './MobileMenu';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme } = useTheme();
   
   // Optimize scroll handler with useCallback to prevent unnecessary re-renders
   const handleScroll = useCallback(() => {
@@ -43,7 +45,13 @@ const Navbar = () => {
   }, [isMenuOpen]);
   
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'py-3 bg-premium-dark/80 backdrop-blur-md shadow-lg' : 'py-5'}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      isScrolled 
+        ? theme === 'light'
+          ? 'py-3 bg-white/80 backdrop-blur-md shadow-lg'
+          : 'py-3 bg-premium-dark/80 backdrop-blur-md shadow-lg'
+        : 'py-5'
+    }`}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Brand />
         

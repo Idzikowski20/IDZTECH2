@@ -154,30 +154,34 @@
   
   /* Light mode navigation text color */
   .light .text-white {
-    color: #000000; /* Using direct color instead of @apply to avoid circular dependency */
+    color: #000000;
   }
   
   /* Fixed styles for light mode cards */
   .light .bg-premium-dark\/60 {
-    background-color: rgba(255, 255, 255, 0.9); /* Using direct color instead of @apply */
-    border-color: #e5e7eb; /* Using direct color for border */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: #e5e7eb;
   }
   
   /* Fixed styles for FAQ section text in light mode */
   .light .accordion-content {
-    color: #000000; /* Using direct color instead of @apply */
+    color: #000000;
   }
   
   /* Light mode fixes for navigation buttons */
+  .light .hover\:bg-black:hover {
+    background-color: #000000;
+    color: #FFFFFF;
+  }
+  
   .light .hover\:bg-white:hover {
-    background-color: #000000; /* Direct color */
-    color: #FFFFFF; /* Direct color */
+    background-color: #000000;
+    color: #FFFFFF;
   }
   
   /* Light mode icon fixes */
   .light .text-white svg {
-    color: #000000; /* Using direct color instead of @apply */
+    color: #000000;
   }
   
   /* Navigation dropdown menu background in light mode */
@@ -199,10 +203,9 @@
     color: #000000;
   }
   
-  /* Process cards in light mode */
+  /* Process cards in light mode - without shadow */
   .light .bg-premium-dark\/40 {
     background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
   /* CTA button in light mode */

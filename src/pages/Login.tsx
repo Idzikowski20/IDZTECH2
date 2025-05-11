@@ -10,7 +10,6 @@ import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
-import PageDotAnimation from '@/components/PageDotAnimation';
 
 interface LocationState {
   from?: {
@@ -31,7 +30,7 @@ const Login = () => {
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
-  // Log state for debugging
+  // Redirect if already logged in
   useEffect(() => {
     console.log("Login page - Auth state:", {
       isAuthenticated,
@@ -40,7 +39,6 @@ const Login = () => {
       user: user ? "User exists" : "No user"
     });
     
-    // Redirect if already logged in
     if (isAuthenticated && user) {
       console.log("Already authenticated, redirecting to:", from);
       navigate(from);
@@ -92,7 +90,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
-      <PageDotAnimation />
       <div className="container mx-auto pt-32 pb-20">
         <div className="max-w-md mx-auto bg-black/80 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
