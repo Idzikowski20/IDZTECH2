@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/utils/themeContext';
 
 const Projects = () => {
   const projectCategories = [
@@ -68,6 +69,7 @@ const Projects = () => {
   
   const [activeCategory, setActiveCategory] = useState('all');
   const [filteredItems, setFilteredItems] = useState(portfolioItems);
+  const { theme } = useTheme();
   
   const filterItems = (category) => {
     setActiveCategory(category);
@@ -175,7 +177,7 @@ const Projects = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {[1, 2].map((item, index) => (
-              <div key={index} className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden animate-fade-in" style={{ animationDelay: `${0.6 + index * 0.1}s` }}>
+              <div key={index} className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden animate-fade-in shadow" style={{ animationDelay: `${0.6 + index * 0.1}s` }}>
                 <div className="relative aspect-video">
                   <img 
                     src={`https://images.unsplash.com/photo-15${item === 1 ? '56745719' : '27519836'}-0-4d754e4e8595?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`} 
@@ -229,8 +231,11 @@ const Projects = () => {
                   <ArrowRight size={18} className="ml-2" />
                 </Button>
               </Link>
-              <Link to="/about">
-                <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50 bg-black/0">
+              <Link to="/about-us">
+                <Button 
+                  variant="outline" 
+                  className={`border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50 bg-black/0 ${theme === 'light' ? 'hover:text-white hover:bg-black' : ''}`}
+                >
                   Poznaj nasz zespół
                 </Button>
               </Link>

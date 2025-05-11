@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "@/utils/themeContext";
 import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Hero = () => {
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
   
   return (
     <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative overflow-hidden">
@@ -33,16 +35,16 @@ const Hero = () => {
             </p>
             
             <div
-              className="flex flex-col sm:flex-row items-center justify-start gap-4 mb-10 animate-fade-in opacity-0"
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-4 mb-10 animate-fade-in opacity-0 ${isMobile ? 'w-full' : ''}`}
               style={{animationFillMode: 'forwards', animationDelay: '0.4s'}}
             >
-              <Link to="/contact">
-                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full sm:w-auto">
+              <Link to="/contact" className={isMobile ? 'w-full' : ''}>
+                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full">
                   Skontaktuj się
                 </Button>
               </Link>
-              <Link to="/projects">
-                <Button size="lg" variant="outline" className="hover:bg-black hover:text-white w-full sm:w-auto">
+              <Link to="/projects" className={isMobile ? 'w-full' : ''}>
+                <Button size="lg" variant="outline" className={`hover:bg-black hover:text-white w-full ${theme === 'light' ? 'hover:bg-black hover:text-white' : ''}`}>
                   Zobacz projekty
                 </Button>
               </Link>

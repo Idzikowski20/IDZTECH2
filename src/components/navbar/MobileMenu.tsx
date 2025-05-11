@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
       document.body.style.overflow = '';
     };
   }, []);
-  
+
   return (
     <Drawer open={isMenuOpen} onOpenChange={handleMenuOpen}>
       <DrawerTrigger asChild>
@@ -62,7 +63,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   toggleDarkMode();
                   trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
                 }} 
-                className="text-white hover:bg-white hover:text-black"
+                className={`text-white ${theme === 'light' ? 'hover:bg-white hover:text-black' : 'hover:bg-white hover:text-black'}`}
               >
                 {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
                 <span className="sr-only">Toggle theme</span>
@@ -76,7 +77,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="text-white hover:bg-white hover:text-black"
+                  className={`text-white ${theme === 'light' ? 'hover:bg-white hover:text-black' : 'hover:bg-white hover:text-black'}`}
                 >
                   <LogIn className="h-[1.2rem] w-[1.2rem]" />
                   <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
@@ -194,7 +195,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             // Ensure scrolling is restored
             document.body.style.overflow = '';
           }}>
-            <Button className="w-full bg-black text-white hover:bg-white hover:text-black">
+            <Button className="w-full bg-black text-white hover:scale-110 transition-transform">
               Umów spotkanie
             </Button>
           </Link>

@@ -31,8 +31,7 @@ const DesktopControls = () => {
       
       <Link to="/contact" className="hidden md:block">
         <Button 
-          className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black text-white'} 
-          hover:scale-110 transition-transform`}
+          className="bg-black text-white hover:scale-110 transition-transform"
         >
           Umów spotkanie
         </Button>

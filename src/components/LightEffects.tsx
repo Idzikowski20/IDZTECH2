@@ -1,18 +1,22 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTheme } from '@/utils/themeContext';
 
-const LightEffects = () => {
+const LightEffects: React.FC = () => {
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div 
-        className="absolute w-48 h-48 bg-premium-purple/10 top-32 left-20 rounded-full animate-float-1 blur-[40px]" 
-      ></div>
-      <div 
-        className="absolute w-56 h-56 bg-premium-blue/5 top-1/3 left-1/2 -translate-x-1/2 rounded-full animate-float-2 blur-[50px]" 
-      ></div>
-      <div 
-        className="absolute w-48 h-48 bg-premium-pink/10 top-20 right-20 rounded-full animate-float-3 blur-[40px]" 
-      ></div>
+    <div className="fixed inset-0 pointer-events-none overflow-hidden">
+      {/* Limited to just a few key light effects */}
+      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/20 rounded-full blur-[70px] animate-pulse-slow"></div>
+      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/20 rounded-full blur-[80px] animate-pulse-slow delay-150"></div>
     </div>
   );
 };
