@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Search, Globe, ShoppingCart, Code
@@ -17,10 +16,6 @@ interface ServiceCardProps {
 const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gradient, link }) => {
   return (
     <div className="group relative">
-      <div className={cn(
-        "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl rounded-xl -z-10",
-        gradient
-      )}></div>
       <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full flex flex-col hover:border-white/20 transition-colors">
         <div className={cn(
           "w-12 h-12 rounded-lg flex items-center justify-center mb-4",
@@ -31,7 +26,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gra
         <h3 className="text-xl font-semibold mb-2">{title}</h3>
         <p className="text-premium-light/70 text-sm flex-grow">{description}</p>
         <div className="mt-4">
-          <Link to={link} className="inline-flex items-center text-sm font-medium">
+          <Link to={link} className="inline-flex items-center text-sm font-medium hover:text-white transition-colors">
             Dowiedz się więcej
             <svg 
               xmlns="http://www.w3.org/2000/svg" 

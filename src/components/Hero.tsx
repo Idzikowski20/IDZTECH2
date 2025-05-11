@@ -10,6 +10,11 @@ const Hero = () => {
   
   return (
     <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative overflow-hidden">
+      {/* Light effects */}
+      <div className="absolute top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
+      <div className="absolute top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+      <div className="absolute bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
+      
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           {/* Hero content on the left */}
