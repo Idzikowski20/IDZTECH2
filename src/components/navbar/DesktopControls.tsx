@@ -32,7 +32,7 @@ const DesktopControls = () => {
       <Link to="/contact" className="hidden md:block">
         <Button 
           className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black text-white'} 
-          ${theme === 'light' ? 'hover:scale-110' : 'hover:scale-110'} transition-transform`}
+          hover:scale-110 transition-transform`}
         >
           Umów spotkanie
         </Button>
@@ -44,7 +44,7 @@ const DesktopControls = () => {
           size="icon" 
           className={`${theme === 'light' ? 'hover:bg-black hover:text-white' : 'hover:bg-white hover:text-black'}`}
         >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black group-hover:text-white' : 'text-white group-hover:text-black'}`} />
+          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>

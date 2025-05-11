@@ -10,6 +10,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useTheme } from '@/utils/themeContext';
 
 interface LocationState {
   from?: {
@@ -26,6 +27,7 @@ const Login = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { signIn, isAuthenticated, user } = useAuth();
+  const { theme } = useTheme();
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
@@ -88,20 +90,20 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-premium-dark">
+    <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>
       <Navbar />
       <div className="container mx-auto pt-32 pb-20">
-        <div className="max-w-md mx-auto bg-black shadow-lg p-8 rounded-xl border border-gray-700">
+        <div className={`max-w-md mx-auto ${theme === 'light' ? "bg-white shadow-lg" : "bg-black shadow-lg"} p-8 rounded-xl border ${theme === 'light' ? "border-gray-200" : "border-gray-700"}`}>
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
               <Lock className="text-white" size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6 text-white">Logowanie</h1>
+          <h1 className={`text-2xl font-bold text-center mb-6 ${theme === 'light' ? "text-black" : "text-white"}`}>Logowanie</h1>
           
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-300">Email</Label>
+              <Label htmlFor="email" className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>Email</Label>
               <Input 
                 id="email"
                 type="email"
@@ -115,10 +117,10 @@ const Login = () => {
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password" className="text-gray-300">Hasło</Label>
+                <Label htmlFor="password" className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>Hasło</Label>
                 <Button 
                   variant="link" 
-                  className="p-0 h-auto text-premium-purple hover:text-white"
+                  className={`p-0 h-auto ${theme === 'light' ? "text-premium-purple hover:text-black" : "text-premium-purple hover:text-white"}`}
                   type="button"
                   onClick={() => navigate('/forgot-password')}
                   disabled={isLoading}
@@ -144,7 +146,7 @@ const Login = () => {
                 onCheckedChange={(checked) => setRememberMe(checked === true)}
                 disabled={isLoading}
               />
-              <Label htmlFor="rememberMe" className="text-sm text-gray-300">
+              <Label htmlFor="rememberMe" className={`text-sm ${theme === 'light' ? "text-gray-700" : "text-gray-300"}`}>
                 Zapamiętaj mnie na tym urządzeniu (30 dni)
               </Label>
             </div>

@@ -42,7 +42,7 @@ const Hero = () => {
                 </Button>
               </Link>
               <Link to="/projects">
-                <Button size="lg" variant="outline" className="hover:bg-white hover:text-black w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="hover:bg-black hover:text-white w-full sm:w-auto">
                   Zobacz projekty
                 </Button>
               </Link>
