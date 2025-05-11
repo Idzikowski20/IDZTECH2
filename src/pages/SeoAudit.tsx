@@ -5,10 +5,11 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const SeoAudit = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
       {/* Hero Section */}
@@ -138,7 +139,7 @@ const SeoAudit = () => {
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-80 bg-premium-dark/95 border border-premium-light/10 p-4">
-                <p className="text-sm">{faq.answer}</p>
+                <p className="text-sm text-premium-light/80">{faq.answer}</p>
               </HoverCardContent>
             </HoverCard>
           ))}

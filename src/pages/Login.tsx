@@ -91,17 +91,17 @@ const Login = () => {
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
       <div className="container mx-auto pt-32 pb-20">
-        <div className="max-w-md mx-auto bg-white shadow-lg p-8 rounded-xl border border-gray-100">
+        <div className="max-w-md mx-auto bg-black/80 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
               <Lock className="text-white" size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6 text-black">Logowanie</h1>
+          <h1 className="text-2xl font-bold text-center mb-6">Logowanie</h1>
           
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-800">Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input 
                 id="email"
                 type="email"
@@ -109,17 +109,17 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-white border-gray-300 text-black"
+                className="bg-slate-950"
                 disabled={isLoading}
               />
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password" className="text-gray-800">Hasło</Label>
+                <Label htmlFor="password">Hasło</Label>
                 <Button 
                   variant="link" 
-                  className="p-0 h-auto text-premium-purple hover:text-black"
+                  className="p-0 h-auto text-premium-purple hover:text-white"
                   type="button"
                   onClick={() => navigate('/forgot-password')}
                   disabled={isLoading}
@@ -134,7 +134,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-white border-gray-300 text-black"
+                className="bg-slate-950"
                 disabled={isLoading}
               />
             </div>
@@ -146,14 +146,14 @@ const Login = () => {
                 onCheckedChange={(checked) => setRememberMe(checked === true)}
                 disabled={isLoading}
               />
-              <Label htmlFor="rememberMe" className="text-sm text-gray-800">
+              <Label htmlFor="rememberMe" className="text-sm">
                 Zapamiętaj mnie na tym urządzeniu (30 dni)
               </Label>
             </div>
             
             <Button 
               type="submit" 
-              className="w-full bg-premium-gradient hover:bg-black hover:text-white" 
+              className="w-full bg-premium-gradient hover:bg-white hover:text-black" 
               disabled={isLoading}
             >
               {isLoading ? (
@@ -163,6 +163,18 @@ const Login = () => {
                 </span>
               ) : "Zaloguj się"}
             </Button>
+            
+            <div className="text-center mt-4">
+              <span className="text-premium-light/70">Nie masz jeszcze konta? </span>
+              <Button
+                variant="link"
+                type="button"
+                className="p-0 hover:text-white"
+                onClick={() => navigate('/register')}
+              >
+                Zarejestruj się
+              </Button>
+            </div>
           </form>
         </div>
       </div>

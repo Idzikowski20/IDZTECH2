@@ -1,29 +1,67 @@
 
-import React from "react";
-import Navbar from "@/components/Navbar";
+import React, { useEffect } from "react";
+import Navbar from "@/components/navbar";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
-import WhyWorkWithUs from "@/components/WhyWorkWithUs";
-import Testimonials from "@/components/Testimonials";
-import FAQ from "@/components/FAQ";
+import About from "@/components/About";
 import CTA from "@/components/CTA";
+import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
-import LightEffects from "@/components/LightEffects";
-import OurServices from "@/components/OurServices";
+import FAQ from "@/components/FAQ";
+import { initGA, trackPageView } from "@/utils/analytics";
 
 const Index = () => {
+  // Initialize Google Analytics
+  useEffect(() => {
+    initGA();
+    trackPageView(window.location.pathname);
+  }, []);
+
+  // Ensure scroll to top on page load
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+  
+  // Update document title to reflect web agency focus with improved SEO
+  useEffect(() => {
+    document.title = "IDZ.TECH - Tworzymy najlepsze strony internetowe";
+    
+    // Update meta description for better SEO
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Tworzymy najlepsze strony internetowe, sklepy internetowe oraz profesjonalne pozycjonowanie SEO.');
+    }
+    
+    // Update Open Graph meta tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'IDZ.TECH - Tworzymy najlepsze strony internetowe');
+    }
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) {
+      ogDesc.setAttribute('content', 'Tworzymy najlepsze strony internetowe, sklepy internetowe oraz profesjonalne pozycjonowanie SEO.');
+    }
+  }, []);
+  
   return (
-    <div className="min-h-screen">
-      <LightEffects />
-      <Navbar />
-      <Hero />
-      <OurServices />
-      <WhyWorkWithUs />
-      <Services />
-      <Testimonials />
-      <FAQ />
-      <CTA />
-      <Footer />
+    <div className="min-h-screen bg-premium-dark relative">
+      {/* Background pattern */}
+      <div className="fixed inset-0 bg-[url('https://www.esky.com/_fe/img/TE-background.svg')] bg-cover bg-center opacity-50 pointer-events-none z-[-2]"></div>
+      
+      <div className="relative z-10">
+        <Navbar />
+        <Hero />
+        <Services />
+        <FAQ />
+        <About />
+        <Testimonials />
+        <CTA />
+        <Footer />
+      </div>
     </div>
   );
 };
