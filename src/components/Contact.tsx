@@ -48,7 +48,7 @@ const Contact = () => {
             </div>
             
             <div>
-              <Button className="w-full bg-premium-gradient hover:opacity-90 transition-opacity py-6">
+              <Button className="w-full bg-premium-gradient hover:bg-white hover:text-black transition-colors py-6">
                 Umów spotkanie online
                 <ArrowRight size={16} className="ml-2" />
               </Button>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -92,7 +93,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleLogout}
-                  className="text-red-500 focus:text-red-500"
+                  className="text-red-500 hover:text-white focus:text-white"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Wyloguj</span>
@@ -131,8 +132,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </li>
                 <li className="mb-2">
                   <Link 
-                    to="/admin/profile" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    to="/profile" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
                     Profil
                   </Link>

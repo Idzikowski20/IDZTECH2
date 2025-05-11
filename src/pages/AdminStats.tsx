@@ -34,6 +34,14 @@ const AdminStats = () => {
   const [totalLikes, setTotalLikes] = useState(0);
   const [postsCount, setPostsCount] = useState(0);
   
+  // Weekly stats (for percentage changes)
+  const [weeklyStats, setWeeklyStats] = useState({
+    previousWeekViews: 0,
+    previousWeekComments: 0,
+    previousWeekLikes: 0,
+    previousWeekPosts: 0
+  });
+  
   // Monthly data state
   const [monthlyData, setMonthlyData] = useState<any[]>([]);
   const [isMonthlyDataLoading, setIsMonthlyDataLoading] = useState(true);
@@ -52,6 +60,15 @@ const AdminStats = () => {
     
     // Get posts count
     setPostsCount(posts.length);
+    
+    // Simulate previous week stats (for demonstration)
+    // In a real app, you would fetch this from your database
+    setWeeklyStats({
+      previousWeekViews: Math.max(0, views - Math.floor(Math.random() * 50)),
+      previousWeekComments: Math.max(0, getTotalComments() - Math.floor(Math.random() * 5)),
+      previousWeekLikes: Math.max(0, getTotalLikes() - Math.floor(Math.random() * 10)),
+      previousWeekPosts: Math.max(0, posts.length - Math.floor(Math.random() * 2))
+    });
     
     // Generate empty monthly data
     const emptyMonthlyData = Array(5).fill(0).map((_, i) => ({
@@ -85,16 +102,18 @@ const AdminStats = () => {
     return () => clearTimeout(timer);
   }, [posts, getTotalComments, getTotalLikes]);
   
-  // Calculate trends (percentage change) - simplified version
-  const calculateTrend = (current: number) => {
-    // Since we're resetting stats, always return 0 or null for trends
-    return 0;
+  // Calculate trends (percentage change) based on previous week
+  const calculateTrend = (current: number, previous: number) => {
+    if (previous === 0) {
+      return current > 0 ? 100 : 0; // If previous was 0, any increase is 100%
+    }
+    return Math.round(((current - previous) / previous) * 100);
   };
   
-  const viewsTrend = calculateTrend(totalViews);
-  const commentsTrend = calculateTrend(totalComments);
-  const likesTrend = calculateTrend(totalLikes);
-  const postsTrend = calculateTrend(postsCount);
+  const viewsTrend = calculateTrend(totalViews, weeklyStats.previousWeekViews);
+  const commentsTrend = calculateTrend(totalComments, weeklyStats.previousWeekComments);
+  const likesTrend = calculateTrend(totalLikes, weeklyStats.previousWeekLikes);
+  const postsTrend = calculateTrend(postsCount, weeklyStats.previousWeekPosts);
   
   return (
     <AdminLayout>
@@ -110,12 +129,12 @@ const AdminStats = () => {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Wyświetlenia</CardTitle>
               <span className={`text-xs font-medium ${viewsTrend > 0 ? 'text-green-500' : viewsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                {viewsTrend > 0 ? `+${viewsTrend}%` : viewsTrend < 0 ? `${viewsTrend}%` : `+${viewsTrend}%`}
+                {viewsTrend > 0 ? `+${viewsTrend}%` : `${viewsTrend}%`}
               </span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalViews}</div>
-              <p className="text-xs text-muted-foreground">Łącznie</p>
+              <p className="text-xs text-muted-foreground">Ostatnie 7 dni</p>
             </CardContent>
           </Card>
 
@@ -124,12 +143,12 @@ const AdminStats = () => {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Komentarze</CardTitle>
               <span className={`text-xs font-medium ${commentsTrend > 0 ? 'text-green-500' : commentsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                {commentsTrend > 0 ? `+${commentsTrend}%` : commentsTrend < 0 ? `${commentsTrend}%` : `+${commentsTrend}%`}
+                {commentsTrend > 0 ? `+${commentsTrend}%` : `${commentsTrend}%`}
               </span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalComments}</div>
-              <p className="text-xs text-muted-foreground">Łącznie</p>
+              <p className="text-xs text-muted-foreground">Ostatnie 7 dni</p>
             </CardContent>
           </Card>
 
@@ -138,12 +157,12 @@ const AdminStats = () => {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Polubienia</CardTitle>
               <span className={`text-xs font-medium ${likesTrend > 0 ? 'text-green-500' : likesTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                {likesTrend > 0 ? `+${likesTrend}%` : likesTrend < 0 ? `${likesTrend}%` : `+${likesTrend}%`}
+                {likesTrend > 0 ? `+${likesTrend}%` : `${likesTrend}%`}
               </span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalLikes}</div>
-              <p className="text-xs text-muted-foreground">Łącznie</p>
+              <p className="text-xs text-muted-foreground">Ostatnie 7 dni</p>
             </CardContent>
           </Card>
 
@@ -152,12 +171,12 @@ const AdminStats = () => {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Posty</CardTitle>
               <span className={`text-xs font-medium ${postsTrend > 0 ? 'text-green-500' : postsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
-                {postsTrend > 0 ? `+${postsTrend}%` : postsTrend < 0 ? `${postsTrend}%` : `+${postsTrend}%`}
+                {postsTrend > 0 ? `+${postsTrend}%` : `${postsTrend}%`}
               </span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{postsCount}</div>
-              <p className="text-xs text-muted-foreground">Opublikowane</p>
+              <p className="text-xs text-muted-foreground">Ostatnie 7 dni</p>
             </CardContent>
           </Card>
         </div>

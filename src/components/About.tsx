@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const About = () => {
   const stats = [
@@ -108,9 +109,11 @@ const About = () => {
             </div>
             
             <div className="pt-4">
-              <Button className="bg-premium-gradient hover:opacity-90 transition-opacity">
-                Poznaj nas lepiej
-              </Button>
+              <Link to="/about">
+                <Button className="bg-premium-gradient hover:opacity-90 transition-opacity">
+                  Poznaj nas lepiej
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

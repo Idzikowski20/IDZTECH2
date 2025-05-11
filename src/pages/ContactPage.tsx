@@ -45,11 +45,7 @@ const ContactPage = () => {
                 <h3 className="text-2xl font-semibold mb-6">Informacje o spotkaniu</h3>
                 
                 <div className="space-y-6">
-                  <img 
-                    src="https://img.freepik.com/free-vector/contact-us-concept-illustration_114360-3147.jpg" 
-                    alt="Kontakt - ilustracja" 
-                    className="w-full h-auto mb-6 rounded-lg shadow-lg max-h-[250px] object-contain" 
-                  />
+                  {/* Removed the image here */}
                   
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center mr-4">

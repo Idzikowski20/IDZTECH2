@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -136,7 +136,7 @@ const Profile = () => {
                     className="object-cover"
                   />
                   <AvatarFallback className="text-3xl bg-premium-gradient">
-                    {user.name.charAt(0)}
+                    {user.name?.charAt(0) || 'U'}
                   </AvatarFallback>
                   
                   <div 
@@ -148,8 +148,8 @@ const Profile = () => {
                 </Avatar>
                 
                 <div className="text-center">
-                  <h2 className="text-xl font-semibold">{user.name} {user.lastName}</h2>
-                  <p className="text-premium-light/70">{user.email}</p>
+                  <h2 className="text-xl font-semibold">{user.name || 'Użytkownik'} {user.lastName || ''}</h2>
+                  <p className="text-premium-light/70">{user.email || ''}</p>
                   <p className="text-sm mt-1 bg-premium-light/10 px-3 py-1 rounded-full inline-block">
                     {user.role === 'admin' ? 'Administrator' : 'Użytkownik'}
                   </p>
@@ -169,7 +169,7 @@ const Profile = () => {
                     variant="outline" 
                     size="sm" 
                     onClick={handleImageSelection}
-                    className="flex-1 flex items-center gap-2 hover:bg-premium-light/10 hover:text-white transition-colors"
+                    className="flex-1 flex items-center gap-2 hover:bg-white hover:text-black transition-colors"
                   >
                     <Upload size={16} />
                     Prześlij zdjęcie
@@ -179,7 +179,7 @@ const Profile = () => {
                     variant="outline" 
                     size="sm" 
                     onClick={handleCaptureImage}
-                    className="flex items-center gap-2 hover:bg-premium-light/10 hover:text-white transition-colors"
+                    className="flex items-center gap-2 hover:bg-white hover:text-black transition-colors"
                   >
                     <Camera size={16} />
                   </Button>
@@ -321,7 +321,7 @@ const Profile = () => {
                   
                   <Button 
                     type="submit" 
-                    className="bg-premium-gradient hover:scale-110 transition-transform" 
+                    className="bg-premium-gradient hover:bg-white hover:text-black transition-colors" 
                     disabled={isLoading}
                   >
                     {isLoading ? "Aktualizowanie..." : "Zapisz zmiany"}
