@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Globe, ShoppingCart, Search, MapPin } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
 
 const OurServices = () => {
@@ -9,28 +9,28 @@ const OurServices = () => {
   
   const services = [
     {
-      icon: "/lovable-uploads/325fdb7a-8d6f-42e4-b020-3e69480d2b58.png",
+      icon: <Globe className="w-10 h-10 text-premium-purple" />,
       title: "Tworzenie stron www",
       description: "Projektujemy i tworzymy profesjonalne, szybkie i responsywne strony internetowe.",
-      link: "/web-development"
+      link: "/tworzenie-stron-www"
     },
     {
-      icon: "/lovable-uploads/325fdb7a-8d6f-42e4-b020-3e69480d2b58.png",
+      icon: <ShoppingCart className="w-10 h-10 text-premium-blue" />,
       title: "Tworzenie sklepów internetowych",
       description: "Kompleksowe rozwiązania e-commerce dostosowane do potrzeb Twojego biznesu.",
-      link: "/e-commerce"
+      link: "/sklepy-internetowe"
     },
     {
-      icon: "/lovable-uploads/325fdb7a-8d6f-42e4-b020-3e69480d2b58.png",
+      icon: <Search className="w-10 h-10 text-premium-pink" />,
       title: "Pozycjonowanie SEO",
       description: "Poprawimy widoczność Twojej strony w wyszukiwarce Google i zwiększymy organiczny ruch.",
-      link: "/seo"
+      link: "/pozycjonowanie-stron"
     },
     {
-      icon: "/lovable-uploads/325fdb7a-8d6f-42e4-b020-3e69480d2b58.png",
+      icon: <MapPin className="w-10 h-10 text-green-500" />,
       title: "Pozycjonowanie lokalne",
       description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
-      link: "/local-seo"
+      link: "/pozycjonowanie-lokalne"
     }
   ];
 
@@ -50,14 +50,10 @@ const OurServices = () => {
             <div 
               key={index}
               className={`${theme === 'light' ? 'bg-white shadow-md border border-gray-100' : 'bg-premium-dark/40'} 
-                rounded-xl p-6 flex flex-col transition-all duration-300 hover:transform hover:scale-105`}
+                rounded-xl p-6 flex flex-col transition-all duration-300 hover:scale-110`}
             >
               <div className="mb-4 flex justify-start">
-                <img 
-                  src={service.icon} 
-                  alt={service.title} 
-                  className="w-16 h-16 object-contain" 
-                />
+                {service.icon}
               </div>
               <h3 className="text-xl font-bold mb-2">{service.title}</h3>
               <p className={`mb-4 flex-grow ${theme === 'light' ? 'text-gray-700' : 'text-premium-light/70'}`}>
@@ -65,7 +61,7 @@ const OurServices = () => {
               </p>
               <Link 
                 to={service.link} 
-                className={`inline-flex items-center ${theme === 'light' ? 'text-premium-purple hover:bg-black hover:text-white p-1 rounded' : 'text-premium-purple hover:bg-white hover:text-black p-1 rounded'}`}
+                className="inline-flex items-center text-premium-purple hover:scale-105 transition-transform"
               >
                 <span>Dowiedz się więcej</span>
                 <ArrowRight className="ml-2 h-4 w-4" />

@@ -117,17 +117,27 @@
     @apply text-premium-light;
   }
   
-  /* Hover effects in navigation - Fixed */
+  /* Hover effects in navigation - Fixed for both light and dark mode */
   .light .hover\:bg-black:hover {
-    background-color: #000000;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
   }
 
   .light .hover\:text-white:hover {
-    color: #FFFFFF !important;
+    color: #000000 !important;
   }
 
+  .dark .hover\:bg-black:hover {
+    background-color: #FFFFFF !important;
+  }
+
+  .dark .hover\:text-white:hover {
+    color: #000000 !important;
+  }
+  
+  /* Fix for hover effects in dark mode */
   .dark .hover\:bg-white:hover {
-    background-color: #FFFFFF;
+    background-color: #FFFFFF !important;
   }
 
   .dark .hover\:text-black:hover {
@@ -226,24 +236,66 @@
   /* Force white text on black background hover in light mode */
   .light button:hover svg,
   .light a:hover svg {
-    color: #FFFFFF;
+    color: #000000;
+  }
+  
+  /* Force black text on white background hover in dark mode */
+  .dark button:hover svg,
+  .dark a:hover svg {
+    color: #000000;
   }
   
   /* Fix for the "Zobacz projekty" button in hero section */
   .light .outline.hover\:bg-black:hover,
   .light .hover\:bg-black:hover {
-    color: #FFFFFF !important;
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+  }
+  
+  .dark .outline.hover\:bg-black:hover,
+  .dark .hover\:bg-black:hover {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
   }
   
   /* Fix for the "Zobacz nasze realizacje" button in CTA */
-  .light .border-black.hover\:bg-black:hover {
-    color: #FFFFFF !important;
+  .light .border-black.hover\:bg-black:hover,
+  .dark .border-black.hover\:bg-white:hover {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+  }
+  
+  /* Add border to inputs in light mode */
+  .light input,
+  .light textarea {
+    border: 1px solid #ccc;
   }
   
   /* Social icon hover scale effect */
   .footer a.hover\:scale-110:hover,
   .footer a:hover svg {
     transform: scale(1.1);
+  }
+  
+  /* Fix for SEO optimization boxes in light mode */
+  .light .hover\:bg-black {
+    transition: transform 0.3s ease;
+  }
+
+  .light .hover\:bg-black:hover {
+    transform: scale(1.1);
+    background-color: inherit !important;
+    color: inherit !important;
+  }
+
+  .dark .hover\:bg-black {
+    transition: transform 0.3s ease;
+  }
+
+  .dark .hover\:bg-black:hover {
+    transform: scale(1.1);
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
   }
   
   /* Floating animation keyframes */

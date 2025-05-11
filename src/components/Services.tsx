@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-  Search, Globe, ShoppingCart
+  Search, Globe, ShoppingCart, Building, Car, Briefcase, Scissors
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -20,7 +20,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ icon, title, description, gra
   
   return (
     <div className="group relative">
-      <div className={`${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-6 h-full flex flex-col hover:border-white/20 transition-colors`}>
+      <div className={`${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-6 h-full flex flex-col hover:border-white/20 transition-colors hover:scale-110 duration-300`}>
         <div className={cn(
           "w-12 h-12 rounded-lg flex items-center justify-center mb-4",
           gradient
@@ -78,11 +78,36 @@ const Services = () => {
       description: "Poprawimy widoczność Twojej strony w wyszukiwarce Google i zwiększymy organiczny ruch.",
       gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
       link: "/pozycjonowanie-stron-internetowych"
+    }
+  ];
+
+  // Local business categories with icons
+  const localBusinesses = [
+    {
+      icon: <Building size={24} className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light'}`} />,
+      title: "Firmy budowlane",
+      description: "Skuteczne pozycjonowanie lokalne dla firm z branży budowlanej i remontowej.",
+      gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
+      link: "/pozycjonowanie-lokalne"
     },
     {
-      icon: <Search size={24} className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light'}`} />,
-      title: "Pozycjonowanie lokalne",
-      description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
+      icon: <Scissors size={24} className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light'}`} />,
+      title: "Salony piękności",
+      description: "Zwiększ widoczność salonu fryzjerskiego lub kosmetycznego w lokalnych wynikach wyszukiwania.",
+      gradient: "bg-gradient-to-r from-premium-blue to-premium-pink",
+      link: "/pozycjonowanie-lokalne"
+    },
+    {
+      icon: <Car size={24} className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light'}`} />,
+      title: "Warsztaty samochodowe",
+      description: "Pozyskaj więcej klientów z okolicy dla swojego warsztatu samochodowego.",
+      gradient: "bg-gradient-to-r from-premium-pink to-premium-purple",
+      link: "/pozycjonowanie-lokalne"
+    },
+    {
+      icon: <Briefcase size={24} className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light'}`} />,
+      title: "Gabinety medyczne",
+      description: "Pozycjonowanie lokalne dla przychodni, gabinetów lekarskich i stomatologicznych.",
       gradient: "bg-gradient-to-r from-premium-purple to-premium-blue",
       link: "/pozycjonowanie-lokalne"
     }
@@ -107,7 +132,7 @@ const Services = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {services.map((service, index) => (
             <ServiceCard 
               key={index}
@@ -119,6 +144,32 @@ const Services = () => {
             />
           ))}
         </div>
+        
+        {/* Local Business Types Section */}
+        {location.pathname === "/pozycjonowanie-lokalne" && (
+          <div className="mt-20">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <span className="text-premium-purple font-medium">Branże</span>
+              <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Pozycjonowanie lokalne dla różnych branż</h2>
+              <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'} text-lg`}>
+                Specjalizujemy się w pozycjonowaniu lokalnym dla różnych typów biznesów. Sprawdź, jak możemy pomóc Twojej firmie.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {localBusinesses.map((business, index) => (
+                <ServiceCard 
+                  key={`local-${index}`}
+                  icon={business.icon}
+                  title={business.title}
+                  description={business.description}
+                  gradient={business.gradient}
+                  link={business.link}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

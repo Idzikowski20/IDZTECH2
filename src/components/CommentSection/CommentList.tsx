@@ -2,6 +2,7 @@
 import React from 'react';
 import CommentItem from './CommentItem';
 import { Comment } from './index';
+import { useTheme } from '@/utils/themeContext';
 
 interface CommentListProps {
   comments: Comment[];
@@ -16,11 +17,15 @@ const CommentList: React.FC<CommentListProps> = ({
   onReplyComment,
   showControls = true
 }) => {
+  const { theme } = useTheme();
+
   return (
     <div className="mt-8 space-y-8">
       {comments.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-premium-light/70">Brak komentarzy. Bądź pierwszy!</p>
+          <p className={`${theme === 'light' ? 'text-gray-600' : 'text-premium-light/70'}`}>
+            Brak komentarzy. Bądź pierwszy!
+          </p>
         </div>
       ) : (
         comments.map((comment) => (

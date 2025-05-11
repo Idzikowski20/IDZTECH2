@@ -63,7 +63,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   toggleDarkMode();
                   trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
                 }} 
-                className={`text-white ${theme === 'light' ? 'hover:bg-white hover:text-black' : 'hover:bg-white hover:text-black'}`}
+                className="text-white hover:bg-white hover:text-black"
               >
                 {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
                 <span className="sr-only">Toggle theme</span>
@@ -77,7 +77,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`text-white ${theme === 'light' ? 'hover:bg-white hover:text-black' : 'hover:bg-white hover:text-black'}`}
+                  className="text-white hover:bg-white hover:text-black"
                 >
                   <LogIn className="h-[1.2rem] w-[1.2rem]" />
                   <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
@@ -88,7 +88,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
 
           <nav className="flex-1 overflow-y-auto pr-2 flex flex-col space-y-2">
             <Link to="/" 
-              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}
+              className="text-white text-lg hover:bg-white hover:text-black px-3 py-3 rounded-lg transition-colors"
               onClick={() => {
                 setIsMenuOpen(false);
                 // Ensure scrolling is restored
@@ -107,13 +107,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   <div className="space-y-2 pl-2">
                     <h3 className="text-white/70 text-sm font-semibold px-3 mt-2">Strony www</h3>
                     <Link to="/tworzenie-stron-www" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-stron-www" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Tworzenie stron www
                     </Link>
                     <Link to="/sklepy-internetowe" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/sklepy-internetowe" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Tworzenie sklepów internetowych
@@ -121,37 +121,37 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   
                     <h3 className="text-white/70 text-sm font-semibold px-3 mt-4">Pozycjonowanie (SEO)</h3>
                     <Link to="/pozycjonowanie-stron" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-stron" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Pozycjonowanie stron internetowych
                     </Link>
                     <Link to="/pozycjonowanie-lokalne" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Pozycjonowanie lokalne
                     </Link>
                     <Link to="/audyt-seo" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/audyt-seo" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Audyt SEO
                     </Link>
                     <Link to="/optymalizacja-seo" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/optymalizacja-seo" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Optymalizacja SEO
                     </Link>
                     <Link to="/copywriting-seo" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/copywriting-seo" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Copywriting SEO
                     </Link>
                     <Link to="/content-plan" 
-                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/content-plan" ? "bg-white/20" : ""}`}
+                      className="text-white block hover:bg-white hover:text-black px-3 py-2 rounded-lg transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Content Plan
@@ -162,28 +162,28 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             </Accordion>
             
             <Link to="/projects" 
-              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/projects" ? "bg-white/20" : ""}`}
+              className="text-white text-lg hover:bg-white hover:text-black px-3 py-3 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Portfolio
             </Link>
             
             <Link to="/about" 
-              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/about" ? "bg-white/20" : ""}`}
+              className="text-white text-lg hover:bg-white hover:text-black px-3 py-3 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               O nas
             </Link>
             
             <Link to="/blog" 
-              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname.includes("/blog") ? "bg-white/20" : ""}`}
+              className="text-white text-lg hover:bg-white hover:text-black px-3 py-3 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Blog
             </Link>
             
             <Link to="/contact" 
-              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/contact" ? "bg-white/20" : ""}`}
+              className="text-white text-lg hover:bg-white hover:text-black px-3 py-3 rounded-lg transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Kontakt

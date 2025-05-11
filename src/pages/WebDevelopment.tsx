@@ -6,8 +6,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
+import { useTheme } from '@/utils/themeContext';
 
 const WebDevelopment = () => {
+  const { theme } = useTheme();
+  
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -152,7 +155,7 @@ const WebDevelopment = () => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 justify-items-center">
-            {/* Technology Logos - Now in color */}
+            {/* Technology Logos - Updated to use colorful logos */}
             <div>
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png"
@@ -195,11 +198,11 @@ const WebDevelopment = () => {
             </div>
             <div>
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/1/17/Yarn_Logo.svg"
-                alt="Yarn"
+                src="https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190fb1800d4a5c7f07ba4b1345a9c8.svg"
+                alt="Tailwind CSS"
                 className="h-12 w-auto transition-all duration-300"
               />
-              <p className="text-sm text-premium-light/70 mt-2 text-center">Yarn</p>
+              <p className="text-sm text-premium-light/70 mt-2 text-center">Tailwind CSS</p>
             </div>
           </div>
         </div>
