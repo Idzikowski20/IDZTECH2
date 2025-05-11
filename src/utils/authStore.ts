@@ -224,10 +224,14 @@ export const useAuth = create<AuthState>()(
       },
       
       getUsers: async () => {
-        // Fetch Supabase users first
-        await get().fetchSupabaseUsers();
+        try {
+          // Najpierw spróbuj pobrać dane z Supabase, ale nie blokuj na błędach
+          await get().fetchSupabaseUsers().catch(err => console.log("Couldn't fetch Supabase users:", err));
+        } catch (e) {
+          console.log("Error fetching Supabase users, continuing with local users");
+        }
         
-        // Refresh user stats before returning users
+        // Odśwież statystyki użytkowników przed zwróceniem
         get().refreshUserStats();
         return [...users];
       },

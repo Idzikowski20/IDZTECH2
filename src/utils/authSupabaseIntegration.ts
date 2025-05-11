@@ -5,45 +5,34 @@ import { User, UserRole } from './authTypes';
 
 export const fetchSupabaseUsers = async (): Promise<void> => {
   try {
-    const { data: supaUsers, error } = await supabase.auth.admin.listUsers();
+    // Zamiast korzystać z admin API, wykorzystamy istniejących użytkowników
+    // z lokalnego magazynu, ponieważ nie mamy uprawnień administratora
+    console.log("Using local users instead of fetching from Supabase admin API");
     
-    if (error) {
-      console.error("Error fetching Supabase users:", error);
-      return;
-    }
-
-    if (supaUsers) {
-      // Map Supabase users to our user format
-      const mappedUsers: User[] = supaUsers.users.map(supaUser => {
-        // Check if user already exists in our local store
-        const existingUser = users.find(u => u.email === supaUser.email);
+    // Sprawdź aktualnego użytkownika
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      // Znajdź lub dodaj użytkownika do lokalnego magazynu
+      const existingUser = users.find(u => u.id === user.id);
+      
+      if (!existingUser) {
+        // Jeśli użytkownik nie istnieje lokalnie, dodajmy go
+        const role: UserRole = user.email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
         
-        if (existingUser) {
-          return {
-            ...existingUser,
-            id: supaUser.id,
-            email: supaUser.email || existingUser.email,
-            lastLogin: supaUser.last_sign_in_at || existingUser.lastLogin,
-            createdAt: supaUser.created_at || existingUser.createdAt,
-          };
-        }
-
-        // Create a new user if they don't exist
-        const role: UserRole = supaUser.email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
-        
-        return {
-          id: supaUser.id,
-          email: supaUser.email || '',
-          name: supaUser.user_metadata?.name || supaUser.email?.split('@')[0] || 'User',
+        const newUser: User = {
+          id: user.id,
+          email: user.email || '',
+          name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
           role,
-          profilePicture: supaUser.user_metadata?.avatar_url || '',
-          lastName: supaUser.user_metadata?.last_name || '',
+          profilePicture: user.user_metadata?.avatar_url || '',
+          lastName: user.user_metadata?.last_name || '',
           bio: '',
           jobTitle: '',
           postsCreated: 0,
           totalViews: 0,
-          createdAt: supaUser.created_at || new Date().toISOString(),
-          lastLogin: supaUser.last_sign_in_at || new Date().toISOString(),
+          createdAt: user.created_at || new Date().toISOString(),
+          lastLogin: user.last_sign_in_at || new Date().toISOString(),
           commentsCount: 0,
           likesCount: 0,
           stats: {
@@ -56,10 +45,9 @@ export const fetchSupabaseUsers = async (): Promise<void> => {
             lastUpdated: new Date().toISOString()
           }
         };
-      });
-
-      // Update our users array with the mapped users
-      updateUsersArray(mappedUsers);
+        
+        users.push(newUser);
+      }
     }
   } catch (error) {
     console.error("Error in fetchSupabaseUsers:", error);
