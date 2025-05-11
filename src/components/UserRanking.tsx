@@ -1,11 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/utils/auth';
+import { useAuth, User } from '@/utils/authStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Award, Medal, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBlogStore } from '@/utils/blog';
-import { User } from '@/utils/auth';
 
 interface UserRankingProps {
   limit?: number;
@@ -40,6 +39,7 @@ const UserRanking: React.FC<UserRankingProps> = ({
     fetchUsers();
   }, [refreshUserStats, posts]);
   
+  // Get displayed users based on limit
   const displayUsers = users.slice(0, limit);
   
   return (
@@ -64,7 +64,7 @@ const UserRanking: React.FC<UserRankingProps> = ({
             key={user.id}
             className={cn(
               "flex items-center justify-between p-3 rounded-lg transition-all",
-              "border border-premium-light/10 bg-premium-dark/50 hover:bg-premium-light/5"
+              "border border-premium-light/10 bg-premium-dark/50 hover:bg-white hover:text-black"
             )}
           >
             <div className="flex items-center gap-3">

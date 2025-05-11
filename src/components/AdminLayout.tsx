@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/authStore';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNotifications } from '@/utils/notifications';
@@ -50,7 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <Link to="/">
               <Button 
                 variant="ghost" 
-                className="hover:bg-white hover:text-black flex gap-2 items-center text-black dark:text-premium-light"
+                className="hover:bg-white hover:text-black flex gap-2 items-center dark:text-premium-light text-black"
               >
                 <Home size={18} />
                 Wróć na stronę główną
@@ -95,7 +95,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleLogout}
-                  className="text-red-500 hover:text-white focus:text-white"
+                  className="text-white bg-red-500 hover:bg-red-600 focus:text-white hover:text-white"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Wyloguj</span>

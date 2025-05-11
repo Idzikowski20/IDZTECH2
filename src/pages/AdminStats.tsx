@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useBlogStore } from '@/utils/blog';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/authStore';
 import AdminStatReset from '@/components/AdminStatReset';
 
 // Analytics data
@@ -136,7 +135,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Wyświetlenia</CardTitle>
-              <span className={`text-xs font-medium ${getTrendColor(viewsTrend)}`}>
+              <span className={`text-xs font-medium ${viewsTrend > 0 ? 'text-green-500' : viewsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                 {viewsTrend > 0 ? `+${viewsTrend}%` : `${viewsTrend}%`}
               </span>
             </CardHeader>
@@ -150,7 +149,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Komentarze</CardTitle>
-              <span className={`text-xs font-medium ${getTrendColor(commentsTrend)}`}>
+              <span className={`text-xs font-medium ${commentsTrend > 0 ? 'text-green-500' : commentsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                 {commentsTrend > 0 ? `+${commentsTrend}%` : `${commentsTrend}%`}
               </span>
             </CardHeader>
@@ -164,7 +163,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Polubienia</CardTitle>
-              <span className={`text-xs font-medium ${getTrendColor(likesTrend)}`}>
+              <span className={`text-xs font-medium ${likesTrend > 0 ? 'text-green-500' : likesTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                 {likesTrend > 0 ? `+${likesTrend}%` : `${likesTrend}%`}
               </span>
             </CardHeader>
@@ -178,7 +177,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Posty</CardTitle>
-              <span className={`text-xs font-medium ${getTrendColor(postsTrend)}`}>
+              <span className={`text-xs font-medium ${postsTrend > 0 ? 'text-green-500' : postsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
                 {postsTrend > 0 ? `+${postsTrend}%` : `${postsTrend}%`}
               </span>
             </CardHeader>
@@ -212,7 +211,8 @@ const AdminStats = () => {
                         backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                         borderColor: 'rgba(120, 77, 255, 0.5)',
                         color: '#fff'
-                      }} 
+                      }}
+                      labelStyle={{ color: '#fff' }}
                     />
                     <Legend />
                     <Bar dataKey="views" fill={colors.primary} name="Wyświetlenia" />
@@ -256,7 +256,8 @@ const AdminStats = () => {
                           backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                           borderColor: 'rgba(120, 77, 255, 0.5)',
                           color: '#fff'
-                        }} 
+                        }}
+                        labelStyle={{ color: '#fff' }}
                       />
                       <Area 
                         type="monotone" 
@@ -289,7 +290,8 @@ const AdminStats = () => {
                           backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                           borderColor: 'rgba(120, 77, 255, 0.5)',
                           color: '#fff'
-                        }} 
+                        }}
+                        labelStyle={{ color: '#fff' }}
                       />
                       <Legend />
                       <Bar dataKey="comments" fill={colors.secondary} name="Komentarze" />
@@ -326,7 +328,8 @@ const AdminStats = () => {
                           backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                           borderColor: 'rgba(120, 77, 255, 0.5)',
                           color: '#fff'
-                        }} 
+                        }}
+                        labelStyle={{ color: '#fff' }}
                       />
                       <Legend />
                       <Area 

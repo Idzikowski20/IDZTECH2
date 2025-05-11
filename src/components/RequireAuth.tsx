@@ -1,6 +1,6 @@
 
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/utils/AuthProvider";
+import { useAuth } from "@/utils/authStore";
 import { useEffect } from "react";
 
 interface RequireAuthProps {

@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/authStore';
 import { useToast } from '@/hooks/use-toast';
 
 const loginFormSchema = z.object({
