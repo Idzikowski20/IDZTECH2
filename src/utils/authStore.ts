@@ -4,7 +4,17 @@ import { persist } from 'zustand/middleware';
 import { AuthState, User, UserRole } from './authTypes';
 import { users, passwords, resetTokens } from './authUtils';
 import { refreshUserStats, getUserRanking, getTopUser, getTopUserOfMonth } from './authStatsFunctions';
-import { fetchSupabaseUsers, supabaseSignIn, supabaseSignUp, supabaseSignOut, supabaseCreateUser, supabaseUpdateUserRole, supabaseDeleteUser, supabaseResetPassword, supabaseUpdatePassword } from './authSupabaseIntegration';
+import { 
+  fetchSupabaseUsers, 
+  supabaseSignIn, 
+  supabaseSignUp, 
+  supabaseSignOut, 
+  supabaseCreateUser, 
+  supabaseUpdateUserRole, 
+  supabaseDeleteUser, 
+  supabaseResetPassword, 
+  supabaseUpdatePassword 
+} from './authSupabaseIntegration';
 
 export const useAuth = create<AuthState>()(
   persist(
@@ -12,9 +22,15 @@ export const useAuth = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       rememberMe: false,
-      loading: false, // Add loading state
+      loading: false,
       
       fetchSupabaseUsers,
+      
+      // Adding login function as an alias to signIn to match the AuthState interface
+      login: async (email: string, password: string, remember = false) => {
+        // Just delegate to the existing signIn function
+        return await get().signIn(email, password, remember);
+      },
       
       signIn: async (email: string, password: string, remember = false) => {
         // Add loading state

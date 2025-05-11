@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -30,7 +29,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Using login instead of signIn
+  const { login } = useAuth(); // Using login from auth store
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
