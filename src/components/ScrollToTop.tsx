@@ -6,14 +6,22 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Ensure body scroll is enabled
-    document.body.style.overflow = '';
+    // Wait for the next tick to ensure DOM is ready
+    setTimeout(() => {
+      // Ensure body scroll is enabled
+      document.body.style.overflow = '';
+      
+      // Scroll to top when pathname changes
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }, 0);
     
-    // Scroll to top when pathname changes
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    // Cleanup function to ensure scroll is always enabled when component unmounts
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [pathname]);
 
   return null;

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -26,7 +25,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
     
     // If closing menu, ensure scrolling is restored immediately
     if (!open) {
-      document.body.style.overflow = '';
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 0);
     }
   };
   
@@ -36,13 +37,17 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
     setIsMenuOpen(false);
     
     // Ensure body scroll is restored when navigating
-    document.body.style.overflow = '';
+    setTimeout(() => {
+      document.body.style.overflow = '';
+    }, 0);
   }, [location, setIsMenuOpen]);
   
   // Cleanup function to ensure body scroll is restored when component unmounts
   useEffect(() => {
     return () => {
-      document.body.style.overflow = '';
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 0);
     };
   }, []);
 
@@ -84,7 +89,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
               <Link to={isAuthenticated ? "/admin" : "/login"} onClick={() => {
                 setIsMenuOpen(false);
                 // Ensure scrolling is restored
-                document.body.style.overflow = '';
+                setTimeout(() => {
+                  document.body.style.overflow = '';
+                }, 0);
               }}>
                 <Button 
                   variant="ghost" 
@@ -105,7 +112,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 onClick={() => {
                   setIsMenuOpen(false);
                   // Ensure scrolling is restored
-                  document.body.style.overflow = '';
+                  setTimeout(() => {
+                    document.body.style.overflow = '';
+                  }, 0);
                 }}
               >
                 Start
@@ -123,7 +132,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/tworzenie-stron-www') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Tworzenie stron www
@@ -132,7 +143,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/sklepy-internetowe') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Tworzenie sklepów internetowych
@@ -143,7 +156,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-stron') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Pozycjonowanie stron internetowych
@@ -152,7 +167,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-lokalne') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Pozycjonowanie lokalne
@@ -161,7 +178,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/audyt-seo') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Audyt SEO
@@ -170,7 +189,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/optymalizacja-seo') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Optymalizacja SEO
@@ -179,7 +200,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/copywriting-seo') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Copywriting SEO
@@ -188,7 +211,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/content-plan') ? 'font-bold border-b border-premium-blue' : ''}`}
                         onClick={() => {
                           setIsMenuOpen(false);
-                          document.body.style.overflow = '';
+                          setTimeout(() => {
+                            document.body.style.overflow = '';
+                          }, 0);
                         }}
                       >
                         Content Plan
@@ -202,7 +227,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/projects') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
                 onClick={() => {
                   setIsMenuOpen(false);
-                  document.body.style.overflow = '';
+                  setTimeout(() => {
+                    document.body.style.overflow = '';
+                  }, 0);
                 }}
               >
                 Portfolio
@@ -212,7 +239,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/about') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
                 onClick={() => {
                   setIsMenuOpen(false);
-                  document.body.style.overflow = '';
+                  setTimeout(() => {
+                    document.body.style.overflow = '';
+                  }, 0);
                 }}
               >
                 O nas
@@ -222,7 +251,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/blog') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
                 onClick={() => {
                   setIsMenuOpen(false);
-                  document.body.style.overflow = '';
+                  setTimeout(() => {
+                    document.body.style.overflow = '';
+                  }, 0);
                 }}
               >
                 Blog
@@ -232,7 +263,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/contact') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
                 onClick={() => {
                   setIsMenuOpen(false);
-                  document.body.style.overflow = '';
+                  setTimeout(() => {
+                    document.body.style.overflow = '';
+                  }, 0);
                 }}
               >
                 Kontakt
@@ -243,9 +276,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <Link to="/contact" className="mt-6" onClick={() => {
             setIsMenuOpen(false);
             // Ensure scrolling is restored
-            document.body.style.overflow = '';
+            setTimeout(() => {
+              document.body.style.overflow = '';
+            }, 0);
           }}>
-            <Button className={`w-full ${theme === 'light' ? 'bg-black' : 'bg-black'} ${theme === 'light' ? 'text-white' : 'text-white'}`}>
+            <Button className={`w-full ${theme === 'light' ? 'bg-black hover:bg-black/80' : 'bg-black hover:bg-black/80'} ${theme === 'light' ? 'text-white hover:text-white' : 'text-white hover:text-white'}`}>
               Umów spotkanie
             </Button>
           </Link>
