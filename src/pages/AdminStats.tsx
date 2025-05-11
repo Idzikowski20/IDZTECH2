@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -115,6 +116,13 @@ const AdminStats = () => {
   const likesTrend = calculateTrend(totalLikes, weeklyStats.previousWeekLikes);
   const postsTrend = calculateTrend(postsCount, weeklyStats.previousWeekPosts);
   
+  // Helper function to determine trend color
+  const getTrendColor = (trend: number) => {
+    if (trend > 0) return 'text-green-500';
+    if (trend < 0) return 'text-red-500';
+    return 'text-gray-500';
+  };
+  
   return (
     <AdminLayout>
       <div className="p-6 space-y-6">
@@ -128,7 +136,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Wyświetlenia</CardTitle>
-              <span className={`text-xs font-medium ${viewsTrend > 0 ? 'text-green-500' : viewsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+              <span className={`text-xs font-medium ${getTrendColor(viewsTrend)}`}>
                 {viewsTrend > 0 ? `+${viewsTrend}%` : `${viewsTrend}%`}
               </span>
             </CardHeader>
@@ -142,7 +150,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Komentarze</CardTitle>
-              <span className={`text-xs font-medium ${commentsTrend > 0 ? 'text-green-500' : commentsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+              <span className={`text-xs font-medium ${getTrendColor(commentsTrend)}`}>
                 {commentsTrend > 0 ? `+${commentsTrend}%` : `${commentsTrend}%`}
               </span>
             </CardHeader>
@@ -156,7 +164,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Polubienia</CardTitle>
-              <span className={`text-xs font-medium ${likesTrend > 0 ? 'text-green-500' : likesTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+              <span className={`text-xs font-medium ${getTrendColor(likesTrend)}`}>
                 {likesTrend > 0 ? `+${likesTrend}%` : `${likesTrend}%`}
               </span>
             </CardHeader>
@@ -170,7 +178,7 @@ const AdminStats = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Posty</CardTitle>
-              <span className={`text-xs font-medium ${postsTrend > 0 ? 'text-green-500' : postsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+              <span className={`text-xs font-medium ${getTrendColor(postsTrend)}`}>
                 {postsTrend > 0 ? `+${postsTrend}%` : `${postsTrend}%`}
               </span>
             </CardHeader>

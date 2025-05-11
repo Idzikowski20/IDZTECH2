@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Eye, Trash2, UserPlus, Shield } from 'lucide-react';
 import { useAuth, UserRole, User } from '@/utils/auth';
@@ -60,7 +61,8 @@ const userFormSchema = z.object({
 const AdminUsers = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById, deleteUser } = useAuth();
+  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById, deleteUser, fetchSupabaseUsers } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [showAddUserDialog, setShowAddUserDialog] = useState(false);
   const [showRoleDialog, setShowRoleDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -68,6 +70,7 @@ const AdminUsers = () => {
   const [showProfileDialog, setShowProfileDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   
   // Form handling
   const form = useForm<z.infer<typeof userFormSchema>>({
@@ -81,45 +84,97 @@ const AdminUsers = () => {
     }
   });
 
+  // Load users on component mount
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        await fetchSupabaseUsers(); // First ensure Supabase users are fetched
+        const allUsers = await getUsers();
+        setUsers(allUsers);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error loading users:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się załadować użytkowników",
+          variant: "destructive"
+        });
+        setLoading(false);
+      }
+    };
+    
+    loadUsers();
+  }, [getUsers, toast, fetchSupabaseUsers]);
+
   // Redirect if not authenticated or not admin/moderator
   if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'moderator')) {
     navigate('/login');
     return null;
   }
-
-  const users = getUsers();
   
-  const handleUserProfileClick = (userId: string) => {
-    const profileUser = getUserById(userId);
-    if (profileUser) {
-      setSelectedUser(profileUser);
-      setShowProfileDialog(true);
-      // Track profile view event
-      trackEvent('view_profile', 'user_management', `Profile ${profileUser.name}`);
+  const handleUserProfileClick = async (userId: string) => {
+    try {
+      const profileUser = await getUserById(userId);
+      if (profileUser) {
+        setSelectedUser(profileUser);
+        setShowProfileDialog(true);
+        // Track profile view event
+        trackEvent('view_profile', 'user_management', `Profile ${profileUser.name}`);
+      }
+    } catch (error) {
+      console.error("Error getting user by ID:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się pobrać danych użytkownika",
+        variant: "destructive"
+      });
     }
   };
   
-  const handleRoleChange = (userId: string) => {
-    const targetUser = getUserById(userId);
-    if (targetUser) {
-      setSelectedUser(targetUser);
-      setUserRole(targetUser.role);
-      setShowRoleDialog(true);
+  const handleRoleChange = async (userId: string) => {
+    try {
+      const targetUser = await getUserById(userId);
+      if (targetUser) {
+        setSelectedUser(targetUser);
+        setUserRole(targetUser.role);
+        setShowRoleDialog(true);
+      }
+    } catch (error) {
+      console.error("Error getting user by ID for role change:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się pobrać danych użytkownika",
+        variant: "destructive"
+      });
     }
   };
   
-  const handleRoleSubmit = () => {
+  const handleRoleSubmit = async () => {
     if (selectedUser && userRole) {
-      const success = updateUserRole(selectedUser.id, userRole);
-      if (success) {
-        toast({
-          title: "Rola zaktualizowana",
-          description: `Rola użytkownika ${selectedUser.name} została zmieniona na ${userRoles[userRole]}`
-        });
-        setShowRoleDialog(false);
-        // Track role update event
-        trackEvent('update_role', 'user_management', `User ${selectedUser.name} to ${userRole}`);
-      } else {
+      try {
+        const success = await updateUserRole(selectedUser.id, userRole);
+        if (success) {
+          toast({
+            title: "Rola zaktualizowana",
+            description: `Rola użytkownika ${selectedUser.name} została zmieniona na ${userRoles[userRole]}`
+          });
+          
+          // Refresh users list
+          const updatedUsers = await getUsers();
+          setUsers(updatedUsers);
+          
+          setShowRoleDialog(false);
+          // Track role update event
+          trackEvent('update_role', 'user_management', `User ${selectedUser.name} to ${userRole}`);
+        } else {
+          toast({
+            title: "Błąd",
+            description: "Nie udało się zaktualizować roli użytkownika",
+            variant: "destructive"
+          });
+        }
+      } catch (error) {
+        console.error("Error updating user role:", error);
         toast({
           title: "Błąd",
           description: "Nie udało się zaktualizować roli użytkownika",
@@ -129,71 +184,110 @@ const AdminUsers = () => {
     }
   };
   
-  const handleDeleteUser = (userId: string) => {
-    const userToRemove = getUserById(userId);
-    if (userToRemove) {
-      // Admin check: moderator can't delete admin
-      if (user?.role === 'moderator' && userToRemove.role === 'admin') {
-        toast({
-          title: "Brak uprawnień",
-          description: "Moderator nie może usunąć administratora",
-          variant: "destructive"
-        });
-        return;
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const userToRemove = await getUserById(userId);
+      if (userToRemove) {
+        // Admin check: moderator can't delete admin
+        if (user?.role === 'moderator' && userToRemove.role === 'admin') {
+          toast({
+            title: "Brak uprawnień",
+            description: "Moderator nie może usunąć administratora",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        setUserToDelete(userToRemove);
+        setShowDeleteDialog(true);
       }
-      
-      setUserToDelete(userToRemove);
-      setShowDeleteDialog(true);
+    } catch (error) {
+      console.error("Error getting user for deletion:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się pobrać danych użytkownika",
+        variant: "destructive"
+      });
     }
   };
   
-  const confirmDeleteUser = () => {
+  const confirmDeleteUser = async () => {
     if (userToDelete && deleteUser) {
-      const success = deleteUser(userToDelete.id);
-      if (success) {
-        toast({
-          title: "Użytkownik usunięty",
-          description: `Użytkownik ${userToDelete.name} został usunięty`
-        });
-        // Track user deletion event
-        trackEvent('delete_user', 'user_management', `User ${userToDelete.name}`);
-      } else {
+      try {
+        const success = await deleteUser(userToDelete.id);
+        if (success) {
+          toast({
+            title: "Użytkownik usunięty",
+            description: `Użytkownik ${userToDelete.name} został usunięty`
+          });
+          
+          // Refresh users list
+          const updatedUsers = await getUsers();
+          setUsers(updatedUsers);
+          
+          // Track user deletion event
+          trackEvent('delete_user', 'user_management', `User ${userToDelete.name}`);
+        } else {
+          toast({
+            title: "Błąd",
+            description: "Nie udało się usunąć użytkownika",
+            variant: "destructive"
+          });
+        }
+        setShowDeleteDialog(false);
+      } catch (error) {
+        console.error("Error deleting user:", error);
         toast({
           title: "Błąd",
           description: "Nie udało się usunąć użytkownika",
           variant: "destructive"
         });
+        setShowDeleteDialog(false);
       }
-      setShowDeleteDialog(false);
     }
   };
   
-  const onSubmit = (data: z.infer<typeof userFormSchema>) => {
-    const success = addUser({
-      email: data.email,
-      name: data.name,
-      lastName: data.lastName || '',
-      role: data.role,
-    }, data.password);
-    
-    if (success) {
-      toast({
-        title: "Użytkownik dodany",
-        description: `Nowy użytkownik ${data.name} został utworzony pomyślnie`
-      });
-      setShowAddUserDialog(false);
-      form.reset();
-      // Track user creation event
-      trackEvent('add_user', 'user_management', `User ${data.name}`);
-    } else {
+  const onSubmit = async (data: z.infer<typeof userFormSchema>) => {
+    try {
+      const success = await addUser({
+        email: data.email,
+        name: data.name,
+        lastName: data.lastName || '',
+        role: data.role,
+      }, data.password);
+      
+      if (success) {
+        toast({
+          title: "Użytkownik dodany",
+          description: `Nowy użytkownik ${data.name} został utworzony pomyślnie`
+        });
+        
+        // Refresh users list
+        const updatedUsers = await getUsers();
+        setUsers(updatedUsers);
+        
+        setShowAddUserDialog(false);
+        form.reset();
+        // Track user creation event
+        trackEvent('add_user', 'user_management', `User ${data.name}`);
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Ten adres email jest już zajęty",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
       toast({
         title: "Błąd",
-        description: "Ten adres email jest już zajęty",
+        description: "Wystąpił problem podczas dodawania użytkownika",
         variant: "destructive"
       });
     }
   };
 
+  // Find top user based on views
   const topUser = users.length > 0 ? 
     [...users].sort((a, b) => (b.totalViews || 0) - (a.totalViews || 0))[0] : 
     null;
@@ -368,101 +462,116 @@ const AdminUsers = () => {
           </div>
 
           <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Użytkownik</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Rola</TableHead>
-                    <TableHead>Statystyki</TableHead>
-                    <TableHead className="text-right">Akcje</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {users.map((listUser) => (
-                    <TableRow key={listUser.id}>
-                      <TableCell className="py-3">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={listUser.profilePicture} alt={listUser.name} />
-                            <AvatarFallback className="text-xs bg-premium-gradient">
-                              {listUser.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{listUser.name} {listUser.lastName}</p>
-                            <p className="text-xs text-premium-light/60">
-                              Dołączył: {new Date(listUser.createdAt || '').toLocaleDateString('pl-PL')}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{listUser.email}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            listUser.role === 'admin' ? "bg-red-500" : 
-                            listUser.role === 'moderator' ? "bg-amber-500" : 
-                            listUser.role === 'blogger' ? "bg-green-500" : 
-                            "bg-blue-500"
-                          )}></div>
-                          {userRoles[listUser.role]}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-4">
-                          <div>
-                            <p className="text-xs text-premium-light/60">Posty</p>
-                            <p className="font-semibold">{listUser.postsCreated}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-premium-light/60">Wyświetlenia</p>
-                            <p className="font-semibold">{listUser.totalViews}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleUserProfileClick(listUser.id)}
-                            className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
-                          >
-                            <Eye size={14} />
-                          </Button>
-                          
-                          {canManageUsers && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleRoleChange(listUser.id)}
-                              className="text-amber-400 hover:text-white hover:bg-amber-500 transition-colors"
-                            >
-                              <Shield size={14} />
-                            </Button>
-                          )}
-                          
-                          {canManageUsers && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleDeleteUser(listUser.id)}
-                              className="text-red-400 hover:text-white hover:bg-red-500 transition-colors"
-                              disabled={(user?.role === 'moderator' && listUser.role === 'admin')}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                <span className="ml-3">Ładowanie użytkowników...</span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Użytkownik</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Rola</TableHead>
+                      <TableHead>Statystyki</TableHead>
+                      <TableHead className="text-right">Akcje</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {users.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          Brak użytkowników
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      users.map((listUser) => (
+                        <TableRow key={listUser.id}>
+                          <TableCell className="py-3">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={listUser.profilePicture} alt={listUser.name} />
+                                <AvatarFallback className="text-xs bg-premium-gradient">
+                                  {listUser.name.charAt(0)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{listUser.name} {listUser.lastName}</p>
+                                <p className="text-xs text-premium-light/60">
+                                  Dołączył: {listUser.createdAt ? new Date(listUser.createdAt).toLocaleDateString('pl-PL') : 'N/A'}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{listUser.email}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <div className={cn(
+                                "w-2 h-2 rounded-full",
+                                listUser.role === 'admin' ? "bg-red-500" : 
+                                listUser.role === 'moderator' ? "bg-amber-500" : 
+                                listUser.role === 'blogger' ? "bg-green-500" : 
+                                "bg-blue-500"
+                              )}></div>
+                              {userRoles[listUser.role]}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-4">
+                              <div>
+                                <p className="text-xs text-premium-light/60">Posty</p>
+                                <p className="font-semibold">{listUser.postsCreated}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs text-premium-light/60">Wyświetlenia</p>
+                                <p className="font-semibold">{listUser.totalViews}</p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleUserProfileClick(listUser.id)}
+                                className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
+                              >
+                                <Eye size={14} />
+                              </Button>
+                              
+                              {canManageUsers && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => handleRoleChange(listUser.id)}
+                                  className="text-amber-400 hover:text-white hover:bg-amber-500 transition-colors"
+                                >
+                                  <Shield size={14} />
+                                </Button>
+                              )}
+                              
+                              {canManageUsers && (
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  onClick={() => handleDeleteUser(listUser.id)}
+                                  className="text-red-400 hover:text-white hover:bg-red-500 transition-colors"
+                                  disabled={(user?.role === 'moderator' && listUser.role === 'admin')}
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
         </div>
       </div>

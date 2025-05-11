@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -49,7 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <Link to="/">
               <Button 
                 variant="ghost" 
-                className="text-premium-light hover:bg-white hover:text-black flex gap-2 items-center"
+                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'light' ? 'text-black' : 'text-premium-light'}`}
               >
                 <Home size={18} />
                 Wróć na stronę główną
@@ -176,7 +177,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <div className="pt-4 mt-6 border-t border-premium-light/10">
               <button
                 onClick={() => signOut()}
-                className={`flex items-center w-full p-3 rounded-lg text-premium-light/80 hover:bg-premium-light/5 transition-colors group`}
+                className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
               >
                 <LogOut className="w-5 h-5 mr-3" />
                 {isSidebarOpen && <span>Wyloguj</span>}
