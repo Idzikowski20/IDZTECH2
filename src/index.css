@@ -147,15 +147,14 @@
   /* FAQs HoverCard content in light mode */
   .light .w-80.bg-premium-dark\/95 {
     background-color: #FFFFFF;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
   /* Fixed styles for light mode cards */
   .light .bg-premium-dark\/60 {
     background-color: rgba(255, 255, 255, 0.9);
     border-color: #e5e7eb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
   /* Process cards in light mode - with shadow */
@@ -175,7 +174,6 @@
   .light .bg-black\/80 {
     background-color: rgba(255, 255, 255, 0.9);
     border-color: #e5e7eb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
   
   /* Footer link color fixes in light mode */
@@ -219,27 +217,19 @@
     color: #000000;
   }
 
-  /* Hover in navigation links */
-  .light .px-3.py-2.rounded.transition-colors:hover {
-    background-color: #000000;
-    color: #FFFFFF;
+  /* Comment reply background in light mode */
+  .light .bg-premium-dark\/30 {
+    background-color: #FFFFFF;
+    border: 1px solid #e5e7eb;
   }
 
-  /* Submenu hover effects */
-  .light .hover\:bg-black.hover\:text-white:hover {
-    background-color: #000000;
+  /* Blog Like button hover in light mode */
+  .light .hover\:text-black:hover {
     color: #FFFFFF;
   }
   
-  /* Light effects animation */
-  .floating-light-dot {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.6;
-    transform: translate(0, 0);
-  }
-  
-  @keyframes floating-1 {
+  /* Floating animation keyframes */
+  @keyframes float-1 {
     0%, 100% {
       transform: translate(0, 0);
     }
@@ -248,33 +238,33 @@
     }
   }
   
-  @keyframes floating-2 {
+  @keyframes float-2 {
+    0%, 100% {
+      transform: translate(0, 0) translateX(-50%);
+    }
+    50% {
+      transform: translate(15px, 20px) translateX(-50%);
+    }
+  }
+  
+  @keyframes float-3 {
     0%, 100% {
       transform: translate(0, 0);
     }
     50% {
-      transform: translate(-20px, 20px);
+      transform: translate(-20px, -15px);
     }
   }
   
-  @keyframes floating-3 {
-    0%, 100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(15px, -15px);
-    }
+  .animate-float-1 {
+    animation: float-1 15s ease-in-out infinite;
   }
   
-  .animate-floating-1 {
-    animation: floating-1 8s ease-in-out infinite;
+  .animate-float-2 {
+    animation: float-2 18s ease-in-out infinite;
   }
   
-  .animate-floating-2 {
-    animation: floating-2 10s ease-in-out infinite;
-  }
-  
-  .animate-floating-3 {
-    animation: floating-3 9s ease-in-out infinite;
+  .animate-float-3 {
+    animation: float-3 20s ease-in-out infinite;
   }
 }

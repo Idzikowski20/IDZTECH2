@@ -5,16 +5,13 @@ const LightEffects = () => {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
       <div 
-        className="floating-light-dot w-48 h-48 bg-premium-purple/10 top-20 left-1/4 animate-floating-1" 
-        style={{ '--direction-x': '1', '--direction-y': '-1' } as React.CSSProperties}
+        className="absolute w-48 h-48 bg-premium-purple/10 top-32 left-20 rounded-full animate-float-1 blur-[40px]" 
       ></div>
       <div 
-        className="floating-light-dot w-64 h-64 bg-premium-blue/10 bottom-40 right-1/4 animate-floating-2" 
-        style={{ '--direction-x': '-1', '--direction-y': '1' } as React.CSSProperties}
+        className="absolute w-56 h-56 bg-premium-blue/5 top-1/3 left-1/2 -translate-x-1/2 rounded-full animate-float-2 blur-[50px]" 
       ></div>
       <div 
-        className="floating-light-dot w-32 h-32 bg-premium-pink/10 top-1/3 right-1/3 animate-floating-3" 
-        style={{ '--direction-x': '-0.5', '--direction-y': '-0.5' } as React.CSSProperties}
+        className="absolute w-48 h-48 bg-premium-pink/10 top-20 right-20 rounded-full animate-float-3 blur-[40px]" 
       ></div>
     </div>
   );

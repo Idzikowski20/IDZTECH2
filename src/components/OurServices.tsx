@@ -65,7 +65,7 @@ const OurServices = () => {
               </p>
               <Link 
                 to={service.link} 
-                className={`inline-flex items-center ${theme === 'light' ? 'text-premium-purple hover:text-black' : 'text-premium-purple hover:text-white'}`}
+                className={`inline-flex items-center ${theme === 'light' ? 'text-premium-purple hover:bg-black hover:text-white p-1 rounded' : 'text-premium-purple hover:bg-white hover:text-black p-1 rounded'}`}
               >
                 <span>Dowiedz się więcej</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
