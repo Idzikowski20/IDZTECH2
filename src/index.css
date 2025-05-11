@@ -146,7 +146,9 @@
   
   /* FAQs HoverCard content in light mode */
   .light .w-80.bg-premium-dark\/95 {
-    @apply bg-white shadow-md border-gray-200 border;
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
   }
 
   /* Fixed styles for light mode cards */
@@ -199,7 +201,9 @@
 
   /* Specifically for hover card in light mode */
   .light .HoverCardContent {
-    @apply bg-white border border-gray-200 shadow-md;
+    background-color: #FFFFFF;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
   /* Fixed navbars in light and dark mode */
@@ -215,11 +219,13 @@
 
   /* Hover in navigation links */
   .light .px-3.py-2.rounded.transition-colors:hover {
-    @apply bg-black text-white;
+    background-color: #000000;
+    color: #FFFFFF;
   }
 
   /* Submenu hover effects */
   .light .hover\:bg-black.hover\:text-white:hover {
-    @apply bg-black text-white;
+    background-color: #000000;
+    color: #FFFFFF;
   }
 }
