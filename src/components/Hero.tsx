@@ -4,29 +4,22 @@ import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "@/utils/themeContext";
 import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Hero = () => {
   const { theme } = useTheme();
+  const isMobile = useIsMobile();
   
   return (
     <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative overflow-hidden">
       {/* Fixed light effects with limited quantity */}
-      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
-      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/20 rounded-full blur-[70px] animate-pulse-slow"></div>
+      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/20 rounded-full blur-[80px] animate-pulse-slow delay-150"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           {/* Hero content on the left */}
-          <div className="w-full lg:w-1/2">
-            <div 
-              className="mb-6 animate-fade-in opacity-0" 
-              style={{animationFillMode: 'forwards', animationDelay: '0.1s'}}
-            >
-              <span className="bg-clip-text text-transparent bg-premium-gradient font-mono font-bold">
-                IDZ.TECH_
-              </span>
-            </div>
-            
+          <div className="w-full lg:w-1/2">            
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-aeonik animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.2s'}}
@@ -42,16 +35,16 @@ const Hero = () => {
             </p>
             
             <div
-              className="flex flex-col sm:flex-row items-center justify-start gap-4 mb-10 animate-fade-in opacity-0"
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-4 mb-10 animate-fade-in opacity-0 ${isMobile ? 'w-full' : ''}`}
               style={{animationFillMode: 'forwards', animationDelay: '0.4s'}}
             >
-              <Link to="/contact">
-                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full sm:w-auto">
+              <Link to="/contact" className={isMobile ? 'w-full' : ''}>
+                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full">
                   Skontaktuj się
                 </Button>
               </Link>
-              <Link to="/projects">
-                <Button size="lg" variant="outline" className="hover:bg-white hover:text-black w-full sm:w-auto">
+              <Link to="/projects" className={isMobile ? 'w-full' : ''}>
+                <Button size="lg" variant="outline" className="hover:bg-black hover:text-white w-full">
                   Zobacz projekty
                 </Button>
               </Link>
@@ -76,7 +69,7 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Hero image on the right - Updated with animation */}
+          {/* Hero image on the right */}
           <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <div className="relative">
               <img 

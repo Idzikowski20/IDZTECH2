@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useBlogStore } from '@/utils/blog';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/authStore';
 import AdminStatReset from '@/components/AdminStatReset';
 
 // Analytics data
@@ -115,6 +115,13 @@ const AdminStats = () => {
   const likesTrend = calculateTrend(totalLikes, weeklyStats.previousWeekLikes);
   const postsTrend = calculateTrend(postsCount, weeklyStats.previousWeekPosts);
   
+  // Helper function to determine trend color
+  const getTrendColor = (trend: number) => {
+    if (trend > 0) return 'text-green-500';
+    if (trend < 0) return 'text-red-500';
+    return 'text-gray-500';
+  };
+  
   return (
     <AdminLayout>
       <div className="p-6 space-y-6">
@@ -204,7 +211,8 @@ const AdminStats = () => {
                         backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                         borderColor: 'rgba(120, 77, 255, 0.5)',
                         color: '#fff'
-                      }} 
+                      }}
+                      labelStyle={{ color: '#fff' }}
                     />
                     <Legend />
                     <Bar dataKey="views" fill={colors.primary} name="Wyświetlenia" />
@@ -248,7 +256,8 @@ const AdminStats = () => {
                           backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                           borderColor: 'rgba(120, 77, 255, 0.5)',
                           color: '#fff'
-                        }} 
+                        }}
+                        labelStyle={{ color: '#fff' }}
                       />
                       <Area 
                         type="monotone" 
@@ -281,7 +290,8 @@ const AdminStats = () => {
                           backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                           borderColor: 'rgba(120, 77, 255, 0.5)',
                           color: '#fff'
-                        }} 
+                        }}
+                        labelStyle={{ color: '#fff' }}
                       />
                       <Legend />
                       <Bar dataKey="comments" fill={colors.secondary} name="Komentarze" />
@@ -318,7 +328,8 @@ const AdminStats = () => {
                           backgroundColor: 'rgba(17, 17, 17, 0.9)', 
                           borderColor: 'rgba(120, 77, 255, 0.5)',
                           color: '#fff'
-                        }} 
+                        }}
+                        labelStyle={{ color: '#fff' }}
                       />
                       <Legend />
                       <Area 

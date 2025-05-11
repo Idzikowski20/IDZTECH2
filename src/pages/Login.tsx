@@ -10,6 +10,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useTheme } from '@/utils/themeContext';
 
 interface LocationState {
   from?: {
@@ -26,6 +27,7 @@ const Login = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { signIn, isAuthenticated, user } = useAuth();
+  const { theme } = useTheme();
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
@@ -41,7 +43,7 @@ const Login = () => {
     
     if (isAuthenticated && user) {
       console.log("Already authenticated, redirecting to:", from);
-      navigate(from);
+      navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from, location.pathname, user]);
 
@@ -72,9 +74,9 @@ const Login = () => {
         });
         setIsLoading(false);
       } else {
-        // Success case - manually redirect
-        console.log("Login successful, redirecting to:", from);
-        navigate(from);
+        // Success - navigate in the useEffect above will handle redirection
+        console.log("Login successful");
+        // We don't need to manually redirect here as the useEffect will handle it
       }
     } catch (error: any) {
       console.error("Unexpected login error:", error);
@@ -88,20 +90,20 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-premium-dark">
+    <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>
       <Navbar />
       <div className="container mx-auto pt-32 pb-20">
-        <div className="max-w-md mx-auto bg-black/80 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-lg">
+        <div className={`max-w-md mx-auto ${theme === 'light' ? "bg-white shadow-lg" : "bg-black shadow-lg"} p-8 rounded-xl border ${theme === 'light' ? "border-gray-200" : "border-gray-700"}`}>
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
               <Lock className="text-white" size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6">Logowanie</h1>
+          <h1 className={`text-2xl font-bold text-center mb-6 ${theme === 'light' ? "text-black" : "text-white"}`}>Logowanie</h1>
           
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>Email</Label>
               <Input 
                 id="email"
                 type="email"
@@ -109,17 +111,16 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-slate-950"
                 disabled={isLoading}
               />
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password">Hasło</Label>
+                <Label htmlFor="password" className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>Hasło</Label>
                 <Button 
                   variant="link" 
-                  className="p-0 h-auto text-premium-purple hover:text-white"
+                  className={`p-0 h-auto ${theme === 'light' ? "text-premium-purple hover:text-black" : "text-premium-purple hover:text-white"}`}
                   type="button"
                   onClick={() => navigate('/forgot-password')}
                   disabled={isLoading}
@@ -134,7 +135,6 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-slate-950"
                 disabled={isLoading}
               />
             </div>
@@ -146,14 +146,14 @@ const Login = () => {
                 onCheckedChange={(checked) => setRememberMe(checked === true)}
                 disabled={isLoading}
               />
-              <Label htmlFor="rememberMe" className="text-sm">
+              <Label htmlFor="rememberMe" className={`text-sm ${theme === 'light' ? "text-gray-700" : "text-gray-300"}`}>
                 Zapamiętaj mnie na tym urządzeniu (30 dni)
               </Label>
             </div>
             
             <Button 
               type="submit" 
-              className="w-full bg-premium-gradient hover:bg-white hover:text-black" 
+              className="w-full bg-premium-gradient hover:bg-black hover:text-white" 
               disabled={isLoading}
             >
               {isLoading ? (
@@ -163,18 +163,6 @@ const Login = () => {
                 </span>
               ) : "Zaloguj się"}
             </Button>
-            
-            <div className="text-center mt-4">
-              <span className="text-premium-light/70">Nie masz jeszcze konta? </span>
-              <Button
-                variant="link"
-                type="button"
-                className="p-0 hover:text-white"
-                onClick={() => navigate('/register')}
-              >
-                Zarejestruj się
-              </Button>
-            </div>
           </form>
         </div>
       </div>

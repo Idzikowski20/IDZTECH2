@@ -72,18 +72,84 @@
 @layer base {
   * {
     @apply border-border;
+    scroll-behavior: smooth; /* Enable smooth scrolling */
+    -webkit-font-smoothing: antialiased; /* Better font rendering on mobile */
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply bg-background text-foreground font-montserrat;
     scrollbar-width: thin;
     scrollbar-color: #000000 transparent;
+    overscroll-behavior-y: none; /* Prevent overscroll bounce */
+    touch-action: manipulation; /* Optimize for touch devices */
+    -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS devices */
+    text-size-adjust: 100%; /* Prevent iOS font size adjustment */
+    -webkit-text-size-adjust: 100%;
   }
   
+  /* iOS-specific fixes */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      /* Fix for iOS height issues */
+      min-height: -webkit-fill-available;
+    }
+    
+    /* Fix for iOS form elements */
+    input, select, textarea {
+      font-size: 16px !important; /* Prevents zooming on input focus */
+    }
+    
+    /* Fix for iOS button tap highlight */
+    a, button {
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+  
+  /* Android-specific fixes */
+  @supports not (-webkit-touch-callout: none) {
+    body {
+      overscroll-behavior: contain;
+    }
+    
+    /* Fix for Android form elements */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+  
+  /* Optimize images */
+  img {
+    @apply will-change-transform;
+    content-visibility: auto; /* Use content-visibility for faster rendering */
+    aspect-ratio: attr(width) / attr(height); /* Prevent layout shift */
+  }
+  
+  /* Better touch targets for mobile */
+  button, a, input[type="button"], input[type="submit"], [role="button"] {
+    min-height: 44px; /* Apple's recommended touch target size */
+    min-width: 44px;
+    padding: 0.5rem 1rem;
+  }
+  
+  /* Mobile-optimized focus styles */
+  :focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  
+  /* Optimize animations */
+  .animate-fade-in,
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3 {
+    will-change: transform, opacity;
+  }
+
   /* Webkit scrollbar styles */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   ::-webkit-scrollbar-track {
@@ -112,42 +178,41 @@
     @apply text-premium-dark;
   }
   
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .light h6, 
   .dark p, .dark span {
     @apply text-premium-light;
   }
   
-  /* Glassmorphism styles */
-  .neo-blur {
-    @apply backdrop-blur-xl bg-black/40 border border-white/10 shadow-lg;
+  /* Hover effects in navigation with white text - Fixed for both light and dark mode */
+  .light .hover\:bg-white:hover,
+  .light .hover\:bg-black:hover {
+    color: #FFFFFF !important;
   }
 
-  /* Dot animation */
-  .floating-dot {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.8;
-    z-index: -1;
-    animation: float 25s ease-in-out infinite;
+  .dark .hover\:bg-white:hover,
+  .dark .hover\:bg-black:hover {
+    color: #000000 !important;
   }
 
-  @keyframes float {
-    0%, 100% {
-      transform: translate(0, 0);
-    }
-    25% {
-      transform: translate(calc(50px * var(--direction-x, 1)), calc(-50px * var(--direction-y, 1)));
-    }
-    50% {
-      transform: translate(calc(-30px * var(--direction-x, 1)), calc(45px * var(--direction-y, 1)));
-    }
-    75% {
-      transform: translate(calc(-60px * var(--direction-x, 1)), calc(-30px * var(--direction-y, 1)));
-    }
+  .light .hover\:text-white:hover {
+    color: #FFFFFF !important;
+  }
+
+  .dark .hover\:text-black:hover {
+    color: #000000 !important;
   }
   
-  /* Fixed styles for premium-dark in light mode */
+  /* Fixed for light mode dropdown navigation items */
+  .light .bg-black\/80 .text-white,
+  .light .bg-black\/80 p {
+    color: #FFFFFF !important;
+  }
+
+  .light .bg-black\/80 .hover\:bg-white\/10:hover .text-white {
+    color: #FFFFFF !important;
+  }
+  
+  /* Card styles in light mode */
   .light .bg-premium-dark {
     background-color: #FFFFFF;
   }
@@ -157,30 +222,29 @@
     color: #000000;
   }
   
+  /* FAQs HoverCard content in light mode */
+  .light .w-80.bg-premium-dark\/95 {
+    background-color: #FFFFFF;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
   /* Fixed styles for light mode cards */
   .light .bg-premium-dark\/60 {
     background-color: rgba(255, 255, 255, 0.9);
     border-color: #e5e7eb;
   }
+
+  /* Process cards in light mode - with shadow */
+  .light .bg-premium-dark\/40, 
+  .light .bg-premium-dark\/50,
+  .light .bg-premium-dark\/70 {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
   
   /* Fixed styles for FAQ section text in light mode */
   .light .accordion-content {
-    color: #000000;
-  }
-  
-  /* Light mode fixes for navigation buttons */
-  .light .hover\:bg-black:hover {
-    background-color: #000000;
-    color: #FFFFFF;
-  }
-  
-  .light .hover\:bg-white:hover {
-    background-color: #000000;
-    color: #FFFFFF;
-  }
-  
-  /* Light mode icon fixes */
-  .light .text-white svg {
     color: #000000;
   }
   
@@ -203,11 +267,6 @@
     color: #000000;
   }
   
-  /* Process cards in light mode - without shadow */
-  .light .bg-premium-dark\/40 {
-    background-color: rgba(255, 255, 255, 0.95);
-  }
-  
   /* CTA button in light mode */
   .light .border-black {
     border-color: #000000;
@@ -215,6 +274,235 @@
   
   /* Meeting button in light mode navigation */
   .light .bg-black.text-white {
+    color: #FFFFFF !important;
+  }
+
+  /* Specifically for hover card in light mode */
+  .light .HoverCardContent {
+    background-color: #FFFFFF;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Fixed navbars in light and dark mode */
+  .light .backdrop-blur-md.bg-premium-dark\/80 {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000000;
+  }
+
+  .light .backdrop-blur-md.bg-white\/80 {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000000;
+  }
+
+  /* Comment reply background in light mode */
+  .light .bg-premium-dark\/30 {
+    background-color: #FFFFFF;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* Force white text on black background hover in light mode */
+  .light button:hover svg,
+  .light a:hover svg {
     color: #FFFFFF;
   }
+  
+  /* Force black text on white background hover in dark mode */
+  .dark button:hover svg,
+  .dark a:hover svg {
+    color: #000000;
+  }
+  
+  /* Fix for the "Zobacz projekty" button in hero section */
+  .light .outline.hover\:bg-black:hover,
+  .light .hover\:bg-black:hover {
+    color: #FFFFFF !important;
+    background-color: #000000 !important;
+  }
+  
+  .dark .outline.hover\:bg-black:hover,
+  .dark .hover\:bg-black:hover {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+  }
+  
+  /* Fix for the "Zobacz nasze realizacje" button in CTA */
+  .light .border-black.hover\:bg-black:hover {
+    color: #FFFFFF !important;
+    background-color: #000000 !important;
+  }
+  
+  .dark .border-black.hover\:bg-white:hover {
+    color: #000000 !important;
+    background-color: #FFFFFF !important;
+  }
+  
+  /* Add border to inputs in light mode */
+  .light input,
+  .light textarea {
+    border: 1px solid #ccc;
+  }
+  
+  /* Social icon hover scale effect */
+  .footer a.hover\:scale-110:hover,
+  .footer a:hover svg {
+    transform: scale(1.1);
+  }
+  
+  /* Fix for SEO optimization boxes in light mode */
+  .light .hover\:bg-black {
+    transition: transform 0.3s ease;
+  }
+
+  .light .hover\:bg-black:hover {
+    transform: scale(1.05);
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+  }
+
+  .dark .hover\:bg-black {
+    transition: transform 0.3s ease;
+  }
+
+  .dark .hover\:bg-black:hover {
+    transform: scale(1.05);
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  
+  /* Floating animation keyframes */
+  @keyframes float-1 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(20px, -20px);
+    }
+  }
+  
+  @keyframes float-2 {
+    0%, 100% {
+      transform: translate(0, 0) translateX(-50%);
+    }
+    50% {
+      transform: translate(15px, 20px) translateX(-50%);
+    }
+  }
+  
+  @keyframes float-3 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-20px, -15px);
+    }
+  }
+  
+  .animate-float-1 {
+    animation: float-1 15s ease-in-out infinite;
+  }
+  
+  .animate-float-2 {
+    animation: float-2 18s ease-in-out infinite;
+  }
+  
+  .animate-float-3 {
+    animation: float-3 20s ease-in-out infinite;
+  }
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  html, body {
+    font-size: 14px; /* Slightly smaller base font for mobile */
+  }
+  
+  /* Improve tap targets on mobile */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Reduce motion on mobile for better performance */
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3 {
+    animation-duration: 30s; /* Slow down animations on mobile */
+  }
+  
+  /* Optimize mobile navigation */
+  nav {
+    height: auto;
+    padding: 0.75rem 1rem;
+  }
+  
+  /* Fix mobile overflow issues */
+  .container {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    overflow-x: hidden;
+  }
+  
+  /* Better spacing on mobile */
+  section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  /* Fix for iOS momentum scrolling */
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Reduce motion if user prefers */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+  
+/* Floating animation keyframes */
+@keyframes float-1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(20px, -20px);
+  }
+}
+
+@keyframes float-2 {
+  0%, 100% {
+    transform: translate(0, 0) translateX(-50%);
+  }
+  50% {
+    transform: translate(15px, 20px) translateX(-50%);
+  }
+}
+
+@keyframes float-3 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-20px, -15px);
+  }
+}
+
+.animate-float-1 {
+  animation: float-1 15s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float-2 18s ease-in-out infinite;
+}
+
+.animate-float-3 {
+  animation: float-3 20s ease-in-out infinite;
 }

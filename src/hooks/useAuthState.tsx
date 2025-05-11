@@ -18,53 +18,79 @@ export const useAuthState = (navigate: any, location: any) => {
   useEffect(() => {
     console.log("Setting up auth listeners");
     
-    // First set up auth state listener
+    // Create a flag to prevent duplicate initializations
+    let initiated = false;
+    let processingAuth = false;
+
+    // First set up auth state listener (before checking session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      (event, currentSession) => {
         console.log("Auth state changed:", event);
         
-        setSession(currentSession);
+        if (processingAuth) return;
+        processingAuth = true;
         
-        if (currentSession?.user) {
-          // Fetch additional profile data if user is logged in
-          const profileData = await fetchUserProfile(currentSession.user.id);
-          
-          // Merge Supabase user with profile data
-          setUser({
-            ...currentSession.user,
-            name: profileData?.name || null,
-            lastName: profileData?.lastName || null,
-            profilePicture: profileData?.profilePicture || null,
-            bio: profileData?.bio || null,
-            jobTitle: profileData?.jobTitle || null
-          });
-          
-          setIsAuthenticated(true);
-          
-          // Handle redirection on login
-          if (event === 'SIGNED_IN' && location.pathname === '/login') {
-            console.log("Redirecting to /admin after login");
-            navigate('/admin');
+        try {
+          if (currentSession) {
+            setSession(currentSession);
+            
+            if (currentSession?.user) {
+              // Use setTimeout to avoid potential Supabase auth deadlock
+              setTimeout(async () => {
+                try {
+                  // Fetch additional profile data if user is logged in
+                  const profileData = await fetchUserProfile(currentSession.user.id);
+                  
+                  // Merge Supabase user with profile data
+                  setUser({
+                    ...currentSession.user,
+                    name: profileData?.name || null,
+                    lastName: profileData?.lastName || null,
+                    profilePicture: profileData?.profilePicture || null,
+                    bio: profileData?.bio || null,
+                    jobTitle: profileData?.jobTitle || null
+                  });
+                  
+                  setIsAuthenticated(true);
+                  
+                  // Handle redirection on login
+                  if (event === 'SIGNED_IN' && location.pathname === '/login') {
+                    console.log("Redirecting to /admin after login");
+                    navigate('/admin');
+                  }
+                } catch (error) {
+                  console.error("Error processing auth state change:", error);
+                } finally {
+                  processingAuth = false;
+                }
+              }, 0);
+            }
+          } else {
+            setUser(null);
+            setIsAuthenticated(false);
+            setSession(null);
+            processingAuth = false;
           }
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
+        } catch (error) {
+          console.error("Error in auth state change handler:", error);
+          processingAuth = false;
         }
-        
-        setLoading(false);
       }
     );
-    
-    // Then check existing session
+
+    // Then check for existing session
     const checkSession = async () => {
+      if (initiated) return;
+      
       try {
         console.log("Getting session");
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         console.log("Session data:", currentSession ? "Session exists" : "No session");
         
-        setSession(currentSession);
-        
         if (currentSession?.user) {
+          initiated = true;
+          setSession(currentSession);
+          
           // Fetch additional profile data if user is logged in
           const profileData = await fetchUserProfile(currentSession.user.id);
           

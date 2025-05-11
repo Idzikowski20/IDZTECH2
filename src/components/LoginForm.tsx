@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -14,7 +13,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/authStore';
 import { useToast } from '@/hooks/use-toast';
 
 const loginFormSchema = z.object({
@@ -30,7 +29,7 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) => {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { login } = useAuth(); // Using login from auth store
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -44,9 +43,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
 
   const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
     try {
-      const { error } = await signIn(data.email, data.password, data.rememberMe);
+      const success = await login(data.email, data.password, data.rememberMe);
       
-      if (!error) {
+      if (success) {
         toast({
           title: "Zalogowano pomyślnie",
           description: "Witamy z powrotem!"
@@ -61,7 +60,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       } else {
         toast({
           title: "Błąd logowania",
-          description: error.message || "Nieprawidłowy email lub hasło",
+          description: "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
       }

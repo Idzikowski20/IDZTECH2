@@ -1,67 +1,103 @@
 
-import React, { useEffect } from "react";
-import Navbar from "@/components/navbar";
-import Hero from "@/components/Hero";
-import Services from "@/components/Services";
-import About from "@/components/About";
-import CTA from "@/components/CTA";
-import Testimonials from "@/components/Testimonials";
-import Footer from "@/components/Footer";
-import FAQ from "@/components/FAQ";
-import { initGA, trackPageView } from "@/utils/analytics";
+import React, { useEffect, lazy, Suspense } from "react";
+import Navbar from "@/components/Navbar";
+import LightEffects from "@/components/LightEffects";
+import { applyMobileOptimizations } from "@/utils/performanceUtils";
+
+// Lazy load non-critical components
+const Hero = lazy(() => import("@/components/Hero"));
+const Services = lazy(() => import("@/components/Services"));
+const WhyWorkWithUs = lazy(() => import("@/components/WhyWorkWithUs"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const FAQ = lazy(() => import("@/components/FAQ"));
+const CTA = lazy(() => import("@/components/CTA"));
+const Footer = lazy(() => import("@/components/Footer"));
+
+// Loading fallback for lazy components
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[200px]">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple"></div>
+  </div>
+);
 
 const Index = () => {
-  // Initialize Google Analytics
+  // Run performance optimization on component mount
   useEffect(() => {
-    initGA();
-    trackPageView(window.location.pathname);
-  }, []);
-
-  // Ensure scroll to top on page load
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  }, []);
-  
-  // Update document title to reflect web agency focus with improved SEO
-  useEffect(() => {
-    document.title = "IDZ.TECH - Tworzymy najlepsze strony internetowe";
+    // Apply all mobile optimizations
+    applyMobileOptimizations();
     
-    // Update meta description for better SEO
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', 'Tworzymy najlepsze strony internetowe, sklepy internetowe oraz profesjonalne pozycjonowanie SEO.');
-    }
+    // Add observers for lazy loading components
+    const setupIntersectionObserver = () => {
+      const options = {
+        rootMargin: '200px',
+        threshold: 0.1
+      };
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const element = entry.target;
+            // Preload any data or resources needed for this section
+            if (element.id && element.getAttribute('data-preload')) {
+              const preloadFunction = element.getAttribute('data-preload');
+              if (typeof window[preloadFunction as keyof Window] === 'function') {
+                (window[preloadFunction as keyof Window] as Function)();
+              }
+            }
+            // Unobserve after handling
+            observer.unobserve(element);
+          }
+        });
+      }, options);
+      
+      // Observe all sections
+      document.querySelectorAll('section[id]').forEach(section => {
+        observer.observe(section);
+      });
+    };
     
-    // Update Open Graph meta tags
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) {
-      ogTitle.setAttribute('content', 'IDZ.TECH - Tworzymy najlepsze strony internetowe');
-    }
+    // Call setup after initial render
+    window.requestIdleCallback ? 
+      window.requestIdleCallback(() => setupIntersectionObserver()) : 
+      setTimeout(() => setupIntersectionObserver(), 200);
     
-    const ogDesc = document.querySelector('meta[property="og:description"]');
-    if (ogDesc) {
-      ogDesc.setAttribute('content', 'Tworzymy najlepsze strony internetowe, sklepy internetowe oraz profesjonalne pozycjonowanie SEO.');
-    }
+    return () => {
+      window.removeEventListener('scroll', () => {});
+    };
   }, []);
   
   return (
-    <div className="min-h-screen bg-premium-dark relative">
-      {/* Background pattern */}
-      <div className="fixed inset-0 bg-[url('https://www.esky.com/_fe/img/TE-background.svg')] bg-cover bg-center opacity-50 pointer-events-none z-[-2]"></div>
+    <div className="min-h-screen">
+      <LightEffects />
+      <Navbar />
       
-      <div className="relative z-10">
-        <Navbar />
+      <Suspense fallback={<LoadingFallback />}>
         <Hero />
+      </Suspense>
+      
+      <Suspense fallback={<LoadingFallback />}>
         <Services />
-        <FAQ />
-        <About />
+      </Suspense>
+      
+      <Suspense fallback={<LoadingFallback />}>
+        <WhyWorkWithUs />
+      </Suspense>
+      
+      <Suspense fallback={<LoadingFallback />}>
         <Testimonials />
+      </Suspense>
+      
+      <Suspense fallback={<LoadingFallback />}>
+        <FAQ />
+      </Suspense>
+      
+      <Suspense fallback={<LoadingFallback />}>
         <CTA />
+      </Suspense>
+      
+      <Suspense fallback={<LoadingFallback />}>
         <Footer />
-      </div>
+      </Suspense>
     </div>
   );
 };
