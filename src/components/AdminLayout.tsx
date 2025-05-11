@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -38,20 +37,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen">
-      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center">
-        <div className="flex items-center">
-          <Link to="/">
-            <Button 
-              variant="ghost" 
-              className="text-premium-light hover:bg-white hover:text-black flex gap-2 items-center"
-            >
-              <Home size={18} />
-              Wróć na stronę główną
-            </Button>
-          </Link>
+      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
+        {/* Light effects */}
+        <div className="absolute top-3 left-10 w-16 h-16 bg-premium-purple/40 rounded-full blur-[40px] animate-pulse-slow"></div>
+        <div className="absolute top-2 right-20 w-16 h-16 bg-premium-blue/40 rounded-full blur-[40px] animate-pulse-slow delay-150"></div>
+        
+        <div className="flex items-center relative z-10">
+          <div className="flex items-center">
+            <Link to="/">
+              <Button 
+                variant="ghost" 
+                className="text-premium-light hover:bg-white hover:text-black flex gap-2 items-center"
+              >
+                <Home size={18} />
+                Wróć na stronę główną
+              </Button>
+            </Link>
+          </div>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 relative z-10">
           <div className="flex items-center">
             <span className="font-mono">IDZ.TECH</span>
           </div>
@@ -99,8 +104,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </header>
 
       <div className="flex">
-        <div className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block">
-          <div className="p-4">
+        <div className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block relative">
+          {/* Light effects */}
+          <div className="absolute top-20 left-8 w-16 h-16 bg-premium-purple/40 rounded-full blur-[30px] animate-pulse-slow"></div>
+          <div className="absolute bottom-20 left-8 w-16 h-16 bg-premium-blue/40 rounded-full blur-[30px] animate-pulse-slow delay-150"></div>
+          
+          <div className="p-4 relative z-10">
             <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
             <nav>
               <ul>
@@ -162,8 +171,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        <main className="flex-1 p-4">
-          {children}
+        <main className="flex-1 p-4 relative">
+          {/* Light effects */}
+          <div className="absolute top-40 left-40 w-24 h-24 bg-premium-purple/30 rounded-full blur-[50px] animate-pulse-slow"></div>
+          <div className="absolute bottom-20 right-20 w-32 h-32 bg-premium-blue/30 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+          
+          <div className="relative z-10">{children}</div>
         </main>
       </div>
     </div>

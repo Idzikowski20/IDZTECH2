@@ -8,8 +8,13 @@ const ContentPlan = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 md:px-8 lg:px-16 container mx-auto">
-        <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
+      <section className="pt-32 pb-20 px-4 md:px-8 lg:px-16 container mx-auto relative overflow-hidden">
+        {/* Light effects */}
+        <div className="absolute top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
+        <div className="absolute top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+        <div className="absolute bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
+        
+        <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold bg-premium-gradient bg-clip-text text-transparent">
             Content Plan
           </h1>
