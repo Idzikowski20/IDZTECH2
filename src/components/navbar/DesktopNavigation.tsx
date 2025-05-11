@@ -19,31 +19,31 @@ const DesktopNavigation = () => {
               <div className="grid grid-cols-2 gap-3 p-4 w-[500px] bg-black/80 backdrop-blur-md border border-gray-700 text-white">
                 <div className="space-y-2">
                   <h3 className="font-medium">Strony www</h3>
-                  <Link to="/tworzenie-stron-www" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/tworzenie-stron-www" className="block p-2 hover:bg-black hover:text-white rounded">
                     Tworzenie stron www
                   </Link>
-                  <Link to="/sklepy-internetowe" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/sklepy-internetowe" className="block p-2 hover:bg-black hover:text-white rounded">
                     Tworzenie sklepów internetowych
                   </Link>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-medium">Pozycjonowanie (SEO)</h3>
-                  <Link to="/pozycjonowanie-stron" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/pozycjonowanie-stron" className="block p-2 hover:bg-black hover:text-white rounded">
                     Pozycjonowanie stron internetowych
                   </Link>
-                  <Link to="/pozycjonowanie-lokalne" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/pozycjonowanie-lokalne" className="block p-2 hover:bg-black hover:text-white rounded">
                     Pozycjonowanie lokalne
                   </Link>
-                  <Link to="/audyt-seo" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/audyt-seo" className="block p-2 hover:bg-black hover:text-white rounded">
                     Audyt SEO
                   </Link>
-                  <Link to="/optymalizacja-seo" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/optymalizacja-seo" className="block p-2 hover:bg-black hover:text-white rounded">
                     Optymalizacja SEO
                   </Link>
-                  <Link to="/copywriting-seo" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/copywriting-seo" className="block p-2 hover:bg-black hover:text-white rounded">
                     Copywriting SEO
                   </Link>
-                  <Link to="/content-plan" className="block p-2 hover:bg-white hover:text-black rounded">
+                  <Link to="/content-plan" className="block p-2 hover:bg-black hover:text-white rounded">
                     Content Plan
                   </Link>
                 </div>

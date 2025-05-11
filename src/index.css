@@ -161,6 +161,7 @@
   .light .bg-premium-dark\/60 {
     background-color: rgba(255, 255, 255, 0.9); /* Using direct color instead of @apply */
     border-color: #e5e7eb; /* Using direct color for border */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
   /* Fixed styles for FAQ section text in light mode */
@@ -177,5 +178,40 @@
   /* Light mode icon fixes */
   .light .text-white svg {
     color: #000000; /* Using direct color instead of @apply */
+  }
+  
+  /* Navigation dropdown menu background in light mode */
+  .light .bg-black\/80 {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-color: #e5e7eb;
+  }
+  
+  /* Footer link color fixes in light mode */
+  .light .text-premium-light\/70 {
+    color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .light .text-premium-light\/60 {
+    color: rgba(0, 0, 0, 0.6);
+  }
+  
+  .light .hover\:text-premium-light:hover {
+    color: #000000;
+  }
+  
+  /* Process cards in light mode */
+  .light .bg-premium-dark\/40 {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* CTA button in light mode */
+  .light .border-black {
+    border-color: #000000;
+  }
+  
+  /* Meeting button in light mode navigation */
+  .light .bg-black.text-white {
+    color: #FFFFFF;
   }
 }
