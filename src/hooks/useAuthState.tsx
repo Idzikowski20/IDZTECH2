@@ -40,28 +40,18 @@ export const useAuthState = (navigate: any, location: any) => {
           });
           
           setIsAuthenticated(true);
+          
+          // Handle redirection on login
+          if (event === 'SIGNED_IN' && location.pathname === '/login') {
+            console.log("Redirecting to /admin after login");
+            navigate('/admin');
+          }
         } else {
           setUser(null);
           setIsAuthenticated(false);
         }
         
         setLoading(false);
-        
-        // Handle redirection on login
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Zalogowano pomyślnie",
-            description: "Witamy z powrotem!"
-          });
-          
-          // Use setTimeout to break the potential synchronous loop
-          if (location.pathname === '/login') {
-            console.log("Redirecting to /admin after login");
-            setTimeout(() => {
-              navigate('/admin');
-            }, 0);
-          }
-        }
       }
     );
     
@@ -122,9 +112,16 @@ export const useAuthState = (navigate: any, location: any) => {
           description: error.message || "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
+        return { error };
       } 
       
-      return { error };
+      // Successful login
+      toast({
+        title: "Zalogowano pomyślnie",
+        description: "Witamy z powrotem!"
+      });
+      
+      return { data, error: null };
     } catch (error) {
       console.error("Sign in error:", error);
       return { error };
@@ -138,10 +135,11 @@ export const useAuthState = (navigate: any, location: any) => {
       setSession(null);
       setIsAuthenticated(false);
       
-      // Use setTimeout to avoid potential router issues
-      setTimeout(() => {
-        navigate('/');
-      }, 0);
+      toast({
+        title: "Wylogowano pomyślnie"
+      });
+      
+      navigate('/');
     } catch (error) {
       console.error('Sign out error:', error);
     }

@@ -12,7 +12,7 @@ const DesktopNavigation = () => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-slate-50 bg-transparent hover:bg-white hover:text-black">Oferta</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="text-slate-50 bg-transparent hover:bg-white hover:text-black data-[state=open]:text-white data-[state=open]:bg-white/20">Oferta</NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="grid grid-cols-2 gap-3 p-4 w-[500px] bg-black/80 backdrop-blur-md border border-white/10 text-white">
                 <div className="space-y-2">

@@ -39,18 +39,13 @@ const Login = () => {
       currentPath: location.pathname,
       user: user ? "User exists" : "No user"
     });
-  }, [isAuthenticated, from, location.pathname, user]);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (isAuthenticated) {
+    
+    // Redirect if already logged in
+    if (isAuthenticated && user) {
       console.log("Already authenticated, redirecting to:", from);
-      // Use timeout to avoid potential router issues
-      setTimeout(() => {
-        navigate(from);
-      }, 0);
+      navigate(from);
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, navigate, from, location.pathname, user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,8 +73,11 @@ const Login = () => {
           variant: "destructive"
         });
         setIsLoading(false);
+      } else {
+        // Success case - manually redirect
+        console.log("Login successful, redirecting to:", from);
+        navigate(from);
       }
-      // If login succeeds, navigation will be handled by AuthProvider
     } catch (error: any) {
       console.error("Unexpected login error:", error);
       toast({

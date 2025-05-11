@@ -146,4 +146,9 @@
       transform: translate(calc(-60px * var(--direction-x, 1)), calc(-30px * var(--direction-y, 1)));
     }
   }
+  
+  /* Fixed styles for premium-dark in light mode */
+  .light .bg-premium-dark {
+    background-color: #FFFFFF;
+  }
 }
