@@ -40,7 +40,10 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   if (!user) {
     console.log("RequireAuth - redirecting to login");
     // Redirect to login if user is not logged in, and pass current location
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Make sure we're not already on the login page to prevent redirect loops
+    if (location.pathname !== '/login') {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
   }
 
   console.log("RequireAuth - authorized, rendering children");
