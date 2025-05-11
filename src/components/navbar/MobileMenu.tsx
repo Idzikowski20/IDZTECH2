@@ -21,19 +21,27 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   const { theme } = useTheme();
   const location = useLocation();
   
-  // Handle menu opening/closing
+  // Handle menu opening/closing with more reliable state management
   const handleMenuOpen = (open: boolean) => {
     setIsMenuOpen(open);
+    
+    // When opening menu, prevent body scroll
+    if (open) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   };
   
-  // Close menu when route changes and ensure body scroll is managed properly
+  // Close menu when route changes
   useEffect(() => {
     if (isMenuOpen) {
       setIsMenuOpen(false);
+      document.body.style.overflow = '';
     }
-  }, [location, setIsMenuOpen, isMenuOpen]);
+  }, [location.pathname, setIsMenuOpen, isMenuOpen]);
   
-  // Ensure body scroll is restored when component unmounts
+  // Clean up body scroll style when component unmounts
   useEffect(() => {
     return () => {
       document.body.style.overflow = '';
@@ -43,6 +51,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   // Handle navigation click to close the menu
   const handleNavigation = () => {
     setIsMenuOpen(false);
+    document.body.style.overflow = '';
   };
 
   // Define offer categories and items
@@ -73,7 +82,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`md:hidden ${theme === 'light' ? 'text-black' : 'text-white'}`}
+          className={`md:hidden ${theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-gray-800 hover:text-white'}`}
         >
           <Menu className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">Menu</span>
