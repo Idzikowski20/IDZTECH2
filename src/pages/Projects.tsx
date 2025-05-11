@@ -149,7 +149,7 @@ const Projects = () => {
                   </p>
                   <a 
                     href={item.link} 
-                    className="inline-flex items-center text-premium-purple hover:text-premium-blue transition-colors opacity-0 group-hover:opacity-100"
+                    className="inline-flex items-center text-white hover:text-premium-blue transition-colors opacity-0 group-hover:opacity-100"
                   >
                     Zobacz szczegóły
                     <ExternalLink size={16} className="ml-2" />
@@ -186,7 +186,7 @@ const Projects = () => {
               <Link to="/about">
                 <Button 
                   variant="outline" 
-                  className="border-premium-purple/50 text-black hover:bg-premium-purple/10 rounded-full px-8 py-6"
+                  className="border-premium-purple/50 text-black hover:text-white hover:bg-premium-purple/10 rounded-full px-8 py-6"
                 >
                   Poznaj nasz zespół
                 </Button>
