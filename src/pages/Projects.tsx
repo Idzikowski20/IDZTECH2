@@ -99,7 +99,7 @@ const Projects = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <span className="text-premium-purple font-medium">Nasze realizacje</span>
-            <h1 className="text-4xl lg:text-5xl font-bold mt-3 mb-6">
+            <h1 className="text-4xl lg:text-5xl font-bold mt-3 mb-6 text-white">
               Portfolio projektów <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span>
             </h1>
             <p className="text-xl text-premium-light/70">
@@ -107,7 +107,7 @@ const Projects = () => {
             </p>
           </div>
           
-          {/* Filter Categories */}
+          {/* Filter Categories - Making text white in both light and dark modes */}
           <div className="flex flex-wrap justify-center gap-4 mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {projectCategories.map((category) => (
               <button
@@ -116,7 +116,7 @@ const Projects = () => {
                 className={`px-6 py-2 rounded-full transition-all duration-300 ${
                   activeCategory === category.id 
                     ? 'bg-premium-gradient text-white' 
-                    : 'bg-premium-dark/80 border border-white/10 text-premium-light/70 hover:text-premium-light hover:border-white/30'
+                    : 'bg-premium-dark/80 border border-white/10 text-white hover:text-white hover:border-white/30'
                 }`}
               >
                 {category.name}
@@ -141,7 +141,7 @@ const Projects = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-premium-dark/90 to-transparent opacity-70 group-hover:opacity-90 transition-opacity"></div>
                 </div>
                 <div className="absolute bottom-0 left-0 w-full p-6">
-                  <h3 className="text-xl font-semibold mb-2 text-premium-light">{item.title}</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-white">{item.title}</h3>
                   <p className="text-sm text-premium-light/70 mb-4">
                     {item.category === 'web' && 'Strona internetowa'}
                     {item.category === 'ecommerce' && 'Sklep internetowy'}
@@ -161,55 +161,7 @@ const Projects = () => {
         </div>
       </section>
       
-      {/* Client Success Stories */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <span className="text-premium-purple font-medium">Historie sukcesu</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Case studies naszych klientów</h2>
-            <p className="text-premium-light/70 text-lg">
-              Poznaj szczegółowe opisy realizowanych przez nas projektów i uzyskane dla klientów wyniki.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {[1, 2].map((item, index) => (
-              <div key={index} className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden animate-fade-in shadow" style={{ animationDelay: `${0.6 + index * 0.1}s` }}>
-                <div className="relative aspect-video">
-                  <img 
-                    src={`https://images.unsplash.com/photo-15${item === 1 ? '56745719' : '27519836'}-0-4d754e4e8595?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80`} 
-                    alt={`Case Study ${item}`} 
-                    className="w-full h-full object-cover" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-premium-dark to-transparent opacity-70"></div>
-                  <span className="absolute bottom-4 left-4 bg-premium-purple/90 text-white px-3 py-1 rounded text-sm">
-                    {item === 1 ? 'SEO' : 'Web Development'}
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-semibold mb-2">
-                    {item === 1 ? 'Wzrost ruchu organicznego o 320% dla firmy z branży medycznej' : 'Strona internetowa zwiększająca konwersję dla sklepu e-commerce'}
-                  </h3>
-                  <p className="text-premium-light/70 mb-4">
-                    {item === 1 
-                      ? 'Dzięki kompleksowej strategii SEO, udało nam się znacząco zwiększyć widoczność online klienta z branży medycznej, co przełożyło się na trzykrotny wzrost ruchu organicznego.' 
-                      : 'Zaprojektowaliśmy i wdrożyliśmy responsywną stronę internetową zorientowaną na konwersję, co pozwoliło zwiększyć sprzedaż online o 45%.'}
-                  </p>
-                  <a href="#" className="inline-flex items-center text-premium-purple hover:text-premium-blue transition-colors">
-                    Czytaj całe case study
-                    <ArrowRight size={16} className="ml-2" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
+      {/* CTA Section - Replaced Case Studies */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-premium-gradient opacity-10"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/30 rounded-full blur-[100px] -z-10"></div>
@@ -218,7 +170,7 @@ const Projects = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
             <span className="text-premium-purple font-medium">Twój projekt</span>
-            <h2 className="text-3xl lg:text-5xl font-bold mt-3 mb-6">
+            <h2 className="text-3xl lg:text-5xl font-bold mt-3 mb-6 text-white">
               Zrealizuj swój projekt z IDZ.TECH
             </h2>
             <p className="text-premium-light/70 text-lg mb-8 max-w-2xl mx-auto">
@@ -234,7 +186,7 @@ const Projects = () => {
               <Link to="/about-us">
                 <Button 
                   variant="outline" 
-                  className={`border-premium-purple/50 text-premium-light hover:bg-premium-purple/10 rounded-full px-8 py-6 text-slate-50 bg-black/0 ${theme === 'light' ? 'hover:text-white hover:bg-black' : ''}`}
+                  className={`border-premium-purple/50 text-white hover:bg-premium-purple/10 rounded-full px-8 py-6 ${theme === 'light' ? 'hover:text-white hover:bg-black' : ''}`}
                 >
                   Poznaj nasz zespół
                 </Button>

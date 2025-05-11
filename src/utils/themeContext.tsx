@@ -7,28 +7,27 @@ export type Theme = 'light' | 'dark' | 'system';
 type ThemeContextType = {
   theme: Theme;
   toggleDarkMode: () => void;
-  // Add setTheme function to the context type
   setTheme: (theme: Theme) => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Change the initial state to 'dark' to default to dark mode
-  const [theme, setTheme] = useState<Theme>('dark');
+  // Change the initial state to 'light' to default to light mode
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
     // Check if there's a saved theme preference in localStorage
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    // If there's a saved preference, use it; otherwise use dark as default
+    // If there's a saved preference, use it; otherwise use light as default
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.add(savedTheme);
     } else {
-      // If no saved preference, default to dark mode
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      // If no saved preference, default to light mode
+      setTheme('light');
+      document.documentElement.classList.add('light');
+      localStorage.setItem('theme', 'light');
     }
   }, []);
 

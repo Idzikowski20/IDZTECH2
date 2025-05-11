@@ -72,18 +72,36 @@
 @layer base {
   * {
     @apply border-border;
+    scroll-behavior: smooth; /* Enable smooth scrolling */
   }
 
   body {
     @apply bg-background text-foreground font-montserrat;
     scrollbar-width: thin;
     scrollbar-color: #000000 transparent;
+    overscroll-behavior-y: none; /* Prevent overscroll bounce */
+    touch-action: manipulation; /* Optimize for touch devices */
+    -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS devices */
   }
   
+  /* Optimize images */
+  img {
+    @apply will-change-transform;
+    content-visibility: auto; /* Use content-visibility for faster rendering */
+  }
+  
+  /* Optimize animations */
+  .animate-fade-in,
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3 {
+    will-change: transform, opacity;
+  }
+
   /* Webkit scrollbar styles */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   ::-webkit-scrollbar-track {
@@ -119,20 +137,28 @@
   
   /* Hover effects in navigation - Fixed for both light and dark mode */
   .light .hover\:bg-black:hover {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
   }
 
   .light .hover\:text-white:hover {
-    color: #000000 !important;
+    color: #FFFFFF !important;
   }
 
   .dark .hover\:bg-black:hover {
     background-color: #FFFFFF !important;
+    color: #000000 !important;
   }
 
   .dark .hover\:text-white:hover {
-    color: #000000 !important;
+    color: #FFFFFF !important;
+  }
+  
+  /* Fixed for navigation in light mode */
+  .light nav a:hover,
+  .light nav button:hover {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
   }
   
   /* Fix for hover effects in dark mode */
@@ -236,7 +262,7 @@
   /* Force white text on black background hover in light mode */
   .light button:hover svg,
   .light a:hover svg {
-    color: #000000;
+    color: #FFFFFF;
   }
   
   /* Force black text on white background hover in dark mode */
@@ -248,8 +274,8 @@
   /* Fix for the "Zobacz projekty" button in hero section */
   .light .outline.hover\:bg-black:hover,
   .light .hover\:bg-black:hover {
-    color: #000000 !important;
-    background-color: #FFFFFF !important;
+    color: #FFFFFF !important;
+    background-color: #000000 !important;
   }
   
   .dark .outline.hover\:bg-black:hover,
@@ -259,7 +285,11 @@
   }
   
   /* Fix for the "Zobacz nasze realizacje" button in CTA */
-  .light .border-black.hover\:bg-black:hover,
+  .light .border-black.hover\:bg-black:hover {
+    color: #FFFFFF !important;
+    background-color: #000000 !important;
+  }
+  
   .dark .border-black.hover\:bg-white:hover {
     color: #000000 !important;
     background-color: #FFFFFF !important;
@@ -283,9 +313,9 @@
   }
 
   .light .hover\:bg-black:hover {
-    transform: scale(1.1);
-    background-color: inherit !important;
-    color: inherit !important;
+    transform: scale(1.05);
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
   }
 
   .dark .hover\:bg-black {
@@ -293,7 +323,7 @@
   }
 
   .dark .hover\:bg-black:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
     background-color: #FFFFFF !important;
     color: #000000 !important;
   }
