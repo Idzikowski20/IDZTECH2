@@ -117,37 +117,24 @@
     @apply text-premium-light;
   }
   
-  /* Glassmorphism styles */
-  .neo-blur {
-    @apply backdrop-blur-xl bg-black/40 border border-white/10 shadow-lg;
+  /* Hover effects in navigation */
+  .light .hover\:bg-black:hover {
+    background-color: #000000;
   }
 
-  /* Dot animation */
-  .floating-dot {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.8;
-    z-index: -1;
-    animation: float 25s ease-in-out infinite;
+  .light .hover\:text-white:hover {
+    color: #FFFFFF;
   }
 
-  @keyframes float {
-    0%, 100% {
-      transform: translate(0, 0);
-    }
-    25% {
-      transform: translate(calc(50px * var(--direction-x, 1)), calc(-50px * var(--direction-y, 1)));
-    }
-    50% {
-      transform: translate(calc(-30px * var(--direction-x, 1)), calc(45px * var(--direction-y, 1)));
-    }
-    75% {
-      transform: translate(calc(-60px * var(--direction-x, 1)), calc(-30px * var(--direction-y, 1)));
-    }
+  .dark .hover\:bg-white:hover {
+    background-color: #FFFFFF;
+  }
+
+  .dark .hover\:text-black:hover {
+    color: #000000;
   }
   
-  /* Fixed styles for premium-dark in light mode */
+  /* Card styles in light mode */
   .light .bg-premium-dark {
     background-color: #FFFFFF;
   }
@@ -157,30 +144,27 @@
     color: #000000;
   }
   
+  /* FAQs HoverCard content in light mode */
+  .light .w-80.bg-premium-dark\/95 {
+    @apply bg-white shadow-md border-gray-200 border;
+  }
+
   /* Fixed styles for light mode cards */
   .light .bg-premium-dark\/60 {
     background-color: rgba(255, 255, 255, 0.9);
     border-color: #e5e7eb;
   }
+
+  /* Process cards in light mode - with shadow */
+  .light .bg-premium-dark\/40, 
+  .light .bg-premium-dark\/50,
+  .light .bg-premium-dark\/70 {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
   
   /* Fixed styles for FAQ section text in light mode */
   .light .accordion-content {
-    color: #000000;
-  }
-  
-  /* Light mode fixes for navigation buttons */
-  .light .hover\:bg-black:hover {
-    background-color: #000000;
-    color: #FFFFFF;
-  }
-  
-  .light .hover\:bg-white:hover {
-    background-color: #000000;
-    color: #FFFFFF;
-  }
-  
-  /* Light mode icon fixes */
-  .light .text-white svg {
     color: #000000;
   }
   
@@ -203,11 +187,6 @@
     color: #000000;
   }
   
-  /* Process cards in light mode - without shadow */
-  .light .bg-premium-dark\/40 {
-    background-color: rgba(255, 255, 255, 0.95);
-  }
-  
   /* CTA button in light mode */
   .light .border-black {
     border-color: #000000;
@@ -216,5 +195,29 @@
   /* Meeting button in light mode navigation */
   .light .bg-black.text-white {
     color: #FFFFFF;
+  }
+
+  /* Specifically for hover card in light mode */
+  .light .HoverCardContent {
+    @apply bg-white border border-gray-200 shadow-md;
+  }
+
+  /* Fixed navbars in light and dark mode */
+  .light .backdrop-blur-md.bg-premium-dark\/80 {
+    @apply bg-white/80 text-black;
+  }
+
+  .light .backdrop-blur-md.bg-white\/80 {
+    @apply bg-white/80 text-black;
+  }
+
+  /* Hover in navigation links */
+  .light .px-3.py-2.rounded.transition-colors:hover {
+    @apply bg-black text-white;
+  }
+
+  /* Submenu hover effects */
+  .light .hover\:bg-black.hover\:text-white:hover {
+    @apply bg-black text-white;
   }
 }
