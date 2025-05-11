@@ -2,24 +2,25 @@
 <!DOCTYPE html>
 <html lang="pl">
   <head>
+    <script src="https://web.cmp.usercentrics.eu/modules/autoblocker.js"></script>
+<script id="usercentrics-cmp" src="https://web.cmp.usercentrics.eu/ui/loader.js" data-settings-id="EhcLcx48nZnCDw" async></script>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IDZ.TECH - Agencja Marketingu Internetowego</title>
-    <meta name="description" content="IDZ.TECH - profesjonalna agencja marketingu internetowego. Tworzymy strony www, sklepy internetowe, świadczymy usługi SEO i SEM." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <title>IDZ.TECH - Tworzymy najlepsze strony internetowe</title>
+    <meta name="description" content="Tworzymy najlepsze strony internetowe,aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta name="author" content="IDZ.TECH" />
 
-    <meta property="og:title" content="IDZ.TECH - Agencja Marketingu Internetowego" />
-    <meta property="og:description" content="IDZ.TECH - profesjonalna agencja marketingu internetowego. Tworzymy strony www, sklepy internetowe, świadczymy usługi SEO i SEM." />
+    <meta property="og:title" content="IDZ.TECH - Tworzymy najlepsze strony internetowe" />
+    <meta property="og:description" content="Tworzymy najlepsze strony internetowe,aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@idz_tech" />
+    <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Page-specific meta tags will be dynamically updated with JavaScript -->
-    <meta id="page-title" name="page-title" content="IDZ.TECH - Agencja Marketingu Internetowego" />
-    <meta id="page-description" name="page-description" content="IDZ.TECH - profesjonalna agencja marketingu internetowego. Tworzymy strony www, sklepy internetowe, świadczymy usługi SEO i SEM." />
   </head>
 
   <body>
@@ -27,67 +28,5 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-
-    <!-- Script for dynamic meta tags based on route -->
-    <script>
-      // Meta information for different pages
-      const metaInfo = {
-        '/': {
-          title: 'IDZ.TECH - Agencja Marketingu Internetowego',
-          description: 'IDZ.TECH - profesjonalna agencja marketingu internetowego. Tworzymy strony www, sklepy internetowe, świadczymy usługi SEO i SEM.'
-        },
-        '/tworzenie-stron-www': {
-          title: 'Profesjonalne Tworzenie Stron Internetowych | IDZ.TECH',
-          description: 'Tworzymy nowoczesne, responsywne i zoptymalizowane strony internetowe dostosowane do Twoich potrzeb biznesowych. Sprawdź naszą ofertę!'
-        },
-        '/tworzenie-sklepow-internetowych': {
-          title: 'Profesjonalne Sklepy Internetowe | E-commerce | IDZ.TECH',
-          description: 'Kompleksowe tworzenie sklepów internetowych z najnowszymi technologiami. Projektujemy, wdrażamy i optymalizujemy sklepy e-commerce.'
-        },
-        '/pozycjonowanie-stron-internetowych': {
-          title: 'Skuteczne Pozycjonowanie Stron WWW (SEO) | IDZ.TECH',
-          description: 'Oferujemy profesjonalne usługi SEO - pozycjonowanie stron internetowych, które zwiększy Twoją widoczność w wynikach wyszukiwania Google.'
-        },
-        '/pozycjonowanie-lokalne': {
-          title: 'Pozycjonowanie Lokalne | Local SEO | IDZ.TECH',
-          description: 'Specjalizujemy się w pozycjonowaniu lokalnym (Local SEO). Zdobądź klientów w Twojej okolicy i wyprzedź lokalną konkurencję!'
-        },
-        '/audyt-seo': {
-          title: 'Profesjonalny Audyt SEO Strony Internetowej | IDZ.TECH',
-          description: 'Kompleksowy audyt SEO Twojej strony internetowej. Sprawdź co blokuje widoczność Twojej strony w Google i jak to naprawić.'
-        },
-        '/optymalizacja-seo': {
-          title: 'Optymalizacja SEO Strony Internetowej | IDZ.TECH',
-          description: 'Profesjonalna optymalizacja SEO Twojej strony. Popraw widoczność w Google dzięki kompleksowym działaniom optymalizacyjnym.'
-        },
-        '/copywriting-seo': {
-          title: 'Copywriting SEO | Teksty Pozycjonujące | IDZ.TECH',
-          description: 'Profesjonalny copywriting SEO. Tworzymy treści, które sprzedają i pozycjonują Twoją stronę w wynikach wyszukiwania.'
-        },
-        '/content-plan': {
-          title: 'Content Plan | Strategia Content Marketingu | IDZ.TECH',
-          description: 'Strategiczne planowanie treści dla Twojego biznesu. Zbuduj silną obecność w sieci dzięki przemyślanej strategii content marketingu.'
-        }
-      };
-
-      // Update meta tags based on current path
-      function updateMetaTags() {
-        const path = window.location.pathname;
-        const pageInfo = metaInfo[path] || metaInfo['/'];
-        
-        document.title = pageInfo.title;
-        document.querySelector('meta[name="description"]').setAttribute('content', pageInfo.description);
-        document.querySelector('meta[property="og:title"]').setAttribute('content', pageInfo.title);
-        document.querySelector('meta[property="og:description"]').setAttribute('content', pageInfo.description);
-        document.querySelector('meta[id="page-title"]').setAttribute('content', pageInfo.title);
-        document.querySelector('meta[id="page-description"]').setAttribute('content', pageInfo.description);
-      }
-
-      // Update meta tags on page load
-      document.addEventListener('DOMContentLoaded', updateMetaTags);
-
-      // Update meta tags on route change (for SPAs)
-      window.addEventListener('popstate', updateMetaTags);
-    </script>
   </body>
 </html>

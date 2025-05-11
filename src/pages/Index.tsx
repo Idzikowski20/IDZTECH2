@@ -9,8 +9,9 @@ import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import LightEffects from "@/components/LightEffects";
+import { applyMobileOptimizations } from "@/utils/performanceUtils";
 
-// Function to optimize performance
+// Function to optimize performance (extended version is now in performanceUtils.ts)
 const optimizeImages = () => {
   // This will notify browsers that we'll be making changes to these properties
   // Reducing repaints and improving scrolling performance
@@ -30,15 +31,29 @@ const optimizeImages = () => {
 const Index = () => {
   // Run performance optimization on component mount
   useEffect(() => {
-    // Optimize image loading
+    // Apply all mobile optimizations
+    applyMobileOptimizations();
+    
+    // Original optimizations
     optimizeImages();
     
-    // Reduce layout shifts by precomputing sizes
-    window.addEventListener('scroll', () => {
-      window.requestAnimationFrame(() => {
-        // Empty function to trigger RAF which improves scrolling smoothness
+    // Add specific iOS/Android optimizations
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      // Touch optimization for inputs
+      document.querySelectorAll('input, button, a').forEach(el => {
+        el.setAttribute('touch-action', 'manipulation');
       });
-    }, { passive: true });
+      
+      // Prevent rubber-band effect on iOS
+      document.body.style.overscrollBehavior = 'none';
+      
+      // Force hardware acceleration
+      document.body.style.transform = 'translateZ(0)';
+      document.body.style.backfaceVisibility = 'hidden';
+      
+      // Improve touch response
+      document.documentElement.style.touchAction = 'manipulation';
+    }
     
     return () => {
       window.removeEventListener('scroll', () => {});
