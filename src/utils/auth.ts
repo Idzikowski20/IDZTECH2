@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useBlogStore } from '@/utils/blog';
@@ -46,7 +45,7 @@ interface AuthState {
   register: (email: string, name: string, password: string) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
-  updatePassword: (newPassword: string) => Promise<{ error?: Error }>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
   getUsers: () => User[];
   addUser: (userData: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'postsCreated' | 'totalViews' | 'commentsCount' | 'likesCount' | 'stats'>, password: string) => boolean;
   updateUserRole: (userId: string, role: UserRole) => boolean;
@@ -230,17 +229,18 @@ export const useAuth = create<AuthState>()(
           }
         }
       },
-      updatePassword: async (newPassword: string) => {
+      updatePassword: async (currentPassword: string, newPassword: string) => {
         const { user } = get();
-        if (!user) return { error: new Error('User not authenticated') };
+        if (!user) return false;
         
-        try {
-          // Update the password
-          passwords[user.email] = newPassword;
-          return {};
-        } catch (error) {
-          return { error: error instanceof Error ? error : new Error('Unknown error') };
+        // Verify the current password
+        if (passwords[user.email] !== currentPassword) {
+          return false;
         }
+        
+        // Update the password
+        passwords[user.email] = newPassword;
+        return true;
       },
       getUsers: () => {
         // Refresh user stats before returning users
@@ -296,8 +296,6 @@ export const useAuth = create<AuthState>()(
         return [...users].sort((a, b) => b.stats.pointsThisMonth - a.stats.pointsThisMonth)[0];
       },
       getUserRanking: () => {
-        // Make sure we've refreshed stats before returning rankings
-        get().refreshUserStats();
         return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal);
       },
       forgotPassword: async (email: string) => {
@@ -374,100 +372,86 @@ export const useAuth = create<AuthState>()(
         return true;
       },
       refreshUserStats: () => {
-        try {
-          // Get blog posts from store to calculate real statistics
-          const blogStore = useBlogStore.getState();
-          const posts = blogStore.posts || []; // Add fallback to empty array if posts is undefined
-          const currentDate = new Date();
-          const currentMonth = currentDate.getMonth();
-          const currentYear = currentDate.getFullYear();
+        // Get blog posts from store to calculate real statistics
+        const blogStore = useBlogStore.getState();
+        const posts = blogStore.posts;
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        
+        // Calculate statistics for each user
+        users.forEach(user => {
+          // Get user-authored posts
+          const userPosts = posts.filter(post => post.author === user.name);
           
-          // Calculate statistics for each user
-          users.forEach(user => {
-            // Get user-authored posts - make sure we handle undefined author
-            const userPosts = posts.filter(post => post.author === user.name);
+          // Count posts
+          const postsCount = userPosts.length;
+          
+          // Sum up total views from all user's posts
+          const viewsCount = userPosts.reduce((sum, post) => sum + post.views, 0);
+          
+          // Count comments made by this user (across all posts)
+          const commentsCount = posts.reduce((sum, post) => {
+            return sum + post.comments.filter(comment => comment.userId === user.id).length;
+          }, 0);
+          
+          // Count likes given by this user (across all posts)
+          const likesCount = posts.reduce((sum, post) => {
+            return sum + (post.likes.includes(user.id) ? 1 : 0);
+          }, 0);
+          
+          // Calculate monthly stats
+          let pointsThisMonth = 0;
+          posts.forEach(post => {
+            const postDate = new Date(post.date);
             
-            // Count posts
-            const postsCount = userPosts.length;
-            
-            // Sum up total views from all user's posts
-            const viewsCount = userPosts.reduce((sum, post) => sum + (post.views || 0), 0);
-            
-            // Count comments made by this user (across all posts)
-            const commentsCount = posts.reduce((sum, post) => {
-              // Check if post.comments exists before trying to filter it
-              return sum + (post.comments && Array.isArray(post.comments) 
-                ? post.comments.filter(comment => comment.userId === user.id).length 
-                : 0);
-            }, 0);
-            
-            // Count likes given by this user (across all posts)
-            const likesCount = posts.reduce((sum, post) => {
-              // Check if post.likes exists before trying to check if it includes user.id
-              return sum + (post.likes && Array.isArray(post.likes) 
-                ? (post.likes.includes(user.id) ? 1 : 0)
-                : 0);
-            }, 0);
-            
-            // Calculate monthly stats
-            let pointsThisMonth = 0;
-            posts.forEach(post => {
-              if (!post.date) return; // Skip if no date
-              
-              const postDate = new Date(post.date);
-              
-              // Only count posts from current month
-              if (postDate.getMonth() === currentMonth && postDate.getFullYear() === currentYear) {
-                // Count contributions from this month
-                if (post.author === user.name) {
-                  pointsThisMonth += 50; // Points for creating a post this month
-                }
-                
-                // Count views from this month's posts
-                if (post.author === user.name) {
-                  pointsThisMonth += post.views || 0;
-                }
-                
-                // Count comments from this month
-                if (post.comments && Array.isArray(post.comments)) {
-                  post.comments.forEach(comment => {
-                    if (comment.userId === user.id && comment.date) {
-                      const commentDate = new Date(comment.date);
-                      if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
-                        pointsThisMonth += 10;
-                      }
-                    }
-                  });
-                }
-                
-                // Count likes from this month
-                if (post.likes && Array.isArray(post.likes) && post.likes.includes(user.id)) {
-                  pointsThisMonth += 5;
-                }
+            // Only count posts from current month
+            if (postDate.getMonth() === currentMonth && postDate.getFullYear() === currentYear) {
+              // Count contributions from this month
+              if (post.author === user.name) {
+                pointsThisMonth += 50; // Points for creating a post this month
               }
-            });
-            
-            // Calculate total points
-            const pointsTotal = calculatePoints(viewsCount, postsCount, commentsCount, likesCount);
-            
-            // Update user stats
-            user.postsCreated = postsCount;
-            user.totalViews = viewsCount;
-            user.commentsCount = commentsCount;
-            user.likesCount = likesCount;
-            user.stats = {
-              views: viewsCount,
-              posts: postsCount,
-              comments: commentsCount,
-              likes: likesCount,
-              pointsTotal: pointsTotal,
-              pointsThisMonth: pointsThisMonth,
-              lastUpdated: new Date().toISOString()
-            };
+              
+              // Count views from this month's posts
+              if (post.author === user.name) {
+                pointsThisMonth += post.views;
+              }
+              
+              // Count comments from this month
+              post.comments.forEach(comment => {
+                if (comment.userId === user.id) {
+                  const commentDate = new Date(comment.date);
+                  if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
+                    pointsThisMonth += 10;
+                  }
+                }
+              });
+              
+              // Count likes from this month
+              if (post.likes.includes(user.id)) {
+                pointsThisMonth += 5;
+              }
+            }
           });
-        } catch (error) {
-          console.error("Error refreshing user stats:", error);
-        }
+          
+          // Calculate total points
+          const pointsTotal = calculatePoints(viewsCount, postsCount, commentsCount, likesCount);
+          
+          // Update user stats
+          user.postsCreated = postsCount;
+          user.totalViews = viewsCount;
+          user.commentsCount = commentsCount;
+          user.likesCount = likesCount;
+          user.stats = {
+            views: viewsCount,
+            posts: postsCount,
+            comments: commentsCount,
+            likes: likesCount,
+            pointsTotal: pointsTotal,
+            pointsThisMonth: pointsThisMonth,
+            lastUpdated: new Date().toISOString()
+          };
+        });
       }
     }),
     {

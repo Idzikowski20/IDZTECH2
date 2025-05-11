@@ -64,14 +64,8 @@ const AdminStats = () => {
     if (!isAuthenticated) {
       navigate('/login');
     } else {
-      try {
-        // Refresh user stats to ensure data is up-to-date
-        refreshUserStats?.();
-      } catch (error) {
-        console.error("Error refreshing user stats:", error);
-        // Optionally show toast notification about the error
-        // toast({ title: "Error", description: "Could not refresh user statistics" });
-      }
+      // Refresh user stats to ensure data is up-to-date
+      refreshUserStats?.();
     }
   }, [isAuthenticated, navigate, refreshUserStats]);
 
@@ -214,9 +208,8 @@ const AdminStats = () => {
     ? "bg-premium-dark/50 border-premium-light/10 text-premium-light" 
     : "bg-premium-light/50 border-premium-dark/10 text-premium-dark";
 
-  // Add error handling for topUser and topUserOfMonth
-  const topUser = getTopUser?.() || undefined;
-  const topUserOfMonth = getTopUserOfMonth?.() || undefined;
+  const topUser = getTopUser();
+  const topUserOfMonth = getTopUserOfMonth();
 
   // Calculate trend percentages
   const visitsTrend = calculatePercentageChange(weeklyStats.visits.current, weeklyStats.visits.previous);

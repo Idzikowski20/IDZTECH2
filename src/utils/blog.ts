@@ -1,7 +1,6 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { useNotifications } from '@/utils/notifications';
 
 export interface BlogComment {
   id: string;
@@ -134,7 +133,7 @@ const initialPosts: BlogPost[] = [
 export const useBlogStore = create<BlogStore>()(
   persist(
     (set, get) => ({
-      posts: initialPosts || [], // Ensure posts is never undefined
+      posts: initialPosts,
       deviceId: generateDeviceId(),
       
       addPost: (post) => {
@@ -176,9 +175,9 @@ export const useBlogStore = create<BlogStore>()(
         }));
       },
       
-      getPostBySlug: (slug: string) => {
+      getPostBySlug: (slug) => {
         const { posts } = get();
-        return (posts || []).find((post) => post.slug === slug);
+        return posts.find((post) => post.slug === slug);
       },
 
       addComment: (postId, userId, userName, userAvatar, content) => {
@@ -192,28 +191,6 @@ export const useBlogStore = create<BlogStore>()(
             content,
             date: new Date().toISOString(),
           };
-
-          // Create notification for new comment
-          try {
-            const notifications = require('@/utils/notifications');
-            const post = state.posts.find(p => p.id === postId);
-            
-            if (post) {
-              const notificationStore = notifications.useNotifications.getState();
-              
-              notificationStore.addNotification({
-                title: "Nowy komentarz",
-                message: `${userName} dodał(a) komentarz do artykułu "${post.title}"`,
-                type: "comment_added",
-                fromUserId: userId,
-                fromUserName: userName,
-                relatedItemId: postId,
-                status: "unread"
-              });
-            }
-          } catch (error) {
-            console.error("Failed to create notification for comment", error);
-          }
 
           return {
             posts: state.posts.map((post) => 
@@ -327,13 +304,13 @@ export const useBlogStore = create<BlogStore>()(
 
       getTotalComments: () => {
         const { posts } = get();
-        return (posts || []).reduce((total, post) => total + ((post.comments?.length) || 0), 0);
+        return posts.reduce((total, post) => total + (post.comments?.length || 0), 0);
       },
 
       getTotalLikes: () => {
         const { posts } = get();
-        return (posts || []).reduce((total, post) => 
-          total + ((post.likes?.length) || 0) + ((post.guestLikes?.length) || 0) + ((post.deviceLikes?.length) || 0), 0);
+        return posts.reduce((total, post) => 
+          total + (post.likes?.length || 0) + (post.guestLikes?.length || 0) + (post.deviceLikes?.length || 0), 0);
       },
 
       getPostComments: (postId) => {
