@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface AuthContextType {
   user: User | null;
@@ -25,9 +25,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // First set up auth state listener
+    console.log("AuthProvider initialized");
+    
+    // First check existing session
+    const initializeAuth = async () => {
+      try {
+        console.log("Getting session");
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        console.log("Session data:", currentSession ? "Session exists" : "No session");
+        
+        setSession(currentSession);
+        setUser(currentSession?.user || null);
+        setIsAuthenticated(!!currentSession?.user);
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    initializeAuth();
+    
+    // Then set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth state changed:", event);
@@ -45,28 +67,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Use setTimeout to break the potential synchronous loop
           setTimeout(() => {
             navigate('/admin');
-          }, 10);
+          }, 0);
         }
 
         setLoading(false);
       }
     );
-
-    // Then check existing session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        setSession(currentSession);
-        setUser(currentSession?.user || null);
-        setIsAuthenticated(!!currentSession?.user);
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    initializeAuth();
 
     return () => {
       subscription.unsubscribe();
@@ -87,6 +93,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message || "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
+      } else {
+        console.log("Sign in successful, redirecting to /admin");
+        // The redirect will be handled by onAuthStateChange
       }
       
       return { error };

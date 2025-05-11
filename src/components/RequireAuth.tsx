@@ -21,7 +21,11 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
 
   // Add debug logging
   useEffect(() => {
-    console.log("RequireAuth - auth state:", { user, loading, path: location.pathname });
+    console.log("RequireAuth - auth state:", { 
+      user: user ? "User exists" : "No user", 
+      loading, 
+      path: location.pathname 
+    });
   }, [user, loading, location.pathname]);
 
   if (loading) {

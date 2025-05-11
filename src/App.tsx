@@ -6,6 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "@/components/ScrollToTop";
+import { AuthProvider } from "./utils/AuthProvider";
+import { ThemeProvider } from "./utils/themeContext";
+import { initGA, trackPageView } from "./utils/analytics";
+import RequireAuth from "./components/RequireAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import WebDevelopment from "./pages/WebDevelopment";
@@ -30,10 +34,6 @@ import AdminStats from "./pages/AdminStats";
 import AdminSettings from "./pages/AdminSettings";
 import AdminUsers from "./pages/AdminUsers";
 import AdminNotifications from "./pages/AdminNotifications";
-import { ThemeProvider } from "./utils/themeContext";
-import { AuthProvider } from "./utils/AuthProvider";
-import { initGA, trackPageView } from "./utils/analytics";
-import RequireAuth from "./components/RequireAuth";
 
 const queryClient = new QueryClient();
 
@@ -56,11 +56,11 @@ if (typeof window !== 'undefined') {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <ScrollToTop />
             <AnalyticsTracker />
             <Routes>
@@ -90,9 +90,9 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+          </TooltipProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   </QueryClientProvider>
 );

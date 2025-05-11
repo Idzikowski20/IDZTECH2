@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,6 @@ import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
 import PageDotAnimation from '@/components/PageDotAnimation';
-import { useEffect } from 'react';
 
 interface LocationState {
   from?: {
@@ -34,10 +33,14 @@ const Login = () => {
 
   // Redirect if already logged in
   useEffect(() => {
+    console.log("Login page - Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
     if (isAuthenticated) {
-      navigate('/admin');
+      console.log("Already authenticated, redirecting to:", from);
+      setTimeout(() => {
+        navigate(from);
+      }, 0);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,9 +57,11 @@ const Login = () => {
     setIsLoading(true);
     
     try {
+      console.log("Attempting login");
       const { error } = await signIn(email, password, rememberMe);
       
       if (error) {
+        console.error("Login error:", error);
         toast({
           title: "Błąd logowania",
           description: error.message || "Niepoprawny email lub hasło",
@@ -64,10 +69,12 @@ const Login = () => {
         });
         setIsLoading(false);
       } else {
+        console.log("Login successful");
         // Navigation will be handled by the auth state change handler
-        setIsLoading(false);
+        // or by the useEffect above that watches isAuthenticated
       }
     } catch (error: any) {
+      console.error("Unexpected login error:", error);
       toast({
         title: "Błąd logowania",
         description: error.message || "Wystąpił nieoczekiwany błąd podczas logowania",
