@@ -131,7 +131,7 @@
   }
 
   .dark .hover\:text-black:hover {
-    color: #000000;
+    color: #000000 !important;
   }
   
   /* Card styles in light mode */
@@ -235,7 +235,8 @@
   }
   
   /* Fix for the "Zobacz projekty" button in hero section */
-  .light .outline.hover\:bg-black:hover {
+  .light .outline.hover\:bg-black:hover,
+  .light .hover\:bg-black:hover {
     color: #FFFFFF !important;
   }
   
