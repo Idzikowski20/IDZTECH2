@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -133,7 +132,7 @@ const initialPosts: BlogPost[] = [
 export const useBlogStore = create<BlogStore>()(
   persist(
     (set, get) => ({
-      posts: initialPosts,
+      posts: initialPosts || [], // Ensure posts is never undefined
       deviceId: generateDeviceId(),
       
       addPost: (post) => {
@@ -175,9 +174,9 @@ export const useBlogStore = create<BlogStore>()(
         }));
       },
       
-      getPostBySlug: (slug) => {
+      getPostBySlug: (slug: string) => {
         const { posts } = get();
-        return posts.find((post) => post.slug === slug);
+        return (posts || []).find((post) => post.slug === slug);
       },
 
       addComment: (postId, userId, userName, userAvatar, content) => {
@@ -304,13 +303,13 @@ export const useBlogStore = create<BlogStore>()(
 
       getTotalComments: () => {
         const { posts } = get();
-        return posts.reduce((total, post) => total + (post.comments?.length || 0), 0);
+        return (posts || []).reduce((total, post) => total + ((post.comments?.length) || 0), 0);
       },
 
       getTotalLikes: () => {
         const { posts } = get();
-        return posts.reduce((total, post) => 
-          total + (post.likes?.length || 0) + (post.guestLikes?.length || 0) + (post.deviceLikes?.length || 0), 0);
+        return (posts || []).reduce((total, post) => 
+          total + ((post.likes?.length) || 0) + ((post.guestLikes?.length) || 0) + ((post.deviceLikes?.length) || 0), 0);
       },
 
       getPostComments: (postId) => {
