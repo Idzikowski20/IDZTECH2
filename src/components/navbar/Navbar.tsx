@@ -34,10 +34,7 @@ const Navbar = () => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      // Using RAF to ensure this happens at the right time
-      requestAnimationFrame(() => {
-        document.body.style.overflow = '';
-      });
+      document.body.style.overflow = '';
     }
     
     // Always clean up by restoring scrolling when component unmounts
