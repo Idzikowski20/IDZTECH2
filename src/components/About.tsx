@@ -3,8 +3,11 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/utils/themeContext';
 
 const About = () => {
+  const { theme } = useTheme();
+  
   const stats = [
     { number: '200+', text: 'Zadowolonych klientów' },
     { number: '500+', text: 'Zrealizowanych projektów' },
@@ -24,37 +27,22 @@ const About = () => {
       
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          {/* Left Side Image */}
+          {/* Left Side with new image */}
           <div className="w-full lg:w-1/2 relative">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="h-full">
-                <img 
-                  src="/lovable-uploads/1f0493fd-ce87-402b-a735-1ee3d712d8e6.png" 
-                  alt="Team meeting" 
-                  className="w-full h-full object-cover rounded-lg animate-float-1"
-                />
-              </div>
-              <div className="space-y-4">
-                <div className="bg-premium-dark border border-white/10 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-1">Indywidualne podejście</h4>
-                  <p className="text-sm text-premium-light/70">Każdy projekt traktujemy wyjątkowo</p>
-                </div>
-                <div className="h-full">
-                  <img 
-                    src="/lovable-uploads/0487901d-bc96-4d6d-8847-1c5926dd899e.png" 
-                    alt="Team collaboration" 
-                    className="w-full h-full object-cover rounded-lg animate-float-2"
-                  />
-                </div>
-              </div>
+            <div className="flex justify-center">
+              <img 
+                src="/lovable-uploads/3f93b345-6750-4cdb-8e53-e7b4e8fdf0e9.png" 
+                alt="Team working in office" 
+                className="rounded-lg w-full object-cover animate-float"
+              />
             </div>
             
-            <div className="flex justify-center mt-4">
-              <div className="grid grid-cols-4 gap-4 bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl py-6 px-4 -mt-24 relative z-10">
+            <div className="flex justify-center mt-8">
+              <div className="grid grid-cols-4 gap-4 bg-premium-dark/60 backdrop-blur-sm rounded-xl py-6 px-4 relative z-10">
                 {stats.map((stat, index) => (
                   <div 
                     key={index} 
-                    className={`flex flex-col items-center justify-center text-center animate-float-${index % 3 + 1}`}
+                    className="flex flex-col items-center justify-center text-center animate-float"
                   >
                     <span className="text-2xl sm:text-3xl font-bold bg-premium-gradient text-transparent bg-clip-text">
                       {stat.number}
@@ -107,7 +95,9 @@ const About = () => {
             
             <div className="pt-4">
               <Link to="/about">
-                <Button className="bg-premium-gradient hover:opacity-90 transition-opacity">
+                <Button 
+                  className={`bg-premium-gradient hover:opacity-90 transition-opacity ${theme === 'light' ? 'text-black hover:text-white' : 'text-white hover:text-white'}`}
+                >
                   Poznaj nas lepiej
                 </Button>
               </Link>
