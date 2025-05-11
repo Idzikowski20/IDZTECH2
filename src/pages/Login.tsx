@@ -43,7 +43,7 @@ const Login = () => {
     
     if (isAuthenticated && user) {
       console.log("Already authenticated, redirecting to:", from);
-      navigate(from);
+      navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from, location.pathname, user]);
 
@@ -74,9 +74,9 @@ const Login = () => {
         });
         setIsLoading(false);
       } else {
-        // Success case - manually redirect
-        console.log("Login successful, redirecting to:", from);
-        navigate(from);
+        // Success - navigate in the useEffect above will handle redirection
+        console.log("Login successful");
+        // We don't need to manually redirect here as the useEffect will handle it
       }
     } catch (error: any) {
       console.error("Unexpected login error:", error);

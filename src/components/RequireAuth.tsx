@@ -1,6 +1,6 @@
 
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/utils/authStore";
+import { useAuth } from "@/utils/AuthProvider";
 import { useEffect } from "react";
 
 interface RequireAuthProps {
@@ -39,7 +39,7 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
 
   if (!user) {
     console.log("RequireAuth - redirecting to login");
-    // Redirect to login if user is not logged in
+    // Redirect to login if user is not logged in, and pass current location
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
