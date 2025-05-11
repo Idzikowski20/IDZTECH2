@@ -78,9 +78,8 @@ const Login = () => {
           variant: "destructive"
         });
         setIsLoading(false);
-      } 
-      // Navigation will be handled by the auth state change handler
-      // or by the useEffect above that watches isAuthenticated
+      }
+      // If login succeeds, navigation will be handled by AuthProvider
     } catch (error: any) {
       console.error("Unexpected login error:", error);
       toast({
@@ -97,7 +96,7 @@ const Login = () => {
       <Navbar />
       <PageDotAnimation />
       <div className="container mx-auto pt-32 pb-20">
-        <div className="max-w-md mx-auto bg-premium-dark/50 p-8 rounded-xl border border-premium-light/10 shadow-lg">
+        <div className="max-w-md mx-auto bg-black/80 backdrop-blur-md p-8 rounded-xl border border-white/10 shadow-lg">
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
               <Lock className="text-white" size={24} />
@@ -159,7 +158,7 @@ const Login = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-premium-gradient hover:bg-premium-gradient/90" 
+              className="w-full bg-premium-gradient hover:bg-white hover:text-black" 
               disabled={isLoading}
             >
               {isLoading ? (

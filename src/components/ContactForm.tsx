@@ -32,7 +32,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
   const { toast } = useToast();
-  const [formspreeState, sendToFormspree] = useFormspree("xpzvyjql"); // ID formularza Formspree
+  // Use the correct Formspree form ID
+  const [formspreeState, sendToFormspree] = useFormspree("xzblgnkw"); 
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -48,30 +49,29 @@ const ContactForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // Wyświetlenie informacji w konsoli (dla celów debugowania)
+      // Log form submission
       console.log("Wysyłanie formularza do:", data.email);
       console.log("Dane formularza:", data);
       
-      // Wysyłka formularza przez Formspree
-      const response = await sendToFormspree(data);
+      // Send form to Formspree
+      await sendToFormspree({
+        ...data,
+        _subject: `Wiadomość kontaktowa od ${data.name} (${data.email})`,
+        _cc: "patryk.idzikowski@interia.pl", // Add CC to ensure you receive a copy
+        _replyTo: data.email // Set reply-to as the sender's email
+      });
       
-      // Wyświetlenie pełnej odpowiedzi z Formspree w konsoli
-      console.log("Odpowiedź Formspree:", response);
-      
+      // Check for errors
       if (formspreeState.errors && Array.isArray(formspreeState.errors) && formspreeState.errors.length > 0) {
         throw new Error(formspreeState.errors[0].message);
       }
       
+      // Show success message
       toast({
         title: "Wiadomość wysłana",
         description: "Dziękujemy za kontakt. Odezwiemy się wkrótce.",
         variant: "default",
       });
-      
-      // Symulacja wysłania wiadomości (dla celów demonstracyjnych)
-      if (data.email === "patryk.idzikowski@interia.pl") {
-        alert(`Wiadomość z formularza kontaktowego została wysłana od: ${data.name} (${data.email})`);
-      }
       
       form.reset();
     } catch (error) {
@@ -223,7 +223,7 @@ const ContactForm = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-premium-gradient hover:bg-premium-dark hover:text-white transition-colors"
+          className="w-full bg-premium-gradient hover:bg-white hover:text-black transition-colors"
           disabled={form.formState.isSubmitting || formspreeState.submitting}
         >
           <Send size={16} className="mr-2" />
