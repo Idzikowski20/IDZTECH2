@@ -23,8 +23,6 @@ import {
 import { Bell, Lock, Eye, Trash, Settings, Save, Undo } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type InterfaceTheme = 'dark' | 'light' | 'system';
-
 const AdminSettings = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
@@ -61,7 +59,7 @@ const AdminSettings = () => {
 
   // Interface settings
   const [interfaceSettings, setInterfaceSettings] = useState({
-    theme: theme as InterfaceTheme,
+    theme: theme,
     compactView: false,
     highContrast: false,
     fontSize: 'medium',
@@ -116,7 +114,7 @@ const AdminSettings = () => {
   // Reset interface settings
   const handleInterfaceReset = () => {
     setInterfaceSettings({
-      theme: 'system' as InterfaceTheme,
+      theme: 'system',
       compactView: false,
       highContrast: false,
       fontSize: 'medium',
@@ -549,7 +547,7 @@ const AdminSettings = () => {
                           "border-premium-light/20",
                           interfaceSettings.theme === 'dark' && "bg-premium-gradient"
                         )}
-                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'dark' as InterfaceTheme }))}
+                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'dark' }))}
                       >
                         Ciemny
                       </Button>
@@ -560,7 +558,7 @@ const AdminSettings = () => {
                           "border-premium-light/20",
                           interfaceSettings.theme === 'light' && "bg-premium-gradient"
                         )}
-                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'light' as InterfaceTheme }))}
+                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'light' }))}
                       >
                         Jasny
                       </Button>
@@ -571,7 +569,7 @@ const AdminSettings = () => {
                           "border-premium-light/20",
                           interfaceSettings.theme === 'system' && "bg-premium-gradient"
                         )}
-                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'system' as InterfaceTheme }))}
+                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'system' }))}
                       >
                         Systemowy
                       </Button>
@@ -677,6 +675,8 @@ const AdminSettings = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Alert Dialogs */}
       
       {/* Alert Dialog for Account Deletion */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

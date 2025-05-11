@@ -111,6 +111,7 @@ export const addCommentNotification = (postId: string, postTitle: string, userNa
     title: 'Nowy komentarz',
     message: `${userName} dodał komentarz do "${postTitle}"`,
     type: 'comment',
+    read: false,
     data: {
       postId,
       postTitle,
@@ -126,6 +127,7 @@ export const addLikeNotification = (postId: string, postTitle: string, userName:
     title: 'Nowe polubienie',
     message: `${userName} polubił "${postTitle}"`,
     type: 'like',
+    read: false,
     data: {
       postId,
       postTitle,
