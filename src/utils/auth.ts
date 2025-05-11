@@ -374,7 +374,7 @@ export const useAuth = create<AuthState>()(
       refreshUserStats: () => {
         // Get blog posts from store to calculate real statistics
         const blogStore = useBlogStore.getState();
-        const posts = blogStore.posts;
+        const posts = blogStore.posts || []; // Add fallback to empty array if posts is undefined
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
@@ -392,12 +392,18 @@ export const useAuth = create<AuthState>()(
           
           // Count comments made by this user (across all posts)
           const commentsCount = posts.reduce((sum, post) => {
-            return sum + post.comments.filter(comment => comment.userId === user.id).length;
+            // Check if post.comments exists before trying to filter it
+            return sum + (post.comments && Array.isArray(post.comments) 
+              ? post.comments.filter(comment => comment.userId === user.id).length 
+              : 0);
           }, 0);
           
           // Count likes given by this user (across all posts)
           const likesCount = posts.reduce((sum, post) => {
-            return sum + (post.likes.includes(user.id) ? 1 : 0);
+            // Check if post.likes exists before trying to check if it includes user.id
+            return sum + (post.likes && Array.isArray(post.likes) 
+              ? (post.likes.includes(user.id) ? 1 : 0)
+              : 0);
           }, 0);
           
           // Calculate monthly stats
@@ -418,17 +424,19 @@ export const useAuth = create<AuthState>()(
               }
               
               // Count comments from this month
-              post.comments.forEach(comment => {
-                if (comment.userId === user.id) {
-                  const commentDate = new Date(comment.date);
-                  if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
-                    pointsThisMonth += 10;
+              if (post.comments && Array.isArray(post.comments)) {
+                post.comments.forEach(comment => {
+                  if (comment.userId === user.id) {
+                    const commentDate = new Date(comment.date);
+                    if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
+                      pointsThisMonth += 10;
+                    }
                   }
-                }
-              });
+                });
+              }
               
               // Count likes from this month
-              if (post.likes.includes(user.id)) {
+              if (post.likes && Array.isArray(post.likes) && post.likes.includes(user.id)) {
                 pointsThisMonth += 5;
               }
             }
