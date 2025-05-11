@@ -47,8 +47,8 @@ import DotAnimation from './components/DotAnimation';
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
+    <Router>
+      <ThemeProvider>
         <AuthProvider>
           <ScrollToTop />
           <DotAnimation />
@@ -94,8 +94,8 @@ function App() {
           </Routes>
           <Toaster />
         </AuthProvider>
-      </Router>
-    </ThemeProvider>
+      </ThemeProvider>
+    </Router>
   );
 }
 

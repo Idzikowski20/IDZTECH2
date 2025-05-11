@@ -17,7 +17,12 @@ interface Dot {
 
 const DotAnimation: React.FC = () => {
   const [dots, setDots] = useState<Dot[]>([]);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
 
+  // Initialize and handle dots
   useEffect(() => {
     // Create dots with random properties
     const generateDots = () => {
@@ -28,8 +33,8 @@ const DotAnimation: React.FC = () => {
         'bg-premium-pink',
       ];
       
-      // Generate 2 dots with different properties
-      for (let i = 0; i < 2; i++) {
+      // Generate 3 dots with different properties for better visual effect
+      for (let i = 0; i < 3; i++) {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         
@@ -53,8 +58,12 @@ const DotAnimation: React.FC = () => {
     
     generateDots();
     
-    // Regenerate dots on window resize
+    // Update window size on resize
     const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
       generateDots();
     };
     
@@ -93,7 +102,11 @@ const DotAnimation: React.FC = () => {
             animationDelay: `${dot.animationDelay}s`,
             '--direction-x': dot.direction.x,
             '--direction-y': dot.direction.y,
-            opacity: 0.95, // Increased from 0.9 to 0.95 for more brightness
+            opacity: 0.98, // Increased brightness
+            filter: 'blur(80px)',
+            borderRadius: '50%',
+            transition: 'all 15s ease-in-out',
+            zIndex: -1,
           } as React.CSSProperties}
         />
       ))}
