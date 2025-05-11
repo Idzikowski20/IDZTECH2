@@ -1,101 +1,100 @@
 
-import { Link, useLocation } from 'react-router-dom';
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
 import { useTheme } from '@/utils/themeContext';
 
 const DesktopNavigation = () => {
-  const location = useLocation();
   const { theme } = useTheme();
   
-  // Helper function to check if current path is under a specific section
-  const isActiveSection = (path: string) => {
-    return location.pathname.includes(path);
-  };
+  const linkClass = cn(
+    "transition-transform duration-300 hover:scale-110 px-4 py-2 rounded-md",
+    theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'
+  );
   
   return (
-    <div className="hidden md:flex items-center space-x-6">
-      <Link to="/" className={`hover:bg-black hover:text-white px-3 py-2 rounded transition-colors ${location.pathname === "/" ? "bg-white/20 border-b-2 border-premium-purple" : ""}`}>Start</Link>
-      
+    <div className="hidden lg:flex items-center gap-1">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger 
-              className={`bg-transparent hover:bg-black hover:text-white data-[state=open]:text-white data-[state=open]:bg-white/20 
-              ${isActiveSection("tworzenie-stron") || isActiveSection("/sklep") || isActiveSection("pozycjonowanie") || isActiveSection("seo") || isActiveSection("lokalne") ? 
-                "border-b-2 border-premium-purple" : ""}`}
-            >
-              Oferta
+            <Link to="/" className={linkClass}>Strona główna</Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className={`transition-transform duration-300 hover:scale-110 ${theme === 'light' ? 'text-black hover:bg-transparent hover:text-black' : 'text-white hover:bg-transparent hover:text-white'}`}>
+              Usługi
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className={`grid grid-cols-2 gap-3 p-4 w-[500px] ${theme === 'light' ? 'bg-white/90 backdrop-blur-md border border-gray-200 text-black' : 'bg-black/80 backdrop-blur-md border border-gray-700 text-white'}`}>
-                <div className="space-y-2">
-                  <h3 className="font-medium">Strony www</h3>
-                  <Link to="/tworzenie-stron-www" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/tworzenie-stron-www" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Tworzenie stron www
-                  </Link>
-                  <Link to="/sklepy-internetowe" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/sklepy-internetowe" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Tworzenie sklepów internetowych
-                  </Link>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-medium">Pozycjonowanie (SEO)</h3>
-                  <Link to="/pozycjonowanie-stron" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/pozycjonowanie-stron" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Pozycjonowanie stron internetowych
-                  </Link>
-                  <Link to="/pozycjonowanie-lokalne" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Pozycjonowanie lokalne
-                  </Link>
-                  <Link to="/audyt-seo" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/audyt-seo" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Audyt SEO
-                  </Link>
-                  <Link to="/optymalizacja-seo" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/optymalizacja-seo" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Optymalizacja SEO
-                  </Link>
-                  <Link to="/copywriting-seo" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/copywriting-seo" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Copywriting SEO
-                  </Link>
-                  <Link to="/content-plan" 
-                    className={`block p-2 hover:bg-black hover:text-white rounded 
-                    ${location.pathname === "/content-plan" ? "bg-premium-purple/10 border-l-2 border-premium-purple" : ""}`}
-                  >
-                    Content Plan
-                  </Link>
-                </div>
-              </div>
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-black/80">
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link to="/tworzenie-stron-www" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10">
+                      <div className="text-white text-sm font-medium leading-none">Strony WWW</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
+                        Tworzenie responsywnych stron internetowych
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link to="/sklepy-internetowe" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10">
+                      <div className="text-white text-sm font-medium leading-none">Sklepy Internetowe</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
+                        Tworzenie sklepów e-commerce
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link to="/pozycjonowanie-stron" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10">
+                      <div className="text-white text-sm font-medium leading-none">Pozycjonowanie SEO</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
+                        Zwiększanie widoczności w wyszukiwarkach
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink asChild>
+                    <Link to="/kampanie-google-ads" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10">
+                      <div className="text-white text-sm font-medium leading-none">Kampanie Google Ads</div>
+                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
+                        Prowadzenie skutecznych kampanii reklamowych
+                      </p>
+                    </Link>
+                  </NavigationMenuLink>
+                </li>
+              </ul>
             </NavigationMenuContent>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/portfolio" className={linkClass}>Portfolio</Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/about" className={linkClass}>O nas</Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/blog" className={linkClass}>Blog</Link>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <Link to="/contact" className={linkClass}>Kontakt</Link>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
-      
-      <Link to="/projects" className={`hover:bg-black hover:text-white px-3 py-2 rounded transition-colors ${location.pathname === "/projects" ? "bg-white/20 border-b-2 border-premium-purple" : ""}`}>Portfolio</Link>
-      <Link to="/about" className={`hover:bg-black hover:text-white px-3 py-2 rounded transition-colors ${location.pathname === "/about" ? "bg-white/20 border-b-2 border-premium-purple" : ""}`}>O nas</Link>
-      
-      <Link to="/blog" className={`hover:bg-black hover:text-white px-3 py-2 rounded transition-colors ${location.pathname.includes("/blog") ? "bg-white/20 border-b-2 border-premium-purple" : ""}`}>
-        Blog
-      </Link>
-      
-      <Link to="/contact" className={`hover:bg-black hover:text-white px-3 py-2 rounded transition-colors ${location.pathname === "/contact" ? "bg-white/20 border-b-2 border-premium-purple" : ""}`}>Kontakt</Link>
     </div>
   );
 };

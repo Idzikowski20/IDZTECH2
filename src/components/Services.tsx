@@ -60,8 +60,8 @@ const Services = () => {
               key={index} 
               className={`
                 ${theme === 'light' ? 'bg-premium-dark/60 border border-white/10' : 'bg-premium-dark/60 border border-white/10'} 
-                rounded-xl p-6 hover:bg-premium-dark/80 transition-all duration-300 h-full flex flex-col shadow-lg ${theme === 'light' ? 'shadow-gray-300/50' : 'shadow-premium-purple/10'}
-                ${isMobile ? 'active:scale-95 transition-transform' : 'hover:scale-105'}
+                rounded-xl p-6 transition-all duration-300 h-full flex flex-col shadow-lg ${theme === 'light' ? 'shadow-gray-300/50' : 'shadow-premium-purple/10'}
+                hover:scale-110
               `}
               style={{ 
                 WebkitTapHighlightColor: 'transparent',
