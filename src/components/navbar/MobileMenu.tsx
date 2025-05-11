@@ -88,7 +88,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
 
           <nav className="flex-1 overflow-y-auto pr-2 flex flex-col space-y-2">
             <Link to="/" 
-              className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}
+              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}
               onClick={() => {
                 setIsMenuOpen(false);
                 // Ensure scrolling is restored
@@ -107,51 +107,51 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   <div className="space-y-2 pl-2">
                     <h3 className="text-white/70 text-sm font-semibold px-3 mt-2">Strony www</h3>
                     <Link to="/tworzenie-stron-www" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-stron-www" ? "bg-white/20" : ""}`}
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-stron-www" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Tworzenie stron www
                     </Link>
-                    <Link to="/tworzenie-sklepow-internetowych" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/tworzenie-sklepow-internetowych" ? "bg-white/20" : ""}`}
+                    <Link to="/sklepy-internetowe" 
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/sklepy-internetowe" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Tworzenie sklepów internetowych
                     </Link>
                   
                     <h3 className="text-white/70 text-sm font-semibold px-3 mt-4">Pozycjonowanie (SEO)</h3>
-                    <Link to="/pozycjonowanie-stron-internetowych" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-stron-internetowych" ? "bg-white/20" : ""}`}
+                    <Link to="/pozycjonowanie-stron" 
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-stron" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Pozycjonowanie stron internetowych
                     </Link>
                     <Link to="/pozycjonowanie-lokalne" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-white/20" : ""}`}
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/pozycjonowanie-lokalne" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Pozycjonowanie lokalne
                     </Link>
                     <Link to="/audyt-seo" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/audyt-seo" ? "bg-white/20" : ""}`}
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/audyt-seo" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Audyt SEO
                     </Link>
                     <Link to="/optymalizacja-seo" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/optymalizacja-seo" ? "bg-white/20" : ""}`}
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/optymalizacja-seo" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Optymalizacja SEO
                     </Link>
                     <Link to="/copywriting-seo" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/copywriting-seo" ? "bg-white/20" : ""}`}
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/copywriting-seo" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Copywriting SEO
                     </Link>
                     <Link to="/content-plan" 
-                      className={`text-white block hover:bg-white/10 px-3 py-2 rounded-lg transition-colors ${location.pathname === "/content-plan" ? "bg-white/20" : ""}`}
+                      className={`text-white block hover:bg-black hover:text-white px-3 py-2 rounded-lg transition-colors ${location.pathname === "/content-plan" ? "bg-white/20" : ""}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Content Plan
@@ -162,28 +162,28 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             </Accordion>
             
             <Link to="/projects" 
-              className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/projects" ? "bg-white/20" : ""}`}
+              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/projects" ? "bg-white/20" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Portfolio
             </Link>
             
-            <Link to="/about-us" 
-              className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/about-us" ? "bg-white/20" : ""}`}
+            <Link to="/about" 
+              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/about" ? "bg-white/20" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               O nas
             </Link>
             
             <Link to="/blog" 
-              className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname.includes("/blog") ? "bg-white/20" : ""}`}
+              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname.includes("/blog") ? "bg-white/20" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Blog
             </Link>
             
             <Link to="/contact" 
-              className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/contact" ? "bg-white/20" : ""}`}
+              className={`text-white text-lg hover:bg-black hover:text-white px-3 py-3 rounded-lg transition-colors ${location.pathname === "/contact" ? "bg-white/20" : ""}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Kontakt

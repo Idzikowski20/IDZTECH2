@@ -112,18 +112,18 @@
     @apply text-premium-dark;
   }
   
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, 
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .light h6, 
   .dark p, .dark span {
     @apply text-premium-light;
   }
   
-  /* Hover effects in navigation */
+  /* Hover effects in navigation - Fixed */
   .light .hover\:bg-black:hover {
     background-color: #000000;
   }
 
   .light .hover\:text-white:hover {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
   }
 
   .dark .hover\:bg-white:hover {
@@ -196,7 +196,7 @@
   
   /* Meeting button in light mode navigation */
   .light .bg-black.text-white {
-    color: #FFFFFF;
+    color: #FFFFFF !important;
   }
 
   /* Specifically for hover card in light mode */
@@ -226,6 +226,27 @@
   /* Blog Like button hover in light mode */
   .light .hover\:text-black:hover {
     color: #FFFFFF;
+  }
+  
+  /* Force white text on black background hover in light mode */
+  .light button:hover svg,
+  .light a:hover svg {
+    color: #FFFFFF;
+  }
+  
+  /* Fix for the "Zobacz projekty" button in hero section */
+  .light .outline.hover\:bg-black:hover {
+    color: #FFFFFF !important;
+  }
+  
+  /* Fix for the "Zobacz nasze realizacje" button in CTA */
+  .light .border-black.hover\:bg-black:hover {
+    color: #FFFFFF !important;
+  }
+  
+  /* Social icon hover scale effect */
+  .footer a.hover\:scale-110:hover {
+    transform: scale(1.1);
   }
   
   /* Floating animation keyframes */

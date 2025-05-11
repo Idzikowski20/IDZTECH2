@@ -43,7 +43,7 @@ const DesktopControls = () => {
           size="icon" 
           className={`${theme === 'light' ? 'hover:bg-black hover:text-white' : 'hover:bg-white hover:text-black'}`}
         >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black hover:text-white' : 'text-white hover:text-black'}`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>

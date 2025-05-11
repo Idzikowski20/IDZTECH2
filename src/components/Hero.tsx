@@ -44,7 +44,7 @@ const Hero = () => {
                 </Button>
               </Link>
               <Link to="/projects" className={isMobile ? 'w-full' : ''}>
-                <Button size="lg" variant="outline" className={`hover:bg-black hover:text-white w-full ${theme === 'light' ? 'hover:bg-black hover:text-white' : ''}`}>
+                <Button size="lg" variant="outline" className="hover:bg-black hover:text-white w-full">
                   Zobacz projekty
                 </Button>
               </Link>
