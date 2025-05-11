@@ -109,7 +109,7 @@ const ContactForm = () => {
                 <FormControl>
                   <Input
                     placeholder="Jan Kowalski"
-                    className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -127,7 +127,7 @@ const ContactForm = () => {
                 <FormControl>
                   <Input
                     placeholder="Nazwa firmy"
-                    className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -148,7 +148,7 @@ const ContactForm = () => {
                   <Input
                     type="email"
                     placeholder="jan@example.com"
-                    className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -167,7 +167,7 @@ const ContactForm = () => {
                   <Input
                     type="tel"
                     placeholder="+48 123 456 789"
-                    className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -185,7 +185,7 @@ const ContactForm = () => {
               <FormLabel>Usługa, którą jesteś zainteresowany</FormLabel>
               <FormControl>
                 <select
-                  className="w-full bg-premium-dark/40 border border-white/10 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20"
+                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20"
                   {...field}
                 >
                   <option value="">Wybierz usługę</option>
@@ -212,7 +212,7 @@ const ContactForm = () => {
                 <Textarea
                   placeholder="Opisz swoje potrzeby..."
                   rows={5}
-                  className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20 resize-none"
+                  className="bg-white border-gray-300 text-black resize-none"
                   {...field}
                 />
               </FormControl>
@@ -223,7 +223,7 @@ const ContactForm = () => {
         
         <Button 
           type="submit" 
-          className="w-full bg-premium-gradient hover:bg-white hover:text-black transition-colors"
+          className="w-full bg-premium-gradient hover:bg-black hover:text-white transition-colors"
           disabled={form.formState.isSubmitting || formspreeState.submitting}
         >
           <Send size={16} className="mr-2" />

@@ -155,6 +155,7 @@
   .light .bg-premium-dark\/60 {
     background-color: rgba(255, 255, 255, 0.9);
     border-color: #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
 
   /* Process cards in light mode - with shadow */
@@ -174,6 +175,7 @@
   .light .bg-black\/80 {
     background-color: rgba(255, 255, 255, 0.9);
     border-color: #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
   
   /* Footer link color fixes in light mode */
@@ -227,5 +229,52 @@
   .light .hover\:bg-black.hover\:text-white:hover {
     background-color: #000000;
     color: #FFFFFF;
+  }
+  
+  /* Light effects animation */
+  .floating-light-dot {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    transform: translate(0, 0);
+  }
+  
+  @keyframes floating-1 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(20px, -20px);
+    }
+  }
+  
+  @keyframes floating-2 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-20px, 20px);
+    }
+  }
+  
+  @keyframes floating-3 {
+    0%, 100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(15px, -15px);
+    }
+  }
+  
+  .animate-floating-1 {
+    animation: floating-1 8s ease-in-out infinite;
+  }
+  
+  .animate-floating-2 {
+    animation: floating-2 10s ease-in-out infinite;
+  }
+  
+  .animate-floating-3 {
+    animation: floating-3 9s ease-in-out infinite;
   }
 }
