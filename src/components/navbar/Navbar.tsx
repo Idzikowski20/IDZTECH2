@@ -19,15 +19,19 @@ const Navbar = () => {
     };
   }, []);
 
-  // Effect to disable body scrolling when mobile menu is open
+  // Modified effect to ensure body scroll is properly restored
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = '';
+      // Small timeout to ensure transitions complete before enabling scrolling
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 300);
     }
     
     return () => {
+      // Always clean up by restoring scrolling when component unmounts
       document.body.style.overflow = '';
     };
   }, [isMenuOpen]);

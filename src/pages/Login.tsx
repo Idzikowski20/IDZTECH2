@@ -11,6 +11,7 @@ import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Checkbox } from '@/components/ui/checkbox';
 import PageDotAnimation from '@/components/PageDotAnimation';
+import { useEffect } from 'react';
 
 interface LocationState {
   from?: {
@@ -26,10 +27,17 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn } = useAuth();
+  const { signIn, isAuthenticated } = useAuth();
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,11 +64,8 @@ const Login = () => {
         });
         setIsLoading(false);
       } else {
-        toast({
-          title: "Zalogowano pomyślnie",
-          description: "Witamy z powrotem!"
-        });
-        navigate(from);
+        // Navigation will be handled by the auth state change handler
+        setIsLoading(false);
       }
     } catch (error: any) {
       toast({

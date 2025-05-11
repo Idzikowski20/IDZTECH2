@@ -1,6 +1,7 @@
 
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/utils/AuthProvider";
+import { useEffect } from "react";
 
 interface RequireAuthProps {
   children: JSX.Element;
@@ -9,6 +10,14 @@ interface RequireAuthProps {
 const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
+
+  // Make sure body scroll is always enabled
+  useEffect(() => {
+    document.body.style.overflow = '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   if (loading) {
     // Display loading indicator while verifying the session

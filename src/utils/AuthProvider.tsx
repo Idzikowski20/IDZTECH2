@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: User | null;
@@ -23,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // First set up auth state listener
@@ -32,6 +34,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(currentSession);
         setUser(currentSession?.user || null);
         setIsAuthenticated(!!currentSession?.user);
+        
+        // Handle redirection on login
+        if (event === 'SIGNED_IN') {
+          toast({
+            title: "Zalogowano pomyślnie",
+            description: "Witamy z powrotem!"
+          });
+          // Redirect to admin panel after successful login
+          setTimeout(() => navigate('/admin'), 0);
+        }
+
         setLoading(false);
       }
     );
@@ -55,7 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {
@@ -86,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
+      navigate('/');
     } catch (error) {
       console.error('Sign out error:', error);
     }

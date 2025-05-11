@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/utils/AuthProvider';
@@ -19,9 +18,25 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   const { theme, toggleDarkMode } = useTheme();
   const location = useLocation();
   
+  // Handle menu closing and ensure scrolling is restored
   const handleMenuOpen = (open: boolean) => {
     setIsMenuOpen(open);
+    
+    // If closing menu, ensure scrolling is restored
+    if (!open) {
+      // Small delay to ensure animation completes
+      setTimeout(() => {
+        document.body.style.overflow = '';
+      }, 300);
+    }
   };
+  
+  // Cleanup function to ensure body scroll is restored when component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
   
   return (
     <Drawer open={isMenuOpen} onOpenChange={handleMenuOpen}>
@@ -53,7 +68,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 <span className="sr-only">Toggle theme</span>
               </Button>
               
-              <Link to={isAuthenticated ? "/admin" : "/login"} onClick={() => setIsMenuOpen(false)}>
+              <Link to={isAuthenticated ? "/admin" : "/login"} onClick={() => {
+                setIsMenuOpen(false);
+                // Ensure scrolling is restored
+                document.body.style.overflow = '';
+              }}>
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -69,7 +88,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <nav className="flex-1 overflow-y-auto pr-2 flex flex-col space-y-2">
             <Link to="/" 
               className={`text-white text-lg hover:bg-white/10 px-3 py-3 rounded-lg transition-colors ${location.pathname === "/" ? "bg-white/20" : ""}`}
-              onClick={() => setIsMenuOpen(false)}
+              onClick={() => {
+                setIsMenuOpen(false);
+                // Ensure scrolling is restored
+                document.body.style.overflow = '';
+              }}
             >
               Start
             </Link>
@@ -166,7 +189,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             </Link>
           </nav>
           
-          <Link to="/contact" className="mt-6" onClick={() => setIsMenuOpen(false)}>
+          <Link to="/contact" className="mt-6" onClick={() => {
+            setIsMenuOpen(false);
+            // Ensure scrolling is restored
+            document.body.style.overflow = '';
+          }}>
             <Button className="w-full bg-black text-white hover:bg-white hover:text-black">
               Umów spotkanie
             </Button>
