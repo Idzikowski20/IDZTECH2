@@ -28,6 +28,23 @@ const Index = () => {
   // Update document title to reflect web agency focus with improved SEO
   useEffect(() => {
     document.title = "IDZ.TECH - Tworzymy najlepsze strony internetowe";
+    
+    // Update meta description for better SEO
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', 'Tworzymy najlepsze strony internetowe, sklepy internetowe oraz profesjonalne pozycjonowanie SEO.');
+    }
+    
+    // Update Open Graph meta tags
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', 'IDZ.TECH - Tworzymy najlepsze strony internetowe');
+    }
+    
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) {
+      ogDesc.setAttribute('content', 'Tworzymy najlepsze strony internetowe, sklepy internetowe oraz profesjonalne pozycjonowanie SEO.');
+    }
   }, []);
   
   return (

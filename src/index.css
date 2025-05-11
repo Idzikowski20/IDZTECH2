@@ -154,26 +154,28 @@
   
   /* Light mode navigation text color */
   .light .text-white {
-    @apply text-black;
+    color: #000000; /* Using direct color instead of @apply to avoid circular dependency */
   }
   
   /* Fixed styles for light mode cards */
   .light .bg-premium-dark\/60 {
-    @apply bg-white/90 border-gray-200;
+    background-color: rgba(255, 255, 255, 0.9); /* Using direct color instead of @apply */
+    border-color: #e5e7eb; /* Using direct color for border */
   }
   
   /* Fixed styles for FAQ section text in light mode */
   .light .accordion-content {
-    @apply text-black;
+    color: #000000; /* Using direct color instead of @apply */
   }
   
   /* Light mode fixes for navigation buttons */
   .light .hover\:bg-white:hover {
-    @apply bg-black text-white;
+    background-color: #000000; /* Direct color */
+    color: #FFFFFF; /* Direct color */
   }
   
   /* Light mode icon fixes */
   .light .text-white svg {
-    @apply text-black;
+    color: #000000; /* Using direct color instead of @apply */
   }
 }

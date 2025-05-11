@@ -22,7 +22,10 @@ const DesktopControls = () => {
         }} 
         className="hover:bg-black hover:text-white"
       >
-        {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : <Sun className="h-[1.2rem] w-[1.2rem] text-white" />}
+        {theme === "light" ? 
+          <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : 
+          <Sun className="h-[1.2rem] w-[1.2rem] text-white" />
+        }
         <span className="sr-only">Toggle theme</span>
       </Button>
       
