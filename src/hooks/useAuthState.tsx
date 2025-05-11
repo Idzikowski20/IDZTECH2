@@ -18,53 +18,18 @@ export const useAuthState = (navigate: any, location: any) => {
   useEffect(() => {
     console.log("Setting up auth listeners");
     
-    // First set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log("Auth state changed:", event);
-        
-        setSession(currentSession);
-        
-        if (currentSession?.user) {
-          // Fetch additional profile data if user is logged in
-          const profileData = await fetchUserProfile(currentSession.user.id);
-          
-          // Merge Supabase user with profile data
-          setUser({
-            ...currentSession.user,
-            name: profileData?.name || null,
-            lastName: profileData?.lastName || null,
-            profilePicture: profileData?.profilePicture || null,
-            bio: profileData?.bio || null,
-            jobTitle: profileData?.jobTitle || null
-          });
-          
-          setIsAuthenticated(true);
-          
-          // Handle redirection on login
-          if (event === 'SIGNED_IN' && location.pathname === '/login') {
-            console.log("Redirecting to /admin after login");
-            navigate('/admin');
-          }
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-        }
-        
-        setLoading(false);
-      }
-    );
-    
-    // Then check existing session
+    let initiated = false;
+
+    // First get existing session
     const checkSession = async () => {
       try {
         console.log("Getting session");
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         console.log("Session data:", currentSession ? "Session exists" : "No session");
         
-        setSession(currentSession);
-        
-        if (currentSession?.user) {
+        if (currentSession?.user && !initiated) {
+          initiated = true;
+          setSession(currentSession);
           // Fetch additional profile data if user is logged in
           const profileData = await fetchUserProfile(currentSession.user.id);
           
@@ -79,7 +44,7 @@ export const useAuthState = (navigate: any, location: any) => {
           });
           
           setIsAuthenticated(true);
-        } else {
+        } else if (!currentSession) {
           setUser(null);
           setIsAuthenticated(false);
         }
@@ -91,6 +56,51 @@ export const useAuthState = (navigate: any, location: any) => {
     };
     
     checkSession();
+    
+    // Then set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        console.log("Auth state changed:", event);
+        
+        if (currentSession) {
+          setSession(currentSession);
+          
+          if (currentSession?.user) {
+            // Use setTimeout to avoid potential Supabase auth deadlock
+            setTimeout(async () => {
+              try {
+                // Fetch additional profile data if user is logged in
+                const profileData = await fetchUserProfile(currentSession.user.id);
+                
+                // Merge Supabase user with profile data
+                setUser({
+                  ...currentSession.user,
+                  name: profileData?.name || null,
+                  lastName: profileData?.lastName || null,
+                  profilePicture: profileData?.profilePicture || null,
+                  bio: profileData?.bio || null,
+                  jobTitle: profileData?.jobTitle || null
+                });
+                
+                setIsAuthenticated(true);
+                
+                // Handle redirection on login
+                if (event === 'SIGNED_IN' && location.pathname === '/login') {
+                  console.log("Redirecting to /admin after login");
+                  navigate('/admin');
+                }
+              } catch (error) {
+                console.error("Error processing auth state change:", error);
+              }
+            }, 0);
+          }
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+          setSession(null);
+        }
+      }
+    );
 
     return () => {
       subscription.unsubscribe();

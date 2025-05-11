@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -53,9 +54,8 @@ const WebDevelopment = () => {
                     <ArrowRight size={16} className="ml-2" />
                   </Button>
                 </Link>
-                <Button variant="outline" className="border-premium-purple/50 text-premium-light hover:bg-premium-purple/10">
-                  <Phone size={16} className="mr-2" />
-                  Zadzwoń do nas
+                <Button variant="outline" className="border-premium-purple/50 text-black dark:text-premium-light hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black">
+                  Zobacz realizacje
                 </Button>
               </div>
             </div>
@@ -151,13 +151,13 @@ const WebDevelopment = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 justify-items-center">
-            {/* Technology Logos */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 justify-items-center">
+            {/* Technology Logos - Now in color */}
             <div>
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png"
                 alt="JavaScript"
-                className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                className="h-12 w-auto transition-all duration-300"
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">JavaScript</p>
             </div>
@@ -165,15 +165,15 @@ const WebDevelopment = () => {
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg"
                 alt="CSS3"
-                className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                className="h-12 w-auto transition-all duration-300"
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">CSS3</p>
             </div>
             <div>
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/HTML5_logo.svg/800px-HTML5_logo.svg.png"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/HTML5_logo_and_wordmark.svg/1200px-HTML5_logo_and_wordmark.svg.png"
                 alt="HTML5"
-                className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                className="h-12 w-auto transition-all duration-300"
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">HTML5</p>
             </div>
@@ -181,7 +181,7 @@ const WebDevelopment = () => {
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg"
                 alt="TypeScript"
-                className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                className="h-12 w-auto transition-all duration-300"
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">TypeScript</p>
             </div>
@@ -189,7 +189,7 @@ const WebDevelopment = () => {
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
                 alt="React"
-                className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                className="h-12 w-auto transition-all duration-300"
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">React</p>
             </div>
@@ -197,7 +197,7 @@ const WebDevelopment = () => {
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/1/17/Yarn_Logo.svg"
                 alt="Yarn"
-                className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300"
+                className="h-12 w-auto transition-all duration-300"
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">Yarn</p>
             </div>
