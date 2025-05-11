@@ -83,7 +83,7 @@ const Hero = () => {
               <img 
                 src="/lovable-uploads/af7b17cd-510f-468f-a8b1-5b0c5be88c9f.png" 
                 alt="Tworzenie Stron Internetowych" 
-                className="w-full h-full object-contain bg-black rounded-2xl animate-float"
+                className="w-full h-full object-contain animate-float"
               />
             </div>
           </div>
