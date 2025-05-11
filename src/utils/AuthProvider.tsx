@@ -5,8 +5,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// Extended user profile interface to include additional fields
+export interface ExtendedUserProfile {
+  name?: string | null;
+  lastName?: string | null;
+  profilePicture?: string | null;
+  bio?: string | null;
+  jobTitle?: string | null;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: (User & ExtendedUserProfile) | null;
   session: Session | null;
   loading: boolean;
   isAuthenticated: boolean;
@@ -14,12 +23,13 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
+  updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<(User & ExtendedUserProfile) | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -29,17 +39,94 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   console.log("AuthProvider initialized, current path:", location.pathname);
   
+  // Function to fetch user profile data from profiles table
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, lastName, profilePicture, bio, jobTitle')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
+      return null;
+    }
+  };
+
+  // Update the user profile in the database and local state
+  const updateProfile = async (profileData: Partial<ExtendedUserProfile>) => {
+    if (!user?.id) {
+      console.error('Cannot update profile: No user is logged in');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user.id);
+
+      if (error) {
+        toast({
+          title: "Błąd aktualizacji profilu",
+          description: error.message || "Nie udało się zaktualizować profilu",
+          variant: "destructive"
+        });
+        throw error;
+      }
+
+      // Update the local state
+      setUser(currentUser => {
+        if (!currentUser) return null;
+        return { ...currentUser, ...profileData };
+      });
+
+      toast({
+        title: "Profil zaktualizowany",
+        description: "Twoje dane zostały pomyślnie zaktualizowane"
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+  
   useEffect(() => {
     console.log("Setting up auth listeners");
     
     // First set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         console.log("Auth state changed:", event);
         
         setSession(currentSession);
-        setUser(currentSession?.user || null);
-        setIsAuthenticated(!!currentSession?.user);
+        
+        if (currentSession?.user) {
+          // Fetch additional profile data if user is logged in
+          const profileData = await fetchUserProfile(currentSession.user.id);
+          
+          // Merge Supabase user with profile data
+          setUser({
+            ...currentSession.user,
+            name: profileData?.name || null,
+            lastName: profileData?.lastName || null,
+            profilePicture: profileData?.profilePicture || null,
+            bio: profileData?.bio || null,
+            jobTitle: profileData?.jobTitle || null
+          });
+          
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+        
         setLoading(false);
         
         // Handle redirection on login
@@ -68,8 +155,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log("Session data:", currentSession ? "Session exists" : "No session");
         
         setSession(currentSession);
-        setUser(currentSession?.user || null);
-        setIsAuthenticated(!!currentSession?.user);
+        
+        if (currentSession?.user) {
+          // Fetch additional profile data if user is logged in
+          const profileData = await fetchUserProfile(currentSession.user.id);
+          
+          // Merge Supabase user with profile data
+          setUser({
+            ...currentSession.user,
+            name: profileData?.name || null,
+            lastName: profileData?.lastName || null,
+            profilePicture: profileData?.profilePicture || null,
+            bio: profileData?.bio || null,
+            jobTitle: profileData?.jobTitle || null
+          });
+          
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } catch (error) {
         console.error("Auth initialization error:", error);
       } finally {
@@ -153,6 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     resetPassword,
     updatePassword,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

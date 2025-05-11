@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -55,7 +54,7 @@ const Profile = () => {
       // Use preview image if available, otherwise use the URL from form
       const profilePictureToUse = previewImage || values.profilePicture;
       
-      updateProfile({
+      await updateProfile({
         name: values.name,
         lastName: values.lastName,
         profilePicture: profilePictureToUse,
@@ -63,10 +62,6 @@ const Profile = () => {
         jobTitle: values.jobTitle
       });
       
-      toast({
-        title: "Profil zaktualizowany",
-        description: "Twoje dane zostały pomyślnie zaktualizowane"
-      });
     } catch (error) {
       toast({
         title: "Błąd aktualizacji",
@@ -132,7 +127,7 @@ const Profile = () => {
               <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-32 w-32 relative group">
                   <AvatarImage 
-                    src={previewImage || user.profilePicture} 
+                    src={previewImage || user.profilePicture || ''} 
                     className="object-cover"
                   />
                   <AvatarFallback className="text-3xl bg-premium-gradient">
