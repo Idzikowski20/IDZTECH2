@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ const ProjectItem = ({ item }: { item: (typeof projectsData)[0] }) => (
       src={item.image}
       alt={item.title}
       className="w-full h-64 object-cover transform scale-100 group-hover:scale-110 transition-transform duration-300"
+      loading="lazy"
     />
     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300 flex flex-col justify-center items-center">
       <h3 className="text-xl font-semibold text-white mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">{item.title}</h3>
@@ -63,7 +65,13 @@ const Projects = () => {
           <Link to="/about">
             <Button 
               variant="outline" 
-              className="border-premium-purple/50 text-black hover:text-white hover:bg-premium-purple/10 rounded-full px-8 py-6"
+              className={`
+                ${theme === 'light' 
+                  ? 'border-premium-purple/50 text-black hover:text-white hover:bg-premium-purple/80' 
+                  : 'border-premium-purple/50 text-white hover:text-black hover:bg-premium-purple/10'
+                } 
+                rounded-full px-8 py-6
+              `}
             >
               Poznaj nasz zespół
             </Button>
