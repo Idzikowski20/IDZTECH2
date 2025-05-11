@@ -91,6 +91,6 @@ export const applyMobileOptimizations = () => {
   optimizeScroll();
   detectSlowConnection();
   
-  // Add momentum scrolling for iOS
-  document.documentElement.style.webkitOverflowScrolling = 'touch';
+  // Add momentum scrolling for iOS - using type assertion to fix the TypeScript error
+  (document.documentElement.style as any).webkitOverflowScrolling = 'touch';
 };
