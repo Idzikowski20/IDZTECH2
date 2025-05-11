@@ -68,8 +68,11 @@ function App() {
             <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
             <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
             <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
-            <Route path="/admin/blog/new" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
-            <Route path="/admin/blog/edit/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            
+            {/* Blog post editor routes - updated to match the links in Admin.tsx */}
+            <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            
             <Route path="/projects" element={<RequireAuth><Projects /></RequireAuth>} />
             <Route path="/content-plan" element={<RequireAuth><ContentPlan /></RequireAuth>} />
 

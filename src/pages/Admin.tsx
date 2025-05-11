@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply } from 'lucide-react';
@@ -359,7 +358,7 @@ const Admin = () => {
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => navigate(`/blog/${post.id}`)} 
+                              onClick={() => navigate(`/blog/${post.slug}`)} 
                               className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
                             >
                               <Eye size={14} />
