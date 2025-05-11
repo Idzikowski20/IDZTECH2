@@ -27,30 +27,24 @@ const About = () => {
           {/* Left Side Image */}
           <div className="w-full lg:w-1/2 relative">
             <div className="grid grid-cols-2 gap-4">
-              <div className="relative">
-                <div className="absolute -inset-0.5 bg-premium-gradient rounded-xl blur-sm opacity-75"></div>
-                <div className="relative h-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
-                    alt="Team meeting" 
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
+              <div className="h-full">
+                <img 
+                  src="/lovable-uploads/1f0493fd-ce87-402b-a735-1ee3d712d8e6.png" 
+                  alt="Team meeting" 
+                  className="w-full h-full object-cover rounded-lg animate-float-1"
+                />
               </div>
               <div className="space-y-4">
                 <div className="bg-premium-dark border border-white/10 p-4 rounded-lg">
                   <h4 className="font-semibold mb-1">Indywidualne podejście</h4>
                   <p className="text-sm text-premium-light/70">Każdy projekt traktujemy wyjątkowo</p>
                 </div>
-                <div className="relative">
-                  <div className="absolute -inset-0.5 bg-premium-gradient rounded-xl blur-sm opacity-50"></div>
-                  <div className="relative h-full">
-                    <img 
-                      src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80" 
-                      alt="Team collaboration" 
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
+                <div className="h-full">
+                  <img 
+                    src="/lovable-uploads/0487901d-bc96-4d6d-8847-1c5926dd899e.png" 
+                    alt="Team collaboration" 
+                    className="w-full h-full object-cover rounded-lg animate-float-2"
+                  />
                 </div>
               </div>
             </div>

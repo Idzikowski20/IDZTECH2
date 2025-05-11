@@ -67,20 +67,34 @@ const Seo = () => {
             
             <div className="relative animate-slide-up">
               <div className="relative z-10">
-                <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 shadow-lg">
+                <div className="bg-premium-dark/60 backdrop-blur-sm p-6 shadow-lg rounded-xl">
                   <div className="w-full aspect-video relative overflow-hidden rounded-lg">
                     <div className="absolute inset-0 bg-gradient-to-tr from-premium-purple to-premium-blue opacity-10"></div>
-                    <img src="https://images.unsplash.com/photo-1571215682742-f3d268dc855a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="SEO" className="w-full h-full object-cover" />
+                    <img 
+                      src="/lovable-uploads/f24da5aa-457b-432e-b011-469620f69c94.png" 
+                      alt="SEO Services" 
+                      className="w-full h-full object-cover animate-float-1" 
+                    />
                   </div>
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1573164574397-dd250bc8a598?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="SEO Analytics" className="w-full h-full object-cover" />
+                      <img 
+                        src="/lovable-uploads/2855aef6-a485-402b-b8c8-82af77fb041b.png" 
+                        alt="SEO Analytics" 
+                        className="w-full h-full object-cover animate-float-2" 
+                      />
                     </div>
                     <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="SEO Strategy" className="w-full h-full object-cover" />
+                      <img src="https://images.unsplash.com/photo-1533750349088-cd871a92f312?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" 
+                      alt="SEO Strategy" 
+                      className="w-full h-full object-cover" 
+                      />
                     </div>
                     <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1562577309-4932fdd64cd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="SEO Growth" className="w-full h-full object-cover" />
+                      <img src="https://images.unsplash.com/photo-1562577309-4932fdd64cd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" 
+                      alt="SEO Growth" 
+                      className="w-full h-full object-cover" 
+                      />
                     </div>
                   </div>
                 </div>
