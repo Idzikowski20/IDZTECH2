@@ -204,11 +204,13 @@
 
   /* Fixed navbars in light and dark mode */
   .light .backdrop-blur-md.bg-premium-dark\/80 {
-    @apply bg-white/80 text-black;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000000;
   }
 
   .light .backdrop-blur-md.bg-white\/80 {
-    @apply bg-white/80 text-black;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #000000;
   }
 
   /* Hover in navigation links */
