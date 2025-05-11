@@ -118,6 +118,14 @@ export default {
 					'50%': {
 						opacity: '0.9'
 					}
+				},
+				'floating-light': {
+					'0%, 100%': {
+						transform: 'translate(0, 0)'
+					},
+					'50%': {
+						transform: 'translate(20px, -20px)'
+					}
 				}
 			},
 			animation: {
@@ -126,7 +134,8 @@ export default {
 				'fade-in': 'fade-in 0.5s ease-out',
 				'slide-up': 'slide-up 0.6s ease-out',
 				'float': 'float 6s ease-in-out infinite',
-				'pulse-slow': 'pulse-slow 4s ease-in-out infinite'
+				'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
+				'floating-light': 'floating-light 8s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
