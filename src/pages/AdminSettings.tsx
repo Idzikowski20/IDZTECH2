@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/utils/AuthProvider';
@@ -24,8 +23,10 @@ import {
 import { Bell, Lock, Eye, Trash, Settings, Save, Undo } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+type InterfaceTheme = 'dark' | 'light' | 'system';
+
 const AdminSettings = () => {
-  const { user, updateProfile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ const AdminSettings = () => {
 
   // Interface settings
   const [interfaceSettings, setInterfaceSettings] = useState({
-    theme: theme,
+    theme: theme as InterfaceTheme,
     compactView: false,
     highContrast: false,
     fontSize: 'medium',
@@ -115,7 +116,7 @@ const AdminSettings = () => {
   // Reset interface settings
   const handleInterfaceReset = () => {
     setInterfaceSettings({
-      theme: 'system',
+      theme: 'system' as InterfaceTheme,
       compactView: false,
       highContrast: false,
       fontSize: 'medium',
@@ -548,7 +549,7 @@ const AdminSettings = () => {
                           "border-premium-light/20",
                           interfaceSettings.theme === 'dark' && "bg-premium-gradient"
                         )}
-                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'dark' }))}
+                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'dark' as InterfaceTheme }))}
                       >
                         Ciemny
                       </Button>
@@ -559,7 +560,7 @@ const AdminSettings = () => {
                           "border-premium-light/20",
                           interfaceSettings.theme === 'light' && "bg-premium-gradient"
                         )}
-                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'light' }))}
+                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'light' as InterfaceTheme }))}
                       >
                         Jasny
                       </Button>
@@ -570,7 +571,7 @@ const AdminSettings = () => {
                           "border-premium-light/20",
                           interfaceSettings.theme === 'system' && "bg-premium-gradient"
                         )}
-                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'system' }))}
+                        onClick={() => setInterfaceSettings(prev => ({ ...prev, theme: 'system' as InterfaceTheme }))}
                       >
                         Systemowy
                       </Button>

@@ -1,7 +1,6 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { addCommentNotification, addLikeNotification } from './notifications';
+import { addCommentNotification, addLikeNotification } from './notifications.tsx';
 
 export interface BlogComment {
   id: string;
