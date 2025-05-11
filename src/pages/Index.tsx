@@ -9,7 +9,6 @@ import FAQ from "@/components/FAQ";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import LightEffects from "@/components/LightEffects";
-import OurServices from "@/components/OurServices";
 
 const Index = () => {
   return (
@@ -17,9 +16,8 @@ const Index = () => {
       <LightEffects />
       <Navbar />
       <Hero />
-      <OurServices />
-      <WhyWorkWithUs />
       <Services />
+      <WhyWorkWithUs />
       <Testimonials />
       <FAQ />
       <CTA />
