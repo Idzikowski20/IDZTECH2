@@ -18,7 +18,7 @@ const Navbar = () => {
   
   useEffect(() => {
     // Add scroll event listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Initial check for page that might be loaded scrolled down
     handleScroll();
@@ -37,7 +37,6 @@ const Navbar = () => {
       document.body.style.overflow = '';
     }
     
-    // Always clean up by restoring scrolling when component unmounts
     return () => {
       document.body.style.overflow = '';
     };

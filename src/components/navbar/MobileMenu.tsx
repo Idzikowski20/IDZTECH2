@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -24,25 +23,17 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   const handleMenuOpen = (open: boolean) => {
     setIsMenuOpen(open);
     
-    // If closing menu, ensure scrolling is restored immediately
-    if (!open) {
-      document.body.style.overflow = '';
-    } else {
-      // If opening menu, prevent scrolling
-      document.body.style.overflow = 'hidden';
-    }
+    // Only set overflow style if we're not navigating away
+    document.body.style.overflow = open ? 'hidden' : '';
   };
   
   // Monitor location changes to close menu when navigating
   useEffect(() => {
     // Close mobile menu when route changes
     setIsMenuOpen(false);
-    
-    // Ensure body scroll is restored when navigating
-    document.body.style.overflow = '';
   }, [location, setIsMenuOpen]);
   
-  // Cleanup function to ensure body scroll is restored when component unmounts
+  // Ensure body scroll is restored when component unmounts
   useEffect(() => {
     return () => {
       document.body.style.overflow = '';
@@ -57,7 +48,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   // Helper for consistent navigation handling
   const handleNavigation = () => {
     setIsMenuOpen(false);
-    document.body.style.overflow = '';
   };
 
   return (

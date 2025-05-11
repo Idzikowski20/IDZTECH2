@@ -10,10 +10,23 @@ export const useScrollToTop = () => {
   const { pathname } = useLocation();
   
   useEffect(() => {
-    // Simple approach: just scroll to top when pathname changes
-    window.scrollTo(0, 0);
+    const scrollToTop = () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      });
+    };
     
-    // Ensure body scroll is always enabled when navigating
+    // Use requestAnimationFrame to ensure the scroll happens after the DOM update
+    const timeoutId = setTimeout(() => {
+      requestAnimationFrame(scrollToTop);
+    }, 0);
+    
+    // Ensure body scroll is always enabled
     document.body.style.overflow = '';
+    
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [pathname]);
 };
