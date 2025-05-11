@@ -1,5 +1,7 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { addCommentNotification, addLikeNotification } from './notifications';
 
 export interface BlogComment {
   id: string;
@@ -181,6 +183,9 @@ export const useBlogStore = create<BlogStore>()(
 
       addComment: (postId, userId, userName, userAvatar, content) => {
         set((state) => {
+          const post = state.posts.find(p => p.id === postId);
+          if (!post) return state;
+
           const newComment: BlogComment = {
             id: Date.now().toString(),
             postId,
@@ -190,12 +195,15 @@ export const useBlogStore = create<BlogStore>()(
             content,
             date: new Date().toISOString(),
           };
+          
+          // Add notification for new comment
+          addCommentNotification(postId, post.title, userName, userId);
 
           return {
-            posts: state.posts.map((post) => 
-              post.id === postId 
-                ? { ...post, comments: [...(post.comments || []), newComment] } 
-                : post
+            posts: state.posts.map((p) => 
+              p.id === postId 
+                ? { ...p, comments: [...(p.comments || []), newComment] } 
+                : p
             )
           };
         });
@@ -224,6 +232,13 @@ export const useBlogStore = create<BlogStore>()(
             ? likes.filter(id => id !== userId)
             : [...likes, userId];
           
+          // Add notification if it's a new like (not a removal)
+          if (!hasLiked) {
+            // We would typically get the username from the user profile based on userId
+            // For now, we'll just use "Użytkownik" as a placeholder
+            addLikeNotification(postId, post.title, "Użytkownik", userId);
+          }
+          
           return {
             posts: state.posts.map((p) => 
               p.id === postId 
@@ -246,6 +261,9 @@ export const useBlogStore = create<BlogStore>()(
           
           // Ensure post.guestLikes exists before accessing it
           const guestLikes = post.guestLikes || [];
+          
+          // Add notification for new like
+          addLikeNotification(postId, post.title, guestName || "Gość");
           
           return {
             posts: state.posts.map((p) => 
@@ -290,6 +308,11 @@ export const useBlogStore = create<BlogStore>()(
           const updatedDeviceLikes = hasLiked
             ? deviceLikes.filter(id => id !== deviceId)
             : [...deviceLikes, deviceId];
+          
+          // Add notification if it's a new like (not a removal)
+          if (!hasLiked) {
+            addLikeNotification(postId, post.title, "Gość");
+          }
           
           return {
             posts: state.posts.map((p) => 

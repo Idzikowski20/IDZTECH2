@@ -1,9 +1,10 @@
 
-import React from 'react';
-import { useAuth, User } from '@/utils/auth';
+import React, { useEffect } from 'react';
+import { useAuth } from '@/utils/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Award, Medal, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useBlogStore } from '@/utils/blog';
 
 interface UserRankingProps {
   limit?: number;
@@ -16,7 +17,13 @@ const UserRanking: React.FC<UserRankingProps> = ({
   showMonthly = false,
   className
 }) => {
-  const { getUserRanking } = useAuth();
+  const { getUserRanking, refreshUserStats } = useAuth();
+  const { posts } = useBlogStore();
+  
+  // Force refresh user stats when component mounts to ensure data is up-to-date
+  useEffect(() => {
+    refreshUserStats?.();
+  }, [refreshUserStats, posts]);
   
   const users = getUserRanking();
   const displayUsers = users.slice(0, limit);

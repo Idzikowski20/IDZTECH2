@@ -31,15 +31,20 @@ const Index = () => {
   }, []);
   
   return (
-    <div className="min-h-screen bg-premium-dark">
-      <Navbar />
-      <Hero />
-      <Services />
-      <FAQ />
-      <About />
-      <Testimonials />
-      <CTA />
-      <Footer />
+    <div className="min-h-screen bg-premium-dark relative">
+      {/* Background pattern */}
+      <div className="fixed inset-0 bg-[url('https://www.esky.com/_fe/img/TE-background.svg')] bg-cover bg-center opacity-50 pointer-events-none z-[-2]"></div>
+      
+      <div className="relative z-10">
+        <Navbar />
+        <Hero />
+        <Services />
+        <FAQ />
+        <About />
+        <Testimonials />
+        <CTA />
+        <Footer />
+      </div>
     </div>
   );
 };
