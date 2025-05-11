@@ -124,10 +124,10 @@
 
   /* Dot animation */
   .floating-dot {
-    position: absolute;
+    position: fixed;
     border-radius: 50%;
-    filter: blur(8px);
-    opacity: 0.6;
+    filter: blur(60px);
+    opacity: 0.8;
     z-index: -1;
     animation: float 25s ease-in-out infinite;
   }

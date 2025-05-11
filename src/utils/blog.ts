@@ -1,6 +1,17 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { addCommentNotification, addLikeNotification } from './notifications.tsx';
+import { useNotifications } from './notifications';
+
+export interface CommentReply {
+  id: string;
+  commentId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  content: string;
+  date: string;
+}
 
 export interface BlogComment {
   id: string;
@@ -10,6 +21,7 @@ export interface BlogComment {
   userAvatar?: string;
   content: string;
   date: string;
+  replies?: CommentReply[];
 }
 
 export interface GuestLike {
@@ -42,9 +54,12 @@ interface BlogStore {
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
   incrementView: (id: string) => void;
+  resetStats: () => void;
   getPostBySlug: (slug: string) => BlogPost | undefined;
   addComment: (postId: string, userId: string, userName: string, userAvatar: string | undefined, content: string) => void;
   deleteComment: (postId: string, commentId: string) => void;
+  addReplyToComment: (postId: string, commentId: string, userId: string, userName: string, userAvatar: string | undefined, content: string) => void;
+  deleteReplyFromComment: (postId: string, commentId: string, replyId: string) => void;
   toggleLike: (postId: string, userId: string) => void;
   addGuestLike: (postId: string, guestId: string, guestName: string) => void;
   removeGuestLike: (postId: string, guestId: string) => void;
@@ -175,6 +190,18 @@ export const useBlogStore = create<BlogStore>()(
         }));
       },
       
+      resetStats: () => {
+        set((state) => ({
+          posts: state.posts.map(post => ({
+            ...post,
+            views: 0,
+            likes: [],
+            guestLikes: [],
+            deviceLikes: []
+          }))
+        }));
+      },
+      
       getPostBySlug: (slug: string) => {
         const { posts } = get();
         return (posts || []).find((post) => post.slug === slug);
@@ -193,10 +220,22 @@ export const useBlogStore = create<BlogStore>()(
             userAvatar,
             content,
             date: new Date().toISOString(),
+            replies: []
           };
           
           // Add notification for new comment
-          addCommentNotification(postId, post.title, userName, userId);
+          useNotifications.getState().addNotification({
+            title: 'Nowy komentarz',
+            message: `${userName} dodał komentarz do "${post.title}"`,
+            type: 'comment',
+            read: false,
+            data: {
+              postId,
+              postTitle: post.title,
+              userId,
+              userName
+            }
+          });
 
           return {
             posts: state.posts.map((p) => 
@@ -213,6 +252,78 @@ export const useBlogStore = create<BlogStore>()(
           posts: state.posts.map((post) => 
             post.id === postId 
               ? { ...post, comments: post.comments && post.comments.filter(comment => comment.id !== commentId) } 
+              : post
+          )
+        }));
+      },
+      
+      addReplyToComment: (postId, commentId, userId, userName, userAvatar, content) => {
+        set((state) => {
+          const post = state.posts.find(p => p.id === postId);
+          if (!post) return state;
+          
+          const comment = post.comments?.find(c => c.id === commentId);
+          if (!comment) return state;
+          
+          const newReply: CommentReply = {
+            id: Date.now().toString(),
+            commentId,
+            userId,
+            userName,
+            userAvatar,
+            content,
+            date: new Date().toISOString()
+          };
+          
+          // Add notification for new reply
+          useNotifications.getState().addNotification({
+            title: 'Nowa odpowiedź',
+            message: `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
+            type: 'comment',
+            read: false,
+            data: {
+              postId,
+              postTitle: post.title,
+              userId,
+              userName
+            }
+          });
+          
+          return {
+            posts: state.posts.map((p) => 
+              p.id === postId 
+                ? { 
+                    ...p, 
+                    comments: p.comments?.map(c => 
+                      c.id === commentId 
+                        ? { 
+                            ...c, 
+                            replies: [...(c.replies || []), newReply] 
+                          } 
+                        : c
+                    )
+                  } 
+                : p
+            )
+          };
+        });
+      },
+      
+      deleteReplyFromComment: (postId, commentId, replyId) => {
+        set((state) => ({
+          posts: state.posts.map((post) => 
+            post.id === postId 
+              ? { 
+                  ...post, 
+                  comments: post.comments?.map(comment => 
+                    comment.id === commentId 
+                      ? {
+                          ...comment,
+                          replies: comment.replies?.filter(reply => reply.id !== replyId)
+                        }
+                      : comment
+                  ) 
+                } 
               : post
           )
         }));
@@ -234,8 +345,18 @@ export const useBlogStore = create<BlogStore>()(
           // Add notification if it's a new like (not a removal)
           if (!hasLiked) {
             // We would typically get the username from the user profile based on userId
-            // For now, we'll just use "Użytkownik" as a placeholder
-            addLikeNotification(postId, post.title, "Użytkownik", userId);
+            useNotifications.getState().addNotification({
+              title: 'Nowe polubienie',
+              message: `Użytkownik polubił "${post.title}"`,
+              type: 'like',
+              read: false,
+              data: {
+                postId,
+                postTitle: post.title,
+                userId,
+                userName: "Użytkownik"
+              }
+            });
           }
           
           return {
@@ -262,7 +383,18 @@ export const useBlogStore = create<BlogStore>()(
           const guestLikes = post.guestLikes || [];
           
           // Add notification for new like
-          addLikeNotification(postId, post.title, guestName || "Gość");
+          useNotifications.getState().addNotification({
+            title: 'Nowe polubienie',
+            message: `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
+            type: 'like',
+            read: false,
+            data: {
+              postId,
+              postTitle: post.title,
+              userId: "guest",
+              userName: guestName || "Gość"
+            }
+          });
           
           return {
             posts: state.posts.map((p) => 
@@ -310,7 +442,18 @@ export const useBlogStore = create<BlogStore>()(
           
           // Add notification if it's a new like (not a removal)
           if (!hasLiked) {
-            addLikeNotification(postId, post.title, "Gość");
+            useNotifications.getState().addNotification({
+              title: 'Nowe polubienie',
+              message: `Gość polubił "${post.title}"`,
+              type: 'like',
+              read: false,
+              data: {
+                postId,
+                postTitle: post.title,
+                userId: "guest",
+                userName: "Gość"
+              }
+            });
           }
           
           return {
@@ -325,7 +468,17 @@ export const useBlogStore = create<BlogStore>()(
 
       getTotalComments: () => {
         const { posts } = get();
-        return (posts || []).reduce((total, post) => total + ((post.comments?.length) || 0), 0);
+        let total = 0;
+        (posts || []).forEach(post => {
+          // Count main comments
+          total += (post.comments?.length || 0);
+          
+          // Count replies
+          post.comments?.forEach(comment => {
+            total += (comment.replies?.length || 0);
+          });
+        });
+        return total;
       },
 
       getTotalLikes: () => {

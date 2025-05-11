@@ -60,7 +60,7 @@ const PageDotAnimation: React.FC = () => {
     
     window.addEventListener('resize', handleResize);
     
-    // Set interval to update dots positions every 30 seconds
+    // Set interval to update dots positions every 15 seconds
     const interval = setInterval(() => {
       setDots(prevDots => prevDots.map(dot => ({
         ...dot,
@@ -92,6 +92,7 @@ const PageDotAnimation: React.FC = () => {
             animationDelay: `${dot.animationDelay}s`,
             '--direction-x': dot.direction.x,
             '--direction-y': dot.direction.y,
+            opacity: 0.8, // Increased from 0.6 to 0.8 for brightness
           } as React.CSSProperties}
         />
       ))}

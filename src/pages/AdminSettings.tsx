@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/utils/AuthProvider';
@@ -66,11 +67,18 @@ const AdminSettings = () => {
     animationsEnabled: true,
   });
 
+  // Update interface settings when theme changes
+  useEffect(() => {
+    setInterfaceSettings(prev => ({ ...prev, theme }));
+  }, [theme]);
+
   // Save notification settings
   const handleNotificationSettingsSave = () => {
     setLoading(true);
     
-    // Here would be the API call to save notification settings
+    // Save notification settings to localStorage for persistence
+    localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+    
     setTimeout(() => {
       setLoading(false);
       toast({
@@ -84,7 +92,9 @@ const AdminSettings = () => {
   const handlePrivacySettingsSave = () => {
     setLoading(true);
     
-    // Here would be the API call to save privacy settings
+    // Save privacy settings to localStorage for persistence
+    localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
+    
     setTimeout(() => {
       setLoading(false);
       toast({
@@ -98,11 +108,24 @@ const AdminSettings = () => {
   const handleInterfaceSettingsSave = () => {
     setLoading(true);
     
-    // Here would be the API call to save interface settings
+    // Apply theme changes
+    setTheme(interfaceSettings.theme);
+    
+    // Save other interface settings to localStorage
+    localStorage.setItem('interfaceSettings', JSON.stringify({
+      compactView: interfaceSettings.compactView,
+      highContrast: interfaceSettings.highContrast,
+      fontSize: interfaceSettings.fontSize,
+      animationsEnabled: interfaceSettings.animationsEnabled
+    }));
+    
+    // Apply settings to document
+    document.documentElement.setAttribute('data-compact', interfaceSettings.compactView.toString());
+    document.documentElement.setAttribute('data-high-contrast', interfaceSettings.highContrast.toString());
+    document.documentElement.setAttribute('data-font-size', interfaceSettings.fontSize);
+    document.documentElement.setAttribute('data-animations', interfaceSettings.animationsEnabled.toString());
+    
     setTimeout(() => {
-      // Apply theme changes
-      setTheme(interfaceSettings.theme);
-      
       setLoading(false);
       toast({
         title: "Ustawienia zapisane",
@@ -113,13 +136,25 @@ const AdminSettings = () => {
 
   // Reset interface settings
   const handleInterfaceReset = () => {
-    setInterfaceSettings({
+    const defaultSettings = {
       theme: 'system',
       compactView: false,
       highContrast: false,
       fontSize: 'medium',
       animationsEnabled: true,
-    });
+    };
+    
+    setInterfaceSettings(defaultSettings);
+    setTheme('system');
+    
+    // Clear localStorage settings
+    localStorage.removeItem('interfaceSettings');
+    
+    // Reset document attributes
+    document.documentElement.removeAttribute('data-compact');
+    document.documentElement.removeAttribute('data-high-contrast');
+    document.documentElement.removeAttribute('data-font-size');
+    document.documentElement.removeAttribute('data-animations');
     
     toast({
       title: "Ustawienia zresetowane",
@@ -152,10 +187,6 @@ const AdminSettings = () => {
     try {
       setLoading(true);
       
-      // Here would be the actual password change logic
-      // const { error } = await updatePassword(passwords.currentPassword, passwords.newPassword);
-      // if (error) throw error;
-
       // Simulate successful password change
       await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -179,6 +210,44 @@ const AdminSettings = () => {
       setLoading(false);
     }
   };
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const loadedNotificationSettings = localStorage.getItem('notificationSettings');
+    const loadedPrivacySettings = localStorage.getItem('privacySettings');
+    const loadedInterfaceSettings = localStorage.getItem('interfaceSettings');
+    
+    if (loadedNotificationSettings) {
+      try {
+        setNotificationSettings(JSON.parse(loadedNotificationSettings));
+      } catch (e) {
+        console.error('Error parsing notification settings:', e);
+      }
+    }
+    
+    if (loadedPrivacySettings) {
+      try {
+        setPrivacySettings(JSON.parse(loadedPrivacySettings));
+      } catch (e) {
+        console.error('Error parsing privacy settings:', e);
+      }
+    }
+    
+    if (loadedInterfaceSettings) {
+      try {
+        const parsed = JSON.parse(loadedInterfaceSettings);
+        setInterfaceSettings(prev => ({ ...prev, ...parsed }));
+        
+        // Apply settings to document
+        document.documentElement.setAttribute('data-compact', parsed.compactView.toString());
+        document.documentElement.setAttribute('data-high-contrast', parsed.highContrast.toString());
+        document.documentElement.setAttribute('data-font-size', parsed.fontSize);
+        document.documentElement.setAttribute('data-animations', parsed.animationsEnabled.toString());
+      } catch (e) {
+        console.error('Error parsing interface settings:', e);
+      }
+    }
+  }, []);
 
   // Handle account deletion
   const handleDeleteAccount = async () => {
@@ -426,7 +495,7 @@ const AdminSettings = () => {
                   </p>
                   <Button 
                     variant="outline" 
-                    className="border-red-500 text-red-500 hover:bg-red-950 hover:text-white"
+                    className="border-red-500 text-red-500"
                     onClick={() => setShowLogoutDialog(true)}
                   >
                     Wyloguj ze wszystkich urządzeń
@@ -441,7 +510,7 @@ const AdminSettings = () => {
                   </p>
                   <Button 
                     variant="outline"
-                    className="border-red-500 text-red-500 hover:bg-red-950 hover:text-white flex items-center gap-2"
+                    className="border-red-500 text-red-500 flex items-center gap-2"
                     onClick={() => setShowDeleteDialog(true)}
                   >
                     <Trash size={16} />
@@ -691,7 +760,7 @@ const AdminSettings = () => {
             <AlertDialogCancel>Anuluj</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDeleteAccount}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600"
             >
               {loading ? 'Usuwanie...' : 'Usuń konto'}
             </AlertDialogAction>

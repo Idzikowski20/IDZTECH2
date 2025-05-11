@@ -1,502 +1,329 @@
-
-import { useEffect, useState } from 'react';
-import { BarChart as BarChartIcon, Users, FileText, ArrowUp, ArrowDown, Heart, MessageCircle, Clock, Trophy } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/utils/auth';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useBlogStore } from '@/utils/blog';
-import { useTheme } from '@/utils/themeContext';
-import { getAnalyticsData } from '@/utils/analytics';
-import UserRanking from '@/components/UserRanking';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis
-} from 'recharts';
-import { cn } from '@/lib/utils';
+import { useAuth } from '@/utils/AuthProvider';
+import AdminStatReset from '@/components/AdminStatReset';
 
-// Helper function to calculate percentage change
-const calculatePercentageChange = (currentValue: number, previousValue: number): number => {
-  if (previousValue === 0) return currentValue > 0 ? 100 : 0;
-  return ((currentValue - previousValue) / previousValue) * 100;
+// Analytics data
+const months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+const currentMonth = new Date().getMonth();
+
+// Chart color scheme
+const colors = {
+  primary: '#784dff',
+  secondary: '#00a0ff',
+  tertiary: '#ff4d8c',
+  quaternary: '#4de8ff',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+  info: '#3B82F6'
 };
 
 const AdminStats = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, user, refreshUserStats, getTopUser, getTopUserOfMonth } = useAuth();
-  const { posts } = useBlogStore();
-  const { theme } = useTheme();
-  const isDarkMode = theme === 'dark';
+  const { user } = useAuth();
+  const getTotalComments = useBlogStore(state => state.getTotalComments);
+  const getTotalLikes = useBlogStore(state => state.getTotalLikes);
+  const posts = useBlogStore(state => state.posts);
   
-  const [analytics, setAnalytics] = useState({
-    totalVisits: 0,
-    uniqueVisitors: 0,
-    blogViews: 0,
-    averageSessionTime: '0:00',
-    comments: 0,
-    likes: 0
-  });
+  const [totalViews, setTotalViews] = useState(0);
+  const [totalComments, setTotalComments] = useState(0);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [postsCount, setPostsCount] = useState(0);
   
-  const [counters, setCounters] = useState({
-    totalVisits: 0,
-    uniqueVisitors: 0,
-    blogViews: 0,
-    comments: 0,
-    likes: 0
-  });
-
-  const [weeklyStats, setWeeklyStats] = useState({
-    visits: { current: 0, previous: 0 },
-    visitors: { current: 0, previous: 0 },
-    views: { current: 0, previous: 0 },
-    comments: { current: 0, previous: 0 },
-    likes: { current: 0, previous: 0 }
-  });
+  // Monthly data state
+  const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [isMonthlyDataLoading, setIsMonthlyDataLoading] = useState(true);
   
-  const [monthlyStats, setMonthlyStats] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Redirect if not authenticated
+  // User activity data
+  const [activityData, setActivityData] = useState<any[]>([]);
+  
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    } else {
-      try {
-        // Refresh user stats to ensure data is up-to-date
-        refreshUserStats?.();
-      } catch (error) {
-        console.error("Error refreshing user stats:", error);
-      }
-    }
-  }, [isAuthenticated, navigate, refreshUserStats]);
-
-  // Fetch analytics data and calculate blog statistics
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        // Fetch data from GA (simulated)
-        const analyticsData = await getAnalyticsData();
-        
-        // Get current date for weekly metrics
-        const now = new Date();
-        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
-        
-        // Calculate total blog views from actual post data
-        const totalBlogViews = posts.reduce((total, post) => total + post.views, 0);
-        
-        // Calculate total comments and likes
-        const totalComments = posts.reduce((total, post) => total + (post.comments?.length || 0), 0);
-        const totalLikes = posts.reduce((total, post) => 
-          total + ((post.likes?.length) || 0) + ((post.guestLikes?.length) || 0) + ((post.deviceLikes?.length) || 0), 0);
-
-        // Calculate current week metrics
-        const currentWeekViews = posts.reduce((total, post) => {
-          // Count all views (simulating that a portion happened in current week)
-          const currentWeekViewsForPost = Math.floor(post.views * 0.2);
-          return total + currentWeekViewsForPost;
-        }, 0);
-        
-        // Calculate previous week metrics (simulating historical data)
-        const previousWeekViews = Math.max(Math.floor(currentWeekViews * 0.8), 0);
-        
-        // Calculate current week comments
-        const currentWeekComments = posts.reduce((total, post) => {
-          const recentComments = post.comments ? post.comments.filter(comment => {
-            const commentDate = new Date(comment.date);
-            return commentDate >= oneWeekAgo;
-          }).length : 0;
-          return total + recentComments;
-        }, 0);
-        
-        // Calculate previous week comments
-        const previousWeekComments = posts.reduce((total, post) => {
-          const olderComments = post.comments ? post.comments.filter(comment => {
-            const commentDate = new Date(comment.date);
-            return commentDate >= twoWeeksAgo && commentDate < oneWeekAgo;
-          }).length : 0;
-          return total + olderComments;
-        }, 0);
-        
-        // Calculate current week likes (simulating data)
-        const currentWeekLikes = Math.floor(totalLikes * 0.3);
-        // Calculate previous week likes
-        const previousWeekLikes = Math.floor(totalLikes * 0.2);
-        
-        // Set weekly stats for trend calculations
-        setWeeklyStats({
-          visits: { 
-            current: Math.floor(totalBlogViews * 0.25), 
-            previous: Math.floor(totalBlogViews * 0.2) 
-          },
-          visitors: { 
-            current: Math.floor(totalBlogViews * 0.2), 
-            previous: Math.floor(totalBlogViews * 0.15) 
-          },
-          views: {
-            current: currentWeekViews,
-            previous: previousWeekViews
-          },
-          comments: {
-            current: currentWeekComments,
-            previous: previousWeekComments
-          },
-          likes: {
-            current: currentWeekLikes,
-            previous: previousWeekLikes
-          }
-        });
-        
-        // Estimate unique visitors (in real app this would come from analytics API)
-        const estimatedUniqueVisitors = Math.max(Math.floor(totalBlogViews * 0.7), 0);
-        
-        // Estimate total visits (in real app this would come from analytics API)
-        const estimatedTotalVisits = Math.max(Math.floor(totalBlogViews * 1.5), 0);
-        
-        // Calculate average session time based on views
-        const minutes = Math.floor((totalBlogViews % 500) / 60);
-        const seconds = Math.floor(totalBlogViews % 60);
-        const averageTime = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-        
-        setAnalytics({
-          totalVisits: estimatedTotalVisits,
-          uniqueVisitors: estimatedUniqueVisitors,
-          blogViews: totalBlogViews,
-          averageSessionTime: averageTime,
-          comments: totalComments,
-          likes: totalLikes
-        });
-        
-        // Generate monthly stats data
-        const monthNames = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 
-                         'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
-        
-        const generatedMonthlyStats = monthNames.slice(0, now.getMonth() + 1).map((month, index) => {
-          // Generate realistic-looking data that increases and has some variation
-          const factor = (index + 1) / (now.getMonth() + 1); // Factor increases as we get closer to current month
-          const baseVisits = 100 + Math.floor(400 * factor);
-          const randomVariation = Math.floor(baseVisits * 0.2 * (Math.random() - 0.5)); // +/- 10% variation
-          
-          return {
-            name: month,
-            visits: baseVisits + randomVariation,
-          };
-        });
-        
-        setMonthlyStats(generatedMonthlyStats);
-        
-        // Start counting animation from 0
-        const duration = 1500; // animation duration in ms
-        const steps = 30; // number of steps in the animation
-        const interval = duration / steps;
-        
-        let step = 0;
-        const timer = setInterval(() => {
-          step++;
-          const progress = step / steps;
-          
-          setCounters({
-            totalVisits: Math.floor(estimatedTotalVisits * progress),
-            uniqueVisitors: Math.floor(estimatedUniqueVisitors * progress),
-            blogViews: Math.floor(totalBlogViews * progress),
-            comments: Math.floor(totalComments * progress),
-            likes: Math.floor(totalLikes * progress)
-          });
-          
-          if (step >= steps) {
-            clearInterval(timer);
-          }
-        }, interval);
-        
-        setIsLoading(false);
-        return () => clearInterval(timer);
-      } catch (error) {
-        console.error("Error fetching analytics data:", error);
-        setIsLoading(false);
-      }
-    };
+    // Calculate total views from all posts
+    const views = posts.reduce((sum, post) => sum + (post.views || 0), 0);
+    setTotalViews(views);
     
-    fetchData();
-  }, [posts, refreshUserStats]);
-
-  if (!isAuthenticated || !user) {
-    return null;
-  }
-
-  const themeClass = isDarkMode 
-    ? "bg-premium-dark/50 border-premium-light/10 text-premium-light" 
-    : "bg-premium-light/50 border-premium-dark/10 text-premium-dark";
-
-  // Add error handling for topUser and topUserOfMonth
-  const topUser = getTopUser?.() || undefined;
-  const topUserOfMonth = getTopUserOfMonth?.() || undefined;
-
-  // Calculate trend percentages
-  const visitsTrend = calculatePercentageChange(weeklyStats.visits.current, weeklyStats.visits.previous);
-  const visitorsTrend = calculatePercentageChange(weeklyStats.visitors.current, weeklyStats.visitors.previous);
-  const viewsTrend = calculatePercentageChange(weeklyStats.views.current, weeklyStats.views.previous);
-  const commentsTrend = calculatePercentageChange(weeklyStats.comments.current, weeklyStats.comments.previous);
-  const likesTrend = calculatePercentageChange(weeklyStats.likes.current, weeklyStats.likes.previous);
-
-  // Helper function to render trend indicator
-  const renderTrendIndicator = (trendValue: number) => {
-    if (trendValue > 0) {
-      return (
-        <div className="flex items-center text-green-500">
-          <ArrowUp size={16} className="mr-1" />
-          <span>+{trendValue.toFixed(1)}%</span>
-        </div>
-      );
-    } else if (trendValue < 0) {
-      return (
-        <div className="flex items-center text-red-500">
-          <ArrowDown size={16} className="mr-1" />
-          <span>{trendValue.toFixed(1)}%</span>
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex items-center text-gray-400">
-          <span>0.0%</span>
-        </div>
-      );
-    }
+    // Get total comments and likes
+    setTotalComments(getTotalComments());
+    setTotalLikes(getTotalLikes());
+    
+    // Get posts count
+    setPostsCount(posts.length);
+    
+    // Generate empty monthly data
+    const emptyMonthlyData = Array(5).fill(0).map((_, i) => ({
+      name: months[(currentMonth - 4 + i + 12) % 12],
+      views: 0,
+      comments: 0,
+      likes: 0,
+    }));
+    
+    // Set initial empty data
+    setMonthlyData(emptyMonthlyData);
+    
+    // Simulate loading monthly data
+    const timer = setTimeout(() => {
+      setIsMonthlyDataLoading(false);
+    }, 1500);
+    
+    // Generate sample activity data
+    const sampleActivityData = [
+      { name: 'Poniedziałek', visits: 120, comments: 4, likes: 12 },
+      { name: 'Wtorek', visits: 145, comments: 8, likes: 19 },
+      { name: 'Środa', visits: 132, comments: 6, likes: 15 },
+      { name: 'Czwartek', visits: 167, comments: 9, likes: 21 },
+      { name: 'Piątek', visits: 182, comments: 11, likes: 25 },
+      { name: 'Sobota', visits: 196, comments: 14, likes: 29 },
+      { name: 'Niedziela', visits: 178, comments: 12, likes: 24 },
+    ];
+    
+    setActivityData(sampleActivityData);
+    
+    return () => clearTimeout(timer);
+  }, [posts, getTotalComments, getTotalLikes]);
+  
+  // Calculate trends (percentage change) - simplified version
+  const calculateTrend = (current: number) => {
+    // Since we're resetting stats, always return 0 or null for trends
+    return 0;
   };
-
+  
+  const viewsTrend = calculateTrend(totalViews);
+  const commentsTrend = calculateTrend(totalComments);
+  const likesTrend = calculateTrend(totalLikes);
+  const postsTrend = calculateTrend(postsCount);
+  
   return (
     <AdminLayout>
-      <div className="p-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Statystyki witryny</h1>
-          <p className={isDarkMode ? "text-premium-light/70" : "text-premium-dark/70"}>
-            Witaj, {user?.name}! Oto szczegółowe statystyki Twojej strony.
-          </p>
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Statystyki</h1>
+          <AdminStatReset />
+        </div>
+        
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {/* Views Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Wyświetlenia</CardTitle>
+              <span className={`text-xs font-medium ${viewsTrend > 0 ? 'text-green-500' : viewsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                {viewsTrend > 0 ? `+${viewsTrend}%` : viewsTrend < 0 ? `${viewsTrend}%` : `+${viewsTrend}%`}
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalViews}</div>
+              <p className="text-xs text-muted-foreground">Łącznie</p>
+            </CardContent>
+          </Card>
+
+          {/* Comments Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Komentarze</CardTitle>
+              <span className={`text-xs font-medium ${commentsTrend > 0 ? 'text-green-500' : commentsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                {commentsTrend > 0 ? `+${commentsTrend}%` : commentsTrend < 0 ? `${commentsTrend}%` : `+${commentsTrend}%`}
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalComments}</div>
+              <p className="text-xs text-muted-foreground">Łącznie</p>
+            </CardContent>
+          </Card>
+
+          {/* Likes Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Polubienia</CardTitle>
+              <span className={`text-xs font-medium ${likesTrend > 0 ? 'text-green-500' : likesTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                {likesTrend > 0 ? `+${likesTrend}%` : likesTrend < 0 ? `${likesTrend}%` : `+${likesTrend}%`}
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalLikes}</div>
+              <p className="text-xs text-muted-foreground">Łącznie</p>
+            </CardContent>
+          </Card>
+
+          {/* Posts Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Posty</CardTitle>
+              <span className={`text-xs font-medium ${postsTrend > 0 ? 'text-green-500' : postsTrend < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                {postsTrend > 0 ? `+${postsTrend}%` : postsTrend < 0 ? `${postsTrend}%` : `+${postsTrend}%`}
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{postsCount}</div>
+              <p className="text-xs text-muted-foreground">Opublikowane</p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Analytics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className={`${themeClass} p-6 rounded-xl hover:bg-premium-dark/60 dark:hover:bg-premium-light/10 transition-all duration-300 hover:scale-105`}>
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-blue-500/10 rounded-lg">
-                <BarChartIcon className="text-blue-500" size={24} />
-              </div>
-              <h3 className="ml-3 font-semibold">Łączne wizyty</h3>
-            </div>
-            <div className="text-3xl font-bold">{counters.totalVisits}</div>
-            <div className="mt-2 flex items-center">
-              {renderTrendIndicator(visitsTrend)}
-              <span className="ml-2 text-sm text-premium-light/60">w ciągu 7 dni</span>
-            </div>
-          </div>
-          
-          <div className={`${themeClass} p-6 rounded-xl hover:bg-premium-dark/60 dark:hover:bg-premium-light/10 transition-all duration-300 hover:scale-105`}>
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-purple-500/10 rounded-lg">
-                <Users className="text-purple-500" size={24} />
-              </div>
-              <h3 className="ml-3 font-semibold">Unikalni użytkownicy</h3>
-            </div>
-            <div className="text-3xl font-bold">{counters.uniqueVisitors}</div>
-            <div className="mt-2 flex items-center">
-              {renderTrendIndicator(visitorsTrend)}
-              <span className="ml-2 text-sm text-premium-light/60">w ciągu 7 dni</span>
-            </div>
-          </div>
-          
-          <div className={`${themeClass} p-6 rounded-xl hover:bg-premium-dark/60 dark:hover:bg-premium-light/10 transition-all duration-300 hover:scale-105`}>
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-green-500/10 rounded-lg">
-                <FileText className="text-green-500" size={24} />
-              </div>
-              <h3 className="ml-3 font-semibold">Wyświetlenia bloga</h3>
-            </div>
-            <div className="text-3xl font-bold">{counters.blogViews}</div>
-            <div className="mt-2 flex items-center">
-              {renderTrendIndicator(viewsTrend)}
-              <span className="ml-2 text-sm text-premium-light/60">w ciągu 7 dni</span>
-            </div>
-          </div>
-          
-          <div className={`${themeClass} p-6 rounded-xl hover:bg-premium-dark/60 dark:hover:bg-premium-light/10 transition-all duration-300 hover:scale-105`}>
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-amber-500/10 rounded-lg">
-                <Clock className="text-amber-500" size={24} />
-              </div>
-              <h3 className="ml-3 font-semibold">Średni czas sesji</h3>
-            </div>
-            <div className="text-3xl font-bold">{analytics.averageSessionTime}</div>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Monthly Statistics */}
+          <Card className="col-span-1 md:col-span-2">
+            <CardHeader>
+              <CardTitle>Miesięczne statystyki</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+              {isMonthlyDataLoading ? (
+                <div className="w-full h-72 flex flex-col items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="text-sm text-muted-foreground">Ładowanie danych miesięcznych...</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(17, 17, 17, 0.9)', 
+                        borderColor: 'rgba(120, 77, 255, 0.5)',
+                        color: '#fff'
+                      }} 
+                    />
+                    <Legend />
+                    <Bar dataKey="views" fill={colors.primary} name="Wyświetlenia" />
+                    <Bar dataKey="comments" fill={colors.secondary} name="Komentarze" />
+                    <Bar dataKey="likes" fill={colors.tertiary} name="Polubienia" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
 
-          <div className={`${themeClass} p-6 rounded-xl hover:bg-premium-dark/60 dark:hover:bg-premium-light/10 transition-all duration-300 hover:scale-105`}>
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-indigo-500/10 rounded-lg">
-                <MessageCircle className="text-indigo-500" size={24} />
-              </div>
-              <h3 className="ml-3 font-semibold">Komentarze</h3>
+          {/* Charts Tabs */}
+          <Tabs defaultValue="performance" className="col-span-1 md:col-span-2">
+            <div className="flex justify-between items-center mb-4">
+              <TabsList>
+                <TabsTrigger value="performance">Wydajność</TabsTrigger>
+                <TabsTrigger value="activity">Aktywność</TabsTrigger>
+                <TabsTrigger value="engagement">Zaangażowanie</TabsTrigger>
+              </TabsList>
             </div>
-            <div className="text-3xl font-bold">{counters.comments}</div>
-            <div className="mt-2 flex items-center">
-              {renderTrendIndicator(commentsTrend)}
-              <span className="ml-2 text-sm text-premium-light/60">w ciągu 7 dni</span>
-            </div>
-          </div>
-
-          <div className={`${themeClass} p-6 rounded-xl hover:bg-premium-dark/60 dark:hover:bg-premium-light/10 transition-all duration-300 hover:scale-105`}>
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-red-500/10 rounded-lg">
-                <Heart className="text-red-500" size={24} />
-              </div>
-              <h3 className="ml-3 font-semibold">Polubienia</h3>
-            </div>
-            <div className="text-3xl font-bold">{counters.likes}</div>
-            <div className="mt-2 flex items-center">
-              {renderTrendIndicator(likesTrend)}
-              <span className="ml-2 text-sm text-premium-light/60">w ciągu 7 dni</span>
-            </div>
-          </div>
-        </div>
-
-        {/* User Rankings section */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Ranking użytkowników</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className={`${themeClass} p-6 rounded-xl`}>
-              <UserRanking limit={5} showMonthly={false} />
-            </div>
-            <div className={`${themeClass} p-6 rounded-xl`}>
-              <UserRanking limit={5} showMonthly={true} />
-            </div>
-          </div>
-        </div>
-
-        {/* Additional statistics section */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Statystyki szczegółowe</h2>
-          <div className={`${themeClass} p-6 rounded-xl`}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Top 5 artykułów</h3>
-                {posts.length > 0 ? (
-                  <div className="space-y-3">
-                    {[...posts]
-                      .sort((a, b) => b.views - a.views)
-                      .slice(0, 5)
-                      .map((post, index) => (
-                        <div 
-                          key={post.id} 
-                          className={cn(
-                            "flex items-center justify-between p-3 rounded-lg transition-colors",
-                            isDarkMode 
-                              ? "border border-premium-light/10 hover:border-premium-light/30 hover:bg-premium-light/5 hover:text-white" 
-                              : "border border-premium-dark/10 hover:border-premium-dark/30 hover:bg-premium-dark/5 hover:text-black"
-                          )}
-                        >
-                          <div className="flex items-center">
-                            <span className={cn(
-                              "text-xl font-bold mr-3",
-                              isDarkMode ? "text-premium-light/40" : "text-premium-dark/40"
-                            )}>#{index + 1}</span>
-                            <span className="font-medium truncate max-w-[180px]">{post.title}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className={isDarkMode ? "text-premium-light/70" : "text-premium-dark/70"}>
-                              {post.views} wyświetleń
-                            </span>
-                            <a 
-                              href={`/blog/${post.slug}`} 
-                              className={cn(
-                                "px-2 py-1 rounded text-xs transition-colors",
-                                isDarkMode 
-                                  ? "bg-premium-light/10 hover:bg-premium-light/30 hover:text-white" 
-                                  : "bg-premium-dark/10 hover:bg-premium-dark/30 hover:text-black"
-                              )}
-                            >
-                              Zobacz
-                            </a>
-                          </div>
-                        </div>
-                      ))
-                    }
-                  </div>
-                ) : (
-                  <p className={isDarkMode ? "text-premium-light/50" : "text-premium-dark/50"}>
-                    Brak artykułów do wyświetlenia.
-                  </p>
-                )}
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Miesięczne statystyki</h3>
-                {isLoading ? (
-                  <div className="h-48 flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-premium-purple"></div>
-                  </div>
-                ) : monthlyStats && monthlyStats.length > 0 ? (
-                  <div className="h-48">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={monthlyStats}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#ffffff10" : "#00000010"} />
-                        <XAxis 
-                          dataKey="name" 
-                          tick={{ fill: isDarkMode ? '#ffffff80' : '#00000080' }} 
-                        />
-                        <YAxis 
-                          tick={{ fill: isDarkMode ? '#ffffff80' : '#00000080' }}
-                        />
-                        <Tooltip
-                          contentStyle={{ 
-                            backgroundColor: isDarkMode ? '#1a1c23' : '#fff',
-                            borderColor: isDarkMode ? '#ffffff20' : '#00000020',
-                            color: isDarkMode ? '#fff' : '#000'
-                          }}
-                        />
-                        <Bar dataKey="visits" fill="#8884d8" name="Wizyty" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-48 flex items-center justify-center">
-                    <p className={isDarkMode ? "text-premium-light/50" : "text-premium-dark/50"}>
-                      Brak danych miesięcznych do wyświetlenia.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* How are statistics collected */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Jak zbieramy statystyki?</h2>
-          <div className={`${themeClass} p-6 rounded-xl`}>
-            <div className="space-y-4">
-              <p className={isDarkMode ? "text-premium-light/80" : "text-premium-dark/80"}>
-                Statystyki są zbierane na podstawie rzeczywistych danych z Google Analytics oraz aktywności użytkowników na Twojej witrynie. System automatycznie zlicza:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Ilość wyświetleń każdego artykułu</li>
-                <li>Całkowitą liczbę wizyt</li>
-                <li>Liczbę unikalnych użytkowników</li>
-                <li>Średni czas spędzony na stronie</li>
-                <li>Liczbę komentarzy</li>
-                <li>Liczbę polubień</li>
-              </ul>
-              <p className={isDarkMode ? "text-premium-light/80" : "text-premium-dark/80"}>
-                Dane miesięczne są generowane na podstawie daty publikacji artykułów i rzeczywistych analityk. 
-                Liczby zaczynają się od zera i rosną wraz z rzeczywistymi wizytami użytkowników na Twojej stronie.
-              </p>
-              <p className={cn("text-sm", isDarkMode ? "text-premium-light/70" : "text-premium-dark/70")}>
-                Google Analytics dostarcza nam precyzyjnych danych o ruchu na stronie, dzięki czemu możesz podejmować trafne decyzje dotyczące Twojej witryny.
-              </p>
-            </div>
-          </div>
+            
+            <TabsContent value="performance" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Wydajność strony</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <AreaChart data={activityData}>
+                      <defs>
+                        <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={colors.primary} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={colors.primary} stopOpacity={0.1}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(17, 17, 17, 0.9)', 
+                          borderColor: 'rgba(120, 77, 255, 0.5)',
+                          color: '#fff'
+                        }} 
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="visits" 
+                        stroke={colors.primary} 
+                        fillOpacity={1} 
+                        fill="url(#colorVisits)" 
+                        name="Odwiedziny"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            {/* Other tabs */}
+            <TabsContent value="activity">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Aktywność użytkowników</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <BarChart data={activityData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(17, 17, 17, 0.9)', 
+                          borderColor: 'rgba(120, 77, 255, 0.5)',
+                          color: '#fff'
+                        }} 
+                      />
+                      <Legend />
+                      <Bar dataKey="comments" fill={colors.secondary} name="Komentarze" />
+                      <Bar dataKey="likes" fill={colors.tertiary} name="Polubienia" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="engagement">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Zaangażowanie</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <AreaChart data={activityData}>
+                      <defs>
+                        <linearGradient id="colorComments" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={colors.secondary} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={colors.secondary} stopOpacity={0.1}/>
+                        </linearGradient>
+                        <linearGradient id="colorLikes" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={colors.tertiary} stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor={colors.tertiary} stopOpacity={0.1}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'rgba(17, 17, 17, 0.9)', 
+                          borderColor: 'rgba(120, 77, 255, 0.5)',
+                          color: '#fff'
+                        }} 
+                      />
+                      <Legend />
+                      <Area 
+                        type="monotone" 
+                        dataKey="comments" 
+                        stroke={colors.secondary} 
+                        fillOpacity={1} 
+                        fill="url(#colorComments)"
+                        name="Komentarze"
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="likes" 
+                        stroke={colors.tertiary} 
+                        fillOpacity={1} 
+                        fill="url(#colorLikes)"
+                        name="Polubienia"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </AdminLayout>

@@ -1,104 +1,104 @@
 
-import { useEffect } from "react";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import ScrollToTop from "@/components/ScrollToTop";
 import { AuthProvider } from "./utils/AuthProvider";
-import { ThemeProvider } from "./utils/themeContext";
-import { initGA, trackPageView } from "./utils/analytics";
-import RequireAuth from "./components/RequireAuth";
-import DotAnimation from "./components/DotAnimation";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import WebDevelopment from "./pages/WebDevelopment";
-import ECommerce from "./pages/ECommerce";
-import Seo from "./pages/Seo";
-import LocalSeo from "./pages/LocalSeo";
-import SeoAudit from "./pages/SeoAudit";
-import SeoOptimization from "./pages/SeoOptimization";
-import SeoCopywriting from "./pages/SeoCopywriting";
-import ContentPlan from "./pages/ContentPlan";
-import ContactPage from "./pages/ContactPage";
-import AboutUs from "./pages/AboutUs";
-import Projects from "./pages/Projects";
-import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Admin from "./pages/Admin";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Profile from "./pages/Profile";
-import AdminStats from "./pages/AdminStats";
-import AdminSettings from "./pages/AdminSettings";
-import AdminUsers from "./pages/AdminUsers";
+
+// Pages
+import Index from './pages/Index';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import AboutUs from './pages/AboutUs';
+import ContactPage from './pages/ContactPage';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import AdminSettings from './pages/AdminSettings';
+import AdminStats from './pages/AdminStats';
+import AdminUsers from './pages/AdminUsers';
 import AdminNotifications from "./pages/AdminNotifications";
+import Projects from './pages/Projects';
+import ContentPlan from './pages/ContentPlan';
 
-const queryClient = new QueryClient();
+// Service Pages
+import WebDevelopment from './pages/WebDevelopment';
+import Seo from './pages/Seo';
+import SeoAudit from './pages/SeoAudit';
+import SeoCopywriting from './pages/SeoCopywriting';
+import SeoOptimization from './pages/SeoOptimization';
+import LocalSeo from './pages/LocalSeo';
+import ECommerce from './pages/ECommerce';
+import GoogleAdsAudit from './pages/GoogleAdsAudit';
+import GoogleAdsCampaigns from './pages/GoogleAdsCampaigns';
+import MetaAdsCampaigns from './pages/MetaAdsCampaigns';
 
-// Analytics tracking component
-const AnalyticsTracker = () => {
-  const location = useLocation();
-  
-  useEffect(() => {
-    trackPageView(location.pathname);
-  }, [location]);
-  
-  return null;
-};
+// Blog
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import BlogPostEditor from './pages/BlogPostEditor';
 
-// Initialize Google Analytics
-if (typeof window !== 'undefined') {
-  initGA();
-}
+// Components
+import RequireAuth from './components/RequireAuth';
+import ScrollToTop from './components/ScrollToTop';
+import DotAnimation from './components/DotAnimation';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+function App() {
+  return (
     <ThemeProvider>
-      {/* Globalna animacja kropek/światełek */}
-      <DotAnimation />
-      
-      <BrowserRouter>
-        <AuthProvider>
+      <AuthProvider>
+        <Router>
           <ScrollToTop />
-          <AnalyticsTracker />
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
-              <Route path="/tworzenie-sklepow-internetowych" element={<ECommerce />} />
-              <Route path="/pozycjonowanie-stron-internetowych" element={<Seo />} />
-              <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
-              <Route path="/audyt-seo" element={<SeoAudit />} />
-              <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
-              <Route path="/copywriting-seo" element={<SeoCopywriting />} />
-              <Route path="/content-plan" element={<ContentPlan />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/about-us" element={<AboutUs />} />
+          <DotAnimation />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Protected routes */}
+            <Route element={<RequireAuth />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/stats" element={<AdminStats />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/notifications" element={<AdminNotifications />} />
+              <Route path="/admin/blog/new" element={<BlogPostEditor />} />
+              <Route path="/admin/blog/edit/:id" element={<BlogPostEditor />} />
               <Route path="/projects" element={<Projects />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
-              <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
-              <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
-              <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
-              <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
-              <Route path="/admin/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </TooltipProvider>
-        </AuthProvider>
-      </BrowserRouter>
+              <Route path="/content-plan" element={<ContentPlan />} />
+            </Route>
+
+            {/* Service pages */}
+            <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
+            <Route path="/pozycjonowanie-stron" element={<Seo />} />
+            <Route path="/audyt-seo" element={<SeoAudit />} />
+            <Route path="/copywriting-seo" element={<SeoCopywriting />} />
+            <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
+            <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
+            <Route path="/sklepy-internetowe" element={<ECommerce />} />
+            <Route path="/audyt-google-ads" element={<GoogleAdsAudit />} />
+            <Route path="/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
+            <Route path="/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
+
+            {/* Blog */}
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
-  </QueryClientProvider>
-);
+  );
+}
 
 export default App;
