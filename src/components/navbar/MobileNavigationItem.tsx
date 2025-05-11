@@ -19,7 +19,7 @@ const MobileNavigationItem: React.FC<MobileNavigationItemProps> = ({ to, label, 
     <Link to={to} 
       className={`${textColor} text-lg px-3 py-3 rounded-lg transition-colors ${
         isActive ? 'font-bold border-b-2 border-premium-blue' : ''
-      } hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+      } ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-gray-800 hover:text-white'}`}
       onClick={onClick}
     >
       {label}

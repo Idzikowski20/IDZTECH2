@@ -88,7 +88,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <span className="sr-only">Menu</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
+      <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/90' : 'bg-black/90'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
         <div className="px-6 py-8 flex flex-col h-full">
           <MobileMenuHeader onClose={handleNavigation} />
 

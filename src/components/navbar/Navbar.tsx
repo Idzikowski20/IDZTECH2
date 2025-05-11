@@ -28,21 +28,6 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
-
-  // Handle body scroll when mobile menu is open/closed
-  useEffect(() => {
-    // Only modify body scroll if the menu state changes
-    if (isMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    
-    return () => {
-      // Always cleanup by ensuring scroll is enabled when component unmounts
-      document.body.style.overflow = '';
-    };
-  }, [isMenuOpen]);
   
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${

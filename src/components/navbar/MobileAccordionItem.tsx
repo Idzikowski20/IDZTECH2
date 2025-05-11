@@ -46,7 +46,9 @@ const MobileAccordionItem: React.FC<MobileAccordionItemProps> = ({
   return (
     <AccordionItem value={value} className={theme === 'light' ? 'border-gray-200' : 'border-white/10'}>
       <AccordionTrigger 
-        className={`${textColor} text-lg px-3 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white rounded-lg ${
+        className={`${textColor} text-lg px-3 py-2 ${
+          theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-gray-800 hover:text-white'
+        } rounded-lg ${
           isAnyChildActive ? 'font-bold border-b-2 border-premium-blue' : ''
         }`}
       >
@@ -65,7 +67,7 @@ const MobileAccordionItem: React.FC<MobileAccordionItemProps> = ({
                   to={item.path} 
                   className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${
                     isActive(item.path) ? 'font-bold border-b border-premium-blue' : ''
-                  } hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                  } ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-gray-800 hover:text-white'}`}
                   onClick={onClick}
                 >
                   {item.label}
