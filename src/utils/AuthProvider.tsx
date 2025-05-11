@@ -5,7 +5,8 @@ import { useProfileManager } from "@/hooks/useProfileManager";
 import { AuthContext, AuthContextType } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export { ExtendedUserProfile } from "@/contexts/AuthContext";
+// Fix the re-export by using "export type" syntax
+export type { ExtendedUserProfile } from "@/contexts/AuthContext";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
