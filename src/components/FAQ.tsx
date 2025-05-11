@@ -31,12 +31,12 @@ const FAQ = () => {
   return (
     <section className="py-20 relative overflow-hidden">
       {/* Light effects with fixed position */}
-      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
-      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
-      <div className="fixed bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
+      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/20 rounded-full blur-[70px] animate-pulse-slow"></div>
+      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/20 rounded-full blur-[80px] animate-pulse-slow delay-150"></div>
+      <div className="fixed bottom-40 left-1/2 w-28 h-28 bg-premium-pink/20 rounded-full blur-[75px] animate-pulse-slow delay-300"></div>
       
-      <div className="fixed top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-      <div className="fixed bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+      <div className="fixed top-0 right-0 w-96 h-96 bg-premium-purple/10 rounded-full blur-[120px] -z-10"></div>
+      <div className="fixed bottom-0 left-0 w-96 h-96 bg-premium-blue/10 rounded-full blur-[120px] -z-10"></div>
 
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -71,7 +71,7 @@ const FAQ = () => {
           </div>
 
           {/* Right Side - CTA */}
-          <div className={`${theme === 'light' ? 'bg-gray-100 border-gray-300' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-8 h-full flex flex-col justify-center`}>
+          <div className={`${theme === 'light' ? 'bg-white shadow-md border border-gray-100' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-8 h-full flex flex-col justify-center`}>
             <div className="space-y-6">
               <h3 className="text-2xl font-bold">Kompleksowa agencja marketingowa, która przynosi realne rezultaty</h3>
               <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'}`}>

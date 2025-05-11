@@ -1,10 +1,13 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+
 const SeoCopywriting = () => {
-  return <div className="min-h-screen bg-premium-dark">
+  return (
+    <div className="min-h-screen">
       <Navbar />
       
       {/* Hero Section */}
@@ -130,44 +133,6 @@ const SeoCopywriting = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">Cennik copywritingu SEO</h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {[{
-          title: "Podstawowy",
-          price: "od 150 zł",
-          features: ["Teksty do 2000 znaków", "Podstawowa optymalizacja SEO", "1 poprawka", "Czas realizacji 3-5 dni"]
-        }, {
-          title: "Standardowy",
-          price: "od 250 zł",
-          features: ["Teksty do 4000 znaków", "Pełna optymalizacja SEO", "2 poprawki", "Czas realizacji 2-4 dni"]
-        }, {
-          title: "Premium",
-          price: "od 450 zł",
-          features: ["Teksty do 8000 znaków", "Zaawansowana optymalizacja SEO", "Nieograniczone poprawki", "Priorytetowa realizacja"]
-        }].map((plan, index) => <Card key={index} className={`border ${index === 1 ? 'bg-premium-gradient border-transparent' : 'border-premium-light/10 bg-premium-dark/70'} rounded-xl overflow-hidden animate-fade-in`} style={{
-          animationDelay: `${0.5 + index * 0.2}s`
-        }}>
-              <CardContent className="p-8 bg-zinc-950">
-                <h3 className="text-2xl font-bold mb-2 text-slate-50">{plan.title}</h3>
-                <div className="text-3xl font-bold mb-4 text-premium-purple bg-transparent">{plan.price}</div>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => <li key={i} className="flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-premium-purple/30 flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-premium-purple"></div>
-                      </div>
-                      <span className="text-premium-light/80">{feature}</span>
-                    </li>)}
-                </ul>
-                <Button className={`w-full ${index === 1 ? 'bg-white text-premium-purple hover:bg-white/90' : 'bg-premium-gradient hover:opacity-90'} transition-all`}>
-                  Zamów teraz
-                </Button>
-              </CardContent>
-            </Card>)}
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto mt-12 mb-12 bg-premium-gradient rounded-3xl">
         <div className="max-w-3xl mx-auto text-center space-y-6 py-8">
@@ -182,6 +147,8 @@ const SeoCopywriting = () => {
       </section>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default SeoCopywriting;
