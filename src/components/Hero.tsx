@@ -72,17 +72,17 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Hero image on the right */}
+          {/* Hero image on the right - Updated with the new image */}
           <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <div className="relative">
               <div className="absolute -inset-1.5 bg-premium-gradient rounded-2xl blur-xl opacity-50"></div>
               <div className="relative overflow-hidden rounded-2xl border border-premium-light/10">
                 <img 
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
-                  alt="Web Development" 
-                  className="w-full h-full object-cover"
+                  src="/lovable-uploads/af7b17cd-510f-468f-a8b1-5b0c5be88c9f.png" 
+                  alt="Tworzenie Stron Internetowych" 
+                  className="w-full h-full object-contain bg-black"
                 />
-                <div className="absolute inset-0 bg-premium-dark/30"></div>
+                <div className="absolute inset-0 bg-premium-dark/20"></div>
               </div>
             </div>
           </div>
