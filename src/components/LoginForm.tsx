@@ -53,10 +53,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         });
         
         if (onSuccess) {
-          onSuccess();
-        } else {
-          navigate('/admin');
+          setTimeout(() => {
+            onSuccess();
+          }, 0);
         }
+        // Przekierowania obsłuży AuthProvider
       } else {
         toast({
           title: "Błąd logowania",
@@ -118,14 +119,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
             <Button
               variant="link"
               type="button"
-              className="text-premium-light/70"
+              className="text-premium-light/70 hover:text-white"
               onClick={() => navigate('/forgot-password')}
             >
               Nie pamiętasz hasła?
             </Button>
           </div>
           
-          <Button type="submit" className="w-full bg-premium-gradient">
+          <Button type="submit" className="w-full bg-premium-gradient hover:bg-premium-gradient/90">
             Zaloguj się
           </Button>
           
@@ -134,7 +135,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
             <Button
               variant="link"
               type="button"
-              className="p-0"
+              className="p-0 hover:text-white"
               onClick={() => navigate('/register')}
             >
               Zarejestruj się

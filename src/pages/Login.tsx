@@ -26,16 +26,26 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isAuthenticated } = useAuth();
+  const { signIn, isAuthenticated, user } = useAuth();
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
+  // Log state for debugging
+  useEffect(() => {
+    console.log("Login page - Auth state:", {
+      isAuthenticated,
+      from,
+      currentPath: location.pathname,
+      user: user ? "User exists" : "No user"
+    });
+  }, [isAuthenticated, from, location.pathname, user]);
+
   // Redirect if already logged in
   useEffect(() => {
-    console.log("Login page - Auth state:", isAuthenticated ? "Authenticated" : "Not authenticated");
     if (isAuthenticated) {
       console.log("Already authenticated, redirecting to:", from);
+      // Use timeout to avoid potential router issues
       setTimeout(() => {
         navigate(from);
       }, 0);
@@ -68,11 +78,9 @@ const Login = () => {
           variant: "destructive"
         });
         setIsLoading(false);
-      } else {
-        console.log("Login successful");
-        // Navigation will be handled by the auth state change handler
-        // or by the useEffect above that watches isAuthenticated
-      }
+      } 
+      // Navigation will be handled by the auth state change handler
+      // or by the useEffect above that watches isAuthenticated
     } catch (error: any) {
       console.error("Unexpected login error:", error);
       toast({
@@ -117,7 +125,7 @@ const Login = () => {
                 <Label htmlFor="password">Hasło</Label>
                 <Button 
                   variant="link" 
-                  className="p-0 h-auto text-premium-purple"
+                  className="p-0 h-auto text-premium-purple hover:text-white"
                   type="button"
                   onClick={() => navigate('/forgot-password')}
                   disabled={isLoading}
@@ -149,7 +157,11 @@ const Login = () => {
               </Label>
             </div>
             
-            <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              className="w-full bg-premium-gradient hover:bg-premium-gradient/90" 
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <span className="flex items-center">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -163,7 +175,7 @@ const Login = () => {
               <Button
                 variant="link"
                 type="button"
-                className="p-0"
+                className="p-0 hover:text-white"
                 onClick={() => navigate('/register')}
               >
                 Zarejestruj się

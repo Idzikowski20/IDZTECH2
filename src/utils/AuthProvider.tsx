@@ -27,11 +27,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
   const location = useLocation();
 
+  console.log("AuthProvider initialized, current path:", location.pathname);
+  
   useEffect(() => {
-    console.log("AuthProvider initialized");
+    console.log("Setting up auth listeners");
     
-    // First check existing session
-    const initializeAuth = async () => {
+    // First set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        console.log("Auth state changed:", event);
+        
+        setSession(currentSession);
+        setUser(currentSession?.user || null);
+        setIsAuthenticated(!!currentSession?.user);
+        setLoading(false);
+        
+        // Handle redirection on login
+        if (event === 'SIGNED_IN') {
+          toast({
+            title: "Zalogowano pomyślnie",
+            description: "Witamy z powrotem!"
+          });
+          
+          // Use setTimeout to break the potential synchronous loop
+          if (location.pathname === '/login') {
+            console.log("Redirecting to /admin after login");
+            setTimeout(() => {
+              navigate('/admin');
+            }, 0);
+          }
+        }
+      }
+    );
+    
+    // Then check existing session
+    const checkSession = async () => {
       try {
         console.log("Getting session");
         const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -47,40 +77,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     
-    initializeAuth();
-    
-    // Then set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        console.log("Auth state changed:", event);
-        setSession(currentSession);
-        setUser(currentSession?.user || null);
-        setIsAuthenticated(!!currentSession?.user);
-        
-        // Handle redirection on login
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Zalogowano pomyślnie",
-            description: "Witamy z powrotem!"
-          });
-          
-          // Use setTimeout to break the potential synchronous loop
-          setTimeout(() => {
-            navigate('/admin');
-          }, 0);
-        }
-
-        setLoading(false);
-      }
-    );
+    checkSession();
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, location.pathname]);
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {
+      console.log("Attempting to sign in:", email);
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password
@@ -93,10 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: error.message || "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
-      } else {
-        console.log("Sign in successful, redirecting to /admin");
-        // The redirect will be handled by onAuthStateChange
-      }
+      } 
       
       return { error };
     } catch (error) {
@@ -111,7 +114,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
-      navigate('/');
+      
+      // Use setTimeout to avoid potential router issues
+      setTimeout(() => {
+        navigate('/');
+      }, 0);
     } catch (error) {
       console.error('Sign out error:', error);
     }

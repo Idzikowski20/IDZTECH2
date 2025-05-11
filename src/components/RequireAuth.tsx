@@ -31,7 +31,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   if (loading) {
     // Display loading indicator while verifying the session
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-premium-dark">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple"></div>
       </div>
     );
