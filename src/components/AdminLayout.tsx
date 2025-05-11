@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/utils/authStore';
+import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNotifications } from '@/utils/notifications';
@@ -35,8 +35,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   };
 
   const displayName = user?.email ? user.email.split('@')[0] : 'User';
-  // Safely access user_metadata or use default values
-  const userAvatar = user?.profilePicture || '';
+  const userAvatar = user?.user_metadata?.avatar_url || '';
 
   return (
     <div className="min-h-screen bg-premium-dark">
@@ -50,7 +49,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <Link to="/">
               <Button 
                 variant="ghost" 
-                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
+                className="text-premium-light hover:bg-white hover:text-black flex gap-2 items-center"
               >
                 <Home size={18} />
                 Wróć na stronę główną
@@ -95,7 +94,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleLogout}
-                  className="text-white bg-red-500 hover:bg-red-600 focus:text-white hover:text-white"
+                  className="text-red-500 hover:text-white focus:text-white"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Wyloguj</span>
@@ -177,7 +176,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <div className="pt-4 mt-6 border-t border-premium-light/10">
               <button
                 onClick={() => signOut()}
-                className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
+                className={`flex items-center w-full p-3 rounded-lg text-premium-light/80 hover:bg-premium-light/5 transition-colors group`}
               >
                 <LogOut className="w-5 h-5 mr-3" />
                 {isSidebarOpen && <span>Wyloguj</span>}

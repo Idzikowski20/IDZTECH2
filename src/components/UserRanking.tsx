@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import { useAuth, User } from '@/utils/authStore';
+import React, { useEffect } from 'react';
+import { useAuth } from '@/utils/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Award, Medal, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,27 +19,13 @@ const UserRanking: React.FC<UserRankingProps> = ({
 }) => {
   const { getUserRanking, refreshUserStats } = useAuth();
   const { posts } = useBlogStore();
-  const [users, setUsers] = useState<User[]>([]);
   
   // Force refresh user stats when component mounts to ensure data is up-to-date
   useEffect(() => {
     refreshUserStats?.();
-    
-    // Fetch and handle users data
-    const fetchUsers = async () => {
-      try {
-        const usersList = await getUserRanking();
-        setUsers(usersList);
-      } catch (error) {
-        console.error("Error fetching user ranking:", error);
-        setUsers([]);
-      }
-    };
-    
-    fetchUsers();
-  }, [refreshUserStats, posts, getUserRanking]);
+  }, [refreshUserStats, posts]);
   
-  // Get displayed users based on limit
+  const users = getUserRanking();
   const displayUsers = users.slice(0, limit);
   
   return (
@@ -64,7 +50,7 @@ const UserRanking: React.FC<UserRankingProps> = ({
             key={user.id}
             className={cn(
               "flex items-center justify-between p-3 rounded-lg transition-all",
-              "border border-premium-light/10 bg-premium-dark/50 hover:bg-white hover:text-black"
+              "border border-premium-light/10 bg-premium-dark/50 hover:bg-premium-light/5"
             )}
           >
             <div className="flex items-center gap-3">

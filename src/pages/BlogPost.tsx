@@ -7,11 +7,9 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/auth';
 import CommentSection from '@/components/CommentSection';
 import LikeButton from '@/components/LikeButton';
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useTheme } from '@/utils/themeContext';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -19,8 +17,6 @@ const BlogPost = () => {
   const { getPostBySlug, incrementView } = useBlogStore();
   const { user } = useAuth();
   const viewCountUpdated = useRef(false);
-  const isMobile = useIsMobile();
-  const { theme } = useTheme();
   
   const post = slug ? getPostBySlug(slug) : undefined;
   
@@ -61,9 +57,6 @@ const BlogPost = () => {
   const commentsCount = post.comments ? post.comments.length : 0;
   const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
 
-  // Check if user is admin, moderator or blogger (has special permissions)
-  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
-
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -72,42 +65,34 @@ const BlogPost = () => {
       <section className="pt-32 pb-10">
         <div className="container mx-auto px-4">
           <Link to="/blog">
-            <Button variant="ghost" className={`mb-6 hover:bg-premium-light/5 hover:text-white ${theme === 'light' ? 'text-black hover:text-white' : ''}`}>
+            <Button variant="ghost" className="mb-6 hover:bg-premium-light/5 hover:text-white">
               <ArrowLeft size={18} className="mr-2" /> Wróć do bloga
             </Button>
           </Link>
           
           <div className="max-w-3xl mx-auto">
-            <div className="flex flex-wrap items-center text-sm text-premium-light/60 mb-4 gap-2">
+            <div className="flex items-center text-sm text-premium-light/60 mb-4">
               <div className="flex items-center">
                 <Clock size={14} className="mr-1" />
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
-              
-              {(!isMobile || hasSpecialRoles) && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span>{post.categories.join(', ')}</span>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Eye size={14} className="mr-1" />
-                    <span>{post.views} wyświetleń</span>
-                  </div>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <MessageCircle size={14} className="mr-1" />
-                    <span>{commentsCount} komentarzy</span>
-                  </div>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Heart size={14} className="mr-1" />
-                    <span>{likesCount} polubień</span>
-                  </div>
-                </>
-              )}
+              <span className="mx-2">•</span>
+              <span>{post.categories.join(', ')}</span>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <Eye size={14} className="mr-1" />
+                <span>{post.views} wyświetleń</span>
+              </div>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <MessageCircle size={14} className="mr-1" />
+                <span>{commentsCount} komentarzy</span>
+              </div>
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <Heart size={14} className="mr-1" />
+                <span>{likesCount} polubień</span>
+              </div>
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>

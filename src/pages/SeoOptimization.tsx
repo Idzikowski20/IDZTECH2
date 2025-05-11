@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const SeoOptimization = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
       {/* Hero Section */}
@@ -183,7 +183,7 @@ const SeoOptimization = () => {
                 </div>
               </HoverCardTrigger>
               <HoverCardContent className="w-80 bg-premium-dark/95 border border-premium-light/10 p-4">
-                <p className="text-sm">{faq.answer}</p>
+                <p className="text-sm text-premium-light/80">{faq.answer}</p>
               </HoverCardContent>
             </HoverCard>
           ))}

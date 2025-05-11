@@ -5,38 +5,8 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, Users, Award, Lightbulb, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@/utils/themeContext';
 
 const AboutUs = () => {
-  const { theme } = useTheme();
-
-  const teamMembers = [
-    { 
-      name: 'Patryk Idzikowski', 
-      role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
-    },
-    { 
-      name: 'Lidia Śliwa', 
-      role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
-    },
-    { 
-      name: 'Przemek Idzikowski', 
-      role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
-    },
-    { 
-      name: 'Aleksandra Górecka', 
-      role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=988&q=80'
-    }
-  ];
-  
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -67,7 +37,7 @@ const AboutUs = () => {
                   </Button>
                 </Link>
                 <Link to="/projects">
-                  <Button className={`border border-gray-200 rounded-full px-8 py-6 transition-all duration-800 bg-transparent ${theme === 'light' ? 'text-black hover:bg-[#1A1F2C] hover:text-white' : 'text-slate-50 hover:bg-[#1A1F2C] hover:text-white'}`}>
+                  <Button className="border border-gray-200 text-slate-50 rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white">
                     Zobacz nasze realizacje
                   </Button>
                 </Link>
@@ -102,7 +72,7 @@ const AboutUs = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:scale-110 duration-300 animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:-translate-y-2 duration-300 animate-fade-in" style={{ animationDelay: '0.6s' }}>
               <div className="w-12 h-12 rounded-lg bg-premium-gradient flex items-center justify-center mb-4">
                 <Users size={24} className="text-white" />
               </div>
@@ -112,7 +82,7 @@ const AboutUs = () => {
               </p>
             </div>
             
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:scale-110 duration-300 animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:-translate-y-2 duration-300 animate-fade-in" style={{ animationDelay: '0.7s' }}>
               <div className="w-12 h-12 rounded-lg bg-premium-gradient flex items-center justify-center mb-4">
                 <Award size={24} className="text-white" />
               </div>
@@ -122,7 +92,7 @@ const AboutUs = () => {
               </p>
             </div>
             
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:scale-110 duration-300 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:-translate-y-2 duration-300 animate-fade-in" style={{ animationDelay: '0.8s' }}>
               <div className="w-12 h-12 rounded-lg bg-premium-gradient flex items-center justify-center mb-4">
                 <Lightbulb size={24} className="text-white" />
               </div>
@@ -132,7 +102,7 @@ const AboutUs = () => {
               </p>
             </div>
             
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:scale-110 duration-300 animate-fade-in" style={{ animationDelay: '0.9s' }}>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform hover:-translate-y-2 duration-300 animate-fade-in" style={{ animationDelay: '0.9s' }}>
               <div className="w-12 h-12 rounded-lg bg-premium-gradient flex items-center justify-center mb-4">
                 <Clock size={24} className="text-white" />
               </div>
@@ -160,20 +130,20 @@ const AboutUs = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden transition-transform hover:scale-110 duration-300 animate-fade-in" style={{ animationDelay: `${0.6 + index * 0.1}s` }}>
+            {[1, 2, 3, 4].map((item, index) => (
+              <div key={index} className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden transition-transform hover:-translate-y-2 duration-300 animate-fade-in" style={{ animationDelay: `${0.6 + index * 0.1}s` }}>
                 <div className="relative">
                   <img 
-                    src={member.image} 
-                    alt={`${member.name} - ${member.role}`} 
+                    src={`https://images.unsplash.com/photo-156132757457${index}-a3822add1a86?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80`} 
+                    alt={`Team Member ${index + 1}`} 
                     className="w-full h-64 object-cover" 
                   />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-                  <p className="text-premium-purple mb-3">{member.role}</p>
+                  <h3 className="text-xl font-semibold mb-1">Jan Kowalski</h3>
+                  <p className="text-premium-purple mb-3">Web Developer</p>
                   <p className="text-premium-light/70 text-sm">
-                    {member.description}
+                    Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.
                   </p>
                 </div>
               </div>

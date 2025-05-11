@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, MessageCircle, CornerDownRight } from 'lucide-react';
 import { sendApprovalRequest } from '@/utils/notifications';
-import { useTheme } from '@/utils/themeContext';
 
 interface CommentSectionProps {
   postId: string;
@@ -31,7 +30,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const { isAuthenticated, user } = useAuth();
   const { addComment, deleteComment, getPostComments, addReplyToComment, deleteReplyFromComment } = useBlogStore();
   const { toast } = useToast();
-  const { theme } = useTheme();
   
   // Add null check and default to empty array if comments are undefined
   const comments = getPostComments(postId) || [];
@@ -312,17 +310,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                   {comment.replies.map((reply: CommentReply) => (
                     <div 
                       key={reply.id} 
-                      className="p-3 rounded-lg bg-premium-dark/30 border border-premium-light/10 relative"
+                      className="p-3 rounded-lg bg-premium-dark/30 border border-premium-light/10"
                     >
-                      {/* Reply arrow indicator */}
-                      <div className="absolute -left-5 top-1/2 -translate-y-1/2">
-                        <div className={theme === 'light' ? "text-black" : "text-white"}>
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                      
                       <div className="flex justify-between mb-2">
                         <div className="flex items-center">
                           <Avatar className="h-6 w-6 mr-2">
@@ -400,7 +389,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete confirmation dialogs */}
+      {/* Delete confirmation dialog for comments */}
       <AlertDialog open={!!commentToDelete} onOpenChange={(open) => !open && setCommentToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

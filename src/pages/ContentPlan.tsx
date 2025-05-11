@@ -1,17 +1,19 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
 const ContentPlan = () => {
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4 md:px-8 lg:px-16 container mx-auto relative overflow-hidden">
+        {/* Light effects */}
+        <div className="absolute top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
+        <div className="absolute top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+        <div className="absolute bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
+        
         <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in relative z-10">
           <h1 className="text-4xl md:text-5xl font-bold bg-premium-gradient bg-clip-text text-transparent">
             Content Plan
@@ -59,7 +61,7 @@ const ContentPlan = () => {
           <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in" style={{
           animationDelay: "0.7s"
         }}>
-            <img src="https://img.freepik.com/free-vector/content-concept-illustration_114360-1091.jpg" alt="Content Plan" className="w-full h-auto object-cover" />
+            <img src="https://images.unsplash.com/photo-1531297484001-80022131f5a1" alt="Content Plan" className="w-full h-auto object-cover" />
           </div>
         </div>
       </section>
@@ -189,8 +191,6 @@ const ContentPlan = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ContentPlan;

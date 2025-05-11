@@ -6,14 +6,12 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/Footer";
 import PageDotAnimation from "@/components/PageDotAnimation";
 import { ArrowLeft } from "lucide-react";
-import { useTheme } from "@/utils/themeContext";
 
 const Error404 = () => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-premium-dark">
+    <div className="min-h-screen bg-premium-dark flex flex-col">
       <Navbar />
       <PageDotAnimation />
       
@@ -29,7 +27,7 @@ const Error404 = () => {
             <Button 
               onClick={() => navigate(-1)} 
               variant="outline" 
-              className={`border-white/10 ${theme === 'light' ? 'hover:bg-black hover:text-white' : 'hover:bg-white hover:text-black'}`}
+              className="border-white/10 hover:bg-white hover:text-black"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Wróć do poprzedniej strony
