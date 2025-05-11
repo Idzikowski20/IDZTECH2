@@ -11,13 +11,22 @@ const Hero = () => {
   return (
     <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative overflow-hidden">
       {/* Fixed light effects with limited quantity */}
-      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/20 rounded-full blur-[70px] animate-pulse-slow"></div>
-      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/20 rounded-full blur-[80px] animate-pulse-slow delay-150"></div>
+      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
+      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           {/* Hero content on the left */}
-          <div className="w-full lg:w-1/2">            
+          <div className="w-full lg:w-1/2">
+            <div 
+              className="mb-6 animate-fade-in opacity-0" 
+              style={{animationFillMode: 'forwards', animationDelay: '0.1s'}}
+            >
+              <span className="bg-clip-text text-transparent bg-premium-gradient font-mono font-bold">
+                IDZ.TECH_
+              </span>
+            </div>
+            
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-aeonik animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.2s'}}
@@ -67,7 +76,7 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Hero image on the right */}
+          {/* Hero image on the right - Updated with animation */}
           <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <div className="relative">
               <img 

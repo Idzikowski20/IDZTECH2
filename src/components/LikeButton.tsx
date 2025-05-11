@@ -6,7 +6,6 @@ import { useAuth } from '@/utils/AuthProvider';
 import { useBlogStore } from '@/utils/blog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/utils/themeContext';
 
 interface LikeButtonProps {
   postId: string;
@@ -14,7 +13,6 @@ interface LikeButtonProps {
 
 const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
   const { isAuthenticated, user } = useAuth();
-  const { theme } = useTheme();
   const { toggleLike, hasUserLiked, addGuestLike, hasDeviceLiked, toggleDeviceLike } = useBlogStore();
   const { toast } = useToast();
   
@@ -66,9 +64,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId }) => {
       onClick={handleLikeClick}
       className={cn(
         "flex items-center gap-2 transition-colors",
-        isLiked 
-          ? "text-red-500 hover:text-red-600" 
-          : "text-premium-light/70 hover:bg-black hover:text-white"
+        isLiked ? "text-red-500 hover:text-red-600" : "text-premium-light/70 hover:text-black"
       )}
     >
       <Heart 
