@@ -31,10 +31,10 @@ const Services = () => {
       icon: '📈'
     },
     {
-      title: 'Kampanie Google Ads',
-      description: 'Prowadzimy skuteczne kampanie reklamowe, które generują ruch i konwersje dla Twojej firmy.',
-      link: '/kampanie-google-ads',
-      icon: '🎯'
+      title: 'Pozycjonowanie Lokalne',
+      description: 'Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.',
+      link: '/pozycjonowanie-lokalne',
+      icon: '📍'
     }
   ];
 
@@ -75,7 +75,7 @@ const Services = () => {
               </p>
               <Link 
                 to={service.link}
-                className="block" // Make tap target larger
+                className="block" 
                 style={{ touchAction: 'manipulation' }}
               >
                 <Button 

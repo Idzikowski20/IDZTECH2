@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Globe, ShoppingCart, Search, MapPin } from 'lucide-react';
+import { ArrowRight, Globe, ShoppingCart, Search, MapPin, FileText, PenTool, BarChart3 } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
 
 const OurServices = () => {
@@ -31,6 +31,30 @@ const OurServices = () => {
       title: "Pozycjonowanie lokalne",
       description: "Zwiększ widoczność swojego biznesu w lokalnych wynikach wyszukiwania Google.",
       link: "/pozycjonowanie-lokalne"
+    },
+    {
+      icon: <FileText className="w-10 h-10 text-orange-500" />,
+      title: "Audyt SEO",
+      description: "Szczegółowa analiza Twojej strony pod kątem SEO z konkretnymi rekomendacjami zmian.",
+      link: "/audyt-seo"
+    },
+    {
+      icon: <BarChart3 className="w-10 h-10 text-blue-500" />,
+      title: "Optymalizacja SEO",
+      description: "Kompleksowa optymalizacja techniczna Twojej strony pod kątem wymagań wyszukiwarek.",
+      link: "/optymalizacja-seo"
+    },
+    {
+      icon: <PenTool className="w-10 h-10 text-purple-500" />,
+      title: "Copywriting SEO",
+      description: "Tworzenie angażujących treści zoptymalizowanych pod kątem wyszukiwarek.",
+      link: "/copywriting-seo"
+    },
+    {
+      icon: <BarChart3 className="w-10 h-10 text-teal-500" />,
+      title: "Content Plan",
+      description: "Strategiczne planowanie treści, które przyciągną czytelników i zwiększą konwersje.",
+      link: "/content-plan"
     }
   ];
 
@@ -61,7 +85,7 @@ const OurServices = () => {
               </p>
               <Link 
                 to={service.link} 
-                className="inline-flex items-center text-premium-purple hover:scale-105 transition-transform"
+                className="inline-flex items-center text-premium-purple hover:scale-110 transition-transform"
               >
                 <span>Dowiedz się więcej</span>
                 <ArrowRight className="ml-2 h-4 w-4" />

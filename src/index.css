@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
@@ -182,39 +183,33 @@
     @apply text-premium-light;
   }
   
-  /* Hover effects in navigation - Fixed for both light and dark mode */
+  /* Hover effects in navigation with white text - Fixed for both light and dark mode */
+  .light .hover\:bg-white:hover,
   .light .hover\:bg-black:hover {
-    background-color: #000000 !important;
     color: #FFFFFF !important;
+  }
+
+  .dark .hover\:bg-white:hover,
+  .dark .hover\:bg-black:hover {
+    color: #000000 !important;
   }
 
   .light .hover\:text-white:hover {
     color: #FFFFFF !important;
   }
 
-  .dark .hover\:bg-black:hover {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
-  }
-
-  .dark .hover\:text-white:hover {
-    color: #FFFFFF !important;
-  }
-  
-  /* Fixed for navigation in light mode */
-  .light nav a:hover,
-  .light nav button:hover {
-    background-color: #000000 !important;
-    color: #FFFFFF !important;
-  }
-  
-  /* Fix for hover effects in dark mode */
-  .dark .hover\:bg-white:hover {
-    background-color: #FFFFFF !important;
-  }
-
   .dark .hover\:text-black:hover {
     color: #000000 !important;
+  }
+  
+  /* Fixed for light mode dropdown navigation items */
+  .light .bg-black\/80 .text-white,
+  .light .bg-black\/80 p {
+    color: #FFFFFF !important;
+  }
+
+  .light .bg-black\/80 .hover\:bg-white\/10:hover .text-white {
+    color: #FFFFFF !important;
   }
   
   /* Card styles in light mode */
