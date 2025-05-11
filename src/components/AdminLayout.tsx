@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -36,7 +35,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   };
 
   const displayName = user?.email ? user.email.split('@')[0] : 'User';
-  const userAvatar = user?.user_metadata?.avatar_url || '';
+  // Safely access user_metadata or use default values
+  const userAvatar = user?.profilePicture || '';
 
   return (
     <div className="min-h-screen bg-premium-dark">
@@ -50,7 +50,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             <Link to="/">
               <Button 
                 variant="ghost" 
-                className="hover:bg-white hover:text-black flex gap-2 items-center dark:text-premium-light text-black"
+                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
               >
                 <Home size={18} />
                 Wróć na stronę główną

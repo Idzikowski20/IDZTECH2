@@ -1,4 +1,3 @@
-
 // Supabase specific integration for authentication
 import { supabase } from '@/utils/supabaseClient';
 import { users, updateUsersArray, passwords } from './authUtils';
@@ -102,6 +101,16 @@ export const supabaseSignOut = async () => {
   return supabase.auth.signOut();
 };
 
+export const supabaseUpdatePassword = async (newPassword: string) => {
+  try {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    return { error };
+  } catch (error) {
+    console.error("Error in supabaseUpdatePassword:", error);
+    return { error };
+  }
+};
+
 export const supabaseCreateUser = async (email: string, password: string, userData: any) => {
   try {
     const { data, error } = await supabase.auth.admin.createUser({
@@ -147,16 +156,6 @@ export const supabaseResetPassword = async (email: string) => {
     return { error };
   } catch (error) {
     console.error("Error in supabaseResetPassword:", error);
-    return { error };
-  }
-};
-
-export const supabaseUpdatePassword = async (newPassword: string) => {
-  try {
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    return { error };
-  } catch (error) {
-    console.error("Error in supabaseUpdatePassword:", error);
     return { error };
   }
 };

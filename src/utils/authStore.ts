@@ -1,11 +1,10 @@
-
 // Main authentication store using zustand
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { AuthState, User, UserRole } from './authTypes';
 import { users, passwords, resetTokens } from './authUtils';
 import { refreshUserStats, getUserRanking, getTopUser, getTopUserOfMonth } from './authStatsFunctions';
-import { fetchSupabaseUsers, supabaseSignIn, supabaseSignUp, supabaseSignOut, supabaseCreateUser, supabaseUpdateUserRole, supabaseDeleteUser, supabaseResetPassword } from './authSupabaseIntegration';
+import { fetchSupabaseUsers, supabaseSignIn, supabaseSignUp, supabaseSignOut, supabaseCreateUser, supabaseUpdateUserRole, supabaseDeleteUser, supabaseResetPassword, supabaseUpdatePassword } from './authSupabaseIntegration';
 
 export const useAuth = create<AuthState>()(
   persist(
@@ -13,10 +12,14 @@ export const useAuth = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       rememberMe: false,
+      loading: false, // Add loading state
       
       fetchSupabaseUsers,
       
-      login: async (email: string, password: string, remember = false) => {
+      signIn: async (email: string, password: string, remember = false) => {
+        // Add loading state
+        set({ loading: true });
+        
         try {
           // Try to login with Supabase first
           const { data: supaData, error: supaError } = await supabaseSignIn(email, password);
@@ -55,7 +58,7 @@ export const useAuth = create<AuthState>()(
               user.lastLogin = new Date().toISOString();
             }
             
-            set({ user, isAuthenticated: true, rememberMe: remember });
+            set({ user, isAuthenticated: true, rememberMe: remember, loading: false });
             return true;
           } else if (supaError) {
             // Fallback to mock login system
@@ -63,14 +66,16 @@ export const useAuth = create<AuthState>()(
             
             if (mockUser && passwords[email] === password) {
               mockUser.lastLogin = new Date().toISOString();
-              set({ user: mockUser, isAuthenticated: true, rememberMe: remember });
+              set({ user: mockUser, isAuthenticated: true, rememberMe: remember, loading: false });
               return true;
             }
           }
           
+          set({ loading: false });
           return false;
         } catch (error) {
           console.error('Login error:', error);
+          set({ loading: false });
           return false;
         }
       },

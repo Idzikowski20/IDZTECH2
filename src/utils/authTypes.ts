@@ -30,6 +30,11 @@ export interface User {
   commentsCount?: number;
   likesCount?: number;
   stats: UserStats;
+  user_metadata?: {
+    avatar_url?: string;
+    name?: string;
+    last_name?: string;
+  };
 }
 
 export interface ResetToken {
@@ -42,9 +47,11 @@ export interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   rememberMe: boolean;
+  loading: boolean;
   login: (email: string, password: string, remember?: boolean) => Promise<boolean>;
   register: (email: string, name: string, password: string) => Promise<boolean>;
   logout: () => void;
+  signIn: (email: string, password: string, remember?: boolean) => Promise<boolean>;
   updateProfile: (data: Partial<User>) => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
   getUsers: () => Promise<User[]>;

@@ -37,7 +37,7 @@ const UserRanking: React.FC<UserRankingProps> = ({
     };
     
     fetchUsers();
-  }, [refreshUserStats, posts]);
+  }, [refreshUserStats, posts, getUserRanking]);
   
   // Get displayed users based on limit
   const displayUsers = users.slice(0, limit);
