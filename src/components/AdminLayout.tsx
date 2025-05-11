@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, LogOut, Settings, User } from 'lucide-react';
@@ -19,9 +18,11 @@ import NotificationBell from './NotificationBell';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+  activeNavItem?: string;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'dashboard' }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
@@ -37,7 +38,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const userAvatar = user?.user_metadata?.avatar_url || '';
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-premium-dark">
       <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
         {/* Light effects */}
         <div className="absolute top-3 left-10 w-16 h-16 bg-premium-purple/40 rounded-full blur-[40px] animate-pulse-slow"></div>
@@ -105,12 +106,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </header>
 
       <div className="flex">
-        <div className="h-screen sticky top-0 border-r border-premium-light/10 w-64 hidden md:block relative">
-          {/* Light effects */}
-          <div className="absolute top-20 left-8 w-16 h-16 bg-premium-purple/40 rounded-full blur-[30px] animate-pulse-slow"></div>
-          <div className="absolute bottom-20 left-8 w-16 h-16 bg-premium-blue/40 rounded-full blur-[30px] animate-pulse-slow delay-150"></div>
-          
-          <div className="p-4 relative z-10">
+        {/* Sidebar */}
+        <aside
+          className={`${
+            isSidebarOpen ? "w-64" : "w-16"
+          } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
+        >
+          <nav className="p-4 space-y-2">
             <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
             <nav>
               <ul>
@@ -170,26 +172,32 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               </ul>
             </nav>
             
-            {/* Logout button */}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleLogout} 
-              className="w-full mt-6 text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-white flex items-center justify-center gap-2"
-            >
-              <LogOut size={16} />
-              <span>Wyloguj</span>
-            </Button>
-          </div>
+            {/* Logout button at the bottom */}
+            <div className="pt-4 mt-6 border-t border-premium-light/10">
+              <button
+                onClick={() => signOut()}
+                className={`flex items-center w-full p-3 rounded-lg text-premium-light/80 hover:bg-premium-light/5 transition-colors group`}
+              >
+                <LogOut className="w-5 h-5 mr-3" />
+                {isSidebarOpen && <span>Wyloguj</span>}
+                {!isSidebarOpen && (
+                  <span className="absolute left-full ml-2 p-2 bg-premium-dark/90 text-premium-light rounded whitespace-nowrap border border-premium-light/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Wyloguj
+                  </span>
+                )}
+              </button>
+            </div>
+          </nav>
+        </aside>
+        
+        {/* Main content */}
+        <div
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isSidebarOpen ? "ml-64" : "ml-16"
+          }`}
+        >
+          {children}
         </div>
-
-        <main className="flex-1 p-4 relative">
-          {/* Light effects */}
-          <div className="absolute top-40 left-40 w-24 h-24 bg-premium-purple/30 rounded-full blur-[50px] animate-pulse-slow"></div>
-          <div className="absolute bottom-20 right-20 w-32 h-32 bg-premium-blue/30 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
-          
-          <div className="relative z-10">{children}</div>
-        </main>
       </div>
     </div>
   );

@@ -20,13 +20,13 @@ const DesktopNavigation = () => {
                   <Link to="/tworzenie-stron-www" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Tworzenie stron www
                   </Link>
-                  <Link to="/tworzenie-sklepow-internetowych" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
+                  <Link to="/sklepy-internetowe" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Tworzenie sklepów internetowych
                   </Link>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-medium">Pozycjonowanie (SEO)</h3>
-                  <Link to="/pozycjonowanie-stron-internetowych" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
+                  <Link to="/pozycjonowanie-stron" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Pozycjonowanie stron internetowych
                   </Link>
                   <Link to="/pozycjonowanie-lokalne" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
