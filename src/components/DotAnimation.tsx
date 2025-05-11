@@ -84,6 +84,7 @@ const DotAnimation: React.FC = () => {
           key={dot.id}
           className={`floating-dot ${dot.color}`}
           style={{
+            position: 'fixed',
             left: `${dot.x}px`,
             top: `${dot.y}px`,
             width: `${dot.size}px`,
@@ -92,7 +93,7 @@ const DotAnimation: React.FC = () => {
             animationDelay: `${dot.animationDelay}s`,
             '--direction-x': dot.direction.x,
             '--direction-y': dot.direction.y,
-            opacity: 0.8, // Increased from 0.6 to 0.8 for brightness
+            opacity: 0.9, // Increased from 0.8 to 0.9 for brightness
           } as React.CSSProperties}
         />
       ))}

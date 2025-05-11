@@ -1,7 +1,7 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useNotifications } from './notifications';
+import { CommentNotificationType } from './notifications';
 
 export interface CommentReply {
   id: string;
@@ -227,7 +227,7 @@ export const useBlogStore = create<BlogStore>()(
           useNotifications.getState().addNotification({
             title: 'Nowy komentarz',
             message: `${userName} dodał komentarz do "${post.title}"`,
-            type: 'comment',
+            type: 'comment' as CommentNotificationType,
             read: false,
             data: {
               postId,
@@ -279,7 +279,7 @@ export const useBlogStore = create<BlogStore>()(
           useNotifications.getState().addNotification({
             title: 'Nowa odpowiedź',
             message: `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
-            type: 'comment',
+            type: 'comment' as CommentNotificationType,
             read: false,
             data: {
               postId,
@@ -348,7 +348,7 @@ export const useBlogStore = create<BlogStore>()(
             useNotifications.getState().addNotification({
               title: 'Nowe polubienie',
               message: `Użytkownik polubił "${post.title}"`,
-              type: 'like',
+              type: 'like' as CommentNotificationType,
               read: false,
               data: {
                 postId,
@@ -386,7 +386,7 @@ export const useBlogStore = create<BlogStore>()(
           useNotifications.getState().addNotification({
             title: 'Nowe polubienie',
             message: `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
-            type: 'like',
+            type: 'like' as CommentNotificationType,
             read: false,
             data: {
               postId,
@@ -445,7 +445,7 @@ export const useBlogStore = create<BlogStore>()(
             useNotifications.getState().addNotification({
               title: 'Nowe polubienie',
               message: `Gość polubił "${post.title}"`,
-              type: 'like',
+              type: 'like' as CommentNotificationType,
               read: false,
               data: {
                 postId,

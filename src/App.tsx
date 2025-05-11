@@ -62,18 +62,16 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected routes */}
-            <Route element={<RequireAuth />}>
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/admin/stats" element={<AdminStats />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/notifications" element={<AdminNotifications />} />
-              <Route path="/admin/blog/new" element={<BlogPostEditor />} />
-              <Route path="/admin/blog/edit/:id" element={<BlogPostEditor />} />
-              <Route path="/projects" element={<Projects />} />
-              <Route path="/content-plan" element={<ContentPlan />} />
-            </Route>
+            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+            <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+            <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
+            <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
+            <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
+            <Route path="/admin/blog/new" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            <Route path="/admin/blog/edit/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            <Route path="/projects" element={<RequireAuth><Projects /></RequireAuth>} />
+            <Route path="/content-plan" element={<RequireAuth><ContentPlan /></RequireAuth>} />
 
             {/* Service pages */}
             <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />

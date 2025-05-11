@@ -2,11 +2,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type CommentNotificationType = 'comment' | 'like' | 'info' | 'error' | 'success' | 'warning';
+
 export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'error' | 'success' | 'warning' | 'comment' | 'like';
+  type: CommentNotificationType;
   timestamp: Date;
   read: boolean;
   data?: {

@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/utils/supabaseClient';
 import { useTheme } from '@/utils/themeContext';
+import type { Theme } from '@/utils/themeContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +24,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Bell, Lock, Eye, Trash, Settings, Save, Undo } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+interface InterfaceSettings {
+  theme: Theme;
+  compactView: boolean;
+  highContrast: boolean;
+  fontSize: string;
+  animationsEnabled: boolean;
+}
 
 const AdminSettings = () => {
   const { user, signOut } = useAuth();
@@ -59,7 +68,7 @@ const AdminSettings = () => {
   });
 
   // Interface settings
-  const [interfaceSettings, setInterfaceSettings] = useState({
+  const [interfaceSettings, setInterfaceSettings] = useState<InterfaceSettings>({
     theme: theme,
     compactView: false,
     highContrast: false,
@@ -136,7 +145,7 @@ const AdminSettings = () => {
 
   // Reset interface settings
   const handleInterfaceReset = () => {
-    const defaultSettings = {
+    const defaultSettings: InterfaceSettings = {
       theme: 'system',
       compactView: false,
       highContrast: false,
@@ -236,7 +245,13 @@ const AdminSettings = () => {
     if (loadedInterfaceSettings) {
       try {
         const parsed = JSON.parse(loadedInterfaceSettings);
-        setInterfaceSettings(prev => ({ ...prev, ...parsed }));
+        setInterfaceSettings(prev => ({ 
+          ...prev, 
+          compactView: parsed.compactView || false,
+          highContrast: parsed.highContrast || false,
+          fontSize: parsed.fontSize || 'medium',
+          animationsEnabled: parsed.animationsEnabled !== undefined ? parsed.animationsEnabled : true
+        }));
         
         // Apply settings to document
         document.documentElement.setAttribute('data-compact', parsed.compactView.toString());

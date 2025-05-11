@@ -21,7 +21,7 @@ const AdminStatReset = () => {
   return (
     <Button
       variant="outline"
-      className="ml-auto flex items-center gap-1 border-orange-400/30 text-orange-400 hover:bg-orange-950 hover:text-orange-300"
+      className="ml-auto flex items-center gap-1 border-orange-400/30 text-orange-400 hover:bg-orange-950 hover:text-white"
       onClick={handleResetStats}
     >
       <RefreshCcw size={16} />
