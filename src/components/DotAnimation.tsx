@@ -93,7 +93,7 @@ const DotAnimation: React.FC = () => {
             animationDelay: `${dot.animationDelay}s`,
             '--direction-x': dot.direction.x,
             '--direction-y': dot.direction.y,
-            opacity: 0.9, // Increased from 0.8 to 0.9 for brightness
+            opacity: 0.95, // Increased from 0.9 to 0.95 for more brightness
           } as React.CSSProperties}
         />
       ))}

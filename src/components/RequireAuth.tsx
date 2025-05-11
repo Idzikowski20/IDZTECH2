@@ -7,7 +7,7 @@ interface RequireAuthProps {
   children: JSX.Element;
 }
 
-const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
+const RequireAuth = ({ children }: RequireAuthProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 

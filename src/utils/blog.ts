@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useNotifications } from './notifications';
-import { CommentNotificationType } from './notifications';
+import { NotificationType } from './notifications';
 
 export interface CommentReply {
   id: string;
@@ -227,14 +227,12 @@ export const useBlogStore = create<BlogStore>()(
           useNotifications.getState().addNotification({
             title: 'Nowy komentarz',
             message: `${userName} dodał komentarz do "${post.title}"`,
-            type: 'comment' as CommentNotificationType,
-            read: false,
-            data: {
-              postId,
-              postTitle: post.title,
-              userId,
-              userName
-            }
+            type: 'comment_added' as NotificationType,
+            status: 'unread',
+            fromUserId: userId,
+            fromUserName: userName,
+            targetId: postId,
+            targetType: 'post'
           });
 
           return {
@@ -279,14 +277,12 @@ export const useBlogStore = create<BlogStore>()(
           useNotifications.getState().addNotification({
             title: 'Nowa odpowiedź',
             message: `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
-            type: 'comment' as CommentNotificationType,
-            read: false,
-            data: {
-              postId,
-              postTitle: post.title,
-              userId,
-              userName
-            }
+            type: 'comment_added' as NotificationType,
+            status: 'unread',
+            fromUserId: userId,
+            fromUserName: userName,
+            targetId: postId,
+            targetType: 'post'
           });
           
           return {
@@ -348,14 +344,12 @@ export const useBlogStore = create<BlogStore>()(
             useNotifications.getState().addNotification({
               title: 'Nowe polubienie',
               message: `Użytkownik polubił "${post.title}"`,
-              type: 'like' as CommentNotificationType,
-              read: false,
-              data: {
-                postId,
-                postTitle: post.title,
-                userId,
-                userName: "Użytkownik"
-              }
+              type: 'like_added' as NotificationType,
+              status: 'unread',
+              fromUserId: userId,
+              fromUserName: "Użytkownik",
+              targetId: postId,
+              targetType: 'post'
             });
           }
           
@@ -386,14 +380,12 @@ export const useBlogStore = create<BlogStore>()(
           useNotifications.getState().addNotification({
             title: 'Nowe polubienie',
             message: `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
-            type: 'like' as CommentNotificationType,
-            read: false,
-            data: {
-              postId,
-              postTitle: post.title,
-              userId: "guest",
-              userName: guestName || "Gość"
-            }
+            type: 'like_added' as NotificationType,
+            status: 'unread',
+            fromUserId: "guest",
+            fromUserName: guestName || "Gość",
+            targetId: postId,
+            targetType: 'post'
           });
           
           return {
@@ -445,14 +437,12 @@ export const useBlogStore = create<BlogStore>()(
             useNotifications.getState().addNotification({
               title: 'Nowe polubienie',
               message: `Gość polubił "${post.title}"`,
-              type: 'like' as CommentNotificationType,
-              read: false,
-              data: {
-                postId,
-                postTitle: post.title,
-                userId: "guest",
-                userName: "Gość"
-              }
+              type: 'like_added' as NotificationType,
+              status: 'unread',
+              fromUserId: "guest",
+              fromUserName: "Gość",
+              targetId: postId,
+              targetType: 'post'
             });
           }
           

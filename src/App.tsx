@@ -48,8 +48,8 @@ import DotAnimation from './components/DotAnimation';
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <Router>
+      <Router>
+        <AuthProvider>
           <ScrollToTop />
           <DotAnimation />
           <Routes>
@@ -93,8 +93,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
-        </Router>
-      </AuthProvider>
+        </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 }
