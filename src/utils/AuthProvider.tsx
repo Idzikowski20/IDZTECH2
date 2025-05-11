@@ -41,8 +41,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             title: "Zalogowano pomyślnie",
             description: "Witamy z powrotem!"
           });
-          // Redirect to admin panel after successful login
-          setTimeout(() => navigate('/admin'), 0);
+          
+          // Use setTimeout to break the potential synchronous loop
+          setTimeout(() => {
+            navigate('/admin');
+          }, 10);
         }
 
         setLoading(false);
@@ -56,9 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(currentSession);
         setUser(currentSession?.user || null);
         setIsAuthenticated(!!currentSession?.user);
-        setLoading(false);
       } catch (error) {
         console.error("Auth initialization error:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -68,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {

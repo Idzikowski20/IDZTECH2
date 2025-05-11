@@ -12,36 +12,36 @@ const DesktopNavigation = () => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="text-slate-50 bg-transparent">Oferta</NavigationMenuTrigger>
+            <NavigationMenuTrigger className="text-slate-50 bg-transparent hover:bg-white hover:text-black">Oferta</NavigationMenuTrigger>
             <NavigationMenuContent>
               <div className="grid grid-cols-2 gap-3 p-4 w-[500px]">
                 <div className="space-y-2">
                   <h3 className="font-medium">Strony www</h3>
-                  <Link to="/tworzenie-stron-www" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/tworzenie-stron-www" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Tworzenie stron www
                   </Link>
-                  <Link to="/tworzenie-sklepow-internetowych" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/tworzenie-sklepow-internetowych" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Tworzenie sklepów internetowych
                   </Link>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-medium">Pozycjonowanie (SEO)</h3>
-                  <Link to="/pozycjonowanie-stron-internetowych" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/pozycjonowanie-stron-internetowych" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Pozycjonowanie stron internetowych
                   </Link>
-                  <Link to="/pozycjonowanie-lokalne" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/pozycjonowanie-lokalne" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Pozycjonowanie lokalne
                   </Link>
-                  <Link to="/audyt-seo" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/audyt-seo" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Audyt SEO
                   </Link>
-                  <Link to="/optymalizacja-seo" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/optymalizacja-seo" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Optymalizacja SEO
                   </Link>
-                  <Link to="/copywriting-seo" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/copywriting-seo" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Copywriting SEO
                   </Link>
-                  <Link to="/content-plan" className="block p-2 hover:bg-slate-100 hover:text-black rounded">
+                  <Link to="/content-plan" className="block p-2 hover:bg-slate-800 hover:text-white rounded">
                     Content Plan
                   </Link>
                 </div>

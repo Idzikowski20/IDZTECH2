@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Brand from './Brand';
 import DesktopNavigation from './DesktopNavigation';
 import DesktopControls from './DesktopControls';
@@ -9,29 +9,35 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
+  // Optimize scroll handler with useCallback to prevent unnecessary re-renders
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 50);
+  }, []);
+  
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    // Add scroll event listener
     window.addEventListener('scroll', handleScroll);
+    
+    // Initial check for page that might be loaded scrolled down
+    handleScroll();
+    
+    // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [handleScroll]);
 
-  // Modified effect to ensure body scroll is properly restored
+  // Handle body scroll when mobile menu is open/closed
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      // Small timeout to ensure transitions complete before enabling scrolling
-      setTimeout(() => {
-        document.body.style.overflow = '';
-      }, 300);
+      // Immediate restore of scrolling to prevent UI issues
+      document.body.style.overflow = '';
     }
     
+    // Always clean up by restoring scrolling when component unmounts
     return () => {
-      // Always clean up by restoring scrolling when component unmounts
       document.body.style.overflow = '';
     };
   }, [isMenuOpen]);

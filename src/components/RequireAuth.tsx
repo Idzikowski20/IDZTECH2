@@ -19,6 +19,11 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
     };
   }, []);
 
+  // Add debug logging
+  useEffect(() => {
+    console.log("RequireAuth - auth state:", { user, loading, path: location.pathname });
+  }, [user, loading, location.pathname]);
+
   if (loading) {
     // Display loading indicator while verifying the session
     return (
@@ -29,10 +34,12 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   }
 
   if (!user) {
+    console.log("RequireAuth - redirecting to login");
     // Redirect to login if user is not logged in
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  console.log("RequireAuth - authorized, rendering children");
   return children;
 };
 
