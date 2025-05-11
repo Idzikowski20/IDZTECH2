@@ -26,7 +26,7 @@ import {
 import { Monitor, Moon, Sun, Bell, Lock, Trash2, LogOut, Shield, FileText, BrainCircuit, Mail, Palette } from 'lucide-react';
 
 const AdminSettings = () => {
-  const { user, updatePassword, logout } = useAuth();
+  const { user, updatePassword, signOut } = useAuth(); // Changed from 'logout' to 'signOut'
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -212,7 +212,7 @@ const AdminSettings = () => {
       });
       
       // Logout after account deletion
-      await logout();
+      await signOut(); // Changed from 'logout' to 'signOut'
       navigate('/login');
     } catch (error: any) {
       toast({
@@ -495,7 +495,7 @@ const AdminSettings = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setAppearanceSettings(prev => ({ ...prev, theme: 'system' }))}
+                      onClick={() => setAppearanceSettings(prev => ({ ...prev, theme: 'system' as any }))}
                       className={`flex flex-col items-center p-4 rounded-lg border ${
                         appearanceSettings.theme === 'system'
                           ? 'border-premium-gradient bg-gradient-to-br from-premium-dark/70 to-premium-dark'
@@ -679,7 +679,7 @@ const AdminSettings = () => {
                     </AlertDialogContent>
                   </AlertDialog>
                   
-                  <Button variant="outline" className="text-red-400 border-red-400 hover:text-white hover:bg-red-400" onClick={logout}>
+                  <Button variant="outline" className="text-red-400 border-red-400 hover:text-white hover:bg-red-400" onClick={signOut}>
                     <LogOut size={16} className="mr-2" />
                     Wyloguj ze wszystkich urządzeń
                   </Button>
