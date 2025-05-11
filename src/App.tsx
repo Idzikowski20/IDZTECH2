@@ -10,6 +10,7 @@ import { AuthProvider } from "./utils/AuthProvider";
 import { ThemeProvider } from "./utils/themeContext";
 import { initGA, trackPageView } from "./utils/analytics";
 import RequireAuth from "./components/RequireAuth";
+import DotAnimation from "./components/DotAnimation";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import WebDevelopment from "./pages/WebDevelopment";
@@ -56,11 +57,14 @@ if (typeof window !== 'undefined') {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
+      {/* Globalna animacja kropek/światełek */}
+      <DotAnimation />
+      
       <BrowserRouter>
-        <ScrollToTop />
-        <AnalyticsTracker />
-        <TooltipProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <ScrollToTop />
+          <AnalyticsTracker />
+          <TooltipProvider>
             <Toaster />
             <Sonner />
             <Routes>
@@ -90,8 +94,8 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </AuthProvider>
-        </TooltipProvider>
+          </TooltipProvider>
+        </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
   </QueryClientProvider>

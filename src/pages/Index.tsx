@@ -8,7 +8,6 @@ import CTA from "@/components/CTA";
 import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import FAQ from "@/components/FAQ";
-import PageDotAnimation from "@/components/PageDotAnimation";
 import { initGA, trackPageView } from "@/utils/analytics";
 
 const Index = () => {
@@ -34,7 +33,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
-      <PageDotAnimation />
       <Hero />
       <Services />
       <FAQ />

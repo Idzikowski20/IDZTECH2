@@ -71,6 +71,16 @@ const Hero = () => {
         </div>
       </div>
       
+      {/* Hero image */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-premium-dark z-10"></div>
+        <img 
+          src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
+          alt="Web Development" 
+          className="w-full h-full object-cover opacity-20"
+        />
+      </div>
+      
       {/* Circle blur effect */}
       <div className="absolute -left-32 -bottom-32 w-96 h-96 bg-premium-purple/30 rounded-full blur-3xl opacity-20"></div>
       <div className="absolute -right-32 top-10 w-96 h-96 bg-premium-blue/30 rounded-full blur-3xl opacity-20"></div>
