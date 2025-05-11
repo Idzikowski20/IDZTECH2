@@ -20,11 +20,11 @@ const DesktopControls = () => {
           toggleDarkMode();
           trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
         }} 
-        className="hover:bg-white hover:text-black"
+        className="hover:scale-110 transition-transform"
       >
         {theme === "light" ? 
           <Moon className="h-[1.2rem] w-[1.2rem] text-black hover:text-black" /> : 
-          <Sun className="h-[1.2rem] w-[1.2rem] text-white hover:text-black" />
+          <Sun className="h-[1.2rem] w-[1.2rem] text-white hover:text-white" />
         }
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -41,9 +41,9 @@ const DesktopControls = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="hover:bg-white hover:text-black"
+          className="hover:scale-110 transition-transform"
         >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'}`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>

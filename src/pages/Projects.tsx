@@ -107,16 +107,16 @@ const Projects = () => {
             </p>
           </div>
           
-          {/* Filter Categories - Making text white in both light and dark modes */}
+          {/* Filter Categories */}
           <div className="flex flex-wrap justify-center gap-4 mb-12 animate-fade-in" style={{ animationDelay: '0.3s' }}>
             {projectCategories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => filterItems(category.id)}
-                className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                className={`px-6 py-2 rounded-full transition-all duration-300 hover:scale-110 ${
                   activeCategory === category.id 
                     ? 'bg-premium-gradient text-white' 
-                    : 'bg-premium-dark/80 border border-white/10 text-white hover:text-white hover:border-white/30'
+                    : 'bg-premium-dark/80 border border-white/10 text-white'
                 }`}
               >
                 {category.name}
@@ -142,7 +142,7 @@ const Projects = () => {
                 </div>
                 <div className="absolute bottom-0 left-0 w-full p-6">
                   <h3 className="text-xl font-semibold mb-2 text-white">{item.title}</h3>
-                  <p className="text-sm text-premium-light/70 mb-4">
+                  <p className="text-sm text-white mb-4">
                     {item.category === 'web' && 'Strona internetowa'}
                     {item.category === 'ecommerce' && 'Sklep internetowy'}
                     {item.category === 'seo' && 'Pozycjonowanie'}
@@ -161,7 +161,7 @@ const Projects = () => {
         </div>
       </section>
       
-      {/* CTA Section - Replaced Case Studies */}
+      {/* CTA Section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-premium-gradient opacity-10"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/30 rounded-full blur-[100px] -z-10"></div>
@@ -173,7 +173,7 @@ const Projects = () => {
             <h2 className="text-3xl lg:text-5xl font-bold mt-3 mb-6 text-white">
               Zrealizuj swój projekt z IDZ.TECH
             </h2>
-            <p className="text-premium-light/70 text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-white text-lg mb-8 max-w-2xl mx-auto">
               Chcesz dołączyć do grona naszych zadowolonych klientów? Skontaktuj się z nami, aby omówić szczegóły Twojego projektu.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -183,10 +183,10 @@ const Projects = () => {
                   <ArrowRight size={18} className="ml-2" />
                 </Button>
               </Link>
-              <Link to="/about-us">
+              <Link to="/about">
                 <Button 
                   variant="outline" 
-                  className={`border-premium-purple/50 text-white hover:bg-premium-purple/10 rounded-full px-8 py-6 ${theme === 'light' ? 'hover:text-white hover:bg-black' : ''}`}
+                  className="border-premium-purple/50 text-black hover:bg-premium-purple/10 rounded-full px-8 py-6"
                 >
                   Poznaj nasz zespół
                 </Button>

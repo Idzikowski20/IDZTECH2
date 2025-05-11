@@ -17,7 +17,8 @@ const DesktopNavigation = () => {
   const location = useLocation();
   
   const linkClass = cn(
-    "transition-transform duration-300 hover:scale-110 px-4 py-2 rounded-md",
+    "transition-transform duration-300 hover:scale-110 px-4 py-2 rounded-md relative",
+    "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue",
     theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'
   );
   
@@ -30,137 +31,191 @@ const DesktopNavigation = () => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <Link to="/" className={`${linkClass} ${isActive('/') ? 'font-bold' : ''}`}>Strona główna</Link>
+            <Link 
+              to="/" 
+              className={`${linkClass} ${isActive('/') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+            >
+              Start
+            </Link>
           </NavigationMenuItem>
           
           <NavigationMenuItem>
-            <NavigationMenuTrigger className={`transition-transform duration-300 hover:scale-110 ${theme === 'light' ? 'text-black hover:bg-transparent hover:text-black' : 'text-white hover:bg-transparent hover:text-white'}`}>
+            <NavigationMenuTrigger 
+              className={`transition-transform duration-300 hover:scale-110 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue ${theme === 'light' ? 'text-black hover:bg-transparent hover:text-black' : 'text-white hover:bg-transparent hover:text-white'}`}
+            >
               Usługi
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] bg-black/80">
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/tworzenie-stron-www" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/tworzenie-stron-www') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Strony WWW</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Tworzenie responsywnych stron internetowych
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/sklepy-internetowe" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/sklepy-internetowe') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Sklepy Internetowe</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Tworzenie sklepów e-commerce
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/pozycjonowanie-stron" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/pozycjonowanie-stron') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Pozycjonowanie SEO</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Zwiększanie widoczności w wyszukiwarkach
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/pozycjonowanie-lokalne" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/pozycjonowanie-lokalne') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Pozycjonowanie Lokalne</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Zwiększanie widoczności w lokalnych wynikach
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/audyt-seo" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/audyt-seo') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Audyt SEO</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Kompleksowa analiza strony pod kątem SEO
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/optymalizacja-seo" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/optymalizacja-seo') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Optymalizacja SEO</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Optymalizacja techniczna strony
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/copywriting-seo" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/copywriting-seo') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Copywriting SEO</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Tworzenie treści zoptymalizowanych pod SEO
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-                <li>
-                  <NavigationMenuLink asChild>
-                    <Link 
-                      to="/content-plan" 
-                      className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-white/10 ${isActive('/content-plan') ? 'bg-white/20' : ''}`}
-                    >
-                      <div className="text-white text-sm font-medium leading-none">Content Plan</div>
-                      <p className="line-clamp-2 text-sm leading-snug text-white/70">
-                        Strategia tworzenia i publikacji treści
-                      </p>
-                    </Link>
-                  </NavigationMenuLink>
-                </li>
-              </ul>
+              <div className="grid w-[600px] grid-cols-2 gap-3 p-4 bg-white dark:bg-black/80">
+                <div>
+                  <h3 className={`font-medium mb-2 px-3 ${theme === 'light' ? 'text-black' : 'text-white'}`}>Strony www</h3>
+                  <ul>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/tworzenie-stron-www" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/tworzenie-stron-www') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Tworzenie stron www
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Projektujemy i tworzymy profesjonalne strony internetowe
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/sklepy-internetowe" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/sklepy-internetowe') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Tworzenie sklepów internetowych
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Kompleksowe rozwiązania e-commerce
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className={`font-medium mb-2 px-3 ${theme === 'light' ? 'text-black' : 'text-white'}`}>Pozycjonowanie (SEO)</h3>
+                  <ul>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/pozycjonowanie-stron" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/pozycjonowanie-stron') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Pozycjonowanie stron internetowych
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Zwiększanie widoczności w wyszukiwarkach
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/pozycjonowanie-lokalne" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/pozycjonowanie-lokalne') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Pozycjonowanie lokalne
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Zwiększanie widoczności w lokalnych wynikach
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/audyt-seo" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/audyt-seo') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Audyt SEO
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Analiza strony pod kątem SEO
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/optymalizacja-seo" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/optymalizacja-seo') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Optymalizacja SEO
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Optymalizacja techniczna strony
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/copywriting-seo" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/copywriting-seo') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Copywriting SEO
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Tworzenie treści pod SEO
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                    <li>
+                      <NavigationMenuLink asChild>
+                        <Link 
+                          to="/content-plan" 
+                          className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/content-plan') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
+                        >
+                          <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
+                            Content Plan
+                          </div>
+                          <p className={`line-clamp-2 text-sm leading-snug ${theme === 'light' ? 'text-gray-600' : 'text-white/70'}`}>
+                            Strategia tworzenia treści
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </NavigationMenuContent>
           </NavigationMenuItem>
           
           <NavigationMenuItem>
-            <Link to="/projects" className={`${linkClass} ${isActive('/projects') ? 'font-bold' : ''}`}>Portfolio</Link>
+            <Link 
+              to="/projects" 
+              className={`${linkClass} ${isActive('/projects') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+            >
+              Portfolio
+            </Link>
           </NavigationMenuItem>
           
           <NavigationMenuItem>
-            <Link to="/about" className={`${linkClass} ${isActive('/about') ? 'font-bold' : ''}`}>O nas</Link>
+            <Link 
+              to="/about" 
+              className={`${linkClass} ${isActive('/about') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+            >
+              O nas
+            </Link>
           </NavigationMenuItem>
           
           <NavigationMenuItem>
-            <Link to="/blog" className={`${linkClass} ${isActive('/blog') ? 'font-bold' : ''}`}>Blog</Link>
+            <Link 
+              to="/blog" 
+              className={`${linkClass} ${isActive('/blog') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+            >
+              Blog
+            </Link>
           </NavigationMenuItem>
           
           <NavigationMenuItem>
-            <Link to="/contact" className={`${linkClass} ${isActive('/contact') ? 'font-bold' : ''}`}>Kontakt</Link>
+            <Link 
+              to="/contact" 
+              className={`${linkClass} ${isActive('/contact') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+            >
+              Kontakt
+            </Link>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
