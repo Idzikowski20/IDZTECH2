@@ -25,9 +25,9 @@ const Index = () => {
     });
   }, []);
   
-  // Update document title to reflect web agency focus
+  // Update document title to reflect web agency focus with improved SEO
   useEffect(() => {
-    document.title = "IDZ.TECH - Agencja Witryn Internetowych";
+    document.title = "IDZ.TECH - Tworzymy najlepsze strony internetowe";
   }, []);
   
   return (

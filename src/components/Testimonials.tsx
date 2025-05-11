@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
+import { useTheme } from '@/utils/themeContext';
 
 const testimonials = [
   {
@@ -30,8 +31,10 @@ const testimonials = [
 ];
 
 const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] }) => {
+  const { theme } = useTheme();
+  
   return (
-    <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 h-full flex flex-col">
+    <div className={`${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-6 h-full flex flex-col`}>
       <div className="flex space-x-1 mb-4">
         {[...Array(5)].map((_, i) => (
           <Star 
@@ -41,7 +44,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] 
           />
         ))}
       </div>
-      <p className="text-premium-light/80 flex-grow mb-6">"{testimonial.content}"</p>
+      <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/80'} flex-grow mb-6`}>"{testimonial.content}"</p>
       <div className="flex items-center mt-auto">
         <img 
           src={testimonial.image} 
@@ -50,7 +53,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] 
         />
         <div>
           <h4 className="font-medium">{testimonial.author}</h4>
-          <p className="text-sm text-premium-light/60">{testimonial.position}</p>
+          <p className={`text-sm ${theme === 'light' ? 'text-premium-dark/70' : 'text-premium-light/60'}`}>{testimonial.position}</p>
         </div>
       </div>
     </div>
@@ -58,11 +61,13 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] 
 };
 
 const Testimonials = () => {
+  const { theme } = useTheme();
+  
   return (
     <section className="py-20 relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute top-1/4 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+      {/* Background elements with fixed position */}
+      <div className="fixed top-1/4 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
 
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
@@ -71,16 +76,16 @@ const Testimonials = () => {
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
               Co mówią o nas nasi klienci
             </h2>
-            <p className="text-premium-light/70">
+            <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'}`}>
               Zaufało nam już ponad 200 firm z różnych branż. Poznaj opinie naszych klientów i przekonaj się, że jesteśmy właściwym wyborem dla Twojego biznesu.
             </p>
           </div>
           
           <div className="flex space-x-2 mt-6 md:mt-0">
-            <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-premium-dark/80 hover:border-white/30 transition-colors">
+            <button className={`w-10 h-10 rounded-full ${theme === 'light' ? 'border-gray-300' : 'border-white/10'} flex items-center justify-center hover:bg-premium-dark/80 hover:border-white/30 transition-colors`}>
               <ArrowLeft size={18} />
             </button>
-            <button className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-premium-dark/80 hover:border-white/30 transition-colors">
+            <button className={`w-10 h-10 rounded-full ${theme === 'light' ? 'border-gray-300' : 'border-white/10'} flex items-center justify-center hover:bg-premium-dark/80 hover:border-white/30 transition-colors`}>
               <ArrowRight size={18} />
             </button>
           </div>

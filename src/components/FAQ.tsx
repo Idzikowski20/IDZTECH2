@@ -4,7 +4,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Link } from 'react-router-dom';
+import { useTheme } from '@/utils/themeContext';
+
 const FAQ = () => {
+  const { theme } = useTheme();
   const faqItems = [{
     question: "Jesteśmy skupieni na Twoich celach biznesowych",
     answer: "Każde działanie marketingowe planujemy pod kątem Twoich celów - sprzedaży, widoczności, skalowania lub pozyskiwania leadów. Dobieramy odpowiednie kanały marketingowe, aby jak najszybciej osiągać założone cele i skalować wyniki."
@@ -24,20 +27,22 @@ const FAQ = () => {
     question: "Posiadamy zespół wielkobszarowych specjalistów od Digital Marketingu",
     answer: "Nasz zespół tworzą doświadczeni specjaliści z różnych dziedzin marketingu internetowego - od programistów, przez grafików, copywriterów, po specjalistów SEO, PPC i mediów społecznościowych. Każdy projekt prowadzony jest przez ekspertów w swojej dziedzinie."
   }];
-  return <section className="py-20 relative overflow-hidden">
-      {/* Light effects */}
-      <div className="absolute top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
-      <div className="absolute top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
-      <div className="absolute bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
+
+  return (
+    <section className="py-20 relative overflow-hidden">
+      {/* Light effects with fixed position */}
+      <div className="fixed top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
+      <div className="fixed top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+      <div className="fixed bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
       
-      <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+      <div className="fixed top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+      <div className="fixed bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
 
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-premium-purple font-medium">Dlaczego warto</span>
           <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">z nami pracować:</h2>
-          <p className="text-premium-light/70 text-lg">
+          <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'} text-lg`}>
             Tutaj znajdziesz kilka kluczowych powodów dlaczego warto pracować z naszą agencją marketingową
           </p>
         </div>
@@ -46,22 +51,30 @@ const FAQ = () => {
           {/* Left Side - FAQ */}
           <div className="space-y-4">
             <Accordion type="single" collapsible className="w-full">
-              {faqItems.map((item, index) => <AccordionItem key={index} value={`item-${index}`} className="border-white/10">
-                  <AccordionTrigger className="text-xl font-medium py-4 hover:no-underline hover:text-premium-purple text-left text-white">
+              {faqItems.map((item, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`item-${index}`} 
+                  className={`${theme === 'light' ? 'border-gray-300' : 'border-white/10'}`}
+                >
+                  <AccordionTrigger 
+                    className={`text-xl font-medium py-4 hover:no-underline hover:text-premium-purple text-left ${theme === 'light' ? 'text-black' : 'text-white'}`}
+                  >
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-premium-light/70">
+                  <AccordionContent className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'} accordion-content`}>
                     {item.answer}
                   </AccordionContent>
-                </AccordionItem>)}
+                </AccordionItem>
+              ))}
             </Accordion>
           </div>
 
           {/* Right Side - CTA */}
-          <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 h-full flex flex-col justify-center">
+          <div className={`${theme === 'light' ? 'bg-gray-100 border-gray-300' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-8 h-full flex flex-col justify-center`}>
             <div className="space-y-6">
               <h3 className="text-2xl font-bold">Kompleksowa agencja marketingowa, która przynosi realne rezultaty</h3>
-              <p className="text-premium-light/70">
+              <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'}`}>
                 Nasza agencja pomaga firmom rozwijać się online poprzez skuteczne strategie marketingowe. Niezależnie od wielkości Twojej firmy, pomożemy Ci osiągnąć cele biznesowe i zwiększyć sprzedaż.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
@@ -72,7 +85,7 @@ const FAQ = () => {
                   </Button>
                 </Link>
                 <Link to="/projects">
-                  <Button className="border border-gray-200 text-slate-50 rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-[#1A1F2C] hover:text-white">
+                  <Button className="border border-black text-black rounded-full px-8 py-6 transition-all duration-800 bg-transparent hover:bg-black hover:text-white dark:border-gray-200 dark:text-slate-50 dark:hover:bg-white dark:hover:text-black">
                     Zobacz nasze realizacje
                   </Button>
                 </Link>
@@ -81,6 +94,8 @@ const FAQ = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default FAQ;

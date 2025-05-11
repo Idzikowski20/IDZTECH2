@@ -151,4 +151,29 @@
   .light .bg-premium-dark {
     background-color: #FFFFFF;
   }
+  
+  /* Light mode navigation text color */
+  .light .text-white {
+    @apply text-black;
+  }
+  
+  /* Fixed styles for light mode cards */
+  .light .bg-premium-dark\/60 {
+    @apply bg-white/90 border-gray-200;
+  }
+  
+  /* Fixed styles for FAQ section text in light mode */
+  .light .accordion-content {
+    @apply text-black;
+  }
+  
+  /* Light mode fixes for navigation buttons */
+  .light .hover\:bg-white:hover {
+    @apply bg-black text-white;
+  }
+  
+  /* Light mode icon fixes */
+  .light .text-white svg {
+    @apply text-black;
+  }
 }
