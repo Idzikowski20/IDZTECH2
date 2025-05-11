@@ -6,6 +6,9 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    // Ensure body scroll is enabled
+    document.body.style.overflow = '';
+    
     // Scroll to top when pathname changes
     window.scrollTo({
       top: 0,

@@ -24,14 +24,20 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   const handleMenuOpen = (open: boolean) => {
     setIsMenuOpen(open);
     
-    // If closing menu, ensure scrolling is restored
+    // If closing menu, ensure scrolling is restored immediately
     if (!open) {
-      // Small delay to ensure animation completes
-      setTimeout(() => {
-        document.body.style.overflow = '';
-      }, 300);
+      document.body.style.overflow = '';
     }
   };
+  
+  // Monitor location changes to close menu when navigating
+  useEffect(() => {
+    // Close mobile menu when route changes
+    setIsMenuOpen(false);
+    
+    // Ensure body scroll is restored when navigating
+    document.body.style.overflow = '';
+  }, [location, setIsMenuOpen]);
   
   // Cleanup function to ensure body scroll is restored when component unmounts
   useEffect(() => {
@@ -110,18 +116,24 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   <AccordionTrigger className={`${textColor} text-lg px-3 py-2 ${(isActive('/tworzenie-stron-www') || isActive('/sklepy-internetowe') || isActive('/pozycjonowanie-stron') || isActive('/pozycjonowanie-lokalne') || isActive('/audyt-seo') || isActive('/optymalizacja-seo') || isActive('/copywriting-seo') || isActive('/content-plan')) ? 'font-bold border-b-2 border-premium-blue' : ''}`}>
                     Oferta
                   </AccordionTrigger>
-                  <AccordionContent className="max-h-[250px] overflow-y-auto">
+                  <AccordionContent className="max-h-[250px] overflow-hidden">
                     <div className="space-y-2 pl-2">
                       <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-2`}>Strony www</h3>
                       <Link to="/tworzenie-stron-www" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/tworzenie-stron-www') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Tworzenie stron www
                       </Link>
                       <Link to="/sklepy-internetowe" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/sklepy-internetowe') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Tworzenie sklepów internetowych
                       </Link>
@@ -129,37 +141,55 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                       <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-4`}>Pozycjonowanie (SEO)</h3>
                       <Link to="/pozycjonowanie-stron" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-stron') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Pozycjonowanie stron internetowych
                       </Link>
                       <Link to="/pozycjonowanie-lokalne" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-lokalne') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Pozycjonowanie lokalne
                       </Link>
                       <Link to="/audyt-seo" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/audyt-seo') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Audyt SEO
                       </Link>
                       <Link to="/optymalizacja-seo" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/optymalizacja-seo') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Optymalizacja SEO
                       </Link>
                       <Link to="/copywriting-seo" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/copywriting-seo') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Copywriting SEO
                       </Link>
                       <Link to="/content-plan" 
                         className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/content-plan') ? 'font-bold border-b border-premium-blue' : ''}`}
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          document.body.style.overflow = '';
+                        }}
                       >
                         Content Plan
                       </Link>
@@ -170,28 +200,40 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
               
               <Link to="/projects" 
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/projects') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  document.body.style.overflow = '';
+                }}
               >
                 Portfolio
               </Link>
               
               <Link to="/about" 
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/about') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  document.body.style.overflow = '';
+                }}
               >
                 O nas
               </Link>
               
               <Link to="/blog" 
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/blog') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  document.body.style.overflow = '';
+                }}
               >
                 Blog
               </Link>
               
               <Link to="/contact" 
                 className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/contact') ? 'font-bold border-b-2 border-premium-blue' : ''}`}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  document.body.style.overflow = '';
+                }}
               >
                 Kontakt
               </Link>

@@ -10,6 +10,9 @@ export const useScrollToTop = () => {
   const { pathname } = useLocation();
   
   useEffect(() => {
+    // Ensure body scroll is enabled
+    document.body.style.overflow = '';
+    
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
