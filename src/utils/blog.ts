@@ -1,5 +1,7 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useNotifications } from '@/utils/notifications';
 
 export interface BlogComment {
   id: string;
@@ -190,6 +192,28 @@ export const useBlogStore = create<BlogStore>()(
             content,
             date: new Date().toISOString(),
           };
+
+          // Create notification for new comment
+          try {
+            const notifications = require('@/utils/notifications');
+            const post = state.posts.find(p => p.id === postId);
+            
+            if (post) {
+              const notificationStore = notifications.useNotifications.getState();
+              
+              notificationStore.addNotification({
+                title: "Nowy komentarz",
+                message: `${userName} dodał(a) komentarz do artykułu "${post.title}"`,
+                type: "comment_added",
+                fromUserId: userId,
+                fromUserName: userName,
+                relatedItemId: postId,
+                status: "unread"
+              });
+            }
+          } catch (error) {
+            console.error("Failed to create notification for comment", error);
+          }
 
           return {
             posts: state.posts.map((post) => 

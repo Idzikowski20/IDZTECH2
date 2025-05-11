@@ -146,4 +146,33 @@
       transform: translate(calc(-60px * var(--direction-x, 1)), calc(-30px * var(--direction-y, 1)));
     }
   }
+  
+  /* Background parallax effect */
+  .bg-parallax {
+    background-image: url('https://www.esky.com/_fe/img/TE-background.svg');
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-filter: blur(70px);
+    filter: blur(70px);
+    z-index: -1;
+  }
+  
+  /* Blur overlay */
+  .blur-70 {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-filter: blur(70px);
+    filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+    pointer-events: none;
+  }
 }
