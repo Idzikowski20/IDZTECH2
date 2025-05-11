@@ -47,7 +47,7 @@ const About = () => {
                     <span className="text-2xl sm:text-3xl font-bold bg-premium-gradient text-transparent bg-clip-text">
                       {stat.number}
                     </span>
-                    <span className="text-xs sm:text-sm text-premium-light/70 mt-1 max-w-[100px]">
+                    <span className={`text-xs sm:text-sm ${theme === 'light' ? 'text-black/70' : 'text-premium-light/70'} mt-1 max-w-[100px]`}>
                       {stat.text}
                     </span>
                   </div>
@@ -63,7 +63,7 @@ const About = () => {
               Kompleksowa agencja marketingowa, która przynosi realne rezultaty
             </h2>
             
-            <p className="text-premium-light/70">
+            <p className={`${theme === 'light' ? 'text-black/70' : 'text-premium-light/70'}`}>
               IDZ.TECH to zespół doświadczonych specjalistów z pasją do marketingu cyfrowego. Łączymy kreatywność z analitycznym podejściem, aby dostarczać rozwiązania, które nie tylko wyglądają dobrze, ale przede wszystkim działają efektywnie.
             </p>
             
@@ -72,7 +72,7 @@ const About = () => {
                 <CheckCircle size={22} className="text-premium-purple mt-1" />
                 <div>
                   <h4 className="font-medium">Zorientowanie na rezultaty</h4>
-                  <p className="text-sm text-premium-light/70">Koncentrujemy się na osiąganiu wymiernych wyników dla Twojego biznesu.</p>
+                  <p className={`text-sm ${theme === 'light' ? 'text-black/70' : 'text-premium-light/70'}`}>Koncentrujemy się na osiąganiu wymiernych wyników dla Twojego biznesu.</p>
                 </div>
               </div>
               
@@ -80,7 +80,7 @@ const About = () => {
                 <CheckCircle size={22} className="text-premium-purple mt-1" />
                 <div>
                   <h4 className="font-medium">Transparentność działań</h4>
-                  <p className="text-sm text-premium-light/70">Zapewniamy pełną przejrzystość i regularne raporty z naszych działań.</p>
+                  <p className={`text-sm ${theme === 'light' ? 'text-black/70' : 'text-premium-light/70'}`}>Zapewniamy pełną przejrzystość i regularne raporty z naszych działań.</p>
                 </div>
               </div>
               
@@ -88,7 +88,7 @@ const About = () => {
                 <CheckCircle size={22} className="text-premium-purple mt-1" />
                 <div>
                   <h4 className="font-medium">Zespół ekspertów</h4>
-                  <p className="text-sm text-premium-light/70">Nasi specjaliści posiadają certyfikaty i wieloletnie doświadczenie w branży.</p>
+                  <p className={`text-sm ${theme === 'light' ? 'text-black/70' : 'text-premium-light/70'}`}>Nasi specjaliści posiadają certyfikaty i wieloletnie doświadczenie w branży.</p>
                 </div>
               </div>
             </div>
