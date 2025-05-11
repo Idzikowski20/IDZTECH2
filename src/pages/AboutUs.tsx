@@ -161,7 +161,11 @@ const AboutUs = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {teamMembers.map((member, index) => (
-              <div key={index} className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden transition-transform hover:scale-110 duration-300 animate-fade-in" style={{ animationDelay: `${0.6 + index * 0.1}s` }}>
+              <div 
+                key={index} 
+                className={`bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden transition-transform hover:scale-110 duration-300 animate-fade-in animate-float-${index % 3 + 1}`} 
+                style={{ animationDelay: `${0.6 + index * 0.1}s` }}
+              >
                 <div className="relative">
                   <img 
                     src={member.image} 

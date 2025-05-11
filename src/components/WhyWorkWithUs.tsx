@@ -84,8 +84,11 @@ const WhyWorkWithUs = () => {
             <div className="flex justify-center mt-4">
               <div className="grid grid-cols-4 gap-4 bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl py-6 px-4 -mt-24 relative z-10">
                 {stats.map((stat, index) => (
-                  <div key={index} className="flex flex-col items-center justify-center text-center">
-                    <span className={`text-2xl sm:text-3xl font-bold ${index % 2 === 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  <div 
+                    key={index} 
+                    className={`flex flex-col items-center justify-center text-center animate-float-${index % 3 + 1}`}
+                  >
+                    <span className="text-2xl sm:text-3xl font-bold bg-premium-gradient text-transparent bg-clip-text">
                       {stat.number}
                     </span>
                     <span className="text-xs sm:text-sm text-premium-light/70 mt-1 max-w-[100px]">
@@ -149,7 +152,10 @@ const WhyWorkWithUs = () => {
               <h3 className="text-2xl font-bold mb-6">Poznaj naszych ekspertów</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {teamMembers.map((member, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 rounded-lg bg-premium-dark/40 border border-white/10">
+                  <div 
+                    key={index} 
+                    className={`flex items-center gap-4 p-4 rounded-lg bg-premium-dark/40 border border-white/10 animate-float-${(index % 3) + 1}`}
+                  >
                     <img 
                       src={member.image} 
                       alt={member.name} 

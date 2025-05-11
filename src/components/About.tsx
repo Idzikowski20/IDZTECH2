@@ -58,7 +58,10 @@ const About = () => {
             <div className="flex justify-center mt-4">
               <div className="grid grid-cols-4 gap-4 bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl py-6 px-4 -mt-24 relative z-10">
                 {stats.map((stat, index) => (
-                  <div key={index} className="flex flex-col items-center justify-center text-center">
+                  <div 
+                    key={index} 
+                    className={`flex flex-col items-center justify-center text-center animate-float-${index % 3 + 1}`}
+                  >
                     <span className="text-2xl sm:text-3xl font-bold bg-premium-gradient text-transparent bg-clip-text">
                       {stat.number}
                     </span>
