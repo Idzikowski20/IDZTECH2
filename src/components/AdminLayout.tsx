@@ -169,6 +169,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </li>
               </ul>
             </nav>
+            
+            {/* Logout button */}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLogout} 
+              className="w-full mt-6 text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-white flex items-center justify-center gap-2"
+            >
+              <LogOut size={16} />
+              <span>Wyloguj</span>
+            </Button>
           </div>
         </div>
 
