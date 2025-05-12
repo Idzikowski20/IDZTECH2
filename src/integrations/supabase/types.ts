@@ -9,69 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      cms_content: {
-        Row: {
-          content: string
-          content_type: string
-          created_at: string | null
-          id: string
-          page_id: string
-          section_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          content: string
-          content_type?: string
-          created_at?: string | null
-          id?: string
-          page_id: string
-          section_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          content?: string
-          content_type?: string
-          created_at?: string | null
-          id?: string
-          page_id?: string
-          section_id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      cms_pages: {
-        Row: {
-          created_at: string | null
-          id: string
-          meta_description: string | null
-          meta_keywords: string | null
-          slug: string
-          status: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          meta_description?: string | null
-          meta_keywords?: string | null
-          slug: string
-          status?: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          meta_description?: string | null
-          meta_keywords?: string | null
-          slug?: string
-          status?: string
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       notifications: {
         Row: {
           created_at: string | null

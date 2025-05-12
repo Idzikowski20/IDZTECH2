@@ -31,7 +31,7 @@ const DesktopControls = () => {
       
       <Link to="/contact" className="hidden md:block">
         <Button 
-          className="bg-black text-white hover:bg-black hover:text-white transition-colors"
+          className="bg-black text-white transition-colors"
         >
           Umów spotkanie
         </Button>
@@ -41,7 +41,7 @@ const DesktopControls = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+          className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100' : 'hover:bg-white/10'}`}
         >
           <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>

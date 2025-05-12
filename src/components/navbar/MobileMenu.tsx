@@ -203,7 +203,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             // Ensure scrolling is restored
             document.body.style.overflow = '';
           }}>
-            <Button className={`w-full ${theme === 'light' ? 'bg-black' : 'bg-black'} ${theme === 'light' ? 'text-white' : 'text-white'} hover:bg-black hover:text-white`}>
+            <Button className={`w-full ${theme === 'light' ? 'bg-black' : 'bg-black'} ${theme === 'light' ? 'text-white' : 'text-white'}`}>
               Umów spotkanie
             </Button>
           </Link>

@@ -339,25 +339,6 @@
     border: 1px solid #e5e7eb;
   }
 
-  /* Portfolio overlay text color fix for light mode */
-  .light .portfolio-item .portfolio-overlay h3,
-  .light .portfolio-item .portfolio-overlay p,
-  .light .portfolio-item:hover .portfolio-overlay h3,
-  .light .portfolio-item:hover .portfolio-overlay p {
-    color: #FFFFFF !important;
-  }
-  
-  /* Fix for portfolio category buttons in light mode */
-  .light .portfolio-category {
-    background-color: white;
-    color: #000000;
-  }
-  
-  .light .portfolio-category:hover {
-    background-color: #000000;
-    color: #FFFFFF;
-  }
-
   /* Force white text on black background hover in light mode */
   .light button:hover svg,
   .light a:hover svg {
