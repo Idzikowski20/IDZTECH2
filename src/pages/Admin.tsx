@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card } from '@/components/ui/card';
@@ -10,9 +11,14 @@ import { User } from '@/utils/authTypes';
 
 type UserRole = 'admin' | 'moderator' | 'blogger' | 'user';
 
-interface AdminUser extends User {
+// Modify the AdminUser interface to match the User type requirements
+interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
   role: UserRole;
-  lastName: string; // Making lastName required to match User type
+  lastName: string;
+  profilePicture: string; // Changed this from optional to required
   bio: string;
   jobTitle: string;
   createdAt: string;
@@ -58,8 +64,8 @@ const Admin = () => {
             email: data.email,
             name: data.name || '',
             role: (data.role as UserRole) || 'user',
-            profilePicture: data.profilePicture,
-            lastName: data.lastName || '', // Ensure lastName is always a string
+            profilePicture: data.profilePicture || '', // Ensure it's never null
+            lastName: data.lastName || '', 
             bio: data.bio || '',
             jobTitle: data.jobTitle || '',
             createdAt: data.created_at,

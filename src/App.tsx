@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
-import { useAuth } from '@/utils/authStore';
-import { ThemeProvider } from '@/utils/themeContext';
+import { useAuth } from '@/utils/AuthProvider';
+import RequireAuth from '@/components/RequireAuth';
 
 // Import components and pages
 import Index from '@/pages/Index';
@@ -39,17 +39,6 @@ import Error404 from '@/pages/Error404';
 import NotFound from '@/pages/NotFound';
 import ScrollToTop from '@/components/ScrollToTop';
 import VisualCMSEditor from '@/pages/VisualCMSEditor';
-
-const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-
-  if (!user) {
-    // Redirect to login page if not authenticated
-    return <Navigate to="/login" />;
-  }
-
-  return <>{children}</>;
-};
 
 const App: React.FC = () => {
   const { loading } = useAuth();
