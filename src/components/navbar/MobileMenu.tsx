@@ -71,8 +71,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 className={`${textColor} hover:bg-transparent`}
               >
                 {theme === "light" ? 
-                  <Moon className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'}`} /> : 
-                  <Sun className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'}`} />
+                  <Moon className="h-[1.2rem] w-[1.2rem] text-black hover:text-black" /> : 
+                  <Sun className="h-[1.2rem] w-[1.2rem] text-white hover:text-white" />
                 }
                 <span className="sr-only">Toggle theme</span>
               </Button>

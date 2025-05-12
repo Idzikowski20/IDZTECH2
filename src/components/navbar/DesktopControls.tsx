@@ -23,8 +23,8 @@ const DesktopControls = () => {
         className="transition-colors"
       >
         {theme === "light" ? 
-          <Moon className={`h-[1.2rem] w-[1.2rem] text-black hover:text-black`} /> : 
-          <Sun className={`h-[1.2rem] w-[1.2rem] text-white hover:text-black`} />
+          <Moon className="h-[1.2rem] w-[1.2rem] text-black hover:text-black" /> : 
+          <Sun className="h-[1.2rem] w-[1.2rem] text-white hover:text-white" />
         }
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -43,7 +43,7 @@ const DesktopControls = () => {
           size="icon" 
           className="transition-colors"
         >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-black'}`} />
+          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'}`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>
