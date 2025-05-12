@@ -167,11 +167,10 @@ export const isUserAdmin = async (userId: string): Promise<boolean> => {
 // Make specific user an admin (required for our fixes)
 export const makeUserAdmin = async (email: string): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({ role: 'admin' })
-      .eq('email', email)
-      .select();
+      .eq('email', email);
     
     if (error) {
       console.error('Error making user admin:', error);
@@ -188,7 +187,7 @@ export const makeUserAdmin = async (email: string): Promise<boolean> => {
 // Delete all users except one admin
 export const deleteAllUsersExceptAdmin = async (adminEmail: string): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .delete()
       .neq('email', adminEmail);

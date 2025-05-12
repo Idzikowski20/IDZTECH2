@@ -53,7 +53,7 @@ const AdminCMS = () => {
     if (user?.email) {
       setupAdminUser();
     }
-  }, [user, adminAccessGranted]);
+  }, [user, adminAccessGranted, adminEmail]);
 
   if (loading || isSettingAdminRole) {
     return (
@@ -88,10 +88,10 @@ const AdminCMS = () => {
               <h2 className="text-xl font-bold mb-2">Edycja wizualna (WordPress-style)</h2>
               <p className="mb-4">
                 Skorzystaj z wizualnego edytora treści, który pozwala na edycję zawartości strony 
-                w przyjaznym trybie graficznym, podobnym do WordPressa.
+                w przyjaznym trybie graficznym, podobnym do Elementora.
               </p>
             </div>
-            <Link to="/admin/visual-editor">
+            <Link to="/visual-editor">
               <Button className="bg-premium-gradient hover:bg-premium-purple/80 transition-colors">
                 <Edit className="mr-2 h-4 w-4" />
                 Przejdź do edytora wizualnego

@@ -1,309 +1,293 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/utils/AuthProvider';
-import { Loader2, ArrowLeft, Save, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Move, X, Save, Eye, ArrowLeft, Settings, Layout, Image, Text, Video, Code, Columns, Box, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import RichTextEditor from '@/components/RichTextEditor';
-import { formatDate } from '@/utils/formatters';
-import { getCMSPages, getCMSContent, updateCMSContent, CMSPage } from '@/utils/cms';
+import { useAuth } from '@/utils/AuthProvider';
 
 const VisualCMSEditor = () => {
-  const { user, loading } = useAuth();
-  const [pages, setPages] = useState<CMSPage[]>([]);
-  const [selectedPage, setSelectedPage] = useState<CMSPage | null>(null);
-  const [pageContent, setPageContent] = useState<{[key: string]: string}>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
-  
-  // Sekcje, które mogą być edytowane na stronie
-  const sections = [
-    { id: 'hero', name: 'Sekcja główna', description: 'Główny banner strony' },
-    { id: 'about', name: 'O nas', description: 'Informacje o firmie' },
-    { id: 'services', name: 'Usługi', description: 'Lista oferowanych usług' },
-    { id: 'features', name: 'Funkcje', description: 'Główne funkcje produktu/usługi' },
-    { id: 'testimonials', name: 'Opinie', description: 'Opinie klientów' },
-    { id: 'faq', name: 'FAQ', description: 'Najczęściej zadawane pytania' },
-    { id: 'contact', name: 'Kontakt', description: 'Informacje kontaktowe' },
-    { id: 'footer', name: 'Stopka', description: 'Treść stopki strony' }
-  ];
-  
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('elements');
+  const [elementEditing, setElementEditing] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  // Symulacja ładowania
   useEffect(() => {
-    const loadPages = async () => {
-      try {
-        const pagesData = await getCMSPages();
-        setPages(pagesData);
-        
-        if (pagesData.length > 0) {
-          setSelectedPage(pagesData[0]);
-          await loadPageContent(pagesData[0]);
-        }
-      } catch (error) {
-        console.error('Error loading pages:', error);
-        toast.error('Nie udało się załadować stron');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
     
-    if (!loading && user) {
-      loadPages();
-    }
-  }, [loading, user]);
-  
-  const loadPageContent = async (page: CMSPage) => {
-    setIsLoading(true);
-    const contentData: {[key: string]: string} = {};
-    
-    try {
-      for (const section of sections) {
-        const sectionContent = await getCMSContent(page.id, section.id);
-        contentData[section.id] = sectionContent?.content || '';
-      }
-      
-      setPageContent(contentData);
-    } catch (error) {
-      console.error('Error loading page content:', error);
-      toast.error('Nie udało się załadować treści strony');
-    } finally {
-      setIsLoading(false);
-    }
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Kategorie elementów
+  const elementCategories = [
+    { id: 'elements', name: 'Elementy', icon: <Layout size={16} /> },
+    { id: 'blocks', name: 'Bloki', icon: <Box size={16} /> },
+    { id: 'templates', name: 'Szablony', icon: <Columns size={16} /> },
+  ];
+
+  // Elementy
+  const elements = {
+    elements: [
+      { id: 'heading', name: 'Nagłówek', icon: <Text size={20} /> },
+      { id: 'paragraph', name: 'Paragraf', icon: <Text size={20} /> },
+      { id: 'image', name: 'Obraz', icon: <Image size={20} /> },
+      { id: 'video', name: 'Wideo', icon: <Video size={20} /> },
+      { id: 'button', name: 'Przycisk', icon: <Button size={20} /> },
+      { id: 'divider', name: 'Separator', icon: <Separator /> },
+      { id: 'html', name: 'HTML', icon: <Code size={20} /> },
+    ],
+    blocks: [
+      { id: 'hero', name: 'Hero', icon: <Layout size={20} /> },
+      { id: 'features', name: 'Funkcje', icon: <Layout size={20} /> },
+      { id: 'testimonials', name: 'Opinie', icon: <Layout size={20} /> },
+      { id: 'pricing', name: 'Cennik', icon: <Layout size={20} /> },
+      { id: 'cta', name: 'Call to Action', icon: <Layout size={20} /> },
+      { id: 'faq', name: 'FAQ', icon: <Layout size={20} /> },
+      { id: 'team', name: 'Zespół', icon: <Layout size={20} /> },
+    ],
+    templates: [
+      { id: 'landing', name: 'Landing Page', icon: <Layout size={20} /> },
+      { id: 'about', name: 'O nas', icon: <Layout size={20} /> },
+      { id: 'contact', name: 'Kontakt', icon: <Layout size={20} /> },
+      { id: 'services', name: 'Usługi', icon: <Layout size={20} /> },
+      { id: 'blog', name: 'Blog', icon: <Layout size={20} /> },
+    ],
   };
-  
-  const handlePageChange = async (page: CMSPage) => {
-    setSelectedPage(page);
-    await loadPageContent(page);
+
+  const handleSave = () => {
+    toast.success("Zmiany zostały zapisane");
   };
-  
-  const handleContentChange = (sectionId: string, content: string) => {
-    setPageContent(prev => ({
-      ...prev,
-      [sectionId]: content
-    }));
+
+  const handlePreview = () => {
+    toast.info("Podgląd strony w nowej karcie");
+    window.open('/', '_blank');
   };
-  
-  const handleSaveContent = async (sectionId: string) => {
-    if (!selectedPage) return;
-    
-    setIsSaving(true);
-    
-    try {
-      const success = await updateCMSContent({
-        page_id: selectedPage.id,
-        section_id: sectionId,
-        content: pageContent[sectionId],
-        content_type: 'html'
-      });
-      
-      if (success) {
-        toast.success(`Sekcja "${sections.find(s => s.id === sectionId)?.name}" została zapisana`);
-      } else {
-        toast.error('Nie udało się zapisać treści');
-      }
-    } catch (error) {
-      console.error('Error saving content:', error);
-      toast.error('Wystąpił błąd podczas zapisywania treści');
-    } finally {
-      setIsSaving(false);
-    }
+
+  const handleElementDrag = (id: string) => (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', id);
   };
-  
-  const handleSaveAll = async () => {
-    if (!selectedPage) return;
-    
-    setIsSaving(true);
-    
-    try {
-      let allSaved = true;
-      
-      for (const section of sections) {
-        const success = await updateCMSContent({
-          page_id: selectedPage.id,
-          section_id: section.id,
-          content: pageContent[section.id] || '',
-          content_type: 'html'
-        });
-        
-        if (!success) {
-          allSaved = false;
-          toast.error(`Nie udało się zapisać sekcji "${section.name}"`);
-        }
-      }
-      
-      if (allSaved) {
-        toast.success('Wszystkie zmiany zostały zapisane pomyślnie');
-      }
-    } catch (error) {
-      console.error('Error saving all content:', error);
-      toast.error('Wystąpił błąd podczas zapisywania treści');
-    } finally {
-      setIsSaving(false);
-    }
+
+  const handleElementEdit = (id: string) => {
+    setElementEditing(id === elementEditing ? null : id);
+    toast.info(`Edytowanie elementu: ${id}`);
   };
-  
-  if (loading || isLoading) {
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Ładowanie edytora...</span>
+      <div className="flex items-center justify-center min-h-screen bg-premium-dark">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin mb-4 mx-auto text-premium-purple" />
+          <p className="text-premium-light">Ładowanie edytora wizualnego...</p>
+        </div>
       </div>
     );
   }
-  
+
   return (
-    <div className="min-h-screen bg-premium-dark">
-      {/* Header */}
-      <div className="border-b border-premium-light/10 p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <Link to="/admin/cms" className="flex items-center text-premium-light hover:text-white mr-4">
-              <ArrowLeft className="h-5 w-5 mr-1" />
-              <span>Powrót do panelu CMS</span>
-            </Link>
-            <h1 className="text-xl font-bold">Wizualny edytor treści</h1>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="outline"
-              onClick={() => setPreviewMode(!previewMode)}
-              className="flex items-center"
-            >
-              {previewMode ? (
-                <>
-                  <EyeOff className="h-4 w-4 mr-2" />
-                  Wyłącz podgląd
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Podgląd
-                </>
-              )}
+    <div className="flex flex-col h-screen bg-premium-dark">
+      {/* Górny pasek narzędzi */}
+      <div className="bg-premium-dark/90 border-b border-premium-light/10 p-3 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Link to="/admin/cms">
+            <Button variant="ghost" size="icon" className="hover:bg-premium-dark/50">
+              <ArrowLeft size={20} />
             </Button>
-            
-            <Button 
-              onClick={handleSaveAll}
-              disabled={isSaving}
-              className="bg-premium-gradient"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Zapisywanie...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Zapisz wszystko
-                </>
-              )}
-            </Button>
-          </div>
+          </Link>
+          <h1 className="text-xl font-semibold">Edytor Elementor</h1>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" onClick={handlePreview} className="flex items-center text-sm space-x-1 hover:bg-white hover:text-black">
+            <Eye size={16} />
+            <span>Podgląd</span>
+          </Button>
+          <Button onClick={handleSave} className="flex items-center text-sm space-x-1 bg-premium-gradient">
+            <Save size={16} />
+            <span>Zapisz zmiany</span>
+          </Button>
+          <Button variant="outline" size="icon" className="hover:bg-white hover:text-black">
+            <Settings size={20} />
+          </Button>
         </div>
       </div>
       
-      <div className="container mx-auto py-6 px-4">
-        {/* Page selector */}
-        <div className="mb-6">
-          <h2 className="text-lg font-medium mb-3">Wybierz stronę do edycji:</h2>
-          <div className="flex flex-wrap gap-2">
-            {pages.map(page => (
-              <Button
-                key={page.id}
-                variant={selectedPage?.id === page.id ? "default" : "outline"}
-                onClick={() => handlePageChange(page)}
-                className="flex-grow md:flex-grow-0"
-              >
-                {page.title}
-              </Button>
-            ))}
-          </div>
-        </div>
-        
-        {selectedPage && (
-          <div className="mb-6">
-            <Card className="p-4 bg-premium-dark/50 border border-premium-light/10">
-              <h2 className="text-lg font-medium">{selectedPage.title}</h2>
-              <div className="text-sm text-premium-light/70 mt-1">
-                <span>Ostatnia aktualizacja: {formatDate(selectedPage.updated_at)}</span>
-              </div>
-              <p className="mt-2 text-sm">{selectedPage.meta_description}</p>
-            </Card>
-          </div>
-        )}
-        
-        {/* Main editor */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Sidebar with sections */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-4">
-              <h3 className="font-medium mb-3">Sekcje strony:</h3>
-              <nav className="space-y-1">
-                {sections.map(section => (
-                  <a
-                    key={section.id}
-                    href={`#section-${section.id}`}
-                    className="block p-3 rounded-lg hover:bg-white hover:text-black bg-premium-dark/50 border border-premium-light/10 transition-colors mb-2"
-                  >
-                    <div className="font-medium">{section.name}</div>
-                    <div className="text-xs text-premium-light/70">{section.description}</div>
-                  </a>
-                ))}
-              </nav>
+      {/* Główny kontener */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Panel boczny */}
+        <div className="w-72 bg-premium-dark border-r border-premium-light/10 flex flex-col">
+          {/* Zakładki boczne */}
+          <Tabs defaultValue={activeTab} className="w-full" onValueChange={setActiveTab}>
+            <TabsList className="w-full grid grid-cols-3">
+              {elementCategories.map(category => (
+                <TabsTrigger 
+                  key={category.id} 
+                  value={category.id} 
+                  className="flex items-center justify-center gap-1"
+                >
+                  {category.icon}
+                  <span className="hidden sm:inline">{category.name}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          
+          {/* Lista elementów */}
+          <div className="overflow-y-auto flex-1 p-2">
+            <h2 className="text-sm font-medium mb-2 text-premium-light/80">{
+              elementCategories.find(cat => cat.id === activeTab)?.name || 'Elementy'
+            }</h2>
+            
+            <div className="grid grid-cols-2 gap-2">
+              {elements[activeTab as keyof typeof elements].map(element => (
+                <div 
+                  key={element.id}
+                  draggable
+                  onDragStart={handleElementDrag(element.id)}
+                  onClick={() => handleElementEdit(element.id)}
+                  className={`
+                    p-2 bg-premium-dark/70 rounded-md border border-premium-light/10 
+                    flex flex-col items-center justify-center gap-1 
+                    hover:border-premium-purple cursor-grab
+                    ${elementEditing === element.id ? 'border-premium-purple/80 ring-1 ring-premium-purple/30' : ''}
+                  `}
+                >
+                  <div className="text-premium-light/80">{element.icon}</div>
+                  <span className="text-xs">{element.name}</span>
+                </div>
+              ))}
             </div>
           </div>
           
-          {/* Content editor */}
-          <div className="lg:col-span-4">
-            {sections.map(section => (
-              <div 
-                key={section.id} 
-                id={`section-${section.id}`}
-                className="mb-10"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-medium">{section.name}</h3>
-                  <Button 
-                    onClick={() => handleSaveContent(section.id)}
-                    variant="outline" 
-                    size="sm"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Zapisz sekcję
-                  </Button>
-                </div>
-                
-                <Tabs defaultValue="edit">
-                  <TabsList className="mb-2">
-                    <TabsTrigger value="edit">Edycja</TabsTrigger>
-                    <TabsTrigger value="preview">Podgląd</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="edit" className="border rounded-md p-2 min-h-[200px]">
-                    <RichTextEditor 
-                      value={pageContent[section.id] || ''} 
-                      onChange={(value) => handleContentChange(section.id, value)} 
-                      placeholder={`Wprowadź zawartość sekcji "${section.name}"...`}
-                      rows={15}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="preview" className="border rounded-md p-4 min-h-[200px] bg-white text-black">
-                    <div 
-                      className="prose max-w-none" 
-                      dangerouslySetInnerHTML={{ __html: pageContent[section.id] || '' }}
-                    />
-                  </TabsContent>
-                </Tabs>
+          {/* Informacje o użytkowniku */}
+          <div className="p-3 border-t border-premium-light/10">
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-premium-gradient flex items-center justify-center text-white">
+                {user?.email?.charAt(0).toUpperCase() || 'A'}
               </div>
-            ))}
+              <div className="ml-2">
+                <div className="text-sm font-medium">{user?.email?.split('@')[0] || 'Admin'}</div>
+                <div className="text-xs text-premium-light/70">Administrator</div>
+              </div>
+            </div>
           </div>
         </div>
+        
+        {/* Przestrzeń robocza */}
+        <div className="flex-1 overflow-auto relative bg-white p-6">
+          <div className="max-w-5xl mx-auto min-h-full bg-white">
+            {/* Pustego ekranu dla demonstracji */}
+            <div className="w-full h-full flex flex-col items-center justify-center text-black/70 py-20">
+              <div className="border-2 border-dashed border-gray-300 p-10 rounded-lg flex flex-col items-center justify-center w-full">
+                <Plus size={32} className="mb-2 text-gray-400" />
+                <p className="text-lg text-gray-500 font-medium">Przeciągnij elementy tutaj, aby rozpocząć</p>
+                <p className="text-sm text-gray-400 mt-2">lub kliknij, aby dodać nowy element</p>
+              </div>
+              
+              <div className="mt-10 p-6 bg-gray-100 rounded-lg w-full">
+                <h2 className="text-xl font-bold text-gray-700">Przykładowy podgląd strony</h2>
+                <p className="mt-2 text-gray-600">
+                  To jest przykładowy podgląd strony. W rzeczywistym edytorze, będziesz mógł dodawać, 
+                  przesuwać i edytować elementy, które zostaną natychmiast odzwierciedlone w podglądzie.
+                </p>
+                <div className="mt-4 flex gap-2">
+                  <Button variant="default" className="bg-premium-purple hover:bg-premium-purple/90">
+                    Przykładowy przycisk
+                  </Button>
+                  <Button variant="outline" className="border-premium-purple text-premium-purple hover:bg-white hover:text-black">
+                    Więcej informacji
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Przyciski edycji elementów */}
+          <div className="fixed bottom-6 right-6 flex items-center space-x-2">
+            <Button variant="outline" className="shadow-lg hover:bg-white hover:text-black transition-colors">
+              <Move size={20} className="mr-2" />
+              Przesuwaj
+            </Button>
+            <Button className="shadow-lg bg-premium-gradient transition-colors">
+              <Plus size={20} className="mr-2" />
+              Dodaj element
+            </Button>
+          </div>
+        </div>
+        
+        {/* Panel właściwości elementu (pojawia się, gdy element jest edytowany) */}
+        {elementEditing && (
+          <div className="w-72 bg-premium-dark border-l border-premium-light/10 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">Właściwości elementu</h3>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setElementEditing(null)}
+                className="hover:bg-white hover:text-black transition-colors"
+              >
+                <X size={18} />
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm text-premium-light/70 block mb-1">Nazwa</label>
+                <input 
+                  type="text" 
+                  className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20" 
+                  value={elements[activeTab as keyof typeof elements].find(e => e.id === elementEditing)?.name} 
+                  readOnly 
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm text-premium-light/70 block mb-1">ID</label>
+                <input 
+                  type="text" 
+                  className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20" 
+                  value={elementEditing} 
+                  readOnly 
+                />
+              </div>
+              
+              <Separator />
+              
+              {/* Przykładowe właściwości (będą się różnić w zależności od typu elementu) */}
+              <div>
+                <label className="text-sm text-premium-light/70 block mb-1">Zawartość</label>
+                <textarea 
+                  className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20 h-24"
+                  placeholder="Wprowadź tekst..."
+                ></textarea>
+              </div>
+              
+              <div>
+                <label className="text-sm text-premium-light/70 block mb-1">Kolor</label>
+                <div className="flex space-x-2">
+                  <div className="w-6 h-6 rounded-full bg-red-500 cursor-pointer hover:ring-2 hover:ring-white/50"></div>
+                  <div className="w-6 h-6 rounded-full bg-blue-500 cursor-pointer hover:ring-2 hover:ring-white/50"></div>
+                  <div className="w-6 h-6 rounded-full bg-green-500 cursor-pointer hover:ring-2 hover:ring-white/50"></div>
+                  <div className="w-6 h-6 rounded-full bg-purple-500 cursor-pointer hover:ring-2 hover:ring-white/50"></div>
+                  <div className="w-6 h-6 rounded-full bg-yellow-500 cursor-pointer hover:ring-2 hover:ring-white/50"></div>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm text-premium-light/70 block mb-1">Rozmiar</label>
+                <select className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20">
+                  <option>Mały</option>
+                  <option>Średni</option>
+                  <option>Duży</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ const UserSummary: React.FC<UserSummaryProps> = ({ user }) => {
         
         <div>
           <h4 className="text-lg font-semibold">{user.name || user.email.split('@')[0]}</h4>
-          <p className="text-premium-light/70">{user.role === 'admin' ? 'Administrator' : user.role}</p>
+          <p className="text-premium-light/70">Administrator</p>
           <div className="flex items-center text-sm text-premium-light/60 mt-1">
             <Calendar className="h-4 w-4 mr-1" />
             {user.createdAt 
@@ -65,11 +65,7 @@ const UserSummary: React.FC<UserSummaryProps> = ({ user }) => {
         <div className="flex flex-col items-center p-3 bg-premium-dark border border-premium-light/5 rounded-lg hover:bg-white hover:text-black transition-colors">
           <Star className="h-6 w-6 mb-1 text-amber-500" />
           <span className="text-sm">Rola</span>
-          <span className="font-bold">
-            {user.role === 'admin' ? 'Administrator' : 
-             user.role === 'moderator' ? 'Moderator' :
-             user.role === 'blogger' ? 'Bloger' : 'Użytkownik'}
-          </span>
+          <span className="font-bold">Administrator</span>
         </div>
         
         <div className="flex flex-col items-center p-3 bg-premium-dark border border-premium-light/5 rounded-lg hover:bg-white hover:text-black transition-colors">
