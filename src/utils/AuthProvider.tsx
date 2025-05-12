@@ -134,6 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       console.log("Sign in successful:", data?.user?.id);
+      // Don't set loading to false here - let the auth state change handle it
       return { data };
     } catch (error) {
       console.error("Unexpected error during sign in:", error);

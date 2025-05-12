@@ -31,7 +31,7 @@ const Login = () => {
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - this runs on mount and when isAuthenticated changes
   useEffect(() => {
     if (isAuthenticated) {
       console.log("User is authenticated in Login page, redirecting to:", from);
@@ -73,9 +73,13 @@ const Login = () => {
         description: "Witamy z powrotem!"
       });
       
-      // Manual navigation after successful login
-      console.log("Login successful, redirecting to:", from);
-      navigate(from, { replace: true });
+      // Force immediate navigation after successful login rather than waiting for state changes
+      console.log("Login successful, forcing redirect to:", from);
+      
+      // Use timeout to ensure this executes after the current call stack is clear
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({
