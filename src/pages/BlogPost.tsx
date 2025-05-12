@@ -63,6 +63,7 @@ const BlogPost = () => {
 
   // Check if user is admin, moderator or blogger (has special permissions)
   const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
+  const isUserLoggedIn = !!user;
 
   return (
     <div className="min-h-screen bg-premium-dark">
@@ -84,7 +85,7 @@ const BlogPost = () => {
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
               
-              {(!isMobile || hasSpecialRoles) && (
+              {(isUserLoggedIn || hasSpecialRoles) && (
                 <>
                   <span className="mx-2">•</span>
                   <span>{post.categories.join(', ')}</span>

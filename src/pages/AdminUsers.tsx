@@ -12,20 +12,50 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, UserRole } from '@/utils/authStore';
+import { useAuth } from '@/utils/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, Trash2, UserCheck } from 'lucide-react';
+import { Eye, Trash2, UserCheck, UserPlus } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { UserRole } from '@/utils/authTypes';
 import { refreshUserStats } from '@/utils/authStatsFunctions';
 
+// Form schema for adding new user
+const userFormSchema = z.object({
+  name: z.string().min(2, { message: "Imię jest wymagane" }),
+  lastName: z.string().optional(),
+  email: z.string().email({ message: "Nieprawidłowy format email" }),
+  password: z.string().min(6, { message: "Hasło musi mieć co najmniej 6 znaków" }),
+  role: z.string().default('user'),
+});
+
+type UserFormValues = z.infer<typeof userFormSchema>;
+
 const AdminUsers = () => {
-  const { getUsers, updateUserRole, deleteUser, user: currentUser } = useAuth();
+  const { getUsers, updateUserRole, deleteUser, user: currentUser, addUser } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeProfile, setActiveProfile] = useState<any>(null);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+
+  // Form for adding new user
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userFormSchema),
+    defaultValues: {
+      name: '',
+      lastName: '',
+      email: '',
+      password: '',
+      role: 'user',
+    },
+  });
 
   // Fetch users
   useEffect(() => {
@@ -34,8 +64,17 @@ const AdminUsers = () => {
         setLoading(true);
         const usersList = await getUsers();
         
-        // Filter out the current user
-        const filteredUsers = usersList.filter(u => u.id !== currentUser?.id);
+        // Filter out the current user and deduplicate by email
+        const uniqueEmails = new Set();
+        const filteredUsers = usersList.filter(u => {
+          if (u.id === currentUser?.id) return false;
+          
+          // Check for duplicate email
+          if (uniqueEmails.has(u.email)) return false;
+          
+          uniqueEmails.add(u.email);
+          return true;
+        });
         
         setUsers(filteredUsers);
         
@@ -140,6 +179,73 @@ const AdminUsers = () => {
       setActiveProfile(selectedUser);
     }
   };
+  
+  // Handle adding new user
+  const handleAddUser = async (data: UserFormValues) => {
+    try {
+      // Check if user with email already exists
+      if (users.some(user => user.email === data.email)) {
+        toast({
+          title: "Błąd",
+          description: "Użytkownik o podanym adresie email już istnieje",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const userData = {
+        email: data.email,
+        name: data.name,
+        lastName: data.lastName || '',
+        role: data.role as UserRole,
+        bio: '',
+        jobTitle: '',
+      };
+      
+      const success = await addUser(userData, data.password);
+      
+      if (success) {
+        // Refresh users list
+        const refreshedUsers = await getUsers();
+        
+        // Filter out current user and deduplicate by email
+        const uniqueEmails = new Set();
+        const filteredUsers = refreshedUsers.filter(u => {
+          if (u.id === currentUser?.id) return false;
+          
+          // Check for duplicate email
+          if (uniqueEmails.has(u.email)) return false;
+          
+          uniqueEmails.add(u.email);
+          return true;
+        });
+        
+        setUsers(filteredUsers);
+        
+        toast({
+          title: "Sukces",
+          description: "Użytkownik został dodany"
+        });
+        
+        // Close dialog and reset form
+        setIsAddUserDialogOpen(false);
+        form.reset();
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się dodać użytkownika",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error adding user:", error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił problem przy dodawaniu użytkownika",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Format date helper
   const formatDate = (dateString: string) => {
@@ -166,11 +272,19 @@ const AdminUsers = () => {
   return (
     <AdminLayout>
       <div className="p-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Zarządzanie użytkownikami</h1>
-          <p className="text-premium-light/70">
-            Zarządzaj użytkownikami, przypisuj role i uprawnienia
-          </p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Zarządzanie użytkownikami</h1>
+            <p className="text-premium-light/70">
+              Zarządzaj użytkownikami, przypisuj role i uprawnienia
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsAddUserDialogOpen(true)}
+            className="bg-premium-gradient hover:bg-black hover:text-white"
+          >
+            <UserPlus size={16} className="mr-2" /> Dodaj użytkownika
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -374,6 +488,111 @@ const AdminUsers = () => {
           </div>
         </div>
       </div>
+
+      {/* Add User Dialog */}
+      <Dialog open={isAddUserDialogOpen} onOpenChange={setIsAddUserDialogOpen}>
+        <DialogContent className="bg-premium-dark/90 border-premium-light/10">
+          <DialogHeader>
+            <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
+            <DialogDescription>
+              Wypełnij poniższy formularz, aby dodać nowego użytkownika do systemu.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleAddUser)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Imię*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Jan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nazwisko</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Kowalski" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email*</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="jankowalski@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hasło*</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Minimum 6 znaków" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rola*</FormLabel>
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz rolę" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="user">Użytkownik</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
+                        <SelectItem value="editor">Edytor</SelectItem>
+                        <SelectItem value="admin">Administrator</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddUserDialogOpen(false)}
+                  className="mr-2"
+                >
+                  Anuluj
+                </Button>
+                <Button type="submit" className="bg-premium-gradient">Dodaj użytkownika</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

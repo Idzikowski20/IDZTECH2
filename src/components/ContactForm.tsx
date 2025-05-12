@@ -54,15 +54,10 @@ const ContactForm = () => {
       console.log("Dane formularza:", data);
       
       // Send form to Formspree
-      await sendToFormspree({
-        ...data,
-        _subject: `Wiadomość kontaktowa od ${data.name} (${data.email})`,
-        _cc: "patryk.idzikowski@interia.pl", // Add CC to ensure you receive a copy
-        _replyTo: data.email // Set reply-to as the sender's email
-      });
+      await sendToFormspree(data);
       
       // Check for errors
-      if (formspreeState.errors && Array.isArray(formspreeState.errors) && formspreeState.errors.length > 0) {
+      if (formspreeState.errors && formspreeState.errors.length > 0) {
         throw new Error(formspreeState.errors[0].message);
       }
       
@@ -86,7 +81,7 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
-      {formspreeState.errors && Array.isArray(formspreeState.errors) && formspreeState.errors.length > 0 && (
+      {formspreeState.errors && formspreeState.errors.length > 0 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Błąd wysyłania formularza</AlertTitle>
