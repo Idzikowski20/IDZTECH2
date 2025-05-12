@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,7 @@ import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useTheme } from '@/utils/themeContext';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LocationState {
   from?: {
@@ -22,38 +20,24 @@ interface LocationState {
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isAuthenticated, user } = useAuth();
+  const { signIn, isAuthenticated } = useAuth();
   const { theme } = useTheme();
-  const isMobile = useIsMobile();
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
-  // Check auth state once when component mounts
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsCheckingAuth(false);
-    }, 800);
-    
-    return () => clearTimeout(timer);
-  }, []);
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate(from, { replace: true });
+    return null;
+  }
 
-  // Handle redirect if user is authenticated
-  useEffect(() => {
-    if (!isCheckingAuth && isAuthenticated && user) {
-      console.log("Login page - User is authenticated, redirecting to:", from);
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, navigate, from, user, isCheckingAuth]);
-
-  // Handle login submission
+  // Simple login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -69,43 +53,38 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      console.log("Attempting login");
-      const { error } = await signIn(email, password, rememberMe);
+      const { error } = await signIn(email, password);
       
       if (error) {
-        console.error("Login error:", error);
         toast({
           title: "Błąd logowania",
           description: error.message || "Niepoprawny email lub hasło",
           variant: "destructive"
         });
         setIsLoading(false);
+        return;
       }
-      // Success will be handled by the redirect in useEffect
+      
+      toast({
+        title: "Zalogowano pomyślnie",
+        description: "Witamy z powrotem!"
+      });
+      
+      navigate(from, { replace: true });
     } catch (error: any) {
-      console.error("Unexpected login error:", error);
       toast({
         title: "Błąd logowania",
-        description: error.message || "Wystąpił nieoczekiwany błąd podczas logowania",
+        description: error.message || "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
       setIsLoading(false);
     }
   };
 
-  // Show loading state while checking auth
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-premium-dark">
-        <Loader2 className="h-12 w-12 animate-spin text-premium-purple" />
-      </div>
-    );
-  }
-
   return (
     <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>
       <Navbar />
-      <div className="container mx-auto pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto pt-10 pb-16 px-4 sm:px-6 lg:px-8">
         <div className={`max-w-md mx-auto ${theme === 'light' ? "bg-white" : "bg-black"} p-6 md:p-8 rounded-xl border ${theme === 'light' ? "border-gray-200" : "border-gray-700"} shadow-lg`}>
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
@@ -179,21 +158,6 @@ const Login = () => {
                   )}
                 </button>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="rememberMe" 
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked === true)}
-                disabled={isLoading}
-              />
-              <Label 
-                htmlFor="rememberMe" 
-                className={`text-sm ${theme === 'light' ? "text-gray-700" : "text-gray-300"}`}
-              >
-                Zapamiętaj mnie na tym urządzeniu
-              </Label>
             </div>
             
             <Button 

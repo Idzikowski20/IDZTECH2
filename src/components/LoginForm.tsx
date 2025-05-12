@@ -1,29 +1,13 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
-
-const loginFormSchema = z.object({
-  email: z.string().email('Wprowadź poprawny adres email'),
-  password: z.string().min(1, 'Hasło jest wymagane'),
-  rememberMe: z.boolean().optional(),
-});
 
 interface LoginFormProps {
   hideHeader?: boolean;
@@ -32,26 +16,20 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn } = useAuth();
   const { toast } = useToast();
   const { theme } = useTheme();
 
-  const form = useForm<z.infer<typeof loginFormSchema>>({
-    resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      rememberMe: false,
-    },
-  });
-
-  const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(data.email, data.password, data.rememberMe);
+      const { error } = await signIn(email, password);
       
       if (error) {
         toast({
@@ -69,12 +47,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       });
       
       if (onSuccess) {
-        setTimeout(() => {
-          onSuccess();
-        }, 0);
+        onSuccess();
+      } else {
+        navigate('/admin');
       }
-      // Redirect will be handled by AuthProvider
-      
     } catch (error: any) {
       toast({
         title: "Błąd logowania",
@@ -98,101 +74,84 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         </div>
       )}
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>
-                  Email
-                </FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="email@example.com" 
-                    className={`${theme === 'light' ? "bg-white" : "bg-gray-900"} h-10`}
-                    {...field} 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email" className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>Email</Label>
+          <Input 
+            id="email"
+            type="email"
+            placeholder="email@example.com" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className={`${theme === 'light' ? "bg-white" : "bg-gray-900"} h-10`}
           />
-          
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>
-                  Hasło
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input 
-                      type={showPassword ? "text" : "password"} 
-                      placeholder="••••••••" 
-                      className={`${theme === 'light' ? "bg-white" : "bg-gray-900"} h-10 pr-10`}
-                      {...field} 
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={18} />
-                      ) : (
-                        <Eye size={18} />
-                      )}
-                    </button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <div className="flex justify-end">
-            <Button
-              variant="link"
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="password" className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>Hasło</Label>
+          <div className="relative">
+            <Input 
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className={`${theme === 'light' ? "bg-white" : "bg-gray-900"} h-10 pr-10`}
+            />
+            <button
               type="button"
-              className={`text-premium-purple p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
-              onClick={() => navigate('/forgot-password')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              onClick={() => setShowPassword(!showPassword)}
             >
-              Nie pamiętasz hasła?
-            </Button>
+              {showPassword ? (
+                <EyeOff size={18} />
+              ) : (
+                <Eye size={18} />
+              )}
+            </button>
           </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white"
-            disabled={isLoading}
+        </div>
+        
+        <div className="flex justify-end">
+          <Button
+            variant="link"
+            type="button"
+            className={`text-premium-purple p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
+            onClick={() => navigate('/forgot-password')}
           >
-            {isLoading ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logowanie...
-              </span>
-            ) : "Zaloguj się"}
+            Nie pamiętasz hasła?
           </Button>
-          
-          <div className="text-center mt-4">
-            <span className={theme === 'light' ? "text-gray-600" : "text-gray-300"}>
-              Nie masz jeszcze konta?{" "}
+        </div>
+        
+        <Button 
+          type="submit" 
+          className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="flex items-center justify-center">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Logowanie...
             </span>
-            <Button
-              variant="link"
-              type="button"
-              className={`p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
-              onClick={() => navigate('/register')}
-            >
-              Zarejestruj się
-            </Button>
-          </div>
-        </form>
-      </Form>
+          ) : "Zaloguj się"}
+        </Button>
+        
+        <div className="text-center mt-4">
+          <span className={theme === 'light' ? "text-gray-600" : "text-gray-300"}>
+            Nie masz jeszcze konta?{" "}
+          </span>
+          <Button
+            variant="link"
+            type="button"
+            className={`p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
+            onClick={() => navigate('/register')}
+          >
+            Zarejestruj się
+          </Button>
+        </div>
+      </form>
     </div>
   );
 };

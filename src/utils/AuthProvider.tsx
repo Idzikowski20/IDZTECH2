@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, createContext } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
@@ -18,12 +19,9 @@ export interface AuthContextType {
   user: (User & ExtendedUserProfile) | null;
   session: Session | null;
   loading: boolean;
-  isLoading: boolean;
   isAuthenticated: boolean;
-  signIn: (email: string, password: string, remember?: boolean) => Promise<{ data?: any; error?: any }>;
+  signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error?: any }>;
-  updatePassword: (newPassword: string) => Promise<{ error?: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
 }
 
@@ -35,8 +33,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
   const { toast } = useToast();
   
   // Profile update function
@@ -44,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user?.id) return;
       
-      // Update user metadata
       const { error } = await supabase.auth.updateUser({
         data: {
           name: data.name,
@@ -64,7 +59,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       
-      // Update local user state
       setUser(prev => prev ? { ...prev, ...data } : null);
       
       toast({
@@ -80,150 +74,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Initialize auth
   useEffect(() => {
-    console.log("Setting up auth state in AuthProvider");
-    
-    // Function to fetch additional profile data
-    const fetchUserProfile = async (currentUser: User) => {
-      try {
-        // Merge profile data with user
-        return {
-          ...currentUser,
-          name: currentUser.user_metadata?.name || null,
-          lastName: currentUser.user_metadata?.lastName || null,
-          profilePicture: currentUser.user_metadata?.profilePicture || null,
-          bio: currentUser.user_metadata?.bio || null,
-          jobTitle: currentUser.user_metadata?.jobTitle || null,
-        };
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        return currentUser;
-      }
-    };
-
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log("Auth state changed:", event);
-        
-        // Update session state
-        setSession(currentSession);
-        
-        if (currentSession?.user) {
-          // Use setTimeout to avoid potential Supabase auth deadlock
-          setTimeout(async () => {
-            try {
-              // Fetch profile data and update user state
-              const extendedUser = await fetchUserProfile(currentSession.user);
-              setUser(extendedUser);
-              setIsAuthenticated(true);
-            } catch (error) {
-              console.error("Error processing auth state change:", error);
-            } finally {
-              setLoading(false);
-            }
-          }, 0);
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-          setLoading(false);
-        }
-      }
-    );
-
-    // THEN check for existing session
     const checkSession = async () => {
       try {
-        console.log("Getting session in AuthProvider");
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        console.log("Session data:", currentSession ? "Session exists" : "No session");
+        const { data } = await supabase.auth.getSession();
         
-        if (currentSession?.user) {
-          setSession(currentSession);
-          
-          // Fetch profile data
-          const extendedUser = await fetchUserProfile(currentSession.user);
-          setUser(extendedUser);
+        if (data.session) {
+          setSession(data.session);
+          setUser(data.session.user as User & ExtendedUserProfile);
           setIsAuthenticated(true);
         }
       } catch (error) {
-        console.error("Auth initialization error:", error);
+        console.error("Error checking session:", error);
       } finally {
-        // Always set loading to false when done
         setLoading(false);
       }
     };
     
-    // Add a slight delay before checking session
-    const timer = setTimeout(() => {
-      checkSession();
-    }, 100);
-
+    // Set up auth change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+      if (currentSession) {
+        setSession(currentSession);
+        setUser(currentSession.user as User & ExtendedUserProfile);
+        setIsAuthenticated(true);
+      } else {
+        setSession(null);
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+      
+      setLoading(false);
+    });
+    
+    checkSession();
+    
     return () => {
-      clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [toast]);
+  }, []);
 
-  // Sign In function
-  const signIn = async (email: string, password: string, remember = false) => {
+  // Simple sign in function
+  const signIn = async (email: string, password: string) => {
     try {
-      console.log("Attempting to sign in:", email);
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password
       });
       
-      if (error) {
-        console.error("Sign in error:", error.message);
-        return { error };
-      }
+      if (error) return { error };
       
-      return { data, error: null };
-    } catch (error: any) {
-      console.error("Sign in error:", error);
+      return { data };
+    } catch (error) {
       return { error };
     }
   };
 
   // Sign Out function
   const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
-      setIsAuthenticated(false);
-      
-      toast({
-        title: "Wylogowano pomyślnie"
-      });
-      
-      navigate('/');
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-  };
-
-  // Reset Password function
-  const resetPassword = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      return { error };
-    } catch (error) {
-      return { error };
-    }
-  };
-
-  // Update Password function
-  const updatePassword = async (newPassword: string) => {
-    try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      return { error };
-    } catch (error) {
-      return { error };
-    }
+    await supabase.auth.signOut();
   };
 
   // Auth context value
@@ -231,12 +140,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
-    isLoading: loading, // Alias for backward compatibility
     isAuthenticated,
     signIn,
     signOut,
-    resetPassword,
-    updatePassword,
     updateProfile,
   };
 
