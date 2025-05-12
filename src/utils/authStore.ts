@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabaseUpdateUserRole } from './authSupabaseIntegration';
-import { User, UserRole } from './authTypes';
+import type { User, UserRole } from './authTypes';
 // Remove the incorrect import
 // import { Password } from './passwordValidation';
 
@@ -202,9 +202,12 @@ export const useAuth = create<AuthStore>()(
           };
           
           // Add user and password
-          updateUsersArray([...users, newUser]);
+          const newUsers = [...users, newUser];
+          updateUsersArray(newUsers);
           passwords[email.toLowerCase()] = password;
           
+          // Set as current user after registration
+          set({ currentUserId: newUser.id, isAuthenticated: true, user: newUser });
           return true;
         } catch (error) {
           console.error("Registration error:", error);
@@ -347,6 +350,7 @@ export const useAuth = create<AuthStore>()(
           );
           
           if (existingUser) {
+            console.log("User already exists:", existingUser);
             return false;
           }
           
@@ -378,8 +382,12 @@ export const useAuth = create<AuthStore>()(
           };
           
           // Add user and password
-          updateUsersArray([...users, newUser]);
+          const newUsers = [...users, newUser];
+          updateUsersArray(newUsers);
           passwords[userData.email.toLowerCase()] = password;
+          
+          console.log("User added successfully:", newUser);
+          console.log("Current users:", users);
           
           return true;
         } catch (error) {

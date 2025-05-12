@@ -33,14 +33,18 @@ const NotificationBell: React.FC = () => {
       case 'warning':
       case 'approval_request':
         return <div className="flex-shrink-0 w-2 h-2 bg-amber-500 rounded-full mt-1"></div>;
-      case 'comment':
       case 'comment_added':
+      case 'comment':
         return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
-      case 'like':
       case 'like_added':
+      case 'like':
         return <div className="flex-shrink-0 w-2 h-2 bg-purple-500 rounded-full mt-1"></div>;
+      case 'post_created':
+      case 'post_edited':
+      case 'post_deleted':
+        return <div className="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full mt-1"></div>;
       case 'info':
-        return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
+      case 'user_edited':
       default:
         return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
     }
@@ -63,10 +67,13 @@ const NotificationBell: React.FC = () => {
     }
   };
 
+  console.log("Notifications in bell component:", notifications);
+  console.log("Unread count:", unreadCount);
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-white hover:text-black hover:bg-white">
+        <Button variant="ghost" size="icon" className="relative text-white hover:bg-white hover:text-black">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center transform translate-x-1/3 -translate-y-1/3">
@@ -123,7 +130,7 @@ const NotificationBell: React.FC = () => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="w-full hover:text-black hover:bg-white"
+            className="w-full hover:bg-white hover:text-black"
             onClick={() => navigate('/admin/notifications')}
           >
             Zobacz wszystkie

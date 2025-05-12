@@ -1,22 +1,29 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/authStore';
 import AdminLayout from '@/components/AdminLayout';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileSection from '@/components/profile/ProfileSection';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, getCurrentUser } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if not authenticated
+  // Ensure we have the latest user data
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      // Try to get current user
+      const currentUser = getCurrentUser();
+      
+      // If still no user, redirect to login
+      if (!currentUser) {
+        navigate('/login');
+      }
     }
-  }, [user, navigate]);
+  }, [user, getCurrentUser, navigate]);
 
+  // Return early if no user
   if (!user) return null;
 
   return (

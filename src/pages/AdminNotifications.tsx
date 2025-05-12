@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/utils/authStore';
@@ -90,14 +91,23 @@ const AdminNotifications = () => {
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Set loaded state after initial render
+  useEffect(() => {
+    console.log("AdminNotifications component mounted");
+    console.log("Notifications count:", notifications.length);
+    setIsLoaded(true);
+  }, [notifications]);
 
   // Redirect if not authenticated or not admin
-  if (!user || user.role !== 'admin') {
-    // Using useEffect instead of a direct navigate would be better practice
-    // but for simplicity we'll keep this pattern
-    navigate('/login');
-    return null;
-  }
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    } else if (user.role !== 'admin') {
+      navigate('/admin');
+    }
+  }, [user, navigate]);
 
   const handleNotificationClick = (notification: Notification) => {
     if (notification.status === 'unread') {
@@ -149,6 +159,23 @@ const AdminNotifications = () => {
       description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
     });
   };
+
+  // If not loaded yet, show loading state
+  if (!isLoaded) {
+    return (
+      <AdminLayout>
+        <div className="p-6">
+          <h1 className="text-2xl font-bold">Powiadomienia</h1>
+          <div className="mt-4">Ładowanie powiadomień...</div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  // Add debugging information if no notifications
+  if (notifications.length === 0) {
+    console.log("No notifications found in store");
+  }
 
   return (
     <AdminLayout>

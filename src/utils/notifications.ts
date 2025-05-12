@@ -33,6 +33,42 @@ export interface Notification {
   comment?: string; // Admin feedback in case of rejection
 }
 
+// Default notifications for testing
+const defaultNotifications: Notification[] = [
+  {
+    id: '1',
+    type: 'post_created',
+    title: 'Nowy wpis na blogu',
+    message: 'Nowy artykuł został opublikowany na blogu',
+    createdAt: new Date().toISOString(),
+    status: 'unread',
+    targetId: '1',
+    targetType: 'post',
+  },
+  {
+    id: '2',
+    type: 'comment_added',
+    title: 'Nowy komentarz',
+    message: 'Jan Kowalski dodał komentarz do Twojego artykułu',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    status: 'unread',
+    fromUserName: 'Jan Kowalski',
+    targetId: '1',
+    targetType: 'post',
+  },
+  {
+    id: '3',
+    type: 'approval_request',
+    title: 'Prośba o zatwierdzenie',
+    message: 'Nowa prośba o zatwierdzenie zawartości',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'pending',
+    fromUserName: 'Anna Nowak',
+    targetId: '2',
+    targetType: 'post',
+  }
+];
+
 interface NotificationStore {
   notifications: Notification[];
   unreadCount: number;
@@ -47,8 +83,8 @@ interface NotificationStore {
 export const useNotifications = create<NotificationStore>()(
   persist(
     (set, get) => ({
-      notifications: [],
-      unreadCount: 0,
+      notifications: defaultNotifications,
+      unreadCount: defaultNotifications.filter(n => n.status === 'unread').length,
       
       addNotification: (notification) => set((state) => {
         const newNotification: Notification = {
