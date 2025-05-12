@@ -17,9 +17,17 @@ const NotificationBell: React.FC = () => {
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const navigate = useNavigate();
 
-  const handleNotificationClick = (id: string) => {
+  const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {
     markAsRead(id);
-    navigate('/admin/notifications');
+    
+    // Kieruj do konkretnej treści jeśli mamy target
+    if (targetType === 'post' && targetId) {
+      // Znajdź post po ID i przekieruj do jego szczegółów
+      navigate(`/blog/${targetId}`);
+    } else {
+      // Domyślne przekierowanie do listy wszystkich powiadomień
+      navigate('/admin/notifications');
+    }
   };
 
   const getNotificationIcon = (type: string) => {
@@ -101,7 +109,7 @@ const NotificationBell: React.FC = () => {
               {notifications.slice(0, 5).map((notification) => (
                 <div 
                   key={notification.id} 
-                  onClick={() => handleNotificationClick(notification.id)}
+                  onClick={() => handleNotificationClick(notification.id, notification.targetId, notification.targetType)}
                   className={`
                     p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
                     ${notification.status === 'unread' ? 'bg-slate-50 dark:bg-slate-900' : ''}

@@ -53,8 +53,8 @@ const BlogPost = () => {
     );
   }
 
-  // Get author details (in a real app this would come from a user database)
-  const authorDisplayName = user ? `${user.name} ${user.lastName || ''}`.trim() : post.author;
+  // Używamy autora z posta zamiast zalogowanego użytkownika
+  const authorDisplayName = post.author || "IDZ.TECH";
   const authorInitial = authorDisplayName.charAt(0);
 
   // Safely access post properties with fallbacks for undefined values
@@ -114,17 +114,10 @@ const BlogPost = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
             <div className="flex items-center mb-4">
-              {user?.profilePicture ? (
-                <img 
-                  src={user.profilePicture} 
-                  alt={authorDisplayName} 
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                  {authorInitial}
-                </div>
-              )}
+              {/* Używamy statycznego avatara dla autora bloga */}
+              <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
+                {authorInitial}
+              </div>
               <div className="ml-3">
                 <div className="font-medium">{authorDisplayName}</div>
                 <div className="text-sm text-premium-light/60">Autor</div>

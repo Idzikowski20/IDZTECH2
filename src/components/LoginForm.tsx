@@ -61,14 +61,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       
       if (onSuccess) {
         onSuccess();
-      } else if (!redirected.current) {
-        // Prevent multiple redirects
-        redirected.current = true;
-        // Allow auth state to update before navigation
+      } else {
+        console.log("Login successful, redirecting...");
+        // Opóźnij przekierowanie, aby stan autoryzacji miał czas się zaktualizować
         setTimeout(() => {
-          setIsLoading(false);
-          navigate('/admin');
-        }, 500);
+          if (!redirected.current) {
+            redirected.current = true;
+            setIsLoading(false);
+            navigate('/admin');
+          }
+        }, 1000);
       }
     } catch (error: any) {
       console.error("Unexpected error during login:", error);

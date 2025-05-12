@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -29,6 +30,7 @@ export const integrateAuth = async () => {
           profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
           bio: profileData?.bio || session.user.user_metadata?.bio || null,
           jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null,
+          role: profileData?.role || session.user.user_metadata?.role || 'user',
           // Needed for compatibility with local auth
           createdAt: profileData?.created_at || session.user.created_at || new Date().toISOString()
         }
@@ -115,6 +117,8 @@ export const registerUser = async (email: string, name: string, password: string
 // Handle login through both systems
 export const loginUser = async (email: string, password: string) => {
   try {
+    console.log('Attempting login with:', email);
+    
     // First try Supabase
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -172,6 +176,7 @@ export const loginUser = async (email: string, password: string) => {
     }
     
     // If we get here, login failed
+    console.log('Login failed for:', email);
     return { 
       success: false, 
       provider: null, 
@@ -228,5 +233,27 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
   } catch (error) {
     console.error('Error updating user profile:', error);
     return { success: false, error };
+  }
+};
+
+// Fetch all users from Supabase
+export const fetchAllUsers = async () => {
+  try {
+    console.log('Fetching all users from Supabase profiles');
+    
+    // Fetch all profiles from the profiles table
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('*');
+    
+    if (error) {
+      console.error('Error fetching profiles:', error);
+      return [];
+    }
+    
+    return profiles || [];
+  } catch (error) {
+    console.error('Error in fetchAllUsers:', error);
+    return [];
   }
 };

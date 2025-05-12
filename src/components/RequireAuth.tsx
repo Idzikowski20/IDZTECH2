@@ -10,31 +10,33 @@ interface RequireAuthProps {
 }
 
 const RequireAuth = ({ children }: RequireAuthProps) => {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
   const redirected = useRef(false);
   
-  // Add a state to control redirects to prevent loops
+  console.log("RequireAuth render:", { user, loading, path: location.pathname });
+  
+  // Initialize auth check with a short timer
   useEffect(() => {
     // Short timeout to allow auth state to load
     const timer = setTimeout(() => {
       setIsInitialized(true);
-    }, 700); // Increased timeout to ensure auth state is fully loaded
+      console.log("Auth initialized");
+    }, 500);
     
     return () => clearTimeout(timer);
   }, []);
   
+  // Handle redirect to admin if already authenticated and on login page
   useEffect(() => {
-    // Only redirect from login page when we're initialized and have user data
-    // Use a ref to prevent multiple redirects
-    if (isAuthenticated && user && location.pathname === "/login" && isInitialized && !redirected.current) {
-      console.log("User is authenticated, redirecting to /admin");
+    if (user && location.pathname === "/login" && isInitialized && !redirected.current) {
+      console.log("User is authenticated on login page, redirecting to /admin");
       redirected.current = true;
       navigate("/admin", { replace: true });
     }
-  }, [isAuthenticated, user, location.pathname, navigate, isInitialized]);
+  }, [user, location.pathname, navigate, isInitialized]);
   
   // Show loading screen until we're sure about auth state
   if (loading || !isInitialized) {
@@ -50,10 +52,12 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   
   // Redirect to login if not authenticated
   if (!user) {
+    console.log("No user, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   // User is authenticated
+  console.log("User is authenticated, rendering children");
   return children;
 };
 
