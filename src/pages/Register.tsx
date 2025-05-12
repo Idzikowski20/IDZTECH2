@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { UserPlus, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -47,7 +47,7 @@ const Register = () => {
   const password = form.watch('password');
   
   // Effect to check password security
-  React.useEffect(() => {
+  useEffect(() => {
     const checkPassword = async () => {
       if (password && password.length >= 4) {
         const compromised = await isPasswordCompromised(password);
