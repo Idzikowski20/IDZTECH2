@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/utils/AuthProvider';
 import { useBlogStore, BlogComment, CommentReply } from '@/utils/blog';
@@ -18,9 +17,10 @@ import { useNotifications } from '@/utils/notifications';
 
 interface CommentSectionProps {
   postId: string;
+  postTitle: string; // Added postTitle prop
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) => {
   const [comment, setComment] = useState('');
   const [replyContent, setReplyContent] = useState('');
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
@@ -130,13 +130,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       return;
     }
     
-    const post = useBlogStore.getState().posts.find(p => p.id === postId);
+    // Use the postTitle prop instead of looking up the post
     
     // Send notification to admin for approval using addNotification instead of sendApprovalRequest
     addNotification({
       type: 'approval_request',
       title: 'Prośba o dodanie komentarza',
-      message: `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}"`,
+      message: `Gość "${guestName}" chce dodać komentarz do postu "${postTitle}": "${comment}"`,
       fromUserId: 'guest',
       fromUserName: guestName,
       targetId: postId,
