@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Trash2, MessageCircle, CornerDownRight } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
 import { useNotifications } from '@/utils/notifications';
+import { v4 as uuidv4 } from 'uuid';
 
 interface CommentSectionProps {
   postId: string;
@@ -130,16 +131,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
       return;
     }
     
-    // Use the postTitle prop instead of looking up the post
+    // Generate a valid UUID for targetId instead of using the string postId
+    // This ensures compatibility with Supabase's UUID requirements
+    const targetUuid = uuidv4();
     
-    // Send notification to admin for approval using addNotification instead of sendApprovalRequest
+    // Send notification to admin for approval using addNotification
     addNotification({
       type: 'approval_request',
       title: 'Prośba o dodanie komentarza',
       message: `Gość "${guestName}" chce dodać komentarz do postu "${postTitle}": "${comment}"`,
       fromUserId: 'guest',
       fromUserName: guestName,
-      targetId: postId,
+      targetId: targetUuid, // Use the generated UUID instead of postId
       targetType: 'comment'
     });
     
