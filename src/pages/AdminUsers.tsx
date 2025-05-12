@@ -17,44 +17,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, UserRole } from '@/utils/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, Trash2, UserCheck, UserPlus } from 'lucide-react';
+import { Eye, Trash2, UserCheck } from 'lucide-react';
 import { refreshUserStats } from '@/utils/authStatsFunctions';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-
-const newUserSchema = z.object({
-  name: z.string().min(2, "Imię musi mieć co najmniej 2 znaki"),
-  lastName: z.string().optional(),
-  email: z.string().email("Niepoprawny adres email"),
-  password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków"),
-  role: z.enum(["user", "moderator", "editor", "admin"])
-});
-
-type NewUserFormValues = z.infer<typeof newUserSchema>;
 
 const AdminUsers = () => {
-  const { getUsers, updateUserRole, deleteUser, user: currentUser, addUser } = useAuth();
+  const { getUsers, updateUserRole, deleteUser, user: currentUser } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeProfile, setActiveProfile] = useState<any>(null);
-  const [showNewUserModal, setShowNewUserModal] = useState(false);
-
-  // Form for new user
-  const form = useForm<NewUserFormValues>({
-    resolver: zodResolver(newUserSchema),
-    defaultValues: {
-      name: "",
-      lastName: "",
-      email: "",
-      password: "",
-      role: "user"
-    }
-  });
 
   // Fetch users
   useEffect(() => {
@@ -63,17 +34,14 @@ const AdminUsers = () => {
         setLoading(true);
         const usersList = await getUsers();
         
-        // Filter out duplicates and the current user
-        const uniqueUsers = usersList.filter((user, index, self) => 
-          index === self.findIndex(u => u.id === user.id) && 
-          user.id !== currentUser?.id
-        );
+        // Filter out the current user
+        const filteredUsers = usersList.filter(u => u.id !== currentUser?.id);
         
-        setUsers(uniqueUsers);
+        setUsers(filteredUsers);
         
         // Set the first user as active profile if available
-        if (uniqueUsers.length > 0 && !activeProfile) {
-          setActiveProfile(uniqueUsers[0]);
+        if (filteredUsers.length > 0 && !activeProfile) {
+          setActiveProfile(filteredUsers[0]);
         }
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -88,6 +56,7 @@ const AdminUsers = () => {
     };
     
     fetchUsers();
+    // We don't need activeProfile in deps as we only want to set it initially
   }, [getUsers, toast, currentUser]);
 
   // Handle role change
@@ -172,50 +141,6 @@ const AdminUsers = () => {
     }
   };
 
-  // Create new user
-  const onSubmitNewUser = async (data: NewUserFormValues) => {
-    try {
-      const result = await addUser({
-        email: data.email,
-        name: data.name,
-        lastName: data.lastName || "",
-        role: data.role,
-        profilePicture: "",
-      }, data.password);
-      
-      if (result) {
-        // Refresh users list
-        const updatedUsers = await getUsers();
-        const uniqueUsers = updatedUsers.filter((user, index, self) => 
-          index === self.findIndex(u => u.id === user.id) && 
-          user.id !== currentUser?.id
-        );
-        setUsers(uniqueUsers);
-        
-        toast({
-          title: "Sukces",
-          description: "Użytkownik został dodany",
-        });
-        
-        setShowNewUserModal(false);
-        form.reset();
-      } else {
-        toast({
-          title: "Błąd",
-          description: "Nie udało się dodać użytkownika",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("Error adding user:", error);
-      toast({
-        title: "Błąd",
-        description: "Wystąpił problem przy dodawaniu użytkownika",
-        variant: "destructive"
-      });
-    }
-  };
-
   // Format date helper
   const formatDate = (dateString: string) => {
     if (!dateString) return "Nigdy";
@@ -241,20 +166,11 @@ const AdminUsers = () => {
   return (
     <AdminLayout>
       <div className="p-6">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">Zarządzanie użytkownikami</h1>
-            <p className="text-premium-light/70">
-              Zarządzaj użytkownikami, przypisuj role i uprawnienia
-            </p>
-          </div>
-          <Button 
-            onClick={() => setShowNewUserModal(true)}
-            className="bg-premium-gradient hover:opacity-90 transition-opacity"
-          >
-            <UserPlus size={16} className="mr-2" />
-            Dodaj użytkownika
-          </Button>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold mb-2">Zarządzanie użytkownikami</h1>
+          <p className="text-premium-light/70">
+            Zarządzaj użytkownikami, przypisuj role i uprawnienia
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -458,116 +374,6 @@ const AdminUsers = () => {
           </div>
         </div>
       </div>
-
-      {/* New User Modal */}
-      <Dialog open={showNewUserModal} onOpenChange={setShowNewUserModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
-            <DialogDescription>
-              Wprowadź dane nowego użytkownika. Po dodaniu będzie mógł logować się na konto.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmitNewUser)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imię</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Imię użytkownika" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nazwisko</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nazwisko (opcjonalnie)" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="adres@email.com" type="email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hasło</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Min. 6 znaków" type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Rola</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Wybierz rolę" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="user">Użytkownik</SelectItem>
-                        <SelectItem value="moderator">Moderator</SelectItem>
-                        <SelectItem value="editor">Edytor</SelectItem>
-                        <SelectItem value="admin">Administrator</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowNewUserModal(false)}
-                  className="mr-2"
-                >
-                  Anuluj
-                </Button>
-                <Button type="submit" className="bg-premium-gradient">
-                  Dodaj użytkownika
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
   );
 };
