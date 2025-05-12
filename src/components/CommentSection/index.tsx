@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import CommentHeader from './CommentHeader';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { addCommentNotification } from '@/utils/notificationHelpers';
+import { addCommentNotification } from '@/utils/notifications';
 
 export interface Comment {
   id: string;

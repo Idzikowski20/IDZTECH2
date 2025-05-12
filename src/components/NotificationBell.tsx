@@ -1,17 +1,41 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@/utils/notifications";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const NotificationBell = () => {
   const navigate = useNavigate();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, fetchNotifications } = useNotifications();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
+
+  // Check connection status on mount
+  useEffect(() => {
+    checkConnection();
+  }, []);
+
+  const checkConnection = async () => {
+    try {
+      // Test connection by fetching a simple record
+      const { error: connectionError } = await supabase
+        .from('notifications')
+        .select('count(*)', { count: 'exact', head: true });
+      
+      if (connectionError) {
+        console.error("Connection error:", connectionError);
+        setError("Nie udało się połączyć z bazą powiadomień");
+      }
+    } catch (err) {
+      console.error("Error checking connection:", err);
+      setError("Problem z połączeniem sieciowym");
+    }
+  };
 
   const handleClick = () => {
     if (error) {
@@ -27,18 +51,12 @@ const NotificationBell = () => {
     setRetrying(true);
     setError(null);
     try {
-      // Since we don't have a refetchNotifications function, we'll simulate a retry
-      // In a real app, this would be a call to a function that refreshes notifications
-      setTimeout(() => {
-        // If this was a real implementation, we'd have proper error handling
-        // For now, we'll simulate success to remove the error state
-        setError(null);
-        toast({
-          title: "Odświeżono",
-          description: "Powiadomienia zostały pomyślnie odświeżone",
-        });
-        setRetrying(false);
-      }, 1000);
+      await fetchNotifications();
+      toast({
+        title: "Odświeżono",
+        description: "Powiadomienia zostały pomyślnie odświeżone",
+      });
+      setRetrying(false);
     } catch (err) {
       console.error("Failed to refresh notifications:", err);
       setError("Nie udało się odświeżyć powiadomień");
@@ -50,24 +68,6 @@ const NotificationBell = () => {
       setRetrying(false);
     }
   };
-
-  // Simulate an error for demonstration purposes
-  // In a real app, this would come from an actual API call failure
-  const checkNetworkStatus = () => {
-    console.info("Notifications in bell component:", []);
-    console.info("Unread count:", unreadCount);
-    
-    // Simulate a network error
-    if (!navigator.onLine) {
-      setError("Nie udało się pobrać powiadomień: TypeError: Failed to fetch");
-      console.info("Notification error:", error);
-    }
-  };
-
-  // Call checkNetworkStatus when the component mounts
-  useState(() => {
-    checkNetworkStatus();
-  });
 
   return (
     <div>
@@ -97,7 +97,7 @@ const NotificationBell = () => {
       
       {error && (
         <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          {error === "Nie udało się pobrać powiadomień: TypeError: Failed to fetch" ? 
+          {error === "Problem z połączeniem sieciowym" ? 
             "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
             error}
           <button 

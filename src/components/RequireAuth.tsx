@@ -1,10 +1,10 @@
 
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/utils/AuthProvider";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RequireAuthProps {
   children: JSX.Element;
@@ -17,6 +17,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const redirected = useRef(false);
   
   console.log("RequireAuth render:", { 
@@ -25,8 +26,38 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     path: location.pathname, 
     requiredRole,
     pathname: location.pathname,
-    userRole: user?.role
+    userRole
   });
+  
+  // Fetch user role from Supabase
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (!user?.id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          console.error("Error fetching user role:", error);
+          return;
+        }
+        
+        if (data && data.role) {
+          setUserRole(data.role);
+        }
+      } catch (err) {
+        console.error("Error in fetchUserRole:", err);
+      }
+    };
+    
+    if (user) {
+      fetchUserRole();
+    }
+  }, [user]);
   
   // Initialize auth check with a short timer to ensure auth state is loaded
   useEffect(() => {
@@ -35,22 +66,22 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       console.log("Auth initialized, user:", user);
       
       // Check for role-based access if a role is required
-      if (user && requiredRole) {
+      if (user && requiredRole && userRole) {
         // Check if the user has the required role or if they are an admin or administrator
         const hasRequiredRole = 
-          user.role === requiredRole || 
-          user.role === 'admin' || 
-          user.role === 'administrator';
+          userRole === requiredRole || 
+          userRole === 'admin' || 
+          userRole === 'administrator';
           
         if (!hasRequiredRole) {
-          console.log("Access denied, required role:", requiredRole, "user role:", user.role);
+          console.log("Access denied, required role:", requiredRole, "user role:", userRole);
           setAccessDenied(true);
         }
       }
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [user, requiredRole]);
+  }, [user, requiredRole, userRole]);
   
   // Handle redirect to admin if already authenticated and on login page
   useEffect(() => {
@@ -84,9 +115,9 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
           <h2 className="text-2xl font-bold text-white mb-4">Brak uprawnień</h2>
           <p className="text-gray-300 mb-6">
             Nie posiadasz wymaganych uprawnień, aby zobaczyć tę stronę.
-            {user?.role && (
+            {userRole && (
               <span className="block mt-2">
-                Twoja rola: <strong>{user.role}</strong><br />
+                Twoja rola: <strong>{userRole}</strong><br />
                 Wymagana rola: <strong>{requiredRole}</strong>
               </span>
             )}

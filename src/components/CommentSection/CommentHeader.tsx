@@ -1,20 +1,18 @@
 
 import React from 'react';
-import { MessageSquare } from 'lucide-react';
-import { useTheme } from '@/utils/themeContext';
 
-interface CommentHeaderProps {
+export interface CommentHeaderProps {
   commentCount: number;
 }
 
-const CommentHeader: React.FC<CommentHeaderProps> = ({ commentCount }) => {
-  const { theme } = useTheme();
-  
+const CommentHeader = ({ commentCount }: CommentHeaderProps) => {
   return (
-    <div className="flex items-center gap-2 mb-6">
-      <MessageSquare className="h-5 w-5 text-premium-purple" />
-      <h3 className={`text-lg font-semibold ${theme === 'light' ? 'text-black' : 'text-white'}`}>
-        Komentarze {commentCount > 0 && `(${commentCount})`}
+    <div className="flex items-center justify-between mb-6">
+      <h3 className="text-xl font-bold">
+        Komentarze{" "}
+        <span className="text-muted-foreground text-sm font-normal">
+          ({commentCount})
+        </span>
       </h3>
     </div>
   );

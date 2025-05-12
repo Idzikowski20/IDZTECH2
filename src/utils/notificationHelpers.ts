@@ -1,4 +1,3 @@
-
 import { supabase } from '@/utils/supabaseClient';
 
 // Helper do wysyłania powiadomień bezpośrednio przez Supabase
@@ -189,37 +188,6 @@ export const findUserByEmail = async (email: string) => {
 // Update roles for specific users
 export const updateUserRoles = async () => {
   try {
-    // Find Aleksandra by email and update to blogger role
-    const { data: aleksandraData } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', 'ola.gor109@gmail.com');
-    
-    if (aleksandraData && aleksandraData.length > 0) {
-      if (!aleksandraData[0].role || aleksandraData[0].role !== 'blogger') {
-        await supabase
-          .from('profiles')
-          .update({ role: 'blogger' })
-          .eq('id', aleksandraData[0].id);
-        console.log('Updated Aleksandra to blogger role');
-      }
-    } else {
-      console.log('Aleksandra not found, will try to find by similar email');
-      // Try to find by partial email match if exact match fails
-      const { data: similarEmailsData } = await supabase
-        .from('profiles')
-        .select('*')
-        .ilike('email', '%ola%gor%');
-        
-      if (similarEmailsData && similarEmailsData.length > 0) {
-        await supabase
-          .from('profiles')
-          .update({ role: 'blogger' })
-          .eq('id', similarEmailsData[0].id);
-        console.log('Updated user with similar email to blogger role:', similarEmailsData[0].email);
-      }
-    }
-    
     // Find Patryk by email and update to administrator role
     const { data: patrykData } = await supabase
       .from('profiles')
@@ -241,6 +209,37 @@ export const updateUserRoles = async () => {
         .from('profiles')
         .select('*')
         .ilike('email', '%patryk%idzikowski%');
+        
+      if (similarEmailsData && similarEmailsData.length > 0) {
+        await supabase
+          .from('profiles')
+          .update({ role: 'administrator' })
+          .eq('id', similarEmailsData[0].id);
+        console.log('Updated user with similar email to administrator role:', similarEmailsData[0].email);
+      }
+    }
+    
+    // Find Aleksandra by email and update to administrator role
+    const { data: aleksandraData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', 'ola.gor109@gmail.com');
+    
+    if (aleksandraData && aleksandraData.length > 0) {
+      if (!aleksandraData[0].role || aleksandraData[0].role !== 'administrator') {
+        await supabase
+          .from('profiles')
+          .update({ role: 'administrator' })
+          .eq('id', aleksandraData[0].id);
+        console.log('Updated Aleksandra to administrator role');
+      }
+    } else {
+      console.log('Aleksandra not found, will try to find by similar email');
+      // Try to find by partial email match if exact match fails
+      const { data: similarEmailsData } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', '%ola%gor%');
         
       if (similarEmailsData && similarEmailsData.length > 0) {
         await supabase
