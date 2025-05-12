@@ -37,7 +37,7 @@ const VisualCMSEditor = () => {
       { id: 'paragraph', name: 'Paragraf', icon: <Text size={20} /> },
       { id: 'image', name: 'Obraz', icon: <Image size={20} /> },
       { id: 'video', name: 'Wideo', icon: <Video size={20} /> },
-      { id: 'button', name: 'Przycisk', icon: <Button size={20} /> },
+      { id: 'button', name: 'Przycisk', icon: <Button aria-label="button icon" size="sm" className="h-5 w-5 p-0" /> },
       { id: 'divider', name: 'Separator', icon: <Separator /> },
       { id: 'html', name: 'HTML', icon: <Code size={20} /> },
     ],

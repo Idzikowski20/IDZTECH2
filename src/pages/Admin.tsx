@@ -9,9 +9,15 @@ import { Link } from 'react-router-dom';
 import UserSummary from '@/components/admin/UserSummary';
 import { User } from '@/utils/authTypes';
 
+type UserRole = 'admin' | 'moderator' | 'blogger' | 'user';
+
+interface AdminUser extends User {
+  role: UserRole;
+}
+
 const Admin = () => {
   const { user, loading } = useAuth();
-  const [adminUser, setAdminUser] = useState<User | null>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [fetchingData, setFetchingData] = useState(true);
 
   useEffect(() => {
@@ -34,15 +40,15 @@ const Admin = () => {
 
         if (data) {
           // Convert to our User format
-          const userData: User = {
+          const userData: AdminUser = {
             id: data.id,
             email: data.email,
             name: data.name || '',
-            role: data.role || 'user',
+            role: (data.role as UserRole) || 'user',
             profilePicture: data.profilePicture,
-            lastName: data.lastName,
-            bio: data.bio,
-            jobTitle: data.jobTitle,
+            lastName: data.lastName || '',
+            bio: data.bio || '',
+            jobTitle: data.jobTitle || '',
             createdAt: data.created_at,
             lastLogin: data.last_login,
             stats: {
