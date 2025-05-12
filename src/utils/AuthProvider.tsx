@@ -25,10 +25,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const { updateProfile } = useProfileManager(user);
 
+  // Add isLoading as an alias to loading to maintain backward compatibility
   const value: AuthContextType = {
     user,
     session,
     loading,
+    isLoading: loading, // Add this line to fix the error
     isAuthenticated,
     signIn,
     signOut,

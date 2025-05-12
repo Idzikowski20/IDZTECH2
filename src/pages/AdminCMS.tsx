@@ -6,9 +6,9 @@ import { useAuth } from '@/utils/AuthProvider';
 import { Loader2 } from 'lucide-react';
 
 const AdminCMS = () => {
-  const { session, isLoading } = useAuth();
+  const { loading } = useAuth(); // Using 'loading' instead of 'isLoading' for consistency
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />

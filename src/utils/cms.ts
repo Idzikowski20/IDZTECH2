@@ -97,7 +97,7 @@ export const updateCMSContent = async (
         .insert({
           page_id: content.page_id,
           section_id: content.section_id,
-          content: content.content,
+          content: content.content || '',
           content_type: content.content_type || 'text',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -122,9 +122,9 @@ export const isUserAdmin = async (userId: string): Promise<boolean> => {
   
   try {
     const { data, error } = await supabase
-      .from('user_roles')
+      .from('profiles')
       .select('role')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .in('role', ['admin', 'moderator'])
       .single();
     
