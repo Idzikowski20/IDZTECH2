@@ -90,25 +90,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Initialize auth - simplified version to avoid auth deadlocks
   useEffect(() => {
+    let isMounted = true;
+    
     const checkSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
         
-        if (data.session) {
+        if (data.session && isMounted) {
           setSession(data.session);
           setUser(data.session.user as User & ExtendedUserProfile);
           setIsAuthenticated(true);
         }
-        setLoading(false);
+        if (isMounted) setLoading(false);
       } catch (error) {
         console.error("Error checking session:", error);
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     
     // Set up auth change listener with simplified approach
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
       console.log("Auth state changed:", event);
+      
+      if (!isMounted) return;
       
       if (currentSession) {
         setSession(currentSession);
@@ -123,9 +127,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
     
-    checkSession();
+    // Run session check with a small delay to ensure auth is ready
+    setTimeout(() => {
+      checkSession();
+    }, 100);
     
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []);
@@ -134,6 +142,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       console.log("Logging in with:", email);
+      
+      // Delay briefly to ensure any previous auth operations have settled
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password

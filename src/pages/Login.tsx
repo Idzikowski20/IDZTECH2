@@ -86,7 +86,7 @@ const Login = () => {
   return (
     <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>
       <Navbar />
-      <div className="container mx-auto py-16 px-4 sm:px-6 lg:px-8 min-h-[70vh] flex items-center justify-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-[80vh] flex items-center justify-center pb-16 pt-24">
         <div className={`max-w-md w-full ${theme === 'light' ? "bg-white" : "bg-black"} p-6 md:p-8 rounded-xl border ${theme === 'light' ? "border-gray-200" : "border-gray-700"} shadow-lg`}>
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">

@@ -26,6 +26,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Błąd",
+        description: "Proszę wypełnić wszystkie pola",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -120,7 +130,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className={`text-premium-purple p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
+            className="text-premium-purple p-0 hover:text-white"
             onClick={() => navigate('/forgot-password')}
           >
             Nie pamiętasz hasła?
@@ -147,7 +157,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className={`p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
+            className="p-0 hover:text-white"
             onClick={() => navigate('/register')}
           >
             Zarejestruj się
