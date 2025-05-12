@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
@@ -22,7 +21,8 @@ import {
   ThumbsUp,
   MessageSquare,
   RefreshCw,
-  Loader2
+  Loader2,
+  WifiOff
 } from 'lucide-react';
 import {
   Dialog,
@@ -37,7 +37,6 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { supabase } from '@/integrations/supabase/client';
 import { useNotificationService } from '@/hooks/useNotificationService';
 
 const AdminNotifications = () => {
@@ -49,6 +48,7 @@ const AdminNotifications = () => {
     unreadCount,
     loading,
     error,
+    isOfflineMode,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -112,8 +112,8 @@ const AdminNotifications = () => {
     );
   }
   
-  // If there's an error loading notifications
-  if (error) {
+  // If there's an error loading notifications but we're not in offline mode
+  if (error && !isOfflineMode) {
     return (
       <AdminLayout>
         <div className="p-6">
@@ -140,6 +140,32 @@ const AdminNotifications = () => {
       </AdminLayout>
     );
   }
+
+  // Show offline mode indicator if we're in offline mode
+  const OfflineBanner = () => {
+    if (!isOfflineMode) return null;
+    
+    return (
+      <Alert className="mb-4 bg-amber-100 dark:bg-amber-900">
+        <WifiOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+        <AlertTitle>Tryb offline</AlertTitle>
+        <AlertDescription className="text-amber-700 dark:text-amber-300">
+          System działa w trybie offline. Niektóre funkcje mogą być niedostępne.
+          <div className="mt-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleRetryFetch}
+              className="flex items-center gap-2 text-amber-700 border-amber-700 hover:bg-amber-700 hover:text-white"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Sprawdź połączenie
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  };
 
   const NotificationIcon = ({ type }: { type: string }) => {
     switch (type) {
@@ -194,7 +220,11 @@ const AdminNotifications = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold">Powiadomienia</h1>
-            <p className="text-muted-foreground">Zarządzaj powiadomieniami systemu</p>
+            <p className="text-muted-foreground">
+              {isOfflineMode ? 
+                "Pracujesz w trybie offline. Niektóre funkcje mogą być ograniczone." : 
+                "Zarządzaj powiadomieniami systemu"}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button 
@@ -215,6 +245,8 @@ const AdminNotifications = () => {
             </Button>
           </div>
         </div>
+
+        <OfflineBanner />
 
         <Tabs defaultValue="all">
           <TabsList className="mb-4">
@@ -262,7 +294,7 @@ const AdminNotifications = () => {
                     )}
                   </CardContent>
                   <CardFooter className="flex justify-end gap-2">
-                    {notification.type === 'approval_request' && notification.status === 'unread' && (
+                    {notification.type === 'approval_request' && notification.status === 'unread' && !isOfflineMode && (
                       <>
                         <Button 
                           variant="outline" 
@@ -332,24 +364,28 @@ const AdminNotifications = () => {
                       <p>{notification.message}</p>
                     </CardContent>
                     <CardFooter className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
-                        onClick={() => openRejectDialog(notification)}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Odrzuć
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-green-500 border-green-500 hover:bg-green-500 hover:text-white"
-                        onClick={() => handleApprove(notification.id)}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        Zatwierdź
-                      </Button>
+                      {!isOfflineMode && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                            onClick={() => openRejectDialog(notification)}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Odrzuć
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-green-500 border-green-500 hover:bg-green-500 hover:text-white"
+                            onClick={() => handleApprove(notification.id)}
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Zatwierdź
+                          </Button>
+                        </>
+                      )}
                     </CardFooter>
                   </Card>
                 ))

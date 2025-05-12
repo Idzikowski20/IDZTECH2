@@ -39,16 +39,37 @@ export interface Notification {
 // Maximum retry attempts for failed API calls
 const MAX_RETRY_ATTEMPTS = 3;
 
+// Sample mock data for use when Supabase connection fails
+const MOCK_NOTIFICATIONS: Notification[] = [
+  {
+    id: '1',
+    type: 'info',
+    title: 'Tryb offline',
+    message: 'System działa w trybie offline. Niektóre funkcje mogą być niedostępne.',
+    createdAt: new Date().toISOString(),
+    status: 'unread'
+  },
+  {
+    id: '2',
+    type: 'warning',
+    title: 'Problem z połączeniem',
+    message: 'Wystąpiły problemy z połączeniem do serwera. Spróbuj ponownie za chwilę.',
+    createdAt: new Date().toISOString(),
+    status: 'unread'
+  }
+];
+
 export const useNotificationService = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Fetch notifications from Supabase with retry logic
+  // Fetch notifications from Supabase with retry logic and fallback
   const fetchNotifications = useCallback(async () => {
     if (!user) {
       setNotifications([]);
@@ -62,11 +83,33 @@ export const useNotificationService = () => {
       setError(null);
       console.log("Fetching notifications...");
 
+      // Check online status first
+      if (!navigator.onLine) {
+        console.log("Browser is offline, using mock data");
+        setIsOfflineMode(true);
+        setNotifications(MOCK_NOTIFICATIONS);
+        setUnreadCount(MOCK_NOTIFICATIONS.filter(n => n.status === 'unread').length);
+        setLoading(false);
+        return;
+      }
+
       // Create a fetch with timeout
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       try {
+        // First test the connection with a simple query
+        const { error: testError } = await supabase
+          .from('notifications')
+          .select('count', { count: 'exact', head: true })
+          .abortSignal(controller.signal);
+          
+        if (testError) {
+          console.error("Connection test failed:", testError);
+          throw new Error("Nie można połączyć z serwerem powiadomień");
+        }
+        
+        // If connection test passed, proceed with the actual query
         const { data, error: fetchError } = await supabase
           .from('notifications')
           .select('*')
@@ -86,6 +129,7 @@ export const useNotificationService = () => {
           setUnreadCount(0);
           setLoading(false);
           setRetryCount(0); // Reset retry count on success
+          setIsOfflineMode(false);
           return;
         }
         
@@ -135,6 +179,7 @@ export const useNotificationService = () => {
         const unread = transformedNotifications.filter(n => n.status === 'unread').length;
         setUnreadCount(unread);
         setRetryCount(0); // Reset retry count on success
+        setIsOfflineMode(false);
       } catch (fetchErr) {
         clearTimeout(timeoutId);
         throw fetchErr;
@@ -154,8 +199,12 @@ export const useNotificationService = () => {
           fetchNotifications();
         }, delayMs);
       } else {
-        // Max retries reached, show error
-        setError('Wystąpił błąd podczas pobierania powiadomień. Spróbuj ponownie później.');
+        // Max retries reached, switch to offline mode
+        console.log("Max retries reached, switching to offline mode");
+        setIsOfflineMode(true);
+        setError('Wystąpił błąd podczas pobierania powiadomień. Przełączono na tryb offline.');
+        setNotifications(MOCK_NOTIFICATIONS);
+        setUnreadCount(MOCK_NOTIFICATIONS.filter(n => n.status === 'unread').length);
         setLoading(false);
       }
     } finally {
@@ -165,8 +214,38 @@ export const useNotificationService = () => {
     }
   }, [user, retryCount]);
 
+  // Create a local notification in offline mode
+  const createLocalNotification = (notification: Omit<Notification, 'id' | 'createdAt'>) => {
+    const newNotification: Notification = {
+      ...notification,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString()
+    };
+    
+    setNotifications(prev => [newNotification, ...prev]);
+    if (notification.status === 'unread') {
+      setUnreadCount(prev => prev + 1);
+    }
+    
+    return true;
+  };
+
   // Mark a notification as read
   const markAsRead = useCallback(async (id: string) => {
+    // In offline mode, update local state only
+    if (isOfflineMode) {
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notification => 
+          notification.id === id 
+            ? { ...notification, status: 'read' } 
+            : notification
+        )
+      );
+      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      return;
+    }
+    
+    // Online mode - update database
     try {
       const { error } = await supabase
         .from('notifications')
@@ -195,10 +274,26 @@ export const useNotificationService = () => {
     } catch (error) {
       console.error('Error in markAsRead:', error);
     }
-  }, [toast]);
+  }, [isOfflineMode, toast]);
 
   // Mark all notifications as read
   const markAllAsRead = useCallback(async () => {
+    // In offline mode, update local state only
+    if (isOfflineMode) {
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notification => 
+          ({ ...notification, status: 'read' })
+        )
+      );
+      setUnreadCount(0);
+      toast({
+        title: "Sukces",
+        description: "Wszystkie powiadomienia zostały oznaczone jako przeczytane",
+      });
+      return;
+    }
+    
+    // Online mode - update database
     try {
       const { error } = await supabase
         .from('notifications')
@@ -230,118 +325,73 @@ export const useNotificationService = () => {
     } catch (error) {
       console.error('Error in markAllAsRead:', error);
     }
-  }, [toast]);
+  }, [isOfflineMode, toast]);
 
-  // Approve notification
-  const handleApprove = useCallback(async (id: string) => {
+  // Add a new notification
+  const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'createdAt'>) => {
+    // In offline mode, create a local notification
+    if (isOfflineMode) {
+      const success = createLocalNotification(notification);
+      return success;
+    }
+    
+    // Online mode - add to database
     try {
-      // First update the notification to mark as read
       const { error } = await supabase
         .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error approving notification:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się zatwierdzić powiadomienia",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Find the notification in our local state
-      const notification = notifications.find(n => n.id === id);
-      if (!notification) return;
-
-      // Create response notification for user
-      if (notification.fromUserId) {
-        await supabase.from('notifications').insert({
-          type: 'approval_accepted',
-          title: 'Prośba zaakceptowana',
-          message: 'Twoja prośba została zaakceptowana',
+        .insert({
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
           user_id: notification.fromUserId,
           target_id: notification.targetId,
           target_type: notification.targetType,
+          is_read: notification.status === 'read',
         });
-      }
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(n => 
-          n.id === id 
-            ? { ...n, status: 'read' } 
-            : n
-        )
-      );
-      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-      
-      toast({
-        title: "Sukces",
-        description: "Powiadomienie zostało zatwierdzone",
-      });
-    } catch (error) {
-      console.error('Error in handleApprove:', error);
-    }
-  }, [notifications, toast]);
-
-  // Reject notification
-  const handleReject = useCallback(async (id: string, comment?: string) => {
-    try {
-      // First update the notification to mark as read
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id);
 
       if (error) {
-        console.error('Error rejecting notification:', error);
+        console.error('Error adding notification:', error);
         toast({
           title: "Błąd",
-          description: "Nie udało się odrzucić powiadomienia",
+          description: "Nie udało się dodać powiadomienia",
           variant: "destructive"
         });
-        return;
+        return false;
       }
 
-      // Find the notification in our local state
-      const notification = notifications.find(n => n.id === id);
-      if (!notification) return;
-
-      // Create response notification for user
-      if (notification.fromUserId) {
-        await supabase.from('notifications').insert({
-          type: 'approval_rejected',
-          title: 'Prośba odrzucona',
-          message: comment || 'Twoja prośba została odrzucona',
-          user_id: notification.fromUserId,
-          target_id: notification.targetId,
-          target_type: notification.targetType,
-        });
-      }
-      
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(n => 
-          n.id === id 
-            ? { ...n, status: 'read', comment } 
-            : n
-        )
-      );
-      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-      
-      toast({
-        title: "Sukces",
-        description: "Powiadomienie zostało odrzucone",
-      });
+      fetchNotifications(); // Refresh notifications
+      return true;
     } catch (error) {
-      console.error('Error in handleReject:', error);
+      console.error('Error in addNotification:', error);
+      
+      // Fallback to local notification if database insert fails
+      const success = createLocalNotification(notification);
+      return success;
     }
-  }, [notifications, toast]);
+  }, [fetchNotifications, isOfflineMode, toast]);
 
   // Delete a notification
   const deleteNotification = useCallback(async (id: string) => {
+    // In offline mode, update local state only
+    if (isOfflineMode) {
+      const deletedNotification = notifications.find(n => n.id === id);
+      setNotifications(prevNotifications => 
+        prevNotifications.filter(n => n.id !== id)
+      );
+      
+      // Update unread count if needed
+      if (deletedNotification && deletedNotification.status === 'unread') {
+        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      }
+      
+      toast({
+        title: "Sukces",
+        description: "Powiadomienie zostało usunięte",
+      });
+      return;
+    }
+    
+    // Online mode - delete from database
     try {
       const { error } = await supabase
         .from('notifications')
@@ -376,41 +426,96 @@ export const useNotificationService = () => {
     } catch (error) {
       console.error('Error in deleteNotification:', error);
     }
-  }, [notifications, toast]);
+  }, [notifications, isOfflineMode, toast]);
 
-  // Add a new notification
-  const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'createdAt' | 'status'>) => {
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .insert({
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          user_id: notification.fromUserId,
-          target_id: notification.targetId,
-          target_type: notification.targetType,
-        });
-
-      if (error) {
-        console.error('Error adding notification:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się dodać powiadomienia",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      fetchNotifications(); // Refresh notifications
-    } catch (error) {
-      console.error('Error in addNotification:', error);
+  // Handle approval action
+  const handleApprove = useCallback(async (id: string) => {
+    // In offline mode, update local state only
+    if (isOfflineMode) {
+      markAsRead(id);
+      toast({
+        title: "Tryb offline",
+        description: "Działanie zostanie zsynchronizowane po połączeniu z serwerem",
+      });
+      return;
     }
-  }, [fetchNotifications, toast]);
+    
+    try {
+      // Mark notification as read
+      await markAsRead(id);
+      
+      // Find the notification in our local state
+      const notification = notifications.find(n => n.id === id);
+      if (!notification) return;
+
+      // Create response notification for user
+      if (notification.fromUserId) {
+        addNotification({
+          type: 'approval_accepted',
+          title: 'Prośba zaakceptowana',
+          message: 'Twoja prośba została zaakceptowana',
+          status: 'unread',
+          fromUserId: notification.fromUserId,
+          targetId: notification.targetId,
+          targetType: notification.targetType
+        });
+      }
+      
+      toast({
+        title: "Sukces",
+        description: "Powiadomienie zostało zatwierdzone",
+      });
+    } catch (error) {
+      console.error('Error in handleApprove:', error);
+    }
+  }, [notifications, isOfflineMode, markAsRead, addNotification, toast]);
+
+  // Handle reject action
+  const handleReject = useCallback(async (id: string, comment?: string) => {
+    // In offline mode, update local state only
+    if (isOfflineMode) {
+      markAsRead(id);
+      toast({
+        title: "Tryb offline",
+        description: "Działanie zostanie zsynchronizowane po połączeniu z serwerem",
+      });
+      return;
+    }
+    
+    try {
+      // Mark notification as read
+      await markAsRead(id);
+      
+      // Find the notification in our local state
+      const notification = notifications.find(n => n.id === id);
+      if (!notification) return;
+
+      // Create response notification for user
+      if (notification.fromUserId) {
+        addNotification({
+          type: 'approval_rejected',
+          title: 'Prośba odrzucona',
+          message: comment || 'Twoja prośba została odrzucona',
+          status: 'unread',
+          fromUserId: notification.fromUserId,
+          targetId: notification.targetId,
+          targetType: notification.targetType,
+          comment
+        });
+      }
+      
+      toast({
+        title: "Sukces",
+        description: "Powiadomienie zostało odrzucone",
+      });
+    } catch (error) {
+      console.error('Error in handleReject:', error);
+    }
+  }, [notifications, isOfflineMode, markAsRead, addNotification, toast]);
 
   // Listen for real-time updates
   useEffect(() => {
-    if (!user) return;
+    if (!user || isOfflineMode) return;
     
     console.log("Setting up notifications listener for user:", user);
     fetchNotifications();
@@ -435,42 +540,42 @@ export const useNotificationService = () => {
       console.log("Cleaning up notifications listener");
       supabase.removeChannel(channel);
     };
-  }, [user, fetchNotifications]);
-
-  // Setup retry on connection error
-  useEffect(() => {
-    if (error && navigator.onLine) {
-      // If there's an error but we're online, try again after a delay
-      const timer = setTimeout(() => {
-        console.log("Retrying fetch after error...");
-        setRetryCount(0); // Reset retry count
-        fetchNotifications();
-      }, 30000); // Retry after 30 seconds
-      
-      return () => clearTimeout(timer);
-    }
-  }, [error, fetchNotifications]);
+  }, [user, isOfflineMode, fetchNotifications]);
 
   // Handle online/offline events
   useEffect(() => {
     const handleOnline = () => {
       console.log("Browser went online, refreshing notifications...");
       setRetryCount(0);
+      setIsOfflineMode(false);
       fetchNotifications();
     };
     
+    const handleOffline = () => {
+      console.log("Browser went offline, switching to offline mode");
+      setIsOfflineMode(true);
+      
+      if (notifications.length === 0) {
+        setNotifications(MOCK_NOTIFICATIONS);
+        setUnreadCount(MOCK_NOTIFICATIONS.filter(n => n.status === 'unread').length);
+      }
+    };
+    
     window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
     
     return () => {
       window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, notifications]);
 
   return {
     notifications,
     unreadCount,
     loading,
     error,
+    isOfflineMode,
     markAsRead,
     markAllAsRead,
     addNotification,
