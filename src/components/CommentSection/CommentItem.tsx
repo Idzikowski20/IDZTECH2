@@ -2,7 +2,7 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import { Check, Flag } from 'lucide-react';
+import { CheckCircle, Flag } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface CommentItemProps {
@@ -43,7 +43,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   });
 
   // Check if user has a special role to display verification badge
-  const hasVerificationBadge = author.role && ['admin', 'blogger', 'moderator'].includes(author.role.toLowerCase());
+  const hasVerificationBadge = author.role && ['admin', 'blogger', 'moderator', 'administrator'].includes(author.role.toLowerCase());
 
   return (
     <div className="flex gap-3 py-4">
@@ -61,7 +61,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           <p className="font-medium text-sm">{author.name}</p>
           {hasVerificationBadge && (
             <div className="ml-1 bg-blue-500 text-white rounded-full p-0.5" title={`Zweryfikowany ${author.role}`}>
-              <Check className="h-3 w-3" />
+              <CheckCircle className="h-3 w-3" />
             </div>
           )}
           <span className="text-xs text-slate-500 ml-2">{formattedDate}</span>
@@ -70,7 +70,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         {onReport && currentUserId !== authorId && (
           <button 
             onClick={() => onReport(id)} 
-            className="text-xs text-slate-500 mt-2 flex items-center hover:text-slate-700 hover:underline"
+            className="text-xs text-slate-500 mt-2 flex items-center hover:text-black hover:bg-white"
           >
             <Flag className="h-3 w-3 mr-1" /> Zgłoś
           </button>

@@ -1,186 +1,92 @@
+import { useState, useEffect } from "react";
+import { Bell } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useNotifications } from "@/utils/notifications";
+import { useToast } from "@/hooks/use-toast";
 
-import React from 'react';
-import { Bell, AlertCircle, RefreshCw } from 'lucide-react';
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
-} from "@/components/ui/popover";
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useNavigate } from 'react-router-dom';
-import { useSupabaseNotifications, NotificationType } from '@/hooks/useSupabaseNotifications';
-import { format, formatDistanceToNow } from 'date-fns';
-import { pl } from 'date-fns/locale';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
-
-const NotificationBell: React.FC = () => {
-  const { notifications, markAsRead, unreadCount, error, fetchNotifications, loading } = useSupabaseNotifications();
+const NotificationBell = () => {
   const navigate = useNavigate();
+  const { unreadCount, loading, error, refetchNotifications } = useNotifications();
   const { toast } = useToast();
+  const [retrying, setRetrying] = useState(false);
 
-  const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {
-    markAsRead(id);
-    
-    // Navigate to specific content if we have a target
-    if (targetType === 'post' && targetId) {
-      navigate(`/blog/${targetId}`);
+  // Handle error in notification loading
+  useEffect(() => {
+    if (error) {
+      console.error("Error loading notifications:", error);
     }
-  };
-  
-  // Handle separate click on "Zobacz wszystkie" button
-  const handleViewAllClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigate('/admin/notifications');
-  };
-  
-  const handleRetryFetch = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    fetchNotifications();
-    toast({
-      title: "Odświeżanie",
-      description: "Próba ponownego pobrania powiadomień...",
-    });
-  };
+  }, [error]);
 
-  const getNotificationIcon = (type: NotificationType) => {
-    switch (type) {
-      case 'success':
-      case 'approval_accepted':
-        return <div className="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-1"></div>;
-      case 'error':
-      case 'approval_rejected':
-        return <div className="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1"></div>;
-      case 'warning':
-      case 'approval_request':
-        return <div className="flex-shrink-0 w-2 h-2 bg-amber-500 rounded-full mt-1"></div>;
-      case 'comment_added':
-        return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
-      case 'like_added':
-        return <div className="flex-shrink-0 w-2 h-2 bg-purple-500 rounded-full mt-1"></div>;
-      case 'post_created':
-      case 'post_edited':
-      case 'post_deleted':
-        return <div className="flex-shrink-0 w-2 h-2 bg-indigo-500 rounded-full mt-1"></div>;
-      case 'info':
-      case 'user_edited':
-      default:
-        return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
+  const handleClick = () => {
+    if (error) {
+      // If there's an error, retry fetching notifications
+      handleRetry();
+    } else {
+      // Otherwise navigate to notifications page
+      navigate("/admin/notifications");
     }
   };
 
-  const formatNotificationDate = (dateString: string) => {
+  const handleRetry = async () => {
+    setRetrying(true);
     try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-      
-      if (diffInHours < 24) {
-        return formatDistanceToNow(date, { addSuffix: true, locale: pl });
-      }
-      
-      return format(date, 'dd.MM.yyyy, HH:mm', { locale: pl });
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return "Data nieznana";
+      await refetchNotifications();
+      toast({
+        title: "Odświeżono",
+        description: "Powiadomienia zostały pomyślnie odświeżone",
+      });
+    } catch (err) {
+      console.error("Failed to refresh notifications:", err);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się odświeżyć powiadomień",
+        variant: "destructive",
+      });
+    } finally {
+      setRetrying(false);
     }
   };
-
-  console.log("Notifications in bell component:", notifications);
-  console.log("Unread count:", unreadCount);
-  console.log("Notification error:", error);
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-white hover:bg-white hover:text-black">
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <span className="absolute top-0 right-0 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center transform translate-x-1/3 -translate-y-1/3">
-              {unreadCount}
-            </span>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <div className="font-medium py-2 border-b border-gray-200 dark:border-gray-700">
-          <h4>Powiadomienia</h4>
-          {unreadCount > 0 && (
-            <p className="text-xs text-muted-foreground">
-              Masz {unreadCount} nieprzeczytanych powiadomień
-            </p>
-          )}
-        </div>
-        <ScrollArea className="h-[300px]">
-          {loading ? (
-            <div className="p-4 flex justify-center">
-              <div className="animate-spin w-6 h-6 border-2 border-slate-500 border-t-transparent rounded-full"></div>
-            </div>
-          ) : error ? (
-            <Alert variant="destructive" className="mt-2">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="flex flex-col gap-2">
-                Nie udało się pobrać powiadomień
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center gap-2 mt-1 hover:bg-white hover:text-black"
-                  onClick={handleRetryFetch}
-                >
-                  <RefreshCw className="h-3 w-3" />
-                  Spróbuj ponownie
-                </Button>
-              </AlertDescription>
-            </Alert>
-          ) : notifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">
-              Brak powiadomień
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {notifications.slice(0, 5).map((notification) => (
-                <div 
-                  key={notification.id} 
-                  onClick={() => handleNotificationClick(notification.id, notification.targetId, notification.targetType)}
-                  className={`
-                    p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-black dark:hover:text-white
-                    ${notification.status === 'unread' ? 'bg-slate-50 dark:bg-slate-900' : ''}
-                  `}
-                >
-                  <div className="flex gap-3">
-                    {getNotificationIcon(notification.type)}
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <h5 className="font-medium">{notification.title}</h5>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {formatNotificationDate(notification.createdAt)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {notification.message}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </ScrollArea>
-        <div className="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full hover:bg-white hover:text-black"
-            onClick={handleViewAllClick}
+    <div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative"
+        onClick={handleClick}
+      >
+        {loading || retrying ? (
+          <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+        ) : (
+          <>
+            <Bell className="h-5 w-5" />
+            {error ? (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                !
+              </span>
+            ) : unreadCount > 0 ? (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1 min-w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            ) : null}
+          </>
+        )}
+      </Button>
+      
+      {error && (
+        <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
+          Nie udało się pobrać powiadomień.
+          <button 
+            onClick={handleRetry}
+            className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-premium-purple/80"
+            disabled={retrying}
           >
-            Zobacz wszystkie
-          </Button>
+            {retrying ? "Odświeżanie..." : "Odśwież"}
+          </button>
         </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   );
 };
 

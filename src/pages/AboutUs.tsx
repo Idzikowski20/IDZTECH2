@@ -19,21 +19,27 @@ const AboutUs = () => {
     },
     { 
       name: 'Lidia Śliwa', 
-      role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
+      role: 'Fullstack Developer',
+      description: 'Ekspert z doświadczeniem w tworzeniu aplikacji pełnostackowych wykorzystujących najnowsze technologie.',
       image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
     },
     { 
       name: 'Przemek Idzikowski', 
-      role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
+      role: 'QA',
+      description: 'Specjalista od zapewnienia jakości z doświadczeniem w testowaniu aplikacji webowych i mobilnych.',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
     },
     { 
       name: 'Aleksandra Górecka', 
       role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
+      description: 'Ekspert z doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
       image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=988&q=80'
+    },
+    { 
+      name: 'Jan Śliwa', 
+      role: 'Sales Director',
+      description: 'Doświadczony dyrektor sprzedaży z szeroką wiedzą w zakresie sprzedaży rozwiązań IT i marketingowych.',
+      image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
     }
   ];
   
@@ -159,7 +165,7 @@ const AboutUs = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teamMembers.map((member, index) => (
               <div 
                 key={index} 

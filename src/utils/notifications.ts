@@ -1,280 +1,258 @@
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/utils/AuthProvider';
+import { useToast } from '@/hooks/use-toast';
 
-export type NotificationType = 
-  | 'post_created' 
-  | 'post_edited' 
-  | 'post_deleted' 
-  | 'user_edited'
-  | 'approval_request'
-  | 'approval_accepted'
-  | 'approval_rejected'
-  | 'comment_added'
-  | 'like_added'
-  | 'info'
-  | 'error'
-  | 'success'
-  | 'warning';
-
-export type NotificationStatus = 'pending' | 'approved' | 'rejected' | 'unread' | 'read';
-
+// Define notification types
 export interface Notification {
   id: string;
-  type: NotificationType;
+  type: string;
   title: string;
   message: string;
-  createdAt: string;
-  status: NotificationStatus;
-  fromUserId?: string;
-  fromUserName?: string;
-  targetId?: string; // ID of post, user, etc. that the notification is about
-  targetType?: string; // Type of target: "post", "user", etc.
-  comment?: string; // Admin feedback in case of rejection
+  is_read: boolean;
+  created_at: string;
+  user_id?: string;
+  target_id?: string;
+  target_type?: string;
 }
 
-// Default notifications for testing
-const defaultNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'post_created',
-    title: 'Nowy wpis na blogu',
-    message: 'Nowy artykuł został opublikowany na blogu',
-    createdAt: new Date().toISOString(),
-    status: 'unread',
-    targetId: '1',
-    targetType: 'post',
-  },
-  {
-    id: '2',
-    type: 'comment_added',
-    title: 'Nowy komentarz',
-    message: 'Jan Kowalski dodał komentarz do Twojego artykułu',
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    status: 'unread',
-    fromUserName: 'Jan Kowalski',
-    targetId: '1',
-    targetType: 'post',
-  },
-  {
-    id: '3',
-    type: 'approval_request',
-    title: 'Prośba o zatwierdzenie',
-    message: 'Nowa prośba o zatwierdzenie zawartości',
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'pending',
-    fromUserName: 'Anna Nowak',
-    targetId: '2',
-    targetType: 'post',
-  }
-];
-
+// Create notification store
 interface NotificationStore {
   notifications: Notification[];
   unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'status'> & {status?: NotificationStatus}) => void;
+  loading: boolean;
+  error: string | null;
+  setNotifications: (notifications: Notification[]) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
-  updateNotificationStatus: (id: string, status: NotificationStatus, comment?: string) => void;
-  getNotificationsForUser: (userId: string) => Notification[];
+  addNotification: (notification: Notification) => void;
   deleteNotification: (id: string) => void;
+  fetchNotifications: (userId: string) => Promise<void>;
 }
 
-export const useNotifications = create<NotificationStore>()(
-  persist(
-    (set, get) => ({
-      notifications: defaultNotifications,
-      unreadCount: defaultNotifications.filter(n => n.status === 'unread').length,
+export const useNotificationStore = create<NotificationStore>((set, get) => ({
+  notifications: [],
+  unreadCount: 0,
+  loading: false,
+  error: null,
+  setNotifications: (notifications) => {
+    const unreadCount = notifications.filter(note => !note.is_read).length;
+    set({ notifications, unreadCount });
+  },
+  markAsRead: async (id) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id);
       
-      addNotification: (notification) => set((state) => {
-        const newNotification: Notification = {
-          ...notification,
-          id: Date.now().toString(),
-          createdAt: new Date().toISOString(),
-          status: notification.status || 'unread',
-        };
-
-        // Update unread count if the new notification is unread
-        const newUnreadCount = newNotification.status === 'unread' ? 
-          state.unreadCount + 1 : state.unreadCount;
-        
-        return {
-          notifications: [newNotification, ...state.notifications],
-          unreadCount: newUnreadCount
-        };
-      }),
+      if (error) {
+        console.error("Error marking notification as read:", error);
+        return;
+      }
       
-      markAsRead: (id) => set((state) => {
-        const updatedNotifications = state.notifications.map(notification => 
-          notification.id === id && notification.status === 'unread'
-            ? { ...notification, status: 'read' as NotificationStatus }
-            : notification
-        );
-        
-        // Count notifications with unread status
-        const unreadCount = updatedNotifications.filter(n => n.status === 'unread').length;
-        
-        return { 
-          notifications: updatedNotifications,
-          unreadCount
-        };
-      }),
-
-      markAllAsRead: () => set((state) => {
-        const updatedNotifications = state.notifications.map(notification => 
-          notification.status === 'unread'
-            ? { ...notification, status: 'read' as NotificationStatus }
-            : notification
-        );
-        
-        return { 
-          notifications: updatedNotifications,
-          unreadCount: 0
-        };
-      }),
+      const notifications = get().notifications.map(note => 
+        note.id === id ? { ...note, is_read: true } : note
+      );
       
-      updateNotificationStatus: (id, status, comment) => set((state) => {
-        const updatedNotifications = state.notifications.map(notification => 
-          notification.id === id
-            ? { ...notification, status, ...(comment ? { comment } : {}) }
-            : notification
-        );
-        
-        // Update unread count
-        const unreadCount = updatedNotifications.filter(n => n.status === 'unread').length;
-        
-        // If we change a status to approved or rejected, create a new notification for the user
-        const targetNotification = state.notifications.find(n => n.id === id);
-        if (targetNotification && 
-            (status === 'approved' || status === 'rejected') && 
-            targetNotification.fromUserId) {
-            
-          const responseType = status === 'approved' ? 'approval_accepted' as NotificationType : 'approval_rejected' as NotificationType;
-          const responseTitle = status === 'approved' 
-            ? 'Prośba zaakceptowana' 
-            : 'Prośba odrzucona';
-          
-          const responseMessage = status === 'approved'
-            ? 'Twoja prośba została zaakceptowana'
-            : 'Twoja prośba została odrzucona';
-            
-          const newNotification: Notification = {
-            id: Date.now().toString(),
-            type: responseType,
-            title: responseTitle,
-            message: responseMessage,
-            createdAt: new Date().toISOString(),
-            status: 'unread',
-            targetId: targetNotification.targetId,
-            targetType: targetNotification.targetType,
-            comment: comment,
-          };
-          
-          return {
-            notifications: [newNotification, ...updatedNotifications],
-            unreadCount: unreadCount + 1
-          };
-        }
-        
-        return { 
-          notifications: updatedNotifications,
-          unreadCount
-        };
-      }),
-
-      getNotificationsForUser: (userId) => {
-        const { notifications } = get();
-        return notifications.filter(n => 
-          (n.fromUserId === userId) || 
-          (!n.fromUserId && !n.fromUserName) // Notifications without specific recipient (system notifications)
-        );
-      },
-      
-      deleteNotification: (id) => set((state) => {
-        const notification = state.notifications.find(n => n.id === id);
-        const wasUnread = notification?.status === 'unread';
-        
-        const filteredNotifications = state.notifications.filter(n => n.id !== id);
-        
-        return { 
-          notifications: filteredNotifications,
-          unreadCount: wasUnread ? state.unreadCount - 1 : state.unreadCount
-        };
-      }),
-    }),
-    {
-      name: 'notification-storage',
+      const unreadCount = notifications.filter(note => !note.is_read).length;
+      set({ notifications, unreadCount });
+    } catch (error) {
+      console.error("Error in markAsRead:", error);
     }
-  )
-);
+  },
+  markAllAsRead: async () => {
+    const { user_id } = get().notifications[0] || {};
+    
+    if (!user_id) {
+      console.error("No user_id found in notifications");
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user_id)
+        .is('is_read', false);
+      
+      if (error) {
+        console.error("Error marking all notifications as read:", error);
+        return;
+      }
+      
+      const notifications = get().notifications.map(note => ({ ...note, is_read: true }));
+      set({ notifications, unreadCount: 0 });
+    } catch (error) {
+      console.error("Error in markAllAsRead:", error);
+    }
+  },
+  addNotification: (notification) => {
+    const notifications = [notification, ...get().notifications];
+    const unreadCount = notifications.filter(note => !note.is_read).length;
+    set({ notifications, unreadCount });
+  },
+  deleteNotification: async (id) => {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error("Error deleting notification:", error);
+        return;
+      }
+      
+      const notifications = get().notifications.filter(note => note.id !== id);
+      const unreadCount = notifications.filter(note => !note.is_read).length;
+      set({ notifications, unreadCount });
+    } catch (error) {
+      console.error("Error in deleteNotification:", error);
+    }
+  },
+  fetchNotifications: async (userId) => {
+    if (!userId) {
+      console.error("No user ID provided to fetch notifications");
+      return;
+    }
+    
+    set({ loading: true, error: null });
+    
+    try {
+      // Add a timeout to simulate network delay
+      // This helps with debugging race conditions
+      await new Promise(resolve => setTimeout(resolve, 100)); 
+      
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching notifications:", error);
+        set({ error: `Błąd pobierania powiadomień: ${error.message}`, loading: false });
+        return;
+      }
+      
+      if (!data) {
+        set({ notifications: [], unreadCount: 0, loading: false });
+        return;
+      }
+      
+      const unreadCount = data.filter(note => !note.is_read).length;
+      set({ notifications: data, unreadCount, loading: false });
+    } catch (error: any) {
+      console.error("Unexpected error in fetchNotifications:", error);
+      set({ error: `Nieoczekiwany błąd: ${error.message || JSON.stringify(error)}`, loading: false });
+    }
+  }
+}));
 
-// Helper functions that act as middleware for common notification types
-export const sendApprovalRequest = (fromUserId: string, fromUserName: string, targetId: string, targetType: string, title: string, message: string) => {
-  useNotifications.getState().addNotification({
-    type: 'approval_request',
-    title,
-    message,
-    fromUserId,
-    fromUserName,
-    targetId,
-    targetType,
-    status: 'pending'
-  });
-};
+// Hook for using notifications in components
+export const useNotifications = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [initialized, setInitialized] = useState(false);
+  
+  const { 
+    notifications, 
+    unreadCount, 
+    loading, 
+    error,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification
+  } = useNotificationStore();
 
-export const notifyPostCreated = (userId: string, userName: string, postId: string, postTitle: string) => {
-  useNotifications.getState().addNotification({
-    type: 'post_created',
-    title: 'Nowy post został utworzony',
-    message: `Użytkownik ${userName} utworzył nowy post "${postTitle}"`,
-    fromUserId: userId,
-    fromUserName: userName,
-    targetId: postId,
-    targetType: 'post',
-  });
-};
+  // Fetch notifications when user changes
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user?.id) return;
+      
+      try {
+        await fetchNotifications(user.id);
+        setInitialized(true);
+      } catch (error) {
+        console.error("Error in notification hook:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się pobrać powiadomień",
+          variant: "destructive"
+        });
+      }
+    };
 
-// For backward compatibility with the other notification file
-export type CommentNotificationType = 'comment' | 'like' | 'info' | 'error' | 'success' | 'warning';
+    if (user?.id && !initialized) {
+      fetchData();
+    }
+    
+    if (!user) {
+      setInitialized(false);
+    }
 
-export interface LegacyNotification {
-  id: string;
-  title: string;
-  message: string;
-  type: CommentNotificationType;
-  timestamp: Date;
-  read: boolean;
-  data?: {
-    postId?: string;
-    postTitle?: string;
-    commentId?: string;
-    userId?: string;
-    userName?: string;
+    // Set up real-time listener for new notifications
+    const setupSubscription = async () => {
+      if (!user?.id) return;
+      
+      const channel = supabase
+        .channel('notifications-changes')
+        .on(
+          'postgres_changes',
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'notifications',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            // Refresh notifications when changes occur
+            fetchNotifications(user.id);
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    };
+    
+    const unsubscribe = setupSubscription();
+    
+    return () => {
+      if (unsubscribe) {
+        unsubscribe.then(unsub => unsub && unsub());
+      }
+    };
+  }, [user, initialized, fetchNotifications, toast]);
+  
+  const refetchNotifications = async () => {
+    if (!user?.id) {
+      throw new Error("User not authenticated");
+    }
+    
+    try {
+      await fetchNotifications(user.id);
+    } catch (err) {
+      console.error("Error refetching notifications:", err);
+      throw err;
+    }
   };
-}
 
-// Helper for adding a comment notification
-export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
-  return useNotifications.getState().addNotification({
-    type: 'comment_added',
-    title: 'Nowy komentarz',
-    message: `${userName} dodał komentarz do "${postTitle}"`,
-    fromUserId: userId,
-    fromUserName: userName,
-    targetId: postId,
-    targetType: 'post',
-  });
+  return {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refetchNotifications
+  };
 };
 
-// Helper for adding a like notification
-export const addLikeNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
-  return useNotifications.getState().addNotification({
-    type: 'like_added',
-    title: 'Nowe polubienie',
-    message: `${userName} polubił "${postTitle}"`,
-    fromUserId: userId,
-    fromUserName: userName,
-    targetId: postId,
-    targetType: 'post',
-  });
-};
+export default useNotifications;

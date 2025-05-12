@@ -186,48 +186,64 @@ export const findUserByEmail = async (email: string) => {
   }
 };
 
-// Let's make sure Aleksandra has the blogger role
-export const ensureAleksandraHasBloggerRole = async () => {
+// Update roles for specific users
+export const updateUserRoles = async () => {
   try {
-    // Find Aleksandra by email
-    const { data, error } = await supabase
+    // Find Aleksandra by email and update to blogger role
+    const { data: aleksandraData } = await supabase
       .from('profiles')
       .select('*')
       .eq('email', 'ola.gor109@gmail.com')
       .single();
     
-    if (error) {
-      console.error('Error finding Aleksandra:', error);
-      return { success: false, error };
+    if (aleksandraData) {
+      if (!aleksandraData.role || aleksandraData.role !== 'blogger') {
+        await supabase
+          .from('profiles')
+          .update({ role: 'blogger' })
+          .eq('id', aleksandraData.id);
+        console.log('Updated Aleksandra to blogger role');
+      }
     }
     
-    // If Aleksandra exists but doesn't have a role or has a different role than blogger
-    if (data && (!data.role || data.role !== 'blogger')) {
-      // Update her role to blogger
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ role: 'blogger' })
-        .eq('id', data.id);
-      
-      if (updateError) {
-        console.error('Error updating Aleksandra role:', updateError);
-        return { success: false, error: updateError };
+    // Find Patryk by email and update to administrator role
+    const { data: patrykData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', 'patryk.idzikowski@interia.pl')
+      .single();
+    
+    if (patrykData) {
+      if (!patrykData.role || patrykData.role !== 'administrator') {
+        await supabase
+          .from('profiles')
+          .update({ role: 'administrator' })
+          .eq('id', patrykData.id);
+        console.log('Updated Patryk to administrator role');
       }
-      
-      console.log('Successfully updated Aleksandra to blogger role');
-      return { success: true };
-    } else if (data && data.role === 'blogger') {
-      console.log('Aleksandra already has blogger role');
-      return { success: true };
-    } else {
-      console.error('Aleksandra not found');
-      return { success: false, error: 'User not found' };
     }
+
+    // Delete user with email 'admin@example.com' if exists
+    const { data: adminData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', 'admin@example.com')
+      .single();
+
+    if (adminData) {
+      await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', adminData.id);
+      console.log('Deleted Admin user');
+    }
+    
+    return { success: true };
   } catch (error) {
-    console.error('Error in ensureAleksandraHasBloggerRole:', error);
+    console.error('Error in updateUserRoles:', error);
     return { success: false, error };
   }
 };
 
-// Call the function to ensure Aleksandra has the blogger role
-ensureAleksandraHasBloggerRole();
+// Call the function to ensure roles are updated
+updateUserRoles();

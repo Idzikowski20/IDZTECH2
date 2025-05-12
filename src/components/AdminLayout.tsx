@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/utils/AuthProvider'; // Poprawiamy import
+import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNotifications } from '@/utils/notifications';
@@ -25,7 +25,7 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'dashboard' }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
-  const { user, signOut } = useAuth(); // Używamy bezpośrednio z AuthProvider
+  const { user, signOut } = useAuth();
   const { theme } = useTheme();
   const { pathname } = useLocation();
   const { unreadCount } = useNotifications();
@@ -38,7 +38,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   };
 
   // Bezpieczny dostęp do danych użytkownika
-  const displayName = user?.email ? user.email.split('@')[0] : 'User';
+  const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
+  // Get full name if lastName exists
+  const fullName = user?.lastName ? `${displayName} ${user.lastName}` : displayName;
+  // Get user role for display
+  const userRole = user?.role || 'user';
+  
   // Bezpiecznie pobieramy avatar
   const userAvatar = user?.profilePicture || '';
 
@@ -76,17 +81,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
                     {userAvatar ? (
-                      <AvatarImage src={userAvatar} alt={displayName} />
+                      <AvatarImage src={userAvatar} alt={fullName} />
                     ) : (
                       <AvatarFallback className="bg-premium-gradient text-white">
-                        {displayName.charAt(0).toUpperCase()}
+                        {fullName.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     )}
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span>{fullName}</span>
+                    <span className="text-xs text-muted-foreground">{userRole}</span>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
                   <User className="mr-2 h-4 w-4" />

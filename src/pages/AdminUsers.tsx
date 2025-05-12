@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -6,10 +7,11 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/utils/AuthProvider';
 import { User } from '@/utils/authTypes';
 import { fetchAllUsers, deleteUser, addUser, updateUserRole } from '@/utils/authIntegration';
-import { Loader2, UserRound, Shield, Edit, Trash2 } from 'lucide-react';
+import { Loader2, UserRound, Shield, Edit, Trash2, Home } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
 import UserProfileDialog from '@/components/UserProfileDialog';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -27,6 +29,7 @@ const AdminUsers = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const loadUsers = async () => {
@@ -85,7 +88,8 @@ const AdminUsers = () => {
     setProfileOpen(true);
   };
   
-  const isAdmin = currentUser?.role === 'admin';
+  // Check if user has admin or administrator role
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'administrator';
   
   if (loading) {
     return (
@@ -109,6 +113,20 @@ const AdminUsers = () => {
             <p className="text-gray-300 mb-6">
               Tylko administratorzy mają dostęp do zarządzania użytkownikami.
             </p>
+            <div className="space-x-3">
+              <Button 
+                onClick={() => navigate("/admin")} 
+                className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
+              >
+                Powrót do panelu
+              </Button>
+              <Button 
+                onClick={() => navigate("/")} 
+                className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
+              >
+                <Home size={16} className="mr-2" /> Strona główna
+              </Button>
+            </div>
           </div>
         </div>
       </AdminLayout>
@@ -384,6 +402,7 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
           <option value="blogger">Bloger</option>
           <option value="moderator">Moderator</option>
           <option value="admin">Administrator</option>
+          <option value="administrator">Administrator</option>
         </select>
       </div>
       

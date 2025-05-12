@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ChatBubble } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import CommentHeader from './CommentHeader';
@@ -59,17 +59,28 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         }
 
         // Transform the data to match our Comment interface
-        const transformedComments: Comment[] = data.map(comment => ({
-          id: comment.id,
-          content: comment.content,
-          createdAt: comment.created_at,
-          userId: comment.user_id,
-          userName: comment.profiles ? 
-            `${comment.profiles.name || ''} ${comment.profiles.lastName || ''}`.trim() : 
-            'Użytkownik',
-          userAvatar: comment.profiles?.profilePicture || '',
-          userRole: comment.profiles?.role || ''
-        }));
+        const transformedComments: Comment[] = data.map(comment => {
+          let fullName = 'Użytkownik';
+          if (comment.profiles) {
+            const profiles = comment.profiles as any;
+            if (profiles.name) {
+              fullName = profiles.name;
+              if (profiles.lastName) {
+                fullName += ` ${profiles.lastName}`;
+              }
+            }
+          }
+          
+          return {
+            id: comment.id,
+            content: comment.content,
+            createdAt: comment.created_at,
+            userId: comment.user_id,
+            userName: fullName,
+            userAvatar: comment.profiles ? (comment.profiles as any).profilePicture || '' : '',
+            userRole: comment.profiles ? (comment.profiles as any).role || '' : ''
+          };
+        });
 
         setComments(transformedComments);
       } catch (err) {
@@ -92,7 +103,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         description: 'Zaloguj się aby dodać komentarz',
       });
       navigate('/login');
-      return;
+      return false;
     }
 
     try {
@@ -112,7 +123,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
           description: 'Nie udało się dodać komentarza',
           variant: 'destructive',
         });
-        return;
+        return false;
       }
 
       // Get user information
@@ -122,15 +133,28 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         .eq('id', user.id)
         .single();
 
+      // Construct full name
+      let fullName = 'Użytkownik';
+      if (userData) {
+        if (userData.name) {
+          fullName = userData.name;
+          if (userData.lastName) {
+            fullName += ` ${userData.lastName}`;
+          }
+        } else if (user.email) {
+          fullName = user.email.split('@')[0];
+        }
+      } else if (user.email) {
+        fullName = user.email.split('@')[0];
+      }
+
       // Add the new comment to state
       const newComment = {
         id: data.id,
         content: data.content,
         createdAt: data.created_at,
         userId: user.id,
-        userName: userData ? 
-          `${userData.name || ''} ${userData.lastName || ''}`.trim() : 
-          user.email?.split('@')[0] || 'Użytkownik',
+        userName: fullName,
         userAvatar: userData?.profilePicture || '',
         userRole: userData?.role || ''
       };
@@ -141,8 +165,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
       await addCommentNotification(
         postId, 
         postTitle, 
-        userData ? `${userData.name || ''} ${userData.lastName || ''}`.trim() : 
-        user.email?.split('@')[0] || 'Użytkownik',
+        fullName,
         user.id
       );
 
@@ -150,6 +173,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         title: 'Komentarz dodany',
         description: 'Twój komentarz został pomyślnie dodany',
       });
+      
+      return true;
     } catch (err) {
       console.error('Error in handleAddComment:', err);
       toast({
@@ -157,6 +182,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         description: 'Wystąpił problem podczas dodawania komentarza',
         variant: 'destructive',
       });
+      return false;
     }
   };
 
@@ -184,7 +210,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         </div>
       ) : comments.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <ChatBubble className="mx-auto h-12 w-12 text-gray-300" />
+          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
           <p className="mt-2">Bądź pierwszym, który skomentuje ten artykuł</p>
         </div>
       ) : (

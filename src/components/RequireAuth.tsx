@@ -4,6 +4,7 @@ import { useAuth } from "@/utils/AuthProvider";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface RequireAuthProps {
   children: JSX.Element;
@@ -75,12 +76,18 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
           <p className="text-gray-300 mb-6">
             Nie posiadasz wymaganych uprawnień, aby zobaczyć tę stronę.
           </p>
-          <button 
+          <Button 
             onClick={() => navigate("/admin")} 
-            className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
+            className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black mr-3"
           >
             Powrót do panelu
-          </button>
+          </Button>
+          <Button 
+            onClick={() => navigate("/")} 
+            className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
+          >
+            Strona główna
+          </Button>
         </div>
       </div>
     );
