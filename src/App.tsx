@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useAuth } from '@/utils/AuthProvider';
 import RequireAuth from '@/components/RequireAuth';
@@ -52,7 +52,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -172,7 +172,7 @@ const App: React.FC = () => {
       </Routes>
       <Toaster />
       <ScrollToTop />
-    </BrowserRouter>
+    </>
   );
 };
 

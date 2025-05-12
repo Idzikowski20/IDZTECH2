@@ -30,7 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
-    isLoading: loading, // Add this line to fix the error
+    isLoading: loading,
     isAuthenticated,
     signIn,
     signOut,
