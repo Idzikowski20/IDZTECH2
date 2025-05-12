@@ -87,7 +87,7 @@ export const addCommentNotification = async (postId: string, postTitle: string, 
         .from('profiles')
         .select('name, lastName, role')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
         
       if (data && data.name) {
         fullName = data.name;
@@ -121,7 +121,7 @@ export const addLikeNotification = async (postId: string, postTitle: string, use
         .from('profiles')
         .select('name, lastName')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
         
       if (data && data.name) {
         fullName = data.name;
@@ -213,5 +213,13 @@ export const updateAdministratorRoles = async () => {
   }
 };
 
-// Call to ensure administrator roles are set
-updateAdministratorRoles();
+// Call this on application startup to ensure administrator roles are set
+setTimeout(() => {
+  updateAdministratorRoles().then(result => {
+    if (result.success) {
+      console.log('Administrator roles updated successfully');
+    } else {
+      console.error('Failed to update administrator roles');
+    }
+  });
+}, 2000);

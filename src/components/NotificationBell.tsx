@@ -1,9 +1,12 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+
+const MAX_RETRY_ATTEMPTS = 3;
 
 const NotificationBell = () => {
   const navigate = useNavigate();
@@ -13,49 +16,68 @@ const NotificationBell = () => {
   const [retrying, setRetrying] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Fetch notifications count
+  // Fetch notifications count with retry logic
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log("Fetching notifications count from Supabase...");
+      console.log("Fetching notifications count...");
       
-      // Test connection first
-      const { error: connectionError } = await supabase
-        .from('notifications')
-        .select('count(*)', { count: 'exact', head: true });
+      // Use timeout to handle potential network issues
+      const fetchWithTimeout = async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        try {
+          // Get unread notifications count
+          const { count, error: countError } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact' })
+            .eq('is_read', false)
+            .abortSignal(controller.signal);
+          
+          clearTimeout(timeoutId);
+          
+          if (countError) {
+            throw countError;
+          }
+          
+          return count || 0;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      };
       
-      if (connectionError) {
-        console.error("Connection error:", connectionError);
-        setError("Nie udało się połączyć z bazą powiadomień");
-        setLoading(false);
-        return;
-      }
-      
-      // Get unread notifications count
-      const { count, error: countError } = await supabase
-        .from('notifications')
-        .select('*', { count: 'exact' })
-        .eq('is_read', false);
-      
-      if (countError) {
-        console.error("Error fetching notification count:", countError);
-        setError("Nie udało się pobrać liczby powiadomień");
-        setLoading(false);
-        return;
-      }
-      
+      const count = await fetchWithTimeout();
       console.log("Unread notifications count:", count);
-      setUnreadCount(count || 0);
+      setUnreadCount(count);
+      setRetryCount(0); // Reset retry count on success
       setLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error in fetchNotifications:", err);
-      setError("Problem z połączeniem sieciowym");
-      setLoading(false);
+      
+      // Implement exponential backoff retry
+      if (retryCount < MAX_RETRY_ATTEMPTS) {
+        const nextRetryCount = retryCount + 1;
+        setRetryCount(nextRetryCount);
+        
+        const delayMs = Math.min(1000 * Math.pow(2, nextRetryCount), 10000); // Max 10 seconds
+        console.log(`Retrying in ${delayMs}ms (attempt ${nextRetryCount}/${MAX_RETRY_ATTEMPTS})`);
+        
+        setTimeout(() => {
+          fetchNotifications();
+        }, delayMs);
+      } else {
+        // Max retries reached, show error
+        setError("Problem z połączeniem z serwerem powiadomień");
+        setLoading(false);
+      }
     }
-  }, []);
+  }, [retryCount]);
 
   // Check connection status on mount
   useEffect(() => {
@@ -81,7 +103,9 @@ const NotificationBell = () => {
 
   const handleRetry = async () => {
     setRetrying(true);
+    setRetryCount(0); // Reset retry count
     setError(null);
+    
     try {
       await fetchNotifications();
       toast({
@@ -139,7 +163,7 @@ const NotificationBell = () => {
         <div className="absolute z-50 mt-2 right-0 bg-gray-800 text-white p-2 rounded shadow-lg text-xs max-w-xs">
           {error ? (
             <div>
-              {error === "Problem z połączeniem sieciowym" ? 
+              {error === "Problem z połączeniem z serwerem powiadomień" ? 
                 "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
                 error}
               <button 

@@ -32,7 +32,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
         
       if (error) {
         console.error("Error fetching user role:", error);
