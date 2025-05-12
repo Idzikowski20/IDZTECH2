@@ -514,11 +514,6 @@ const WebDevelopment = () => {
               <p className="text-premium-light/70 mb-4">
                 Tworzymy unikalne projekty graficzne, które odzwierciedlają charakter Twojej marki i przyciągają uwagę klientów.
               </p>
-              <Link to="/kontakt">
-                <Button variant="secondary" className="w-full">
-                  Dowiedz się więcej
-                </Button>
-              </Link>
             </div>
             
             {/* Service Card 2 */}
@@ -527,11 +522,6 @@ const WebDevelopment = () => {
               <p className="text-premium-light/70 mb-4">
                 Zapewniamy, że Twoja strona będzie wyglądać i działać doskonale na każdym urządzeniu, od smartfonów po komputery.
               </p>
-              <Link to="/kontakt">
-                <Button variant="secondary" className="w-full">
-                  Dowiedz się więcej
-                </Button>
-              </Link>
             </div>
             
             {/* Service Card 3 */}
@@ -540,11 +530,6 @@ const WebDevelopment = () => {
               <p className="text-premium-light/70 mb-4">
                 Dbamy o to, aby Twoja strona była widoczna w wynikach wyszukiwania Google, co przekłada się na większy ruch i więcej klientów.
               </p>
-              <Link to="/kontakt">
-                <Button variant="secondary" className="w-full">
-                  Dowiedz się więcej
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
