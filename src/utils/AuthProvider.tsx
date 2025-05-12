@@ -317,12 +317,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user?.id) return;
       
+      // Make sure we have the user's email for the profile update
+      const userEmail = user.email || '';
+      
       // Update Supabase profile first
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
-          email: user.email, // Add required email field
+          email: userEmail, // Add required email field
           ...data
         });
       

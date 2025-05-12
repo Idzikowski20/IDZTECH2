@@ -45,7 +45,7 @@ const Profile = () => {
       pointsThisMonth: 0,
       lastUpdated: new Date().toISOString()
     }
-  } as SupabaseUser & ExtendedUserProfile & User;
+  } as (SupabaseUser & ExtendedUserProfile & User);
 
   return (
     <AdminLayout>

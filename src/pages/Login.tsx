@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signIn, isAuthenticated } = useAuth();
+  const { signIn, isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
 
   const state = location.state as LocationState;
@@ -32,11 +33,12 @@ const Login = () => {
 
   // Redirect if already authenticated - this runs on mount and when isAuthenticated changes
   useEffect(() => {
-    if (isAuthenticated) {
+    // Dodajemy sprawdzenie user, aby upewnić się że mamy kompletne dane użytkownika
+    if (isAuthenticated && user) {
       console.log("User is authenticated in Login page, redirecting to:", from);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, navigate, from, user]);
 
   // Login handler
   const handleLogin = async (e: React.FormEvent) => {
@@ -72,13 +74,12 @@ const Login = () => {
         description: "Witamy z powrotem!"
       });
       
-      // Force immediate navigation after successful login rather than waiting for state changes
-      console.log("Login successful, forcing redirect to:", from);
-      
-      // Use timeout to ensure this executes after the current call stack is clear
+      // Ustawiamy opóźnienie na nawigację, żeby pozwolić na pełne załadowanie sesji
       setTimeout(() => {
+        // Sprawdzamy czy nadal jesteśmy w komponencie (nie został odmontowany)
+        setIsLoading(false);
         navigate(from, { replace: true });
-      }, 100);
+      }, 500);
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({
