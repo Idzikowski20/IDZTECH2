@@ -1,4 +1,3 @@
-
 import { supabase } from './supabaseClient';
 
 // Types for CMS content

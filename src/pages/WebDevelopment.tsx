@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -52,11 +51,8 @@ const WebDevelopment = () => {
       <div className="pt-24 pb-10">
         <div className="container mx-auto px-4">
           <ServiceBreadcrumb 
-            items={[
-              { name: "Strona główna", href: "/" },
-              { name: "Usługi", href: "/uslugi/seo" },
-              { name: "Tworzenie stron WWW", href: "/uslugi/tworzenie-stron" }
-            ]} 
+            currentPage="Tworzenie stron WWW"
+            currentPath="/uslugi/tworzenie-stron"
           />
         </div>
       </div>
