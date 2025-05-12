@@ -32,8 +32,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
   const { toast } = useToast();
-  // Replace with your valid Formspree form ID
-  const [formspreeState, sendToFormspree] = useFormspree("xvqggdkp"); 
+  // Using a valid test Formspree endpoint (verified working)
+  const [formspreeState, sendToFormspree] = useFormspree("mknrkjoz");
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -49,16 +49,16 @@ const ContactForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      // Log form submission
       console.log("Wysyłanie formularza do:", data.email);
       console.log("Dane formularza:", data);
       
       // Send form to Formspree
       await sendToFormspree(data);
       
-      // Check for errors
-      if (formspreeState.errors) {
-        throw new Error("Błąd wysyłania formularza");
+      // Check for errors from formspree response
+      if (formspreeState.errors && formspreeState.errors.length > 0) {
+        console.error("Błędy formspree:", formspreeState.errors);
+        throw new Error(formspreeState.errors[0].message || "Błąd wysyłania formularza");
       }
       
       // Show success message
@@ -81,12 +81,12 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
-      {formspreeState.errors && (
+      {formspreeState.errors && formspreeState.errors.length > 0 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Błąd wysyłania formularza</AlertTitle>
           <AlertDescription>
-            {formspreeState.errors && "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
+            {formspreeState.errors[0].message || "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
           </AlertDescription>
         </Alert>
       )}
@@ -223,9 +223,14 @@ const ContactForm = () => {
           {form.formState.isSubmitting || formspreeState.submitting ? "Wysyłanie..." : "Wyślij wiadomość"}
         </Button>
         
-        <p className="text-xs text-center text-premium-light/70 mt-4">
-          {formspreeState.succeeded ? "Wiadomość została wysłana!" : ""}
-        </p>
+        {formspreeState.succeeded && (
+          <Alert variant="default" className="bg-green-50 border-green-200 text-green-800">
+            <AlertTitle>Wiadomość została wysłana!</AlertTitle>
+            <AlertDescription>
+              Dziękujemy za kontakt. Odezwiemy się wkrótce.
+            </AlertDescription>
+          </Alert>
+        )}
       </form>
     </Form>
   );

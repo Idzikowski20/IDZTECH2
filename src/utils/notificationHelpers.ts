@@ -28,8 +28,28 @@ export const sendNotification = ({
 }) => {
   try {
     if (!notificationService) {
-      console.warn('Notification service not initialized');
-      return false;
+      console.warn('Notification service not initialized, storing offline notification');
+      
+      // Store notification locally when service is not available
+      const offlineNotifications = JSON.parse(localStorage.getItem('offlineNotifications') || '[]');
+      
+      const newNotification = {
+        id: `offline-${Date.now()}`,
+        type,
+        title,
+        message,
+        fromUserId,
+        targetId,
+        targetType,
+        status,
+        createdAt: new Date().toISOString(),
+        read: false
+      };
+      
+      offlineNotifications.push(newNotification);
+      localStorage.setItem('offlineNotifications', JSON.stringify(offlineNotifications));
+      
+      return true;
     }
 
     notificationService.addNotification({
