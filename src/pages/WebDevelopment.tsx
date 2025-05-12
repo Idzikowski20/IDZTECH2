@@ -3,14 +3,165 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Phone } from 'lucide-react';
+import { ArrowRight, CheckCircle, Phone, Check, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { useTheme } from '@/utils/themeContext';
+import HoverableSteps from '@/components/HoverableSteps';
 
 const WebDevelopment = () => {
   const { theme } = useTheme();
   
+  // Data for the hoverable steps section
+  const steps = [
+    {
+      id: "01",
+      title: "Planowanie projektu strony WWW",
+      description: "Pierwszym krokiem w tworzeniu strony internetowej jest dokładne zaplanowanie całego projektu, w oparciu o analizę potrzeb i celów biznesowych.",
+      features: [
+        "Analiza celów biznesowych i potrzeb klienta",
+        "Określenie grupy docelowej i buyer personas",
+        "Research konkurencji i analiza rynku",
+        "Planowanie architektury informacji",
+        "Stworzenie planu działania i harmonogramu"
+      ]
+    },
+    {
+      id: "02",
+      title: "Projektowanie UX/UI",
+      description: "Tworzymy prototypy i projekty graficzne strony, dbając o intuicyjny interfejs oraz atrakcyjny wygląd dopasowany do Twojej marki.",
+      features: [
+        "Tworzenie wireframe'ów i prototypów",
+        "Projektowanie ścieżki użytkownika (user flow)",
+        "Przygotowanie makiety graficznej strony",
+        "Dobór kolorystyki i typografii zgodnej z identyfikacją wizualną",
+        "Projektowanie responsywnych widoków dla różnych urządzeń"
+      ]
+    },
+    {
+      id: "03",
+      title: "Programowanie front-end",
+      description: "Przekształcamy projekt graficzny w funkcjonalny kod HTML, CSS i JavaScript, dbając o wysoką jakość i zgodność ze standardami.",
+      features: [
+        "Kodowanie szablonów HTML5 zgodnych ze standardami W3C",
+        "Implementacja stylów CSS z wykorzystaniem nowoczesnych frameworków",
+        "Programowanie interakcji i animacji JavaScript",
+        "Optymalizacja wydajności ładowania strony",
+        "Testy cross-browser dla zapewnienia kompatybilności"
+      ]
+    },
+    {
+      id: "04",
+      title: "Programowanie back-end",
+      description: "Implementujemy funkcjonalności serwera, bazy danych oraz systemu zarządzania treścią, aby Twoja strona działała sprawnie.",
+      features: [
+        "Konfiguracja serwera i środowiska hostingowego",
+        "Implementacja systemu zarządzania treścią (CMS)",
+        "Integracja z bazą danych",
+        "Tworzenie formularzy i systemu kontaktowego",
+        "Implementacja zaawansowanych funkcjonalności (sklep, forum, itp.)"
+      ]
+    },
+    {
+      id: "05",
+      title: "Testowanie i optymalizacja",
+      description: "Przeprowadzamy kompleksowe testy funkcjonalności, użyteczności oraz wydajności, aby zapewnić najwyższą jakość strony.",
+      features: [
+        "Testy funkcjonalne wszystkich elementów strony",
+        "Audyt UX i testy z użytkownikami",
+        "Optymalizacja szybkości ładowania",
+        "Dostosowanie do wymagań SEO",
+        "Testy bezpieczeństwa i ochrony danych"
+      ]
+    },
+    {
+      id: "06",
+      title: "Wdrożenie i publikacja",
+      description: "Uruchamiamy Twoją stronę na serwerze produkcyjnym, przeprowadzamy finalne testy i publikujemy ją w sieci.",
+      features: [
+        "Konfiguracja środowiska produkcyjnego",
+        "Migracja zawartości na serwer docelowy",
+        "Konfiguracja domen i certyfikatów SSL",
+        "Finalne testy wydajności i bezpieczeństwa",
+        "Szkolenie z obsługi systemu CMS"
+      ]
+    }
+  ];
+
+  // Data for the pricing plans
+  const pricingPlans = [
+    {
+      name: "Basic",
+      price: "od 1 999 zł",
+      description: "Idealne rozwiązanie dla małych firm i przedsiębiorców rozpoczynających działalność online.",
+      features: [
+        "Responsywna strona www",
+        "Do 5 podstron",
+        "Podstawowe SEO",
+        "Formularz kontaktowy",
+        "Integracja z mediami społecznościowymi"
+      ],
+      recommended: false,
+      ctaText: "Wybieram pakiet Basic"
+    },
+    {
+      name: "Premium",
+      price: "od 4 499 zł",
+      description: "Kompleksowe rozwiązanie dla firm, które chcą wyróżnić się w internecie.",
+      features: [
+        "Wszystko z pakietu Basic",
+        "Do 15 podstron",
+        "Zaawansowane SEO",
+        "Blog z systemem komentarzy",
+        "Panel administracyjny CMS",
+        "Szkolenie z obsługi systemu",
+        "Google Analytics"
+      ],
+      recommended: true,
+      ctaText: "Wybieram pakiet Premium"
+    },
+    {
+      name: "Enterprise",
+      price: "od 8 999 zł",
+      description: "Dedykowane rozwiązania dla dużych firm i korporacji z zaawansowanymi potrzebami.",
+      features: [
+        "Wszystko z pakietu Premium",
+        "Nieograniczona liczba podstron",
+        "Dedykowany projekt UX/UI",
+        "Zaawansowane funkcjonalności",
+        "Integracje z systemami zewnętrznymi",
+        "Migracja danych",
+        "6 miesięcy wsparcia technicznego"
+      ],
+      recommended: false,
+      ctaText: "Wybieram pakiet Enterprise"
+    }
+  ];
+
+  // Data for the FAQ section
+  const faqItems = [
+    {
+      question: "Jak długo trwa proces tworzenia strony internetowej?",
+      answer: "Czas realizacji zależy od złożoności projektu. Prosta strona wizytówkowa może być gotowa w 2-3 tygodnie, bardziej rozbudowane projekty mogą zająć od 4 do 12 tygodni. Na czas realizacji wpływa również szybkość dostarczania przez klienta niezbędnych materiałów i zatwierdzeń."
+    },
+    {
+      question: "Czy będę mógł samodzielnie aktualizować treści na stronie?",
+      answer: "Tak, wszystkie nasze strony wyposażamy w łatwy w obsłudze system zarządzania treścią (CMS), który pozwala na samodzielną aktualizację tekstów, zdjęć i innych elementów. Dodatkowo przeprowadzamy szkolenie z obsługi systemu, aby klient mógł swobodnie zarządzać swoją stroną."
+    },
+    {
+      question: "Czy projekty są responsywne?",
+      answer: "Wszystkie nasze strony internetowe są w pełni responsywne, co oznacza, że doskonale wyświetlają się na wszystkich urządzeniach - od dużych monitorów komputerowych, przez tablety, po smartfony. Responsywność jest obecnie standardem i kluczowym elementem pozycjonowania w Google."
+    },
+    {
+      question: "Czy zajmujecie się hostingiem i utrzymaniem strony?",
+      answer: "Tak, oferujemy kompleksowe usługi hostingowe oraz pakiety utrzymania i wsparcia technicznego. Zapewniamy szybkie i bezpieczne serwery, regularne kopie zapasowe, monitoring wydajności oraz szybkie wsparcie w przypadku jakichkolwiek problemów."
+    },
+    {
+      question: "Czy pomagacie w pozycjonowaniu strony?",
+      answer: "Tak, każda nasza strona jest zoptymalizowana pod kątem wyszukiwarek (SEO) już na etapie projektowania i kodowania. Dodatkowo oferujemy zaawansowane usługi pozycjonowania i content marketingu, które pomagają osiągnąć wysokie pozycje w wynikach wyszukiwania Google."
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -94,7 +245,7 @@ const WebDevelopment = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Service Card 1 */}
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 hover:scale-105 transition-transform duration-300">
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform duration-300">
               <h3 className="text-2xl font-semibold mb-4">Projektowanie stron internetowych</h3>
               <p className="text-premium-light/70 mb-4">
                 Tworzymy unikalne projekty graficzne, które odzwierciedlają charakter Twojej marki i przyciągają uwagę klientów.
@@ -107,7 +258,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Service Card 2 */}
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 hover:scale-105 transition-transform duration-300">
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform duration-300">
               <h3 className="text-2xl font-semibold mb-4">Tworzenie stron responsywnych</h3>
               <p className="text-premium-light/70 mb-4">
                 Zapewniamy, że Twoja strona będzie wyglądać i działać doskonale na każdym urządzeniu, od smartfonów po komputery.
@@ -120,7 +271,7 @@ const WebDevelopment = () => {
             </div>
             
             {/* Service Card 3 */}
-            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 hover:scale-105 transition-transform duration-300">
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform duration-300">
               <h3 className="text-2xl font-semibold mb-4">Optymalizacja SEO</h3>
               <p className="text-premium-light/70 mb-4">
                 Dbamy o to, aby Twoja strona była widoczna w wynikach wyszukiwania Google, co przekłada się na większy ruch i więcej klientów.
@@ -204,6 +355,115 @@ const WebDevelopment = () => {
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">Tailwind CSS</p>
             </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Process Steps Section */}
+      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Nasz proces</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Dowiedz się więcej o tworzeniu stron www
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Poznaj szczegółowo etapy realizacji projektu strony internetowej - od planowania do wdrożenia.
+            </p>
+          </div>
+          
+          <HoverableSteps steps={steps} className="mt-10" />
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Cennik</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Pakiety tworzenia stron www
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Wybierz pakiet dopasowany do potrzeb Twojego biznesu. Każdy projekt wyceniamy indywidualnie.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {pricingPlans.map((plan, index) => (
+              <div 
+                key={index} 
+                className={`${theme === 'light' ? 'bg-white shadow-xl' : 'bg-premium-dark/60 border border-white/10'} rounded-xl p-8 relative ${plan.recommended ? 'md:-mt-4 md:mb-4' : ''}`}
+              >
+                {plan.recommended && (
+                  <div className="absolute -top-4 -right-4">
+                    <span className="bg-premium-gradient text-xs font-medium px-3 py-1 rounded-full text-white">Polecany</span>
+                  </div>
+                )}
+                <h3 className={`text-2xl font-bold mb-2 ${theme === 'light' ? 'text-black' : 'text-white'}`}>{plan.name}</h3>
+                <div className="flex items-baseline mb-5">
+                  <span className={`text-3xl font-bold ${theme === 'light' ? 'text-black' : 'text-white'}`}>{plan.price}</span>
+                </div>
+                <p className={`mb-6 ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>{plan.description}</p>
+                
+                <div className="space-y-3 mb-8">
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="mt-1">
+                        <Check className="text-premium-purple" size={18} />
+                      </div>
+                      <span className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                <Link to="/contact" className="block">
+                  <Button 
+                    className={`w-full ${plan.recommended 
+                      ? 'bg-premium-gradient hover:opacity-90 transition-opacity text-white' 
+                      : `${theme === 'light' ? 'bg-gray-100 text-gray-800 hover:bg-gray-200' : 'bg-white/10 text-white hover:bg-white/20'}`}`}
+                  >
+                    {plan.ctaText}
+                  </Button>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">FAQ</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Najczęściej zadawane pytania
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Odpowiadamy na najczęstsze pytania dotyczące procesu tworzenia stron internetowych.
+            </p>
+          </div>
+          
+          <div className="max-w-4xl mx-auto space-y-6">
+            {faqItems.map((item, index) => (
+              <div 
+                key={index} 
+                className={`rounded-xl p-6 ${theme === 'light' ? 'bg-white shadow-md' : 'bg-premium-dark/60 border border-white/10'}`}
+              >
+                <h3 className={`text-xl font-semibold mb-3 ${theme === 'light' ? 'text-black' : 'text-white'}`}>{item.question}</h3>
+                <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>{item.answer}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
