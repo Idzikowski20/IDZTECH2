@@ -1,3 +1,4 @@
+
 // Main authentication store using zustand
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -225,13 +226,13 @@ export const useAuth = create<AuthState>()(
       
       getUsers: async () => {
         try {
-          // Najpierw spróbuj pobrać dane z Supabase, ale nie blokuj na błędach
+          // First try to fetch data from Supabase, but don't block on errors
           await get().fetchSupabaseUsers().catch(err => console.log("Couldn't fetch Supabase users:", err));
         } catch (e) {
           console.log("Error fetching Supabase users, continuing with local users");
         }
         
-        // Odśwież statystyki użytkowników przed zwróceniem
+        // Refresh user stats before returning
         get().refreshUserStats();
         return [...users];
       },
@@ -243,7 +244,7 @@ export const useAuth = create<AuthState>()(
         }
 
         try {
-          // Try to create user in Supabase
+          // Try to create user with our modified function that uses regular signup
           const { data, error } = await supabaseCreateUser(userData.email, password, {
             name: userData.name,
             last_name: userData.lastName,
@@ -251,8 +252,32 @@ export const useAuth = create<AuthState>()(
           });
 
           if (error) {
-            console.error("Error creating Supabase user:", error);
-            return false;
+            console.error("Error creating user:", error);
+            
+            // Fallback to local-only user creation if Supabase fails
+            const newUser: User = {
+              ...userData,
+              id: `local-${Date.now()}`,
+              postsCreated: 0,
+              totalViews: 0,
+              createdAt: new Date().toISOString(),
+              lastLogin: new Date().toISOString(),
+              commentsCount: 0,
+              likesCount: 0,
+              stats: {
+                views: 0,
+                posts: 0,
+                comments: 0,
+                likes: 0,
+                pointsTotal: 0,
+                pointsThisMonth: 0,
+                lastUpdated: new Date().toISOString()
+              }
+            };
+
+            users.push(newUser);
+            passwords[userData.email] = password;
+            return true;
           }
 
           if (data?.user) {
@@ -261,7 +286,7 @@ export const useAuth = create<AuthState>()(
               id: data.user.id,
               postsCreated: 0,
               totalViews: 0,
-              createdAt: data.user.created_at,
+              createdAt: data.user.created_at || new Date().toISOString(),
               lastLogin: new Date().toISOString(),
               commentsCount: 0,
               likesCount: 0,
@@ -295,11 +320,11 @@ export const useAuth = create<AuthState>()(
         users[index].role = role;
 
         try {
-          // Also update in Supabase if possible
+          // Mock update in Supabase
           const { error } = await supabaseUpdateUserRole(userId, role);
 
           if (error) {
-            console.error("Error updating user role in Supabase:", error);
+            console.error("Error updating user role:", error);
             // Continue anyway with local update
           }
           
@@ -350,16 +375,16 @@ export const useAuth = create<AuthState>()(
             expires
           });
           
-          // W prawdziwej implementacji należy wysłać email z linkiem resetującym
+          // In a real implementation you would send an email with the reset link
           console.log('Password reset requested for:', email);
           console.log('Reset link:', `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
           
-          // Generujemy link do resetu hasła
+          // Generate a reset link
           const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
           
-          // W produkcyjnej implementacji ten kod zostanie zastąpiony przez API do wysyłki maili
-          // ale tymczasowo możemy pokazywać link w konsoli
-          console.log('Tutaj powinno być wywołanie API do wysyłki maila z linkiem:', resetLink);
+          // In a production implementation this code would be replaced by an API call to send emails
+          // but temporarily we can show the link in the console
+          console.log('Here should be an API call to send an email with the link:', resetLink);
           
           return true;
         } catch (error) {
@@ -410,7 +435,7 @@ export const useAuth = create<AuthState>()(
           const { user } = get();
           if (user?.id === userId) return false;
           
-          // Try to delete in Supabase
+          // Mock delete in Supabase
           const { error } = await supabaseDeleteUser(userId);
           
           if (error) {
