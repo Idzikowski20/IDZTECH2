@@ -85,7 +85,7 @@ const BlogPost = () => {
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
               
-              {(isUserLoggedIn || hasSpecialRoles) && (
+              {isUserLoggedIn && (
                 <>
                   <span className="mx-2">•</span>
                   <span>{post.categories.join(', ')}</span>
@@ -167,10 +167,22 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {/* Comments section */}
-          <div className="max-w-3xl mx-auto">
-            <CommentSection postId={post.id} />
-          </div>
+          {/* Comments section - only show when logged in */}
+          {isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto">
+              <CommentSection postId={post.id} />
+            </div>
+          )}
+          
+          {!isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
+              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
+              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
+              <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
+                Zaloguj się
+              </Button>
+            </div>
+          )}
         </div>
       </section>
       

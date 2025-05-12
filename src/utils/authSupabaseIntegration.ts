@@ -1,3 +1,4 @@
+
 // Supabase specific integration for authentication
 import { supabase } from '@/utils/supabaseClient';
 import { users, updateUsersArray, passwords } from './authUtils';
@@ -14,9 +15,9 @@ export const fetchSupabaseUsers = async (): Promise<void> => {
     
     if (user) {
       // Znajdź lub dodaj użytkownika do lokalnego magazynu
-      const existingUser = users.find(u => u.id === user.id);
+      const existingUserIndex = users.findIndex(u => u.email === user.email);
       
-      if (!existingUser) {
+      if (existingUserIndex === -1) {
         // Jeśli użytkownik nie istnieje lokalnie, dodajmy go
         const role: UserRole = user.email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
         

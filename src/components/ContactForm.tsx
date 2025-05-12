@@ -32,7 +32,6 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
   const { toast } = useToast();
-  // Use the correct Formspree form ID
   const [formspreeState, sendToFormspree] = useFormspree("xzblgnkw"); 
   
   const form = useForm<FormValues>({
@@ -57,8 +56,8 @@ const ContactForm = () => {
       await sendToFormspree(data);
       
       // Check for errors
-      if (formspreeState.errors && formspreeState.errors.length > 0) {
-        throw new Error(formspreeState.errors[0].message);
+      if (formspreeState.errors) {
+        throw new Error("Błąd wysyłania formularza");
       }
       
       // Show success message
@@ -81,14 +80,12 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
-      {formspreeState.errors && formspreeState.errors.length > 0 && (
+      {formspreeState.errors && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Błąd wysyłania formularza</AlertTitle>
           <AlertDescription>
-            {formspreeState.errors.map((error: any, index: number) => (
-              <p key={index}>{error.message}</p>
-            ))}
+            {formspreeState.errors && "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
           </AlertDescription>
         </Alert>
       )}

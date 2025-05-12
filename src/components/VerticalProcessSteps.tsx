@@ -47,20 +47,25 @@ const VerticalProcessSteps = () => {
   ];
 
   return (
-    <div className="flex flex-col space-y-8">
+    <div className="flex flex-col items-center max-w-4xl mx-auto my-16">
       {steps.map((step, index) => (
-        <div key={index} className={`flex ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}>
-          {/* Step number - always visible */}
-          <div className="flex-shrink-0 flex justify-center">
-            <div className={`w-16 h-16 rounded-full bg-premium-gradient flex items-center justify-center text-white text-2xl font-bold z-10`}>
+        <div key={index} className="flex items-center w-full mb-16 last:mb-0">
+          {/* Step number circle - always centered */}
+          <div className="flex-shrink-0">
+            <div className="w-20 h-20 rounded-full bg-premium-gradient flex items-center justify-center text-white text-3xl font-bold">
               {step.number}
             </div>
           </div>
           
-          {/* Content - aligned left or right based on index */}
-          <div className={`flex-grow px-6 ${index % 2 === 0 ? 'text-left' : 'text-right'}`}>
-            <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-            <p className="text-premium-light/70">{step.description}</p>
+          {/* Line connecting to next step (except for last) */}
+          {index < steps.length - 1 && (
+            <div className="absolute h-16 w-0.5 bg-premium-purple/20 ml-10 mt-40"></div>
+          )}
+          
+          {/* Content - alternating left/right placement */}
+          <div className={`flex-grow px-8 text-right`}>
+            <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
+            <p className="text-premium-light/70 text-lg">{step.description}</p>
           </div>
         </div>
       ))}

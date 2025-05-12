@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Globe, ShoppingCart, Search, MapPin, FileText, PenTool, BarChart3 } from 'lucide-react';
+import { ArrowRight, Code, ShoppingCart, Search, MapPin, FileText, Component, BarChart3 } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
 
 const OurServices = () => {
@@ -9,7 +9,7 @@ const OurServices = () => {
   
   const services = [
     {
-      icon: <Globe className="w-10 h-10 text-premium-purple" />,
+      icon: <Code className="w-10 h-10 text-premium-purple" />,
       title: "Tworzenie stron www",
       description: "Projektujemy i tworzymy profesjonalne, szybkie i responsywne strony internetowe.",
       link: "/tworzenie-stron-www"
@@ -45,7 +45,7 @@ const OurServices = () => {
       link: "/optymalizacja-seo"
     },
     {
-      icon: <PenTool className="w-10 h-10 text-purple-500" />,
+      icon: <Component className="w-10 h-10 text-purple-500" />,
       title: "Copywriting SEO",
       description: "Tworzenie angażujących treści zoptymalizowanych pod kątem wyszukiwarek.",
       link: "/copywriting-seo"

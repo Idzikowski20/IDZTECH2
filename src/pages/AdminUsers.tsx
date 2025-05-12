@@ -44,6 +44,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [activeProfile, setActiveProfile] = useState<any>(null);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form for adding new user
   const form = useForm<UserFormValues>({
@@ -183,6 +184,8 @@ const AdminUsers = () => {
   // Handle adding new user
   const handleAddUser = async (data: UserFormValues) => {
     try {
+      setIsSubmitting(true);
+      
       // Check if user with email already exists
       if (users.some(user => user.email === data.email)) {
         toast({
@@ -190,6 +193,7 @@ const AdminUsers = () => {
           description: "Użytkownik o podanym adresie email już istnieje",
           variant: "destructive"
         });
+        setIsSubmitting(false);
         return;
       }
       
@@ -244,6 +248,8 @@ const AdminUsers = () => {
         description: "Wystąpił problem przy dodawaniu użytkownika",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -584,10 +590,17 @@ const AdminUsers = () => {
                   variant="outline"
                   onClick={() => setIsAddUserDialogOpen(false)}
                   className="mr-2"
+                  disabled={isSubmitting}
                 >
                   Anuluj
                 </Button>
-                <Button type="submit" className="bg-premium-gradient">Dodaj użytkownika</Button>
+                <Button 
+                  type="submit" 
+                  className="bg-premium-gradient"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Dodawanie..." : "Dodaj użytkownika"}
+                </Button>
               </DialogFooter>
             </form>
           </Form>
