@@ -55,7 +55,7 @@ const ContactForm = () => {
       // Send form to Formspree
       await sendToFormspree(data);
       
-      // Check for errors from formspree response - fixed to handle errors properly
+      // Check for errors from formspree response
       if (formspreeState.errors && Object.keys(formspreeState.errors).length > 0) {
         console.error("Błędy formspree:", formspreeState.errors);
         
@@ -64,14 +64,16 @@ const ContactForm = () => {
         throw new Error(errorMessage);
       }
       
-      // Show success message
-      toast({
-        title: "Wiadomość wysłana",
-        description: "Dziękujemy za kontakt. Odezwiemy się wkrótce.",
-        variant: "default",
-      });
-      
-      form.reset();
+      // Only show toast notification on success, not the in-form alert
+      if (formspreeState.succeeded) {
+        toast({
+          title: "Wiadomość wysłana",
+          description: "Dziękujemy za kontakt. Odezwiemy się wkrótce.",
+          variant: "default",
+        });
+        
+        form.reset();
+      }
     } catch (error) {
       console.error("Błąd wysyłania formularza:", error);
       toast({
@@ -84,16 +86,6 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
-      {formspreeState.errors && Object.keys(formspreeState.errors).length > 0 && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Błąd wysyłania formularza</AlertTitle>
-          <AlertDescription>
-            {Object.values(formspreeState.errors)[0] || "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
-          </AlertDescription>
-        </Alert>
-      )}
-
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -225,15 +217,6 @@ const ContactForm = () => {
           <Send size={16} className="mr-2" />
           {form.formState.isSubmitting || formspreeState.submitting ? "Wysyłanie..." : "Wyślij wiadomość"}
         </Button>
-        
-        {formspreeState.succeeded && (
-          <Alert variant="default" className="bg-green-50 border-green-200 text-green-800">
-            <AlertTitle>Wiadomość została wysłana!</AlertTitle>
-            <AlertDescription>
-              Dziękujemy za kontakt. Odezwiemy się wkrótce.
-            </AlertDescription>
-          </Alert>
-        )}
       </form>
     </Form>
   );
