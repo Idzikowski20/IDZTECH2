@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
@@ -20,6 +19,7 @@ import AdminSettings from './pages/AdminSettings';
 import AdminStats from './pages/AdminStats';
 import AdminUsers from './pages/AdminUsers';
 import AdminNotifications from "./pages/AdminNotifications";
+import AdminCMS from './pages/AdminCMS';
 import Projects from './pages/Projects';
 import ContentPlan from './pages/ContentPlan';
 
@@ -68,6 +68,7 @@ function App() {
             <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
             <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
             <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
+            <Route path="/admin/cms" element={<RequireAuth><AdminCMS /></RequireAuth>} />
             
             {/* Blog post editor routes - updated to match the links in Admin.tsx */}
             <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />

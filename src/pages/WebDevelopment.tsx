@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Phone, Check, ChevronRight, Search, Globe, Users, TrendingUp, UserCheck, ShieldCheck, BarChart3, Clock, Target, Database, ScrollText, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle, Phone, Check, ChevronRight, Search, Globe, Users, TrendingUp, UserCheck, ShieldCheck, BarChart3, Clock, Target, Database, ScrollText, Sparkles, FileText, Link as LinkIcon, Palette, Type, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { useTheme } from '@/utils/themeContext';
