@@ -24,6 +24,9 @@ const NotificationBell: React.FC = () => {
     if (targetType === 'post' && targetId) {
       // Znajdź post po ID i przekieruj do jego szczegółów
       navigate(`/blog/${targetId}`);
+    } else if (targetType === 'admin') {
+      // Przekierowanie do panelu administracyjnego dla powiadomień admin
+      navigate('/admin');
     } else {
       // Domyślne przekierowanie do listy wszystkich powiadomień
       navigate('/admin/notifications');

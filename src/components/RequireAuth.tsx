@@ -71,7 +71,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
           </p>
           <button 
             onClick={() => navigate("/admin")} 
-            className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:opacity-90"
+            className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
           >
             Powrót do panelu
           </button>

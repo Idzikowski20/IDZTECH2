@@ -61,7 +61,7 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
-            {/* Portfolio/Projects page now accessible without auth */}
+            {/* Portfolio/Projects page accessible without auth */}
             <Route path="/projects" element={<Projects />} />
 
             {/* Protected routes */}
@@ -72,7 +72,7 @@ function App() {
             <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
             <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
             
-            {/* Blog post editor routes - updated to match the links in Admin.tsx */}
+            {/* Blog post editor routes */}
             <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
             <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
             
