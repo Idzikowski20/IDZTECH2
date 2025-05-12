@@ -15,6 +15,7 @@ export interface AuthContextType {
   user: (User & ExtendedUserProfile) | null;
   session: Session | null;
   loading: boolean;
+  isLoading: boolean; // Added this property to fix the error
   isAuthenticated: boolean;
   signIn: (email: string, password: string, remember?: boolean) => Promise<{ error: any }>;
   signOut: () => Promise<void>;

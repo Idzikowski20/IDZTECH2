@@ -1,9 +1,10 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply } from 'lucide-react';
+import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/utils/auth';
 import { Button } from '@/components/ui/button';
-import { useBlogStore, BlogComment } from '@/utils/blog';
+import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
 import { 
   Table,
@@ -15,6 +16,8 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
+import UserRanking from '@/components/UserRanking';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -46,6 +49,15 @@ const Admin = () => {
   const [recentComments, setRecentComments] = useState<(BlogComment & { postTitle: string })[]>([]);
   const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [isReplying, setIsReplying] = useState<Record<string, boolean>>({});
+  const [topPosts, setTopPosts] = useState<{
+    byViews: BlogPost[];
+    byLikes: BlogPost[];
+    byComments: BlogPost[];
+  }>({
+    byViews: [],
+    byLikes: [],
+    byComments: []
+  });
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -75,6 +87,25 @@ const Admin = () => {
     ).slice(0, 5); // Get only 5 most recent
     
     setRecentComments(sortedComments);
+    
+    // Calculate top posts by views, likes, and comments
+    const sortedByViews = [...posts].sort((a, b) => b.views - a.views).slice(0, 5);
+    
+    const sortedByLikes = [...posts].sort((a, b) => 
+      (Array.isArray(b.likes) ? b.likes.length : 0) - 
+      (Array.isArray(a.likes) ? a.likes.length : 0)
+    ).slice(0, 5);
+    
+    const sortedByComments = [...posts].sort((a, b) => 
+      (Array.isArray(b.comments) ? b.comments.length : 0) - 
+      (Array.isArray(a.comments) ? a.comments.length : 0)
+    ).slice(0, 5);
+    
+    setTopPosts({
+      byViews: sortedByViews,
+      byLikes: sortedByLikes,
+      byComments: sortedByComments
+    });
   }, [posts]);
 
   // Calculate real blog statistics
@@ -229,6 +260,103 @@ const Admin = () => {
           </div>
         </div>
 
+        {/* Top Posts & User Rankings */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Top Posts by Views */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <TrendingUp className="mr-2 text-blue-500" size={18} />
+                Top posty - Wyświetlenia
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <ul className="space-y-2">
+                {topPosts.byViews.map((post, index) => (
+                  <li key={post.id} className="flex items-center justify-between border-b border-premium-light/10 pb-2">
+                    <div className="flex items-center">
+                      <span className={`w-5 font-bold ${index < 3 ? 'text-amber-400' : 'text-premium-light/70'}`}>
+                        {index + 1}.
+                      </span>
+                      <span className="line-clamp-1 ml-2">{post.title}</span>
+                    </div>
+                    <div className="font-bold text-blue-500">{post.views}</div>
+                  </li>
+                ))}
+                {topPosts.byViews.length === 0 && (
+                  <li className="py-2 text-center text-premium-light/50">Brak postów</li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
+          
+          {/* Top Posts by Likes */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <Heart className="mr-2 text-red-500" size={18} />
+                Top posty - Polubienia
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <ul className="space-y-2">
+                {topPosts.byLikes.map((post, index) => (
+                  <li key={post.id} className="flex items-center justify-between border-b border-premium-light/10 pb-2">
+                    <div className="flex items-center">
+                      <span className={`w-5 font-bold ${index < 3 ? 'text-amber-400' : 'text-premium-light/70'}`}>
+                        {index + 1}.
+                      </span>
+                      <span className="line-clamp-1 ml-2">{post.title}</span>
+                    </div>
+                    <div className="font-bold text-red-500">
+                      {Array.isArray(post.likes) ? post.likes.length : 0}
+                    </div>
+                  </li>
+                ))}
+                {topPosts.byLikes.length === 0 && (
+                  <li className="py-2 text-center text-premium-light/50">Brak postów</li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
+          
+          {/* Top Posts by Comments */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <MessageSquare className="mr-2 text-green-500" size={18} />
+                Top posty - Komentarze
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+              <ul className="space-y-2">
+                {topPosts.byComments.map((post, index) => (
+                  <li key={post.id} className="flex items-center justify-between border-b border-premium-light/10 pb-2">
+                    <div className="flex items-center">
+                      <span className={`w-5 font-bold ${index < 3 ? 'text-amber-400' : 'text-premium-light/70'}`}>
+                        {index + 1}.
+                      </span>
+                      <span className="line-clamp-1 ml-2">{post.title}</span>
+                    </div>
+                    <div className="font-bold text-green-500">
+                      {Array.isArray(post.comments) ? post.comments.length : 0}
+                    </div>
+                  </li>
+                ))}
+                {topPosts.byComments.length === 0 && (
+                  <li className="py-2 text-center text-premium-light/50">Brak postów</li>
+                )}
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* User Rankings */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <UserRanking showMonthly={false} limit={5} />
+          <UserRanking showMonthly={true} limit={5} />
+        </div>
+        
         {/* Recent Comments */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">

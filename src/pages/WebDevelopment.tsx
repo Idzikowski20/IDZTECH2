@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Phone, Check, ChevronRight, Search, Globe, Users, TrendingUp, UserCheck, ShieldCheck, BarChart3, Clock, Target, Database, ScrollText, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckCircle, Phone, Check, ChevronRight, Search, Globe, Users, TrendingUp, UserCheck, ShieldCheck, BarChart3, Clock, Target, Database, ScrollText, Sparkles, FileText, Link as LinkIcon, Palette, Type, Rocket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { useTheme } from '@/utils/themeContext';
@@ -398,16 +398,16 @@ const WebDevelopment = () => {
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-            <div className="w-full lg:w-1/2 space-y-6">
-              <h1 className="text-4xl lg:text-5xl font-bold">
+          <div className="flex flex-col items-center gap-8 lg:gap-12">
+            <div className="w-full space-y-6">
+              <h1 className="text-4xl lg:text-5xl font-bold text-center">
                 Profesjonalne <span className="bg-premium-gradient text-transparent bg-clip-text">strony internetowe</span> dla Twojego biznesu
               </h1>
-              <p className="text-xl text-premium-light/70">
+              <p className="text-xl text-premium-light/70 text-center">
                 Tworzymy nowoczesne, responsywne i szybkie strony internetowe, które przyciągają klientów i zwiększają konwersję.
               </p>
               
-              <div className="space-y-3 pt-2">
+              <div className="space-y-3 pt-2 max-w-lg mx-auto">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="text-premium-purple" size={20} />
                   <span>Przyjazne dla wyszukiwarek (SEO)</span>
@@ -422,7 +422,7 @@ const WebDevelopment = () => {
                 </div>
               </div>
               
-              <div className="pt-4 flex flex-col sm:flex-row gap-4">
+              <div className="pt-4 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/contact">
                   <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white">
                     Zamów bezpłatną wycenę
@@ -435,7 +435,7 @@ const WebDevelopment = () => {
               </div>
             </div>
             
-            <div className="w-full lg:w-1/2 relative">
+            <div className="w-full relative max-w-3xl mx-auto">
               <div className="absolute -inset-0.5 bg-premium-gradient rounded-xl blur-sm opacity-50"></div>
               <img
                 src="https://images.unsplash.com/photo-1517292987719-0369a794ec0f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80"
@@ -490,7 +490,7 @@ const WebDevelopment = () => {
         </div>
       </section>
       
-      {/* Services Section */}
+      {/* Services Section - Updated to vertical layout */}
       <section className="py-20 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
@@ -507,7 +507,7 @@ const WebDevelopment = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-8 max-w-3xl mx-auto">
             {/* Service Card 1 */}
             <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 transition-transform duration-300">
               <h3 className="text-2xl font-semibold mb-4">Projektowanie stron internetowych</h3>
@@ -550,7 +550,7 @@ const WebDevelopment = () => {
         </div>
       </section>
       
-      {/* Technology Stack Section */}
+      {/* Technology Stack Section - Updated to vertical layout */}
       <section className="py-20 relative overflow-hidden">
         {/* Background elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -569,9 +569,9 @@ const WebDevelopment = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 justify-items-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
             {/* Technology Logos - Updated to use colorful logos */}
-            <div>
+            <div className="flex flex-col items-center">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png"
                 alt="JavaScript"
@@ -579,7 +579,7 @@ const WebDevelopment = () => {
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">JavaScript</p>
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/d/d5/CSS3_logo_and_wordmark.svg"
                 alt="CSS3"
@@ -587,7 +587,7 @@ const WebDevelopment = () => {
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">CSS3</p>
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/HTML5_logo_and_wordmark.svg/1200px-HTML5_logo_and_wordmark.svg.png"
                 alt="HTML5"
@@ -595,7 +595,7 @@ const WebDevelopment = () => {
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">HTML5</p>
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Typescript_logo_2020.svg"
                 alt="TypeScript"
@@ -603,7 +603,7 @@ const WebDevelopment = () => {
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">TypeScript</p>
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg"
                 alt="React"
@@ -611,7 +611,7 @@ const WebDevelopment = () => {
               />
               <p className="text-sm text-premium-light/70 mt-2 text-center">React</p>
             </div>
-            <div>
+            <div className="flex flex-col items-center">
               <img
                 src="https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190fb1800d4a5c7f07ba4b1345a9c8.svg"
                 alt="Tailwind CSS"
@@ -623,7 +623,7 @@ const WebDevelopment = () => {
         </div>
       </section>
 
-      {/* Technology Importance Section */}
+      {/* Technology Importance Section - Updated to vertical layout */}
       <section className="py-20 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
@@ -636,355 +636,45 @@ const WebDevelopment = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="flex flex-col gap-8 max-w-3xl mx-auto">
             {technologyImportance.map((item, index) => (
-              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black/40 border border-white/10'} rounded-xl p-8 text-center`}>
-                <div className="flex justify-center mb-6">
+              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black/40 border border-white/10'} rounded-xl p-8`}>
+                <div className="flex items-center gap-4">
                   {item.icon}
+                  <div>
+                    <h3 className="text-xl font-bold">{item.title}</h3>
+                    <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-4">{item.title}</h3>
-                <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>
-                  {item.description}
-                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
-      
-      {/* Process Steps Section */}
+
+      {/* Process Steps Section - Already using vertical layout through HoverableSteps component */}
       <section className="py-20 relative overflow-hidden bg-premium-dark/40">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Nasz proces</span>
+            <span className="text-premium-purple font-medium">Proces</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Dowiedz się więcej o tworzeniu stron www
+              Jak tworzymy strony WWW?
             </h2>
             <p className="text-xl text-premium-light/70">
-              Poznaj szczegółowo etapy realizacji projektu strony internetowej - od planowania do wdrożenia.
+              Poznaj nasz sprawdzony proces tworzenia stron internetowych, który gwarantuje najwyższą jakość i satysfakcję klientów.
             </p>
           </div>
           
-          <HoverableSteps steps={steps} className="mt-10" />
+          <HoverableSteps steps={steps} />
         </div>
       </section>
 
-      {/* Benefits of having a website section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Korzyści</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Korzyści z własnej strony internetowej
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Posiadanie profesjonalnej strony WWW to inwestycja, która przynosi wymierne korzyści dla Twojego biznesu.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {websiteBenefits.map((benefit, index) => (
-              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black border border-white/10'} rounded-xl p-8 text-center flex flex-col items-center hover:transform hover:scale-105 transition-transform duration-300`}>
-                <div className="mb-6">
-                  {benefit.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-3">{benefit.title}</h3>
-                <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>
-                  {benefit.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Professional Website Features Section */}
-      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Wiarygodność</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Co daje profesjonalna strona WWW?
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Dowiedz się, jak dobrze zaprojektowana strona internetowa zwiększa wiarygodność Twojej firmy w oczach klientów.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {professionalWebsiteFeatures.map((feature, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="min-w-[40px] mt-1">
-                  {feature.icon}
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">{feature.title}</h3>
-                  <p className={theme === 'light' ? 'text-gray-600 text-sm' : 'text-gray-300 text-sm'}>
-                    {feature.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Business Growth Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Rozwój biznesu</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Profesjonalna strona internetowa zapewnia wzrost sprzedaży!
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Odkryj, jak profesjonalna strona WWW przekłada się na konkretne wyniki biznesowe i wzrost sprzedaży.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {businessGrowthFeatures.map((feature, index) => (
-              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black border border-white/10'} rounded-xl p-6 text-center`}>
-                <div className="flex justify-center mb-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
-                <p className={`${theme === 'light' ? 'text-gray-600' : 'text-gray-300'} text-sm`}>
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Website Types Section */}
-      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Rodzaje stron</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Rodzaje stron internetowych
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              W IDZ.TECH tworzymy różne typy stron dostosowane do indywidualnych potrzeb biznesowych.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-8">
-            {websiteTypes.map((type, index) => (
-              <div 
-                key={index} 
-                className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black border border-white/10'} rounded-xl p-6 text-center w-full md:w-[200px]`}
-              >
-                <div className="text-4xl mb-4">{type.icon}</div>
-                <h3 className="font-bold mb-3">{type.title}</h3>
-                <p className={`${theme === 'light' ? 'text-gray-600' : 'text-gray-300'} text-sm`}>
-                  {type.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Industry Types Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Branże</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Tworzenie stron internetowych dla różnych branż
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Tworzymy dedykowane strony WWW dla różnorodnych branż, dostosowane do ich specyficznych potrzeb.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-6 text-center mb-8`}>
-                <div className="text-3xl mb-2">🖥️</div>
-                <h3 className="font-bold text-lg">Tworzenie<br/>Stron<br/>Internetowych</h3>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-4 w-full">
-                {industryTypes.map((industry, index) => (
-                  <div 
-                    key={index} 
-                    className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-4 text-center flex flex-col items-center w-[150px]`}
-                  >
-                    <div className="text-2xl mb-2">{industry.icon}</div>
-                    <h3 className="font-bold text-sm mb-1">{industry.name}</h3>
-                    <p className="text-xs opacity-80">{industry.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Locations Section */}
-      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Lokalizacje</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Tworzenie stron WWW w IDZ.TECH
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Świadczymy usługi tworzenia stron internetowych w całej Polsce.
-            </p>
-          </div>
-
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-6 text-center mb-8`}>
-                <div className="text-3xl mb-2">🖥️</div>
-                <h3 className="font-bold text-lg">IDZ.TECH</h3>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-4 w-full">
-                {locations.map((location, index) => (
-                  <div 
-                    key={index} 
-                    className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-4 text-center w-[130px]`}
-                  >
-                    <div className="text-2xl mb-2">{location.icon}</div>
-                    <h3 className="font-bold text-sm">{location.name}</h3>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Website Creation Steps Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Proces tworzenia</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Kroki do stworzenia strony internetowej
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Poznaj etapy tworzenia skutecznej strony internetowej, która będzie wspierać Twój biznes.
-            </p>
-          </div>
-
-          <div className="max-w-5xl mx-auto">
-            <div className="relative">
-              {/* Steps display */}
-              <div className="hidden md:block h-3 bg-gradient-to-r from-premium-blue to-premium-purple absolute top-1/2 left-0 -translate-y-1/2 w-full rounded-full"></div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-7 gap-8 relative">
-                {websiteCreationSteps.map((step, index) => (
-                  <div key={index} className="flex flex-col items-center relative">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center z-10 text-white font-bold text-lg ${theme === 'light' ? 'bg-premium-gradient' : 'bg-premium-gradient'}`}>
-                      {step.number}
-                    </div>
-                    
-                    <div className={`mt-6 p-4 rounded-xl text-center ${theme === 'light' ? 'bg-white shadow-lg' : 'bg-premium-dark/60 border border-white/10'}`}>
-                      <h3 className="font-bold mb-2">{step.title}</h3>
-                      <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">FAQ</span>
-            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Najczęściej zadawane pytania
-            </h2>
-            <p className="text-xl text-premium-light/70">
-              Odpowiadamy na najczęstsze pytania dotyczące procesu tworzenia stron internetowych.
-            </p>
-          </div>
-          
-          <div className="max-w-4xl mx-auto space-y-6">
-            {faqItems.map((item, index) => (
-              <div 
-                key={index} 
-                className={`rounded-xl p-6 ${theme === 'light' ? 'bg-white shadow-md' : 'bg-premium-dark/60 border border-white/10'}`}
-              >
-                <h3 className={`text-xl font-semibold mb-3 ${theme === 'light' ? 'text-black' : 'text-white'}`}>{item.question}</h3>
-                <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>{item.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      
-      {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-premium-gradient opacity-10"></div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/30 rounded-full blur-[100px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/30 rounded-full blur-[100px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="text-premium-purple font-medium">Zacznijmy!</span>
-            <h2 className="text-3xl lg:text-5xl font-bold mt-3 mb-6">
-              Stwórzmy razem Twoją nową stronę internetową
-            </h2>
-            <p className="text-premium-light/70 text-lg mb-8 max-w-2xl mx-auto">
-              Skontaktuj się z nami już dziś, aby omówić szczegóły Twojego projektu i otrzymać bezpłatną wycenę.
-            </p>
-            <Link to="/contact">
-              <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white rounded-full px-8 py-6">
-                Darmowa konsultacja
-                <ArrowRight size={18} className="ml-2" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-      
+      {/* Footer */}
       <Footer />
     </div>
   );
