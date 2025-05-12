@@ -151,14 +151,13 @@ export const isUserAdmin = async (userId: string): Promise<boolean> => {
       .from('profiles')
       .select('role')
       .eq('id', userId)
-      .in('role', ['admin', 'moderator'])
       .single();
     
     if (error || !data) {
       return false;
     }
     
-    return true;
+    return data.role === 'admin' || data.role === 'moderator';
   } catch (error) {
     console.error('Error checking user roles:', error);
     return false;

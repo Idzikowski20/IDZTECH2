@@ -1,13 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import CMSPanel from '@/components/admin/CMSPanel';
 import CMSGuide from '@/components/CMSGuide';
 import { useAuth } from '@/utils/AuthProvider';
-import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle, Edit } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { makeUserAdmin, deleteAllUsersExceptAdmin } from '@/utils/cms';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 const AdminCMS = () => {
   const { loading, user } = useAuth();
@@ -78,6 +81,24 @@ const AdminCMS = () => {
             </AlertDescription>
           </Alert>
         )}
+        
+        <Card className="p-6 bg-premium-dark/50 border border-premium-light/10 mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div>
+              <h2 className="text-xl font-bold mb-2">Edycja wizualna (WordPress-style)</h2>
+              <p className="mb-4">
+                Skorzystaj z wizualnego edytora treści, który pozwala na edycję zawartości strony 
+                w przyjaznym trybie graficznym, podobnym do WordPressa.
+              </p>
+            </div>
+            <Link to="/admin/visual-editor">
+              <Button className="bg-premium-gradient hover:bg-premium-purple/80 transition-colors">
+                <Edit className="mr-2 h-4 w-4" />
+                Przejdź do edytora wizualnego
+              </Button>
+            </Link>
+          </div>
+        </Card>
         
         {showGuide && (
           <div className="mb-8">
