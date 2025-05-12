@@ -10,13 +10,9 @@ export const useScrollToTop = () => {
   const { pathname } = useLocation();
   
   useEffect(() => {
-    // Simple, reliable approach - scroll to top when the route changes
     window.scrollTo({
       top: 0,
-      behavior: 'auto'
+      behavior: 'smooth'
     });
-    
-    // Always ensure body scroll is enabled on navigation
-    document.body.style.overflow = '';
   }, [pathname]);
 };

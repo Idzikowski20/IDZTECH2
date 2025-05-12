@@ -96,7 +96,7 @@ const About = () => {
             <div className="pt-4">
               <Link to="/about">
                 <Button 
-                  className={`bg-premium-gradient transition-opacity ${theme === 'light' ? 'text-black hover:text-white' : 'text-white hover:text-white'}`}
+                  className={`bg-premium-gradient hover:opacity-90 transition-opacity ${theme === 'light' ? 'text-black hover:text-white' : 'text-white hover:text-white'}`}
                 >
                   Poznaj nas lepiej
                 </Button>
