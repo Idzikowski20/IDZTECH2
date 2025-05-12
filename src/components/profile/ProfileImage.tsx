@@ -18,6 +18,13 @@ const ProfileImage = ({ user, previewImage, setPreviewImage, updateProfile }: Pr
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  const getRoleDisplay = (role: string | undefined) => {
+    if (role === 'admin') return 'Administrator';
+    if (role === 'moderator') return 'Moderator';
+    if (role === 'blogger') return 'Bloger';
+    return 'Użytkownik';
+  };
+
   const handleImageSelection = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -71,7 +78,7 @@ const ProfileImage = ({ user, previewImage, setPreviewImage, updateProfile }: Pr
         <h2 className="text-xl font-semibold">{user.name || 'Użytkownik'} {user.lastName || ''}</h2>
         <p className="text-premium-light/70">{user.email || ''}</p>
         <p className="text-sm mt-1 bg-premium-light/10 px-3 py-1 rounded-full inline-block">
-          {user.role === 'admin' ? 'Administrator' : 'Użytkownik'}
+          {getRoleDisplay(user.role)}
         </p>
         {user.jobTitle && <p className="text-sm mt-2">{user.jobTitle}</p>}
       </div>
