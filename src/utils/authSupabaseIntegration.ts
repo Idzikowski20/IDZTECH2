@@ -33,7 +33,7 @@ export const fetchSupabaseUsers = async (): Promise<void> => {
           postsCreated: 0,
           totalViews: 0,
           createdAt: user.created_at || new Date().toISOString(),
-          lastLogin: user.last_sign_in_at || new Date().toISOString(),
+          lastLogin: new Date().toISOString(), // Fixed: Use current time instead of accessing non-existent property
           commentsCount: 0,
           likesCount: 0,
           stats: {
@@ -49,8 +49,8 @@ export const fetchSupabaseUsers = async (): Promise<void> => {
         
         users.push(newUser);
       } else {
-        // Update last login time
-        user.lastLogin = new Date().toISOString();
+        // Update last login time for existing user
+        users[existingUserIndex].lastLogin = new Date().toISOString();
       }
     }
   } catch (error) {
