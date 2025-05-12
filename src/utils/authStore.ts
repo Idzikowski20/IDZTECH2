@@ -1,3 +1,4 @@
+
 // Main authentication store using zustand
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -15,6 +16,143 @@ import {
   supabaseResetPassword, 
   supabaseUpdatePassword 
 } from './authSupabaseIntegration';
+
+// Define missing functions
+const updateUserRole = async (userId: string, role: UserRole): Promise<boolean> => {
+  try {
+    // Try to update user role with Supabase
+    const { data, error } = await supabaseUpdateUserRole(userId, role);
+    
+    if (error) {
+      console.error("Error updating user role:", error);
+      
+      // Fall back to local user role update
+      const userIndex = users.findIndex(u => u.id === userId);
+      if (userIndex !== -1) {
+        users[userIndex].role = role;
+        return true;
+      }
+      
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error in updateUserRole:", error);
+    return false;
+  }
+};
+
+const getUserById = async (userId: string): Promise<User | undefined> => {
+  try {
+    // Find user in local store
+    const user = users.find(u => u.id === userId);
+    return user;
+  } catch (error) {
+    console.error("Error in getUserById:", error);
+    return undefined;
+  }
+};
+
+const forgotPassword = async (email: string): Promise<boolean> => {
+  try {
+    // Try Supabase reset password first
+    const { error } = await supabaseResetPassword(email);
+    
+    if (error) {
+      console.error("Supabase reset password error:", error);
+      
+      // Fall back to local password reset
+      const user = users.find(u => u.email === email);
+      if (!user) {
+        return false;
+      }
+      
+      // Create a reset token
+      const token = Math.random().toString(36).substring(2, 15);
+      const expires = new Date();
+      expires.setHours(expires.getHours() + 1); // Token expires in 1 hour
+      
+      resetTokens[email] = {
+        token,
+        expires
+      };
+      
+      console.log(`Reset password token for ${email}: ${token} (expires: ${expires})`);
+      return true;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error in forgotPassword:", error);
+    return false;
+  }
+};
+
+const resetPassword = async (email: string, token: string, newPassword: string): Promise<boolean> => {
+  try {
+    // Check if the user exists in our local store and if the token is valid
+    const resetData = resetTokens[email];
+    
+    if (!resetData) {
+      return false;
+    }
+    
+    if (resetData.token !== token) {
+      return false;
+    }
+    
+    if (new Date() > resetData.expires) {
+      delete resetTokens[email];
+      return false;
+    }
+    
+    // Update password
+    passwords[email] = newPassword;
+    
+    // Clear the reset token
+    delete resetTokens[email];
+    
+    return true;
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    return false;
+  }
+};
+
+const deleteUser = async (userId: string): Promise<boolean> => {
+  try {
+    // Try to delete with Supabase
+    const { error } = await supabaseDeleteUser(userId);
+    
+    if (error) {
+      console.error("Supabase delete user error:", error);
+      
+      // Fall back to local user deletion
+      const userIndex = users.findIndex(u => u.id === userId);
+      
+      if (userIndex === -1) {
+        return false;
+      }
+      
+      // Remove user from local store
+      const user = users[userIndex];
+      users.splice(userIndex, 1);
+      
+      // Also remove password
+      if (user.email && passwords[user.email]) {
+        delete passwords[user.email];
+      }
+      
+      return true;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error in deleteUser:", error);
+    return false;
+  }
+};
 
 export const useAuth = create<AuthState>()(
   persist(
@@ -330,15 +468,6 @@ export const useAuth = create<AuthState>()(
     }
   )
 );
-
-// Helper functions
-export const forgotPassword = (email: string) => {
-  return useAuth.getState().forgotPassword(email);
-};
-
-export const resetPassword = (email: string, token: string, newPassword: string) => {
-  return useAuth.getState().resetPassword(email, token, newPassword);
-};
 
 // Initialize by fetching Supabase users on load
 useAuth.getState().fetchSupabaseUsers();

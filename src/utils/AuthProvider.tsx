@@ -22,6 +22,7 @@ export interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ data?: any, error?: any }>;
   signOut: () => Promise<void>;
   signUp: (email: string, password: string, userData?: any) => Promise<{ data?: any, error?: any }>;
+  register: (email: string, name: string, password: string) => Promise<boolean>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
 }
@@ -172,6 +173,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error };
     }
   };
+
+  // Register function (local fallback for when Supabase signups are disabled)
+  const register = async (email: string, name: string, password: string) => {
+    try {
+      // Try to sign up with Supabase first
+      const { data, error } = await signUp(email, password, { name });
+      
+      // If signup is successful or fails for reasons other than "Signups not allowed", return the result
+      if (data || (error && error.message !== "Signups not allowed for this instance")) {
+        return !!data && !error;
+      }
+      
+      // If signup fails because signups are disabled, use local registration
+      const authStore = await import('./authStore');
+      const result = await authStore.useAuth.getState().register(email, name, password);
+      return result;
+    } catch (error) {
+      console.error("Error in register function:", error);
+      return false;
+    }
+  };
   
   // Sign out function
   const signOut = async () => {
@@ -250,6 +272,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     signUp,
+    register,
     resetPassword,
     updateProfile,
   };

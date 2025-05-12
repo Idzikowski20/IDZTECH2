@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -77,40 +78,20 @@ const Register = () => {
     setIsLoading(true);
     try {
       // First try with Supabase through our Auth provider
-      const { error } = await signUp(values.email, values.password, {
-        name: values.name,
-      });
+      const success = await register(values.email, values.name, values.password);
       
-      // If signUp fails, try the local registration
-      if (error && error.message === "Signups not allowed for this instance") {
-        // Use local registration
-        const success = await register(values.email, values.name, values.password);
-        
-        if (success) {
-          toast({
-            title: "Rejestracja udana",
-            description: "Teraz możesz się zalogować"
-          });
-          navigate('/login');
-        } else {
-          toast({
-            title: "Błąd rejestracji",
-            description: "Użytkownik o podanym adresie email już istnieje",
-            variant: "destructive"
-          });
-        }
-      } else if (error) {
-        toast({
-          title: "Błąd rejestracji",
-          description: error.message || "Wystąpił błąd podczas rejestracji",
-          variant: "destructive"
-        });
-      } else {
+      if (success) {
         toast({
           title: "Rejestracja udana",
           description: "Teraz możesz się zalogować"
         });
         navigate('/login');
+      } else {
+        toast({
+          title: "Błąd rejestracji",
+          description: "Użytkownik o podanym adresie email już istnieje lub wystąpił inny błąd",
+          variant: "destructive"
+        });
       }
     } catch (error: any) {
       toast({
