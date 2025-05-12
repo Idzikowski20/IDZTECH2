@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/utils/supabaseClient';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
@@ -40,11 +40,12 @@ export const useSupabaseNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   // Fetch notifications from Supabase
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user) {
       setNotifications([]);
       setUnreadCount(0);
@@ -54,6 +55,9 @@ export const useSupabaseNotifications = () => {
 
     try {
       setLoading(true);
+      setError(null);
+      console.log("Fetching notifications...");
+      
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -61,6 +65,7 @@ export const useSupabaseNotifications = () => {
 
       if (error) {
         console.error('Error fetching notifications:', error);
+        setError(`Nie udało się pobrać powiadomień: ${error.message}`);
         toast({
           title: "Błąd",
           description: "Nie udało się pobrać powiadomień",
@@ -68,6 +73,15 @@ export const useSupabaseNotifications = () => {
         });
         return;
       }
+
+      if (!data) {
+        console.log("No notifications data returned");
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
+      
+      console.log("Raw notifications data:", data);
 
       // Transform the Supabase data to match our Notification interface
       const transformedNotifications: Notification[] = await Promise.all(data.map(async notification => {
@@ -82,7 +96,7 @@ export const useSupabaseNotifications = () => {
               .single();
             
             if (userData) {
-              fromUserName = userData.name;
+              fromUserName = userData.name || '';
               if (userData.lastName) {
                 fromUserName += ` ${userData.lastName}`;
               }
@@ -105,7 +119,8 @@ export const useSupabaseNotifications = () => {
           fromUserName: fromUserName || 'Użytkownik', // Use fetched user name or default
         };
       }));
-
+      
+      console.log("Transformed notifications:", transformedNotifications);
       setNotifications(transformedNotifications);
       
       // Count unread notifications
@@ -113,10 +128,11 @@ export const useSupabaseNotifications = () => {
       setUnreadCount(unread);
     } catch (error) {
       console.error('Error in fetchNotifications:', error);
+      setError('Wystąpił nieoczekiwany błąd podczas pobierania powiadomień');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   // Add a new notification
   const addNotification = async (notification: Omit<Notification, 'id' | 'createdAt' | 'status'> & {status?: NotificationStatus}) => {
@@ -276,6 +292,9 @@ export const useSupabaseNotifications = () => {
   useEffect(() => {
     if (!user) return;
     
+    console.log("Setting up notifications listener for user:", user);
+    fetchNotifications();
+    
     const channel = supabase
       .channel('notifications-changes')
       .on(
@@ -286,22 +305,23 @@ export const useSupabaseNotifications = () => {
           table: 'notifications'
         },
         () => {
+          console.log("Received notification change event");
           fetchNotifications();
         }
       )
       .subscribe();
     
-    fetchNotifications();
-    
     return () => {
+      console.log("Cleaning up notifications listener");
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   return {
     notifications,
     unreadCount,
     loading,
+    error,
     addNotification,
     markAsRead,
     markAllAsRead,

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
@@ -21,7 +20,8 @@ import {
   Info, 
   FileText,
   ThumbsUp,
-  MessageSquare
+  MessageSquare,
+  RefreshCw
 } from 'lucide-react';
 import {
   Dialog,
@@ -35,6 +35,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const NotificationIcon = ({ type }: { type: string }) => {
   switch (type) {
@@ -92,7 +93,9 @@ const AdminNotifications = () => {
     updateNotificationStatus, 
     deleteNotification, 
     markAllAsRead,
-    loading: notificationsLoading 
+    loading: notificationsLoading,
+    error: notificationsError,
+    fetchNotifications
   } = useSupabaseNotifications();
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
@@ -102,6 +105,7 @@ const AdminNotifications = () => {
 
   console.log("AdminNotifications render - notifications:", notifications);
   console.log("AdminNotifications render - user:", user);
+  console.log("AdminNotifications render - error:", notificationsError);
   
   // Set loaded state after initial render - with delay to ensure notifications are loaded
   useEffect(() => {
@@ -174,6 +178,14 @@ const AdminNotifications = () => {
       description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
     });
   };
+  
+  const handleRetryFetch = () => {
+    fetchNotifications();
+    toast({
+      title: 'Odświeżanie',
+      description: 'Ponowne pobieranie powiadomień...',
+    });
+  };
 
   // If not loaded yet or notifications are still loading, show loading state
   if (!isLoaded || notificationsLoading) {
@@ -189,6 +201,35 @@ const AdminNotifications = () => {
   
   // If we're loaded but user is not authenticated, redirect handled by useEffect
 
+  // If there's an error loading notifications
+  if (notificationsError) {
+    return (
+      <AdminLayout>
+        <div className="p-6">
+          <h1 className="text-2xl font-bold">Powiadomienia</h1>
+          <Alert variant="destructive" className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Błąd</AlertTitle>
+            <AlertDescription>
+              Nie udało się pobrać powiadomień.
+              <div className="mt-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleRetryFetch}
+                  className="flex items-center gap-2"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Spróbuj ponownie
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="p-6">
@@ -197,13 +238,23 @@ const AdminNotifications = () => {
             <h1 className="text-2xl font-bold">Powiadomienia</h1>
             <p className="text-muted-foreground">Zarządzaj powiadomieniami systemu</p>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={handleMarkAllAsRead}
-            className="hover:bg-white hover:text-black"
-          >
-            Oznacz wszystkie jako przeczytane
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleRetryFetch}
+              className="flex items-center gap-2 hover:bg-white hover:text-black"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Odśwież
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleMarkAllAsRead}
+              className="hover:bg-white hover:text-black"
+            >
+              Oznacz wszystkie jako przeczytane
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="all">

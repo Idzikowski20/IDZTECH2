@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, AlertCircle, RefreshCw } from 'lucide-react';
 import { 
   Popover, 
   PopoverContent, 
@@ -12,9 +12,10 @@ import { useNavigate } from 'react-router-dom';
 import { useSupabaseNotifications, NotificationType } from '@/hooks/useSupabaseNotifications';
 import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const NotificationBell: React.FC = () => {
-  const { notifications, markAsRead, unreadCount } = useSupabaseNotifications();
+  const { notifications, markAsRead, unreadCount, error, fetchNotifications } = useSupabaseNotifications();
   const navigate = useNavigate();
 
   const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {
@@ -31,6 +32,12 @@ const NotificationBell: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     navigate('/admin/notifications');
+  };
+  
+  const handleRetryFetch = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fetchNotifications();
   };
 
   const getNotificationIcon = (type: NotificationType) => {
@@ -78,6 +85,7 @@ const NotificationBell: React.FC = () => {
 
   console.log("Notifications in bell component:", notifications);
   console.log("Unread count:", unreadCount);
+  console.log("Notification error:", error);
 
   return (
     <Popover>
@@ -101,7 +109,23 @@ const NotificationBell: React.FC = () => {
           )}
         </div>
         <ScrollArea className="h-[300px]">
-          {notifications.length === 0 ? (
+          {error ? (
+            <Alert variant="destructive" className="mt-2">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex flex-col gap-2">
+                Nie udało się pobrać powiadomień
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center gap-2 mt-1"
+                  onClick={handleRetryFetch}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Spróbuj ponownie
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
               Brak powiadomień
             </div>
