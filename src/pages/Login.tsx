@@ -23,6 +23,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [redirectChecked, setRedirectChecked] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -32,20 +33,21 @@ const Login = () => {
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
-  // Redirect if already logged in
+  // Set redirect checked to prevent immediate redirect on mount
   useEffect(() => {
-    console.log("Login page - Auth state:", {
-      isAuthenticated,
-      from,
-      currentPath: location.pathname,
-      user: user ? "User exists" : "No user"
-    });
-    
-    if (isAuthenticated && user) {
-      console.log("Already authenticated, redirecting to:", from);
+    const timer = setTimeout(() => {
+      setRedirectChecked(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Only redirect if already logged in AND redirect has been checked
+  useEffect(() => {
+    if (redirectChecked && isAuthenticated && user) {
+      console.log("Login page - User is authenticated, redirecting to:", from);
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, from, location.pathname, user]);
+  }, [isAuthenticated, navigate, from, user, redirectChecked]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,11 +75,8 @@ const Login = () => {
           variant: "destructive"
         });
         setIsLoading(false);
-      } else {
-        // Success - navigate in the useEffect above will handle redirection
-        console.log("Login successful");
-        // We don't need to manually redirect here as the useEffect will handle it
       }
+      // Success will be handled by the redirect in useEffect
     } catch (error: any) {
       console.error("Unexpected login error:", error);
       toast({
@@ -88,6 +87,15 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  // If we're still loading auth state, show a loading indicator
+  if (!redirectChecked) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-10 w-10 animate-spin text-premium-purple" />
+      </div>
+    );
+  }
 
   return (
     <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>

@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,8 +14,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/utils/authStore';
+import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const loginFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
@@ -29,7 +31,8 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // Using login from auth store
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth(); // Using signIn from AuthProvider
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
@@ -42,34 +45,40 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   });
 
   const onSubmit = async (data: z.infer<typeof loginFormSchema>) => {
+    setIsLoading(true);
+    
     try {
-      const success = await login(data.email, data.password, data.rememberMe);
+      const { error } = await signIn(data.email, data.password, data.rememberMe);
       
-      if (success) {
-        toast({
-          title: "Zalogowano pomyślnie",
-          description: "Witamy z powrotem!"
-        });
-        
-        if (onSuccess) {
-          setTimeout(() => {
-            onSuccess();
-          }, 0);
-        }
-        // Przekierowania obsłuży AuthProvider
-      } else {
+      if (error) {
         toast({
           title: "Błąd logowania",
-          description: "Nieprawidłowy email lub hasło",
+          description: error.message || "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
+      
+      toast({
+        title: "Zalogowano pomyślnie",
+        description: "Witamy z powrotem!"
+      });
+      
+      if (onSuccess) {
+        setTimeout(() => {
+          onSuccess();
+        }, 0);
+      }
+      // Redirect will be handled by AuthProvider
+      
+    } catch (error: any) {
       toast({
         title: "Błąd logowania",
         description: "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
+      setIsLoading(false);
     }
   };
 
@@ -125,8 +134,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
             </Button>
           </div>
           
-          <Button type="submit" className="w-full bg-premium-gradient hover:bg-premium-gradient/90">
-            Zaloguj się
+          <Button 
+            type="submit" 
+            className="w-full bg-premium-gradient hover:bg-premium-gradient/90"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="flex items-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logowanie
+              </span>
+            ) : "Zaloguj się"}
           </Button>
           
           <div className="text-center mt-4">

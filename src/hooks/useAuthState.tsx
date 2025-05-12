@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,19 +12,20 @@ export const useAuthState = (navigate: any, location: any) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
+  const authInProgress = useRef(false);
 
   console.log("useAuthState initialized, current path:", location.pathname);
 
   useEffect(() => {
     console.log("Setting up auth listeners");
     
-    // Create a flag to prevent duplicate initializations
-    let initiated = false;
+    // Create flags to manage state
     let processingAuth = false;
+    const abortController = new AbortController();
 
     // First set up auth state listener (before checking session)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         console.log("Auth state changed:", event);
         
         if (processingAuth) return;
@@ -38,6 +39,8 @@ export const useAuthState = (navigate: any, location: any) => {
               // Use setTimeout to avoid potential Supabase auth deadlock
               setTimeout(async () => {
                 try {
+                  if (abortController.signal.aborted) return;
+                  
                   // Fetch additional profile data if user is logged in
                   const profileData = await fetchUserProfile(currentSession.user.id);
                   
@@ -53,15 +56,17 @@ export const useAuthState = (navigate: any, location: any) => {
                   
                   setIsAuthenticated(true);
                   
-                  // Handle redirection on login
-                  if (event === 'SIGNED_IN' && location.pathname === '/login') {
-                    console.log("Redirecting to /admin after login");
-                    navigate('/admin');
+                  // Handle login redirection after a delay to prevent loops
+                  if (event === 'SIGNED_IN') {
+                    console.log("Sign-in event detected");
+                    // Don't auto-redirect from the login page to prevent loops
+                    authInProgress.current = false;
                   }
                 } catch (error) {
                   console.error("Error processing auth state change:", error);
                 } finally {
                   processingAuth = false;
+                  setLoading(false);
                 }
               }, 0);
             }
@@ -70,17 +75,20 @@ export const useAuthState = (navigate: any, location: any) => {
             setIsAuthenticated(false);
             setSession(null);
             processingAuth = false;
+            setLoading(false);
           }
         } catch (error) {
           console.error("Error in auth state change handler:", error);
           processingAuth = false;
+          setLoading(false);
         }
       }
     );
 
-    // Then check for existing session
+    // Check for existing session
     const checkSession = async () => {
-      if (initiated) return;
+      if (authInProgress.current) return;
+      authInProgress.current = true;
       
       try {
         console.log("Getting session");
@@ -88,7 +96,6 @@ export const useAuthState = (navigate: any, location: any) => {
         console.log("Session data:", currentSession ? "Session exists" : "No session");
         
         if (currentSession?.user) {
-          initiated = true;
           setSession(currentSession);
           
           // Fetch additional profile data if user is logged in
@@ -112,14 +119,23 @@ export const useAuthState = (navigate: any, location: any) => {
       } catch (error) {
         console.error("Auth initialization error:", error);
       } finally {
+        authInProgress.current = false;
         setLoading(false);
       }
     };
     
-    checkSession();
+    // Add a slight delay before checking session to ensure proper initialization
+    const timer = setTimeout(() => {
+      if (!abortController.signal.aborted) {
+        checkSession();
+      }
+    }, 100);
 
     return () => {
+      abortController.abort();
+      clearTimeout(timer);
       subscription.unsubscribe();
+      authInProgress.current = false;
     };
   }, [navigate, toast, location.pathname]);
 

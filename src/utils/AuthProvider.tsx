@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useAuthState } from "@/hooks/useAuthState";
 import { useProfileManager } from "@/hooks/useProfileManager";
 import { AuthContext, AuthContextType } from "@/contexts/AuthContext";
@@ -11,6 +11,7 @@ export type { ExtendedUserProfile } from "@/contexts/AuthContext";
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [authInitialized, setAuthInitialized] = useState(false);
   
   const { 
     user, 
@@ -25,12 +26,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   const { updateProfile } = useProfileManager(user);
 
+  // Mark authentication as initialized after a delay to ensure proper state
+  useEffect(() => {
+    if (!loading && !authInitialized) {
+      const timer = setTimeout(() => {
+        setAuthInitialized(true);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading, authInitialized]);
+
   // Add isLoading as an alias to loading to maintain backward compatibility
   const value: AuthContextType = {
     user,
     session,
-    loading,
-    isLoading: loading, // Add this line to fix the error
+    loading: loading || !authInitialized,
+    isLoading: loading || !authInitialized,
     isAuthenticated,
     signIn,
     signOut,
