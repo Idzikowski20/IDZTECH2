@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/utils/authStore';
+import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileSection from '@/components/profile/ProfileSection';
@@ -40,7 +40,7 @@ const Profile = () => {
     profilePicture: user.profilePicture || '',
     bio: user.bio || '',
     jobTitle: user.jobTitle || '',
-  } as unknown as (ExtendedUserProfile & User);
+  } as User & ExtendedUserProfile;
 
   return (
     <AdminLayout>

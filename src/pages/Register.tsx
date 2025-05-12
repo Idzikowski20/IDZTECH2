@@ -15,6 +15,7 @@ import PageDotAnimation from '@/components/PageDotAnimation';
 import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 import { isPasswordCompromised, passwordSchema } from '@/utils/passwordValidation';
 import { useAuth } from '@/utils/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
 
 // Enhanced register schema with custom password validation
 const registerSchema = z.object({
@@ -77,20 +78,63 @@ const Register = () => {
     setIsLoading(true);
     try {
       console.log("Attempting to register user:", values.email);
-      const success = await register(values.email, values.name, values.password);
       
-      if (success) {
+      // First try to register with Supabase directly
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            name: values.name,
+            full_name: values.name
+          }
+        }
+      });
+      
+      if (error && error.message === "User already registered") {
+        toast({
+          title: "Użytkownik już istnieje",
+          description: "Adres email jest już zarejestrowany w systemie",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      } else if (error) {
+        console.error("Supabase registration error:", error);
+        
+        // Fall back to local auth if Supabase fails
+        const success = await register(values.email, values.name, values.password);
+        
+        if (success) {
+          toast({
+            title: "Rejestracja udana",
+            description: "Teraz możesz się zalogować"
+          });
+          navigate('/login');
+        } else {
+          toast({
+            title: "Błąd rejestracji",
+            description: "Użytkownik o podanym adresie email już istnieje lub wystąpił inny błąd",
+            variant: "destructive"
+          });
+        }
+      } else {
+        // Supabase registration succeeded
+        console.log("Supabase registration successful:", data);
+        
+        // Create profile record
+        await supabase.from('profiles').upsert({
+          id: data.user?.id,
+          email: values.email,
+          name: values.name,
+          created_at: new Date().toISOString()
+        });
+        
         toast({
           title: "Rejestracja udana",
           description: "Teraz możesz się zalogować"
         });
         navigate('/login');
-      } else {
-        toast({
-          title: "Błąd rejestracji",
-          description: "Użytkownik o podanym adresie email już istnieje lub wystąpił inny błąd",
-          variant: "destructive"
-        });
       }
     } catch (error: any) {
       toast({

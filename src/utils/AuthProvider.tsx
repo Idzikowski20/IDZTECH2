@@ -26,6 +26,7 @@ export interface AuthContextType {
   register: (email: string, name: string, password: string) => Promise<boolean>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
+  getCurrentUser: () => (User & ExtendedUserProfile) | null;
 }
 
 // Create auth context
@@ -54,13 +55,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentSession) {
           console.log("Session exists in auth state change");
           setSession(currentSession);
+          
+          // Fetch profile data
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', currentSession.user.id)
+            .single();
+          
           setUser({
             ...currentSession.user,
-            name: currentSession.user.user_metadata?.name || null,
-            lastName: currentSession.user.user_metadata?.lastName || null,
-            profilePicture: currentSession.user.user_metadata?.profilePicture || null,
-            bio: currentSession.user.user_metadata?.bio || null,
-            jobTitle: currentSession.user.user_metadata?.jobTitle || null
+            name: profileData?.name || currentSession.user.user_metadata?.name || null,
+            lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
+            profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
+            bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
+            jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
           });
           setIsAuthenticated(true);
         } else {
@@ -134,6 +143,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
   
+  // Get current user function
+  const getCurrentUser = () => {
+    return user;
+  };
+  
   // Sign in function
   const signIn = async (email: string, password: string) => {
     try {
@@ -187,6 +201,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
       
+      // Create profile
+      if (user) {
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          name: userData.name,
+          created_at: new Date().toISOString()
+        });
+        
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+        }
+      }
+      
       console.log("Sign up successful:", user?.id);
       return { data: { session, user }, error: null };
     } catch (error) {
@@ -200,9 +228,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, name: string, password: string) => {
     try {
       setLoading(true);
-      const success = await registerUser(email, name, password);
+      
+      // Try to sign up with Supabase first
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { 
+            name,
+            full_name: name
+          }
+        }
+      });
+      
+      if (error) {
+        console.log("Supabase registration error, falling back to local auth:", error);
+        // Fall back to local auth registration
+        const success = await registerUser(email, name, password);
+        setLoading(false);
+        return success;
+      }
+      
+      // If Supabase registration succeeded, create a profile
+      if (data.user) {
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email: data.user.email,
+          name: name,
+          created_at: new Date().toISOString()
+        });
+        
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+        }
+      }
+      
       setLoading(false);
-      return success;
+      return true;
     } catch (error) {
       console.error("Error in register function:", error);
       setLoading(false);
@@ -256,15 +318,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user?.id) return;
       
-      const { success, error } = await updateUserProfile(user.id, data);
-      
-      if (error) {
-        toast({
-          title: "Błąd aktualizacji profilu",
-          description: error.message,
-          variant: "destructive",
+      // Update Supabase profile first
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          ...data
         });
-        return;
+      
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
+        throw profileError;
+      }
+      
+      // Also update user metadata
+      const { error: userError } = await supabase.auth.updateUser({
+        data: data
+      });
+      
+      if (userError) {
+        console.error("Error updating user metadata:", userError);
+        // Continue anyway since we updated the profile
       }
       
       setUser(prev => prev ? { ...prev, ...data } : null);
@@ -294,6 +368,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     register,
     resetPassword,
     updateProfile,
+    getCurrentUser,
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

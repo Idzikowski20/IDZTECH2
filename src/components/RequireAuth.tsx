@@ -15,7 +15,7 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // If user is authenticated, ensure proper navigation
+    // Only redirect from login page to admin if authenticated
     if (isAuthenticated && user && location.pathname === "/login") {
       console.log("User is authenticated, redirecting to /admin");
       navigate("/admin", { replace: true });

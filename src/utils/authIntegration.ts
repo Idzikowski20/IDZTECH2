@@ -12,16 +12,26 @@ export const integrateAuth = async () => {
     
     if (session) {
       console.log('Using Supabase authentication');
+      
+      // Get profile data if available
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
       return { 
         provider: 'supabase', 
         session,
         user: {
           ...session.user,
-          name: session.user.user_metadata?.name || null,
-          lastName: session.user.user_metadata?.lastName || null,
-          profilePicture: session.user.user_metadata?.profilePicture || null,
-          bio: session.user.user_metadata?.bio || null,
-          jobTitle: session.user.user_metadata?.jobTitle || null
+          name: profileData?.name || session.user.user_metadata?.name || null,
+          lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
+          profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
+          bio: profileData?.bio || session.user.user_metadata?.bio || null,
+          jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null,
+          // Needed for compatibility with local auth
+          createdAt: profileData?.created_at || session.user.created_at || new Date().toISOString()
         }
       };
     } else {
@@ -56,7 +66,7 @@ export const integrateAuth = async () => {
 export const registerUser = async (email: string, name: string, password: string) => {
   try {
     // First try Supabase
-    const { data: { session }, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -64,15 +74,28 @@ export const registerUser = async (email: string, name: string, password: string
       }
     });
     
-    // If Supabase signup works, return success
-    if (session && !error) {
+    // If Supabase signup works, create a profile
+    if (data.user && !error) {
       console.log('Registered user with Supabase');
+      
+      // Create profile
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: data.user.id,
+        email: data.user.email,
+        name: name,
+        created_at: new Date().toISOString()
+      });
+      
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
+      }
+      
       return true;
     }
     
-    // If the error is because signups are disabled, try local auth
-    if (error && error.message === "Signups not allowed for this instance") {
-      console.log('Supabase signups disabled, using local auth');
+    // If the error is because signups are disabled or other Supabase error, try local auth
+    if (error) {
+      console.log('Supabase signups error, using local auth:', error.message);
       const success = await authStore.useAuth.getState().register(email, name, password);
       
       if (success) {
@@ -82,6 +105,7 @@ export const registerUser = async (email: string, name: string, password: string
     }
     
     // If we get here, registration failed
+    console.error("Registration failed");
     return false;
   } catch (error) {
     console.error('Error during registration:', error);
@@ -93,24 +117,45 @@ export const registerUser = async (email: string, name: string, password: string
 export const loginUser = async (email: string, password: string) => {
   try {
     // First try Supabase
-    const { data: { session }, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     });
     
     // If Supabase login works, return success
-    if (session && !error) {
+    if (data.session && !error) {
       console.log('Logged in with Supabase');
+      
+      // Check if profile exists, if not create it
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user.id)
+        .single();
+      
+      if (!profileData) {
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.user_metadata?.name || email.split('@')[0],
+          created_at: new Date().toISOString()
+        });
+        
+        if (profileError) {
+          console.error("Error creating profile during login:", profileError);
+        }
+      }
+      
       return { 
         success: true, 
         provider: 'supabase',
-        data: { session },
+        data,
         error: null
       };
     }
     
     // Try local auth if Supabase fails
-    if (!session || error) {
+    if (!data.session || error) {
       console.log('Supabase login failed, trying local auth');
       const success = await authStore.useAuth.getState().login(email, password);
       
@@ -152,7 +197,20 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session && session.user.id === userId) {
-      // Update Supabase user metadata
+      // Update Supabase profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          ...userData
+        });
+      
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
+        return { success: false, error: profileError };
+      }
+      
+      // Also update user metadata
       const { error } = await supabase.auth.updateUser({
         data: userData
       });
