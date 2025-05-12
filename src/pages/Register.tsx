@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -32,7 +31,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isPassCompromised, setIsPassCompromised] = useState(false);
-  const { signUp, register } = useAuth();
+  const { register } = useAuth();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -77,7 +76,7 @@ const Register = () => {
     
     setIsLoading(true);
     try {
-      // First try with Supabase through our Auth provider
+      console.log("Attempting to register user:", values.email);
       const success = await register(values.email, values.name, values.password);
       
       if (success) {

@@ -1,476 +1,274 @@
 
-// Main authentication store using zustand
+// This file defines the local auth store as a backup for when Supabase auth is disabled
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { AuthState, User, UserRole } from './authTypes';
-import { users, passwords, resetTokens } from './authUtils';
-import { refreshUserStats, getUserRanking, getTopUser, getTopUserOfMonth } from './authStatsFunctions';
-import { 
-  fetchSupabaseUsers, 
-  supabaseSignIn, 
-  supabaseSignUp, 
-  supabaseSignOut, 
-  supabaseCreateUser, 
-  supabaseUpdateUserRole, 
-  supabaseDeleteUser, 
-  supabaseResetPassword, 
-  supabaseUpdatePassword 
-} from './authSupabaseIntegration';
+import { supabaseUpdateUserRole } from './authSupabaseIntegration';
+import { User, UserRole } from './authTypes';
+import { Password } from './passwordValidation';
 
-// Define missing functions
-const updateUserRole = async (userId: string, role: UserRole): Promise<boolean> => {
-  try {
-    // Try to update user role with Supabase
-    const { data, error } = await supabaseUpdateUserRole(userId, role);
-    
-    if (error) {
-      console.error("Error updating user role:", error);
-      
-      // Fall back to local user role update
-      const userIndex = users.findIndex(u => u.id === userId);
-      if (userIndex !== -1) {
-        users[userIndex].role = role;
-        return true;
-      }
-      
-      return false;
+// Initial users
+let users: User[] = [
+  {
+    id: '1',
+    email: 'admin@example.com',
+    name: 'Admin',
+    role: 'admin',
+    profilePicture: '',
+    lastName: '',
+    bio: '',
+    jobTitle: '',
+    postsCreated: 0,
+    commentsCount: 0,
+    likesCount: 0,
+    totalViews: 0,
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString(),
+    stats: {
+      views: 0,
+      posts: 0,
+      comments: 0,
+      likes: 0,
+      pointsTotal: 0,
+      pointsThisMonth: 0,
+      lastUpdated: new Date().toISOString()
     }
+  }
+];
+
+// Store for user passwords (in a real app, this would use proper hashing)
+export const passwords: { [email: string]: string } = {
+  'admin@example.com': 'Password123!'
+};
+
+// Helper to update users array and return the new array
+export const updateUsersArray = (updatedUsers: User[]) => {
+  users = updatedUsers;
+  return users;
+};
+
+// Get user by ID
+export const getUserById = (userId: string): User | undefined => {
+  return users.find(user => user.id === userId);
+};
+
+// Function to update user role safely
+export const updateUserRole = async (userId: string, role: UserRole): Promise<boolean> => {
+  try {
+    const userIndex = users.findIndex(user => user.id === userId);
+    
+    if (userIndex === -1) return false;
+    
+    // First try to update in Supabase if it's a Supabase user
+    if (userId.indexOf('local-') !== 0) {
+      const result = await supabaseUpdateUserRole(userId, role);
+      if (result.error) {
+        console.error("Error updating role in Supabase:", result.error);
+      }
+    }
+    
+    // Always update in local store
+    const updatedUsers = [...users];
+    updatedUsers[userIndex].role = role;
+    updateUsersArray(updatedUsers);
     
     return true;
   } catch (error) {
-    console.error("Error in updateUserRole:", error);
+    console.error("Error updating user role:", error);
     return false;
   }
 };
 
-const getUserById = async (userId: string): Promise<User | undefined> => {
-  try {
-    // Find user in local store
-    const user = users.find(u => u.id === userId);
-    return user;
-  } catch (error) {
-    console.error("Error in getUserById:", error);
-    return undefined;
-  }
-};
+// Local Auth Store
+interface AuthStore {
+  currentUserId: string | null;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
+  register: (email: string, name: string, password: string) => Promise<boolean>;
+  forgotPassword: (email: string) => Promise<boolean>;
+  resetPassword: (email: string, password: string) => Promise<boolean>;
+  updateUser: (userId: string, data: Partial<User>) => Promise<boolean>;
+  deleteUser: (userId: string) => Promise<boolean>;
+  getUsers: () => User[];
+  getCurrentUser: () => User | null;
+}
 
-const forgotPassword = async (email: string): Promise<boolean> => {
-  try {
-    // Try Supabase reset password first
-    const { error } = await supabaseResetPassword(email);
-    
-    if (error) {
-      console.error("Supabase reset password error:", error);
-      
-      // Fall back to local password reset
-      const user = users.find(u => u.email === email);
-      if (!user) {
-        return false;
-      }
-      
-      // Create a reset token
-      const token = Math.random().toString(36).substring(2, 15);
-      const expires = new Date();
-      expires.setHours(expires.getHours() + 1); // Token expires in 1 hour
-      
-      resetTokens[email] = {
-        token,
-        expires
-      };
-      
-      console.log(`Reset password token for ${email}: ${token} (expires: ${expires})`);
-      return true;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("Error in forgotPassword:", error);
-    return false;
-  }
-};
-
-const resetPassword = async (email: string, token: string, newPassword: string): Promise<boolean> => {
-  try {
-    // Check if the user exists in our local store and if the token is valid
-    const resetData = resetTokens[email];
-    
-    if (!resetData) {
-      return false;
-    }
-    
-    if (resetData.token !== token) {
-      return false;
-    }
-    
-    if (new Date() > resetData.expires) {
-      delete resetTokens[email];
-      return false;
-    }
-    
-    // Update password
-    passwords[email] = newPassword;
-    
-    // Clear the reset token
-    delete resetTokens[email];
-    
-    return true;
-  } catch (error) {
-    console.error("Error in resetPassword:", error);
-    return false;
-  }
-};
-
-const deleteUser = async (userId: string): Promise<boolean> => {
-  try {
-    // Try to delete with Supabase
-    const { error } = await supabaseDeleteUser(userId);
-    
-    if (error) {
-      console.error("Supabase delete user error:", error);
-      
-      // Fall back to local user deletion
-      const userIndex = users.findIndex(u => u.id === userId);
-      
-      if (userIndex === -1) {
-        return false;
-      }
-      
-      // Remove user from local store
-      const user = users[userIndex];
-      users.splice(userIndex, 1);
-      
-      // Also remove password
-      if (user.email && passwords[user.email]) {
-        delete passwords[user.email];
-      }
-      
-      return true;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("Error in deleteUser:", error);
-    return false;
-  }
-};
-
-export const useAuth = create<AuthState>()(
+// Create the auth store
+export const useAuth = create<AuthStore>()(
   persist(
     (set, get) => ({
-      user: null,
+      currentUserId: null,
       isAuthenticated: false,
-      rememberMe: false,
-      loading: false,
       
-      fetchSupabaseUsers,
-      
-      // Adding login function as an alias to signIn to match the AuthState interface
-      login: async (email: string, password: string, remember = false) => {
-        // Just delegate to the existing signIn function
-        return await get().signIn(email, password, remember);
-      },
-      
-      signIn: async (email: string, password: string, remember = false) => {
-        // Add loading state
-        set({ loading: true });
-        
+      // Login
+      login: async (email: string, password: string) => {
         try {
-          // Try to login with Supabase first
-          const { data: supaData, error: supaError } = await supabaseSignIn(email, password);
-
-          if (supaData?.user) {
-            // Make sure user exists in our local store
-            let user = users.find((u) => u.email === email);
-            
-            if (!user) {
-              // Create a new user entry if they don't exist locally
-              const role: UserRole = email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
-              
-              user = {
-                id: supaData.user.id,
-                email: supaData.user.email || '',
-                name: supaData.user.user_metadata?.name || email.split('@')[0],
-                role,
-                profilePicture: supaData.user.user_metadata?.avatar_url || '',
-                lastName: supaData.user.user_metadata?.last_name || '',
-                createdAt: supaData.user.created_at,
-                lastLogin: new Date().toISOString(),
-                stats: {
-                  views: 0,
-                  posts: 0,
-                  comments: 0,
-                  likes: 0,
-                  pointsTotal: 0,
-                  pointsThisMonth: 0,
-                  lastUpdated: new Date().toISOString()
-                }
-              };
-              
-              users.push(user);
-            } else {
-              // Update last login time
-              user.lastLogin = new Date().toISOString();
-            }
-            
-            set({ user, isAuthenticated: true, rememberMe: remember, loading: false });
-            return true;
-          } else if (supaError) {
-            // Fallback to mock login system
-            const mockUser = users.find((u) => u.email === email);
-            
-            if (mockUser && passwords[email] === password) {
-              mockUser.lastLogin = new Date().toISOString();
-              set({ user: mockUser, isAuthenticated: true, rememberMe: remember, loading: false });
-              console.log("Successfully logged in with local auth");
-              return true;
-            }
+          const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+          const storedPassword = passwords[email.toLowerCase()];
+          
+          if (!user || !storedPassword || storedPassword !== password) {
+            return false;
           }
           
-          set({ loading: false });
-          return false;
+          // Update last login
+          const updatedUsers = users.map(u => 
+            u.id === user.id 
+              ? { ...u, lastLogin: new Date().toISOString() } 
+              : u
+          );
+          
+          updateUsersArray(updatedUsers);
+          
+          set({ currentUserId: user.id, isAuthenticated: true });
+          return true;
         } catch (error) {
-          console.error('Login error:', error);
-          set({ loading: false });
+          console.error("Login error:", error);
           return false;
         }
       },
       
+      // Logout
+      logout: async () => {
+        set({ currentUserId: null, isAuthenticated: false });
+      },
+      
+      // Register
       register: async (email: string, name: string, password: string) => {
         try {
-          // Try to register with Supabase
-          const { data: supaData, error: supaError } = await supabaseSignUp(email, password, { name });
-
-          if (supaData?.user) {
-            // Create new user in local store
-            const newUser: User = {
-              id: supaData.user.id,
-              email,
-              name,
-              role: 'user',
-              profilePicture: '',
-              lastName: '',
-              bio: '',
-              jobTitle: '',
-              postsCreated: 0,
-              totalViews: 0,
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              commentsCount: 0,
-              likesCount: 0,
-              stats: {
-                views: 0,
-                posts: 0,
-                comments: 0,
-                likes: 0,
-                pointsTotal: 0,
-                pointsThisMonth: 0,
-                lastUpdated: new Date().toISOString()
-              }
-            };
-            
-            // Add to local users
-            users.push(newUser);
-            
-            // Auto login after registration
-            set({ user: newUser, isAuthenticated: true });
-            return true;
-          } else if (supaError && supaError.message === "Signups not allowed for this instance") {
-            // Fallback to mock registration
-            // Check if user already exists
-            if (users.some((u) => u.email === email)) {
-              return false;
+          const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+          
+          if (existingUser) {
+            return false;
+          }
+          
+          // Create user
+          const newUser: User = {
+            id: `local-${Date.now()}`,
+            email: email.toLowerCase(),
+            name,
+            role: 'user',
+            profilePicture: '',
+            lastName: '',
+            bio: '',
+            jobTitle: '',
+            postsCreated: 0,
+            commentsCount: 0,
+            likesCount: 0,
+            totalViews: 0,
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            stats: {
+              views: 0,
+              posts: 0,
+              comments: 0,
+              likes: 0,
+              pointsTotal: 0,
+              pointsThisMonth: 0,
+              lastUpdated: new Date().toISOString()
             }
-            
-            // Create new user
-            const newUser: User = {
-              id: String(users.length + 1),
-              email,
-              name,
-              role: 'user',
-              profilePicture: '',
-              lastName: '',
-              bio: '',
-              jobTitle: '',
-              postsCreated: 0,
-              totalViews: 0,
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              commentsCount: 0,
-              likesCount: 0,
-              stats: {
-                views: 0,
-                posts: 0,
-                comments: 0,
-                likes: 0,
-                pointsTotal: 0,
-                pointsThisMonth: 0,
-                lastUpdated: new Date().toISOString()
-              }
-            };
-            
-            // In a real app, you would hash the password and save to a database
-            users.push(newUser);
-            passwords[email] = password;
-            
-            // Auto login after registration
-            set({ user: newUser, isAuthenticated: true });
-            console.log("Successfully created local user", newUser);
-            return true;
-          }
-
-          return false;
-        } catch (error) {
-          console.error('Registration error:', error);
-          return false;
-        }
-      },
-      
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
-        supabaseSignOut();
-      },
-      
-      signOut: () => {
-        set({ user: null, isAuthenticated: false });
-        supabaseSignOut();
-      },
-      
-      updateProfile: (data) => {
-        const { user } = get();
-        if (user) {
-          const updatedUser = { ...user, ...data };
-          set({ user: updatedUser });
+          };
           
-          // Update in "database" as well
-          const index = users.findIndex(u => u.id === user.id);
-          if (index !== -1) {
-            users[index] = updatedUser;
-          }
-        }
-      },
-      
-      updatePassword: async (currentPassword: string, newPassword: string) => {
-        const { user } = get();
-        if (!user) return false;
-        
-        // Verify the current password
-        if (passwords[user.email] !== currentPassword) {
+          // Add user and password
+          updateUsersArray([...users, newUser]);
+          passwords[email.toLowerCase()] = password;
+          
+          return true;
+        } catch (error) {
+          console.error("Registration error:", error);
           return false;
         }
-        
-        // Update the password
-        passwords[user.email] = newPassword;
-        return true;
       },
       
-      getUsers: async () => {
+      // Forgot password
+      forgotPassword: async (email: string) => {
         try {
-          // First try to fetch data from Supabase, but don't block on errors
-          await get().fetchSupabaseUsers().catch(err => console.log("Couldn't fetch Supabase users:", err));
-        } catch (e) {
-          console.log("Error fetching Supabase users, continuing with local users");
-        }
-        
-        // Refresh user stats before returning
-        get().refreshUserStats();
-        return [...users];
-      },
-      
-      addUser: async (userData, password) => {
-        // Check if email already exists
-        if (users.some(u => u.email === userData.email)) {
+          const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+          return !!user;
+        } catch (error) {
+          console.error("Forgot password error:", error);
           return false;
         }
-
+      },
+      
+      // Reset password
+      resetPassword: async (email: string, password: string) => {
         try {
-          // Try to create user with our modified function that uses regular signup
-          const { data, error } = await supabaseCreateUser(userData.email, password, {
-            name: userData.name,
-            last_name: userData.lastName,
-            role: userData.role
-          });
-
-          if (error && error.message !== "Signups not allowed for this instance") {
-            console.error("Error creating user:", error);
-            
-            // Try local-only user creation as fallback
-            const newUser: User = {
-              ...userData,
-              id: `local-${Date.now()}`,
-              postsCreated: 0,
-              totalViews: 0,
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              commentsCount: 0,
-              likesCount: 0,
-              stats: {
-                views: 0,
-                posts: 0,
-                comments: 0,
-                likes: 0,
-                pointsTotal: 0,
-                pointsThisMonth: 0,
-                lastUpdated: new Date().toISOString()
-              }
-            };
-
-            users.push(newUser);
-            passwords[userData.email] = password;
-            console.log("Created local user:", newUser);
-            return true;
-          }
-
-          if (data?.user) {
-            const newUser: User = {
-              ...userData,
-              id: data.user.id,
-              postsCreated: 0,
-              totalViews: 0,
-              createdAt: data.user.created_at || new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              commentsCount: 0,
-              likesCount: 0,
-              stats: {
-                views: 0,
-                posts: 0,
-                comments: 0,
-                likes: 0,
-                pointsTotal: 0,
-                pointsThisMonth: 0,
-                lastUpdated: new Date().toISOString()
-              }
-            };
-
-            users.push(newUser);
-            passwords[userData.email] = password;
-            return true;
+          const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+          
+          if (!user) {
+            return false;
           }
           
-          return false;
+          passwords[email.toLowerCase()] = password;
+          return true;
         } catch (error) {
-          console.error("Error in addUser:", error);
+          console.error("Reset password error:", error);
           return false;
         }
       },
       
-      updateUserRole,
-      getUserById,
-      getTopUser,
-      getTopUserOfMonth,
-      getUserRanking,
-      forgotPassword,
-      resetPassword,
-      deleteUser,
-      refreshUserStats,
+      // Update user
+      updateUser: async (userId: string, data: Partial<User>) => {
+        try {
+          const userIndex = users.findIndex(u => u.id === userId);
+          
+          if (userIndex === -1) {
+            return false;
+          }
+          
+          const updatedUsers = [...users];
+          updatedUsers[userIndex] = {
+            ...updatedUsers[userIndex],
+            ...data
+          };
+          
+          updateUsersArray(updatedUsers);
+          return true;
+        } catch (error) {
+          console.error("Update user error:", error);
+          return false;
+        }
+      },
+      
+      // Delete user
+      deleteUser: async (userId: string) => {
+        try {
+          const userIndex = users.findIndex(u => u.id === userId);
+          
+          if (userIndex === -1) {
+            return false;
+          }
+          
+          const userEmail = users[userIndex].email;
+          
+          const updatedUsers = users.filter(u => u.id !== userId);
+          updateUsersArray(updatedUsers);
+          
+          // Remove password
+          if (passwords[userEmail.toLowerCase()]) {
+            delete passwords[userEmail.toLowerCase()];
+          }
+          
+          return true;
+        } catch (error) {
+          console.error("Delete user error:", error);
+          return false;
+        }
+      },
+      
+      // Get users
+      getUsers: () => {
+        return users;
+      },
+      
+      // Get current user
+      getCurrentUser: () => {
+        const { currentUserId } = get();
+        if (!currentUserId) return null;
+        
+        return users.find(u => u.id === currentUserId) || null;
+      }
     }),
-    {
-      name: 'auth-storage',
-    }
+    { name: "auth-store" }
   )
 );
-
-// Initialize by fetching Supabase users on load
-useAuth.getState().fetchSupabaseUsers();
-
-// Re-export types for easier imports
-export type { User, UserRole, UserStats, AuthState } from './authTypes';

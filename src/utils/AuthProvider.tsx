@@ -3,6 +3,7 @@ import React, { useState, useEffect, createContext, useContext } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import type { User, Session } from "@supabase/supabase-js";
+import { integrateAuth, registerUser, loginUser, updateUserProfile } from "./authIntegration";
 
 // Define extended user profile interface
 export interface ExtendedUserProfile {
@@ -45,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Set up auth state listener FIRST to prevent missing auth events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
         console.log("Auth state changed:", event);
         
         if (!isMounted) return;
@@ -64,12 +65,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsAuthenticated(true);
         } else {
           console.log("No session in auth state change");
-          setSession(null);
-          setUser(null);
-          setIsAuthenticated(false);
+          
+          // Check for local auth before clearing state
+          setTimeout(async () => {
+            try {
+              const localAuth = await integrateAuth();
+              
+              if (localAuth.user && localAuth.provider === 'local') {
+                setUser(localAuth.user as User & ExtendedUserProfile);
+                setIsAuthenticated(true);
+              } else {
+                setSession(null);
+                setUser(null);
+                setIsAuthenticated(false);
+              }
+              
+              if (isMounted) setLoading(false);
+            } catch (error) {
+              console.error("Error checking local auth:", error);
+              if (isMounted) {
+                setSession(null);
+                setUser(null);
+                setIsAuthenticated(false);
+                setLoading(false);
+              }
+            }
+          }, 0);
         }
-        
-        setLoading(false);
       }
     );
     
@@ -77,19 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkSession = async () => {
       try {
         console.log("Checking for existing session");
-        const { data } = await supabase.auth.getSession();
         
-        if (data.session && isMounted) {
-          console.log("Existing session found:", data.session.user.id);
-          setSession(data.session);
-          setUser({
-            ...data.session.user,
-            name: data.session.user.user_metadata?.name || null,
-            lastName: data.session.user.user_metadata?.lastName || null,
-            profilePicture: data.session.user.user_metadata?.profilePicture || null,
-            bio: data.session.user.user_metadata?.bio || null,
-            jobTitle: data.session.user.user_metadata?.jobTitle || null
-          });
+        const authResult = await integrateAuth();
+        
+        if (authResult.user && isMounted) {
+          console.log("Found auth session with provider:", authResult.provider);
+          
+          if (authResult.provider === 'supabase') {
+            setSession(authResult.session);
+          }
+          
+          setUser(authResult.user as User & ExtendedUserProfile);
           setIsAuthenticated(true);
         } else {
           console.log("No existing session found");
@@ -119,24 +139,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Attempting to sign in with email:", email);
       
-      // Use a small delay to prevent potential auth race conditions
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
-      });
+      const result = await loginUser(email, password);
       
-      if (error) {
-        console.error("Sign in error:", error);
+      if (result.error) {
+        console.error("Sign in error:", result.error);
         setLoading(false);
-        return { error };
+        return { error: result.error };
       }
       
-      console.log("Sign in successful:", data?.user?.id);
-      // Don't set loading to false here - let the auth state change handle it
-      return { data };
+      if (result.provider === 'supabase') {
+        console.log("Sign in successful with Supabase:", result.data.session?.user?.id);
+        // Auth state listener will handle setting the user and session
+      } else if (result.provider === 'local') {
+        console.log("Sign in successful with local auth:", result.data.user?.id);
+        setUser(result.data.user);
+        setIsAuthenticated(true);
+      }
+      
+      setLoading(false);
+      return { data: result.data, error: null };
     } catch (error) {
       console.error("Unexpected error during sign in:", error);
       setLoading(false);
@@ -150,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Attempting to sign up with email:", email);
       
       setLoading(true);
-      const { data, error } = await supabase.auth.signUp({
+      const { data: { session, user }, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -165,8 +187,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
       
-      console.log("Sign up successful:", data?.user?.id);
-      return { data };
+      console.log("Sign up successful:", user?.id);
+      return { data: { session, user }, error: null };
     } catch (error) {
       console.error("Unexpected error during sign up:", error);
       setLoading(false);
@@ -177,20 +199,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Register function (local fallback for when Supabase signups are disabled)
   const register = async (email: string, name: string, password: string) => {
     try {
-      // Try to sign up with Supabase first
-      const { data, error } = await signUp(email, password, { name });
-      
-      // If signup is successful or fails for reasons other than "Signups not allowed", return the result
-      if (data || (error && error.message !== "Signups not allowed for this instance")) {
-        return !!data && !error;
-      }
-      
-      // If signup fails because signups are disabled, use local registration
-      const authStore = await import('./authStore');
-      const result = await authStore.useAuth.getState().register(email, name, password);
-      return result;
+      setLoading(true);
+      const success = await registerUser(email, name, password);
+      setLoading(false);
+      return success;
     } catch (error) {
       console.error("Error in register function:", error);
+      setLoading(false);
       return false;
     }
   };
@@ -199,7 +214,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setLoading(true);
+      
+      // Try to sign out from Supabase first
       await supabase.auth.signOut();
+      
+      // Also clean up local auth state
+      try {
+        const localAuthStore = await import('./authStore');
+        await localAuthStore.useAuth.getState().logout();
+      } catch (e) {
+        console.error("Error signing out from local auth:", e);
+      }
+      
+      // Clear auth state
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
@@ -229,15 +256,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user?.id) return;
       
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          name: data.name,
-          lastName: data.lastName,
-          profilePicture: data.profilePicture,
-          bio: data.bio,
-          jobTitle: data.jobTitle,
-        }
-      });
+      const { success, error } = await updateUserProfile(user.id, data);
       
       if (error) {
         toast({
