@@ -32,6 +32,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       const { error } = await signIn(email, password);
       
       if (error) {
+        console.error("Login error:", error);
         toast({
           title: "Błąd logowania",
           description: error.message || "Nieprawidłowy email lub hasło",
@@ -52,6 +53,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         navigate('/admin');
       }
     } catch (error: any) {
+      console.error("Unexpected error during login:", error);
       toast({
         title: "Błąd logowania",
         description: "Wystąpił nieoczekiwany błąd",

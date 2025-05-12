@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
   
-  // Profile update function
+  // Simplified profile update function
   const updateProfile = async (data: Partial<ExtendedUserProfile>) => {
     try {
       if (!user?.id) return;
@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Initialize auth
+  // Initialize auth - simplified version to avoid auth deadlocks
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -99,15 +99,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(data.session.user as User & ExtendedUserProfile);
           setIsAuthenticated(true);
         }
+        setLoading(false);
       } catch (error) {
         console.error("Error checking session:", error);
-      } finally {
         setLoading(false);
       }
     };
     
-    // Set up auth change listener
+    // Set up auth change listener with simplified approach
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
+      console.log("Auth state changed:", event);
+      
       if (currentSession) {
         setSession(currentSession);
         setUser(currentSession.user as User & ExtendedUserProfile);
@@ -128,25 +130,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
-  // Simple sign in function
+  // Simple sign in function - with better error handling
   const signIn = async (email: string, password: string) => {
     try {
+      console.log("Logging in with:", email);
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password
       });
       
-      if (error) return { error };
+      if (error) {
+        console.error("Login error:", error.message);
+        return { error };
+      }
       
+      console.log("Login successful:", data);
       return { data };
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Unexpected login error:", error);
       return { error };
     }
   };
 
   // Sign Out function
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   // Auth context value
