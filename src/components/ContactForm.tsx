@@ -55,10 +55,13 @@ const ContactForm = () => {
       // Send form to Formspree
       await sendToFormspree(data);
       
-      // Check for errors from formspree response
-      if (formspreeState.errors && formspreeState.errors.length > 0) {
+      // Check for errors from formspree response - fixed to handle errors properly
+      if (formspreeState.errors && Object.keys(formspreeState.errors).length > 0) {
         console.error("Błędy formspree:", formspreeState.errors);
-        throw new Error(formspreeState.errors[0].message || "Błąd wysyłania formularza");
+        
+        // Get the first error message or use default
+        const errorMessage = Object.values(formspreeState.errors)[0] || "Błąd wysyłania formularza";
+        throw new Error(errorMessage);
       }
       
       // Show success message
@@ -81,12 +84,12 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
-      {formspreeState.errors && formspreeState.errors.length > 0 && (
+      {formspreeState.errors && Object.keys(formspreeState.errors).length > 0 && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Błąd wysyłania formularza</AlertTitle>
           <AlertDescription>
-            {formspreeState.errors[0].message || "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
+            {Object.values(formspreeState.errors)[0] || "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
           </AlertDescription>
         </Alert>
       )}
@@ -102,7 +105,7 @@ const ContactForm = () => {
                 <FormControl>
                   <Input
                     placeholder="Jan Kowalski"
-                    className="bg-white border-gray-300 text-black"
+                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
                     {...field}
                   />
                 </FormControl>
@@ -120,7 +123,7 @@ const ContactForm = () => {
                 <FormControl>
                   <Input
                     placeholder="Nazwa firmy"
-                    className="bg-white border-gray-300 text-black"
+                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
                     {...field}
                   />
                 </FormControl>
@@ -141,7 +144,7 @@ const ContactForm = () => {
                   <Input
                     type="email"
                     placeholder="jan@example.com"
-                    className="bg-white border-gray-300 text-black"
+                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
                     {...field}
                   />
                 </FormControl>
@@ -160,7 +163,7 @@ const ContactForm = () => {
                   <Input
                     type="tel"
                     placeholder="+48 123 456 789"
-                    className="bg-white border-gray-300 text-black"
+                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
                     {...field}
                   />
                 </FormControl>
@@ -178,7 +181,7 @@ const ContactForm = () => {
               <FormLabel>Usługa, którą jesteś zainteresowany</FormLabel>
               <FormControl>
                 <select
-                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20"
+                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20 hover:bg-black hover:text-white"
                   {...field}
                 >
                   <option value="">Wybierz usługę</option>
@@ -205,7 +208,7 @@ const ContactForm = () => {
                 <Textarea
                   placeholder="Opisz swoje potrzeby..."
                   rows={5}
-                  className="bg-white border-gray-300 text-black resize-none"
+                  className="bg-white border-gray-300 text-black resize-none hover:bg-black hover:text-white"
                   {...field}
                 />
               </FormControl>
