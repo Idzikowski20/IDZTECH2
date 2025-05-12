@@ -1,174 +1,231 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
-
+import { ArrowLeft, Calendar, User, Eye, MessageSquare } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import CommentSection from '@/components/CommentSection';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
-import { useAuth } from '@/utils/AuthProvider';
-import CommentSection from '@/components/CommentSection';
 import LikeButton from '@/components/LikeButton';
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useTheme } from '@/utils/themeContext';
+import { useAuth } from '@/utils/authStore';
 
 const BlogPost = () => {
-  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { getPostBySlug, incrementView } = useBlogStore();
-  const { user } = useAuth();
-  const viewCountUpdated = useRef(false);
-  const isMobile = useIsMobile();
-  const { theme } = useTheme();
-  
-  const post = slug ? getPostBySlug(slug) : undefined;
-  
+  const { slug } = useParams<{ slug: string }>();
+  const { posts, incrementViews } = useBlogStore();
+  const [post, setPost] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
+
+  // Find post by slug
+  useEffect(() => {
+    if (posts && slug) {
+      const foundPost = posts.find((p) => p.slug === slug);
+      
+      if (foundPost) {
+        setPost(foundPost);
+        
+        // Increment view count only once per session
+        const viewedPosts = JSON.parse(sessionStorage.getItem('viewedPosts') || '{}');
+        if (!viewedPosts[foundPost.id]) {
+          incrementViews(foundPost.id);
+          viewedPosts[foundPost.id] = true;
+          sessionStorage.setItem('viewedPosts', JSON.stringify(viewedPosts));
+        }
+      }
+    }
+    
+    setIsLoading(false);
+  }, [posts, slug, incrementViews]);
+
+  // Ensure scroll to top on page load
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-    
-    // Increment view count only once per component mount
-    if (post?.id && !viewCountUpdated.current) {
-      incrementView(post.id);
-      viewCountUpdated.current = true;
-    }
-  }, [post?.id, incrementView]);
-  
-  if (!post) {
+  }, [slug]);
+
+  // Handle not found
+  if (!isLoading && !post) {
     return (
       <div className="min-h-screen bg-premium-dark">
         <Navbar />
-        <div className="container mx-auto px-4 pt-40 pb-24 text-center">
-          <h1 className="text-3xl font-bold mb-6">Post nie został znaleziony</h1>
-          <p className="mb-8 text-premium-light/70">Przepraszamy, ale szukany post nie istnieje.</p>
-          <Button onClick={() => navigate('/blog')} className="bg-premium-gradient">
-            Wróć do bloga
-          </Button>
+        <div className="container mx-auto px-4 pt-32 pb-20">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="text-3xl font-bold mb-4">Post nie znaleziony</h1>
+            <p className="text-premium-light/70 mb-8">
+              Przepraszamy, nie znaleźliśmy posta, którego szukasz.
+            </p>
+            <Button 
+              onClick={() => navigate('/blog')} 
+              className="bg-premium-gradient"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Powrót do bloga
+            </Button>
+          </div>
         </div>
         <Footer />
       </div>
     );
   }
 
-  // Get author details (in a real app this would come from a user database)
-  const authorDisplayName = user ? `${user.name} ${user.lastName || ''}`.trim() : post.author;
-  const authorInitial = authorDisplayName.charAt(0);
-
-  // Safely access post properties with fallbacks for undefined values
-  const commentsCount = post.comments ? post.comments.length : 0;
-  const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
-
-  // Check if user is admin, moderator or blogger (has special permissions)
-  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
+  if (isLoading || !post) {
+    return (
+      <div className="min-h-screen bg-premium-dark">
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-20">
+          <div className="max-w-3xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-premium-light/10 rounded mb-4 w-3/4"></div>
+              <div className="flex items-center space-x-4 mb-8">
+                <div className="h-4 bg-premium-light/10 rounded w-24"></div>
+                <div className="h-4 bg-premium-light/10 rounded w-24"></div>
+              </div>
+              <div className="h-64 bg-premium-light/10 rounded mb-8"></div>
+              <div className="space-y-4">
+                <div className="h-4 bg-premium-light/10 rounded w-full"></div>
+                <div className="h-4 bg-premium-light/10 rounded w-full"></div>
+                <div className="h-4 bg-premium-light/10 rounded w-3/4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
-      {/* Hero section */}
-      <section className="pt-32 pb-10">
+      <article className="pt-32 pb-16">
         <div className="container mx-auto px-4">
-          <Link to="/blog">
-            <Button variant="ghost" className={`mb-6 hover:bg-premium-light/5 hover:text-white ${theme === 'light' ? 'text-black hover:text-white' : ''}`}>
-              <ArrowLeft size={18} className="mr-2" /> Wróć do bloga
-            </Button>
-          </Link>
-          
           <div className="max-w-3xl mx-auto">
-            <div className="flex flex-wrap items-center text-sm text-premium-light/60 mb-4 gap-2">
+            {/* Back button */}
+            <Link to="/blog">
+              <Button 
+                variant="ghost" 
+                className="mb-8 text-premium-light/70 hover:text-white hover:bg-premium-light/10"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Powrót do bloga
+              </Button>
+            </Link>
+            
+            {/* Post header */}
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">{post.title}</h1>
+            
+            <div className="flex flex-wrap items-center text-premium-light/70 mb-8 gap-4">
               <div className="flex items-center">
-                <Clock size={14} className="mr-1" />
+                <Calendar size={16} className="mr-2" />
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
               
-              {(!isMobile || hasSpecialRoles) && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span>{post.categories.join(', ')}</span>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Eye size={14} className="mr-1" />
-                    <span>{post.views} wyświetleń</span>
-                  </div>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <MessageCircle size={14} className="mr-1" />
-                    <span>{commentsCount} komentarzy</span>
-                  </div>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Heart size={14} className="mr-1" />
-                    <span>{likesCount} polubień</span>
-                  </div>
-                </>
-              )}
-            </div>
-            
-            <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
-            
-            <div className="flex items-center mb-4">
-              {user?.profilePicture ? (
-                <img 
-                  src={user.profilePicture} 
-                  alt={authorDisplayName} 
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                  {authorInitial}
-                </div>
-              )}
-              <div className="ml-3">
-                <div className="font-medium">{authorDisplayName}</div>
-                <div className="text-sm text-premium-light/60">Autor</div>
+              <div className="flex items-center">
+                <User size={16} className="mr-2" />
+                <span>{post.author}</span>
+              </div>
+              
+              {/* Display stats with authentication check */}
+              <div className="flex items-center">
+                <Eye size={16} className="mr-2" />
+                <span>{isAuthenticated ? `${post.views} wyświetleń` : 'Zaloguj się, aby zobaczyć'}</span>
+              </div>
+              
+              <div className="flex items-center">
+                <MessageSquare size={16} className="mr-2" />
+                <span>
+                  {isAuthenticated 
+                    ? `${post.comments?.length || 0} komentarzy` 
+                    : 'Zaloguj się, aby zobaczyć'}
+                </span>
               </div>
             </div>
-
-            <div className="mb-6">
-              <LikeButton postId={post.id} />
+            
+            {/* Featured image */}
+            {post.featuredImage && (
+              <div className="mb-8 rounded-xl overflow-hidden">
+                <img 
+                  src={post.featuredImage} 
+                  alt={post.title}
+                  className="w-full h-auto"
+                />
+              </div>
+            )}
+            
+            {/* Post content */}
+            <div 
+              className="prose prose-invert max-w-none mb-12 prose-img:rounded-lg prose-headings:font-bold prose-a:text-premium-purple hover:prose-a:text-premium-pink"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+            
+            {/* Tags */}
+            {post.tags && post.tags.length > 0 && (
+              <div className="mb-8">
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.map((tag, index) => (
+                    <span 
+                      key={index} 
+                      className="bg-premium-dark/50 text-premium-light/70 text-sm px-3 py-1 rounded-full border border-premium-light/10"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Like and comment section */}
+            <div className="border-t border-premium-light/10 pt-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  {isAuthenticated ? (
+                    <LikeButton postId={post.id} />
+                  ) : (
+                    <Link to="/login" className="inline-flex items-center">
+                      <Button variant="outline">
+                        Zaloguj się aby polubić
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+                
+                <div className="text-premium-light/70">
+                  {isAuthenticated ? (
+                    <span>{post.likes?.length || 0} polubień</span>
+                  ) : (
+                    <span>Zaloguj się, aby zobaczyć</span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </article>
       
-      {/* Featured Image */}
-      <div className="container mx-auto px-4 mb-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="rounded-xl overflow-hidden">
-            <img src={post.featuredImage} alt={post.title} className="w-full h-auto" />
-          </div>
-        </div>
-      </div>
-      
-      {/* Post Content */}
-      <section className="pb-12">
+      {/* Comments section */}
+      <section className="py-12 bg-premium-dark/50">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
-          </div>
-          
-          <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
-            <div className="flex flex-wrap gap-2">
-              {post.tags && post.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Comments section */}
           <div className="max-w-3xl mx-auto">
-            <CommentSection postId={post.id} />
+            {isAuthenticated ? (
+              <CommentSection postId={post.id} />
+            ) : (
+              <div className="text-center py-8">
+                <h3 className="text-xl font-bold mb-4">Komentarze</h3>
+                <p className="text-premium-light/70 mb-6">
+                  Zaloguj się, aby przeglądać i dodawać komentarze
+                </p>
+                <Link to="/login">
+                  <Button className="bg-premium-gradient">
+                    Zaloguj się
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
