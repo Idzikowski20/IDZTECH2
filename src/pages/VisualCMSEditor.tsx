@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Loader2, Move, X, Save, Eye, ArrowLeft, Settings, Layout, 
   Image as ImageIcon, Text, Video, Code, Columns, Box, Plus, 
-  Type, AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Heading
+  Type, AlignCenter, AlignLeft, AlignRight, Bold, Italic, Underline, Heading,
+  Check, Globe, Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -12,15 +14,26 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
-import { getCMSPages, updateCMSContent } from '@/utils/cms';
-import RichTextEditor from '@/components/RichTextEditor';
+import { 
+  getCMSPages, 
+  updateCMSContent, 
+  getCMSPageBySlug, 
+  getAllCMSContentForPage, 
+  createOrUpdateCMSPage,
+  initializeDefaultPages,
+  CMSPage,
+  CMSContent
+} from '@/utils/cms';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card } from '@/components/ui/card';
 
 interface CMSBlock {
   id: string;
   type: string;
   content: string;
   settings: Record<string, any>;
+  section_id: string;
 }
 
 interface EditingElement {
@@ -28,51 +41,126 @@ interface EditingElement {
   type: string;
   content: string;
   settings: Record<string, any>;
+  section_id: string;
 }
 
 const VisualCMSEditor = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('elements');
   const [elementEditing, setElementEditing] = useState<string | null>(null);
   const [pageContent, setPageContent] = useState<CMSBlock[]>([]);
   const [editingElement, setEditingElement] = useState<EditingElement | null>(null);
-  const [selectedText, setSelectedText] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [draggedElement, setDraggedElement] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [pages, setPages] = useState<CMSPage[]>([]);
+  const [selectedPage, setSelectedPage] = useState<CMSPage | null>(null);
+  
   const { user } = useAuth();
   const { theme } = useTheme();
   
-  // Symulacja ładowania i pobierania strony głównej
+  // Load pages and initialize default pages if needed
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
+    const loadPagesAndContent = async () => {
+      setLoading(true);
       
-      // Mock homepage content
-      setPageContent([
-        {
-          id: 'header-1',
-          type: 'heading',
-          content: 'Witaj na naszej stronie',
-          settings: {
-            level: 'h1',
-            align: 'center',
-            fontSize: '42px'
-          }
-        },
-        {
-          id: 'paragraph-1',
-          type: 'paragraph',
-          content: 'To jest przykładowy tekst, który można edytować w naszym wizualnym edytorze CMS podobnym do Elementora.',
-          settings: {
-            align: 'center',
-            fontSize: '16px'
-          }
-        }
-      ]);
-    }, 1000);
+      // Initialize default pages if needed
+      await initializeDefaultPages();
+      
+      // Get all pages
+      const pagesData = await getCMSPages();
+      setPages(pagesData);
+      
+      // Get homepage or first available page
+      let homePage = pagesData.find(p => p.slug === 'home');
+      if (!homePage && pagesData.length > 0) {
+        homePage = pagesData[0];
+      }
+      
+      if (homePage) {
+        setSelectedPage(homePage);
+        await loadPageContent(homePage.id);
+      }
+      
+      setLoading(false);
+    };
     
-    return () => clearTimeout(timer);
+    loadPagesAndContent();
   }, []);
+  
+  // Load content for a specific page
+  const loadPageContent = async (pageId: string) => {
+    setLoading(true);
+    
+    try {
+      const contents = await getAllCMSContentForPage(pageId);
+      
+      // Map contents to blocks
+      const blocks: CMSBlock[] = contents.map(content => ({
+        id: content.id,
+        type: content.content_type === 'html' ? 'html' : 
+              content.section_id.includes('heading') ? 'heading' : 
+              content.section_id.includes('button') ? 'button' : 'paragraph',
+        content: content.content,
+        section_id: content.section_id,
+        settings: getDefaultSettingsFromContent(content)
+      }));
+      
+      // If page has no content, add some default elements
+      if (blocks.length === 0) {
+        const defaultBlocks: CMSBlock[] = [
+          {
+            id: `heading-${Date.now()}`,
+            type: 'heading',
+            content: 'Edytuj tę stronę',
+            section_id: `heading-${Date.now()}`,
+            settings: { level: 'h1', align: 'center', fontSize: '42px' }
+          },
+          {
+            id: `paragraph-${Date.now() + 1}`,
+            type: 'paragraph',
+            content: 'To jest przykładowy tekst, który można edytować w naszym wizualnym edytorze CMS podobnym do Elementora.',
+            section_id: `paragraph-${Date.now() + 1}`,
+            settings: { align: 'center', fontSize: '16px' }
+          }
+        ];
+        
+        setPageContent(defaultBlocks);
+      } else {
+        setPageContent(blocks);
+      }
+    } catch (error) {
+      console.error('Error loading page content:', error);
+      toast.error('Nie udało się załadować zawartości strony');
+    }
+    
+    setLoading(false);
+  };
+  
+  // Extract settings from content
+  const getDefaultSettingsFromContent = (content: CMSContent): Record<string, any> => {
+    // Try to parse settings from content if in JSON format
+    try {
+      if (content.content.includes('"settings":')) {
+        const parsed = JSON.parse(content.content);
+        if (parsed.settings) {
+          return parsed.settings;
+        }
+      }
+    } catch (e) {
+      // If can't parse, use default settings
+    }
+    
+    // Default settings based on section type
+    if (content.section_id.includes('heading')) {
+      return { level: 'h2', align: 'left', fontSize: '32px' };
+    } else if (content.section_id.includes('button')) {
+      return { size: 'medium', variant: 'default', align: 'left' };
+    } else {
+      return { align: 'left', fontSize: '16px' };
+    }
+  };
 
   // Kategorie elementów
   const elementCategories = [
@@ -110,13 +198,79 @@ const VisualCMSEditor = () => {
     ],
   };
 
-  const handleSave = () => {
-    toast.success("Zmiany zostały zapisane");
+  const handlePageChange = async (pageId: string) => {
+    const page = pages.find(p => p.id === pageId);
+    if (page) {
+      setSelectedPage(page);
+      await loadPageContent(page.id);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!selectedPage) {
+      toast.error("Nie wybrano strony do edycji");
+      return;
+    }
+    
+    setSaving(true);
+    let success = true;
+    
+    try {
+      // Save all blocks one by one
+      for (const block of pageContent) {
+        // Format content - for some blocks we might want to save settings along with content
+        let blockContent = block.content;
+        
+        // For some blocks we might want to save the settings along with content
+        if (['heading', 'button', 'image'].includes(block.type)) {
+          const contentWithSettings = {
+            content: block.content,
+            settings: block.settings
+          };
+          blockContent = JSON.stringify(contentWithSettings);
+        }
+        
+        const result = await updateCMSContent({
+          page_id: selectedPage.id,
+          section_id: block.section_id,
+          content: blockContent,
+          content_type: block.type === 'html' ? 'html' : 'text'
+        });
+        
+        if (!result) {
+          success = false;
+        }
+      }
+      
+      if (success) {
+        toast.success("Zmiany zostały zapisane");
+      } else {
+        toast.error("Wystąpił błąd podczas zapisywania niektórych elementów");
+      }
+    } catch (error) {
+      console.error('Error saving content:', error);
+      toast.error("Wystąpił błąd podczas zapisywania");
+      success = false;
+    }
+    
+    setSaving(false);
+    return success;
   };
 
   const handlePreview = () => {
+    if (!selectedPage) return;
+    
     toast.info("Podgląd strony w nowej karcie");
-    window.open('/', '_blank');
+    // Map slug to correct route
+    const routeMap: Record<string, string> = {
+      'home': '/',
+      'about': '/o-nas',
+      'contact': '/kontakt',
+      // Add more mappings as needed
+    };
+    
+    const route = routeMap[selectedPage.slug] || `/${selectedPage.slug}`;
+    window.open(route, '_blank');
   };
 
   const handleElementDrag = (id: string, type: string) => (e: React.DragEvent) => {
@@ -142,6 +296,11 @@ const VisualCMSEditor = () => {
     e.preventDefault();
     setIsDragging(false);
     
+    if (!selectedPage) {
+      toast.error("Najpierw wybierz stronę do edycji");
+      return;
+    }
+    
     const id = e.dataTransfer.getData('text/plain');
     const type = e.dataTransfer.getData('element-type');
     
@@ -150,11 +309,13 @@ const VisualCMSEditor = () => {
       return;
     }
     
+    const section_id = `${type}-${Date.now()}`;
     const newElement: CMSBlock = {
-      id: `${type}-${Date.now()}`,
+      id: section_id,
       type: type,
       content: getDefaultContent(type),
-      settings: getDefaultSettings(type)
+      settings: getDefaultSettings(type),
+      section_id: section_id
     };
     
     setPageContent([...pageContent, newElement]);
@@ -387,7 +548,7 @@ const VisualCMSEditor = () => {
               setEditingElement({...editingElement, content: e.target.value});
               updateElementContent(editingElement.id, e.target.value);
             }}
-            className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20"
+            className={`w-full p-2 rounded-md ${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark border-premium-light/20'}`}
           />
         </div>
         
@@ -401,6 +562,7 @@ const VisualCMSEditor = () => {
                 setEditingElement({...editingElement, settings: {...editingElement.settings, align: 'left'}});
                 updateElementSetting(editingElement.id, 'align', 'left');
               }}
+              className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
             >
               <AlignLeft size={16} />
             </Button>
@@ -411,6 +573,7 @@ const VisualCMSEditor = () => {
                 setEditingElement({...editingElement, settings: {...editingElement.settings, align: 'center'}});
                 updateElementSetting(editingElement.id, 'align', 'center');
               }}
+              className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
             >
               <AlignCenter size={16} />
             </Button>
@@ -421,6 +584,7 @@ const VisualCMSEditor = () => {
                 setEditingElement({...editingElement, settings: {...editingElement.settings, align: 'right'}});
                 updateElementSetting(editingElement.id, 'align', 'right');
               }}
+              className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
             >
               <AlignRight size={16} />
             </Button>
@@ -444,6 +608,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, level: 'h1'}});
                     updateElementSetting(editingElement.id, 'level', 'h1');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   H1
                 </Button>
@@ -454,6 +619,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, level: 'h2'}});
                     updateElementSetting(editingElement.id, 'level', 'h2');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   H2
                 </Button>
@@ -464,6 +630,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, level: 'h3'}});
                     updateElementSetting(editingElement.id, 'level', 'h3');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   H3
                 </Button>
@@ -478,7 +645,7 @@ const VisualCMSEditor = () => {
                   setEditingElement({...editingElement, settings: {...editingElement.settings, fontSize: e.target.value}});
                   updateElementSetting(editingElement.id, 'fontSize', e.target.value);
                 }}
-                className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20"
+                className={`w-full p-2 rounded-md ${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark border-premium-light/20'}`}
               />
             </div>
           </>
@@ -494,7 +661,7 @@ const VisualCMSEditor = () => {
                   setEditingElement({...editingElement, content: e.target.value});
                   updateElementContent(editingElement.id, e.target.value);
                 }}
-                className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20 h-32"
+                className={`w-full p-2 rounded-md h-32 ${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark border-premium-light/20'}`}
               />
             </div>
             <div className="mb-4">
@@ -507,6 +674,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, align: 'left'}});
                     updateElementSetting(editingElement.id, 'align', 'left');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   <AlignLeft size={16} />
                 </Button>
@@ -517,6 +685,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, align: 'center'}});
                     updateElementSetting(editingElement.id, 'align', 'center');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   <AlignCenter size={16} />
                 </Button>
@@ -527,6 +696,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, align: 'right'}});
                     updateElementSetting(editingElement.id, 'align', 'right');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   <AlignRight size={16} />
                 </Button>
@@ -541,7 +711,7 @@ const VisualCMSEditor = () => {
                   setEditingElement({...editingElement, settings: {...editingElement.settings, fontSize: e.target.value}});
                   updateElementSetting(editingElement.id, 'fontSize', e.target.value);
                 }}
-                className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20"
+                className={`w-full p-2 rounded-md ${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark border-premium-light/20'}`}
               />
             </div>
           </>
@@ -560,6 +730,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, variant: 'default'}});
                     updateElementSetting(editingElement.id, 'variant', 'default');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   Domyślny
                 </Button>
@@ -570,6 +741,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, variant: 'outline'}});
                     updateElementSetting(editingElement.id, 'variant', 'outline');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   Outline
                 </Button>
@@ -580,6 +752,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, variant: 'secondary'}});
                     updateElementSetting(editingElement.id, 'variant', 'secondary');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   Secondary
                 </Button>
@@ -595,6 +768,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, size: 'sm'}});
                     updateElementSetting(editingElement.id, 'size', 'sm');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   Mały
                 </Button>
@@ -605,6 +779,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, size: 'default'}});
                     updateElementSetting(editingElement.id, 'size', 'default');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   Średni
                 </Button>
@@ -615,6 +790,7 @@ const VisualCMSEditor = () => {
                     setEditingElement({...editingElement, settings: {...editingElement.settings, size: 'lg'}});
                     updateElementSetting(editingElement.id, 'size', 'lg');
                   }}
+                  className={theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white hover:text-black'}
                 >
                   Duży
                 </Button>
@@ -632,7 +808,7 @@ const VisualCMSEditor = () => {
                 setEditingElement({...editingElement, content: e.target.value});
                 updateElementContent(editingElement.id, e.target.value);
               }}
-              className="w-full p-2 rounded-md bg-premium-dark border border-premium-light/20 h-64 font-mono text-sm"
+              className={`w-full p-2 rounded-md h-64 font-mono text-sm ${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark border-premium-light/20'}`}
             />
           </div>
         );
@@ -670,10 +846,26 @@ const VisualCMSEditor = () => {
               <ArrowLeft size={20} />
             </Button>
           </Link>
-          <h1 className="text-xl font-semibold">Edytor Elementor</h1>
+          <h1 className="text-xl font-semibold">Edytor Wizualny</h1>
         </div>
         
         <div className="flex items-center space-x-2">
+          <Select 
+            value={selectedPage?.id || ""} 
+            onValueChange={handlePageChange}
+          >
+            <SelectTrigger className={`w-[200px] ${theme === 'light' ? 'bg-white' : 'bg-premium-dark/80'}`}>
+              <SelectValue placeholder="Wybierz stronę" />
+            </SelectTrigger>
+            <SelectContent>
+              {pages.map(page => (
+                <SelectItem key={page.id} value={page.id}>
+                  {page.title}
+                  {page.slug === 'home' && <Home className="inline-block ml-2 h-3 w-3" />}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button 
             variant="outline" 
             onClick={handlePreview} 
@@ -688,10 +880,20 @@ const VisualCMSEditor = () => {
           </Button>
           <Button 
             onClick={handleSave} 
+            disabled={saving}
             className="flex items-center text-sm space-x-1 bg-premium-gradient"
           >
-            <Save size={16} />
-            <span>Zapisz zmiany</span>
+            {saving ? (
+              <>
+                <Loader2 size={16} className="mr-2 animate-spin" />
+                <span>Zapisywanie...</span>
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                <span>Zapisz zmiany</span>
+              </>
+            )}
           </Button>
           <Button 
             variant="outline" 
@@ -739,13 +941,29 @@ const VisualCMSEditor = () => {
                   key={element.id}
                   draggable
                   onDragStart={handleElementDrag(element.id, element.id)}
-                  onClick={() => handleElementEdit(element.id)}
+                  onClick={() => {
+                    if (!selectedPage) {
+                      toast.error("Najpierw wybierz stronę do edycji");
+                      return;
+                    }
+                    
+                    const section_id = `${element.id}-${Date.now()}`;
+                    const newElement: CMSBlock = {
+                      id: section_id,
+                      type: element.id,
+                      content: getDefaultContent(element.id),
+                      settings: getDefaultSettings(element.id),
+                      section_id: section_id
+                    };
+                    
+                    setPageContent([...pageContent, newElement]);
+                    toast.success(`Dodano element: ${element.name}`);
+                  }}
                   className={`
                     p-2 ${theme === 'light' ? 'bg-white shadow-sm' : 'bg-premium-dark/70'} rounded-md 
                     border ${theme === 'light' ? 'border-gray-200' : 'border-premium-light/10'}
                     flex flex-col items-center justify-center gap-1 
                     hover:border-premium-purple cursor-grab
-                    ${elementEditing === element.id ? 'border-premium-purple/80 ring-1 ring-premium-purple/30' : ''}
                   `}
                 >
                   <div className={`${theme === 'light' ? 'text-gray-700' : 'text-premium-light/80'}`}>
@@ -755,6 +973,24 @@ const VisualCMSEditor = () => {
                 </div>
               ))}
             </div>
+            
+            {/* Page information */}
+            {selectedPage && (
+              <Card className={`mt-4 ${theme === 'light' ? 'bg-white' : 'bg-premium-dark/60'}`}>
+                <div className="p-3">
+                  <h3 className="font-medium text-sm mb-1">Informacje o stronie</h3>
+                  <div className={`text-xs ${theme === 'light' ? 'text-gray-500' : 'text-premium-light/70'}`}>
+                    <p>Tytuł: {selectedPage.title}</p>
+                    <p>URL: /{selectedPage.slug}</p>
+                    <p>Status: {selectedPage.status === 'published' ? (
+                      <span className="text-green-500 flex items-center gap-1">
+                        <Check size={12} /> Opublikowana
+                      </span>
+                    ) : 'Szkic'}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
           </div>
           
           {/* Informacje o użytkowniku */}
@@ -807,10 +1043,16 @@ const VisualCMSEditor = () => {
             <Button 
               className="shadow-lg bg-premium-gradient transition-colors"
               onClick={() => {
+                if (!selectedPage) {
+                  toast.error("Najpierw wybierz stronę do edycji");
+                  return;
+                }
+                
                 const newElement = {
                   id: `paragraph-${Date.now()}`,
                   type: 'paragraph',
                   content: 'Nowy paragraf tekstu. Kliknij, aby edytować.',
+                  section_id: `paragraph-${Date.now()}`,
                   settings: { align: 'left', fontSize: '16px' }
                 };
                 setPageContent([...pageContent, newElement]);
