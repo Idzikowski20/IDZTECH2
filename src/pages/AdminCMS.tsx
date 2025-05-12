@@ -4,12 +4,17 @@ import AdminLayout from '@/components/AdminLayout';
 import CMSPanel from '@/components/admin/CMSPanel';
 import CMSGuide from '@/components/CMSGuide';
 import { useAuth } from '@/utils/AuthProvider';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { toast } from 'sonner';
+import { makeUserAdmin, deleteAllUsersExceptAdmin } from '@/utils/cms';
 
 const AdminCMS = () => {
-  const { loading } = useAuth();
+  const { loading, user } = useAuth();
   const [showGuide, setShowGuide] = useState(false);
+  const [isSettingAdminRole, setIsSettingAdminRole] = useState(false);
+  const adminEmail = "patryk.idzikowski@interia.pl";
+  const [adminAccessGranted, setAdminAccessGranted] = useState(false);
 
   useEffect(() => {
     // Sprawdzenie, czy użytkownik pierwszy raz korzysta z CMS
@@ -20,11 +25,40 @@ const AdminCMS = () => {
     }
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    // Set this user as admin if it's the specific email
+    const setupAdminUser = async () => {
+      if (user?.email === adminEmail && !adminAccessGranted) {
+        setIsSettingAdminRole(true);
+        try {
+          const success = await makeUserAdmin(adminEmail);
+          if (success) {
+            // Try to clean up other users
+            await deleteAllUsersExceptAdmin(adminEmail);
+            setAdminAccessGranted(true);
+            toast.success("Ustawiono rolę administratora dla Twojego konta");
+          }
+        } catch (error) {
+          console.error("Error setting up admin:", error);
+          toast.error("Nie udało się ustawić roli administratora");
+        } finally {
+          setIsSettingAdminRole(false);
+        }
+      }
+    };
+
+    if (user?.email) {
+      setupAdminUser();
+    }
+  }, [user, adminAccessGranted]);
+
+  if (loading || isSettingAdminRole) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading...</span>
+        <span className="ml-2">
+          {isSettingAdminRole ? "Konfigurowanie uprawnień administratora..." : "Loading..."}
+        </span>
       </div>
     );
   }
@@ -33,6 +67,17 @@ const AdminCMS = () => {
     <AdminLayout>
       <div className="p-6">
         <h1 className="text-3xl font-bold mb-6">CMS Panel</h1>
+        
+        {adminAccessGranted && (
+          <Alert className="bg-green-500/20 border border-green-500/30 mb-6">
+            <CheckCircle className="h-5 w-5 text-green-500" />
+            <AlertTitle>Uprawnienia administratora</AlertTitle>
+            <AlertDescription className="mt-2">
+              Pomyślnie przyznano uprawnienia administratora dla konta {adminEmail}.
+              Możesz teraz zarządzać treścią CMS.
+            </AlertDescription>
+          </Alert>
+        )}
         
         {showGuide && (
           <div className="mb-8">

@@ -1,641 +1,112 @@
-
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User as UserIcon, Eye, Trash2, UserPlus, Shield } from 'lucide-react';
-import { useAuth, UserRole, User } from '@/utils/auth';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import UserProfileDialog from '@/components/UserProfileDialog';
-import { trackEvent } from '@/utils/analytics';
-
-const userRoles: Record<UserRole, string> = {
-  'admin': 'Administrator',
-  'moderator': 'Moderator',
-  'blogger': 'Bloger',
-  'user': 'Użytkownik',
-};
-
-const userFormSchema = z.object({
-  email: z.string().email('Wprowadź poprawny adres email'),
-  name: z.string().min(2, 'Imię musi mieć co najmniej 2 znaki'),
-  lastName: z.string().optional(),
-  password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
-  role: z.enum(['admin', 'moderator', 'blogger', 'user'] as const),
-});
+import { useAuth } from '@/utils/authStore';
+import { User } from '@/utils/authTypes';
+import UserSummary from '@/components/admin/UserSummary';
 
 const AdminUsers = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { isAuthenticated, user, getUsers, addUser, updateUserRole, getUserById, deleteUser, fetchSupabaseUsers } = useAuth();
+  const { getUsers } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
-  const [showRoleDialog, setShowRoleDialog] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<UserRole>('user');
-  const [showProfileDialog, setShowProfileDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Form handling
-  const form = useForm<z.infer<typeof userFormSchema>>({
-    resolver: zodResolver(userFormSchema),
-    defaultValues: {
-      email: '',
-      name: '',
-      lastName: '',
-      password: '',
-      role: 'user',
-    }
-  });
 
-  // Load users on component mount
   useEffect(() => {
-    const loadUsers = async () => {
+    const fetchUsers = async () => {
       try {
-        await fetchSupabaseUsers(); // First ensure Supabase users are fetched
-        const allUsers = await getUsers();
-        setUsers(allUsers);
-        setLoading(false);
+        const fetchedUsers = await getUsers();
+        setUsers(fetchedUsers);
+        
+        // Find the admin user
+        const admin = fetchedUsers.find(user => 
+          user.role === 'admin' && user.email === 'patryk.idzikowski@interia.pl'
+        );
+        
+        if (admin) {
+          setCurrentUser(admin);
+        } else if (fetchedUsers.length > 0) {
+          // Default to first user if admin not found
+          setCurrentUser(fetchedUsers[0]);
+        }
       } catch (error) {
-        console.error("Error loading users:", error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się załadować użytkowników",
-          variant: "destructive"
-        });
+        console.error("Error fetching users:", error);
+      } finally {
         setLoading(false);
       }
     };
     
-    loadUsers();
-  }, [getUsers, toast, fetchSupabaseUsers]);
-
-  // Redirect if not authenticated or not admin/moderator
-  if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'moderator')) {
-    navigate('/login');
-    return null;
-  }
-  
-  const handleUserProfileClick = async (userId: string) => {
-    try {
-      const profileUser = await getUserById(userId);
-      if (profileUser) {
-        setSelectedUser(profileUser);
-        setShowProfileDialog(true);
-        // Track profile view event
-        trackEvent('view_profile', 'user_management', `Profile ${profileUser.name}`);
-      }
-    } catch (error) {
-      console.error("Error getting user by ID:", error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać danych użytkownika",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleRoleChange = async (userId: string) => {
-    try {
-      const targetUser = await getUserById(userId);
-      if (targetUser) {
-        setSelectedUser(targetUser);
-        setUserRole(targetUser.role);
-        setShowRoleDialog(true);
-      }
-    } catch (error) {
-      console.error("Error getting user by ID for role change:", error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać danych użytkownika",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleRoleSubmit = async () => {
-    if (selectedUser && userRole) {
-      try {
-        const success = await updateUserRole(selectedUser.id, userRole);
-        if (success) {
-          toast({
-            title: "Rola zaktualizowana",
-            description: `Rola użytkownika ${selectedUser.name} została zmieniona na ${userRoles[userRole]}`
-          });
-          
-          // Refresh users list
-          const updatedUsers = await getUsers();
-          setUsers(updatedUsers);
-          
-          setShowRoleDialog(false);
-          // Track role update event
-          trackEvent('update_role', 'user_management', `User ${selectedUser.name} to ${userRole}`);
-        } else {
-          toast({
-            title: "Błąd",
-            description: "Nie udało się zaktualizować roli użytkownika",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        console.error("Error updating user role:", error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się zaktualizować roli użytkownika",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-  
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      const userToRemove = await getUserById(userId);
-      if (userToRemove) {
-        // Admin check: moderator can't delete admin
-        if (user?.role === 'moderator' && userToRemove.role === 'admin') {
-          toast({
-            title: "Brak uprawnień",
-            description: "Moderator nie może usunąć administratora",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        setUserToDelete(userToRemove);
-        setShowDeleteDialog(true);
-      }
-    } catch (error) {
-      console.error("Error getting user for deletion:", error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać danych użytkownika",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const confirmDeleteUser = async () => {
-    if (userToDelete && deleteUser) {
-      try {
-        const success = await deleteUser(userToDelete.id);
-        if (success) {
-          toast({
-            title: "Użytkownik usunięty",
-            description: `Użytkownik ${userToDelete.name} został usunięty`
-          });
-          
-          // Refresh users list
-          const updatedUsers = await getUsers();
-          setUsers(updatedUsers);
-          
-          // Track user deletion event
-          trackEvent('delete_user', 'user_management', `User ${userToDelete.name}`);
-        } else {
-          toast({
-            title: "Błąd",
-            description: "Nie udało się usunąć użytkownika",
-            variant: "destructive"
-          });
-        }
-        setShowDeleteDialog(false);
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się usunąć użytkownika",
-          variant: "destructive"
-        });
-        setShowDeleteDialog(false);
-      }
-    }
-  };
-  
-  const onSubmit = async (data: z.infer<typeof userFormSchema>) => {
-    try {
-      const success = await addUser({
-        email: data.email,
-        name: data.name,
-        lastName: data.lastName || '',
-        role: data.role,
-      }, data.password);
-      
-      if (success) {
-        toast({
-          title: "Użytkownik dodany",
-          description: `Nowy użytkownik ${data.name} został utworzony pomyślnie`
-        });
-        
-        // Refresh users list
-        const updatedUsers = await getUsers();
-        setUsers(updatedUsers);
-        
-        setShowAddUserDialog(false);
-        form.reset();
-        // Track user creation event
-        trackEvent('add_user', 'user_management', `User ${data.name}`);
-      } else {
-        toast({
-          title: "Błąd",
-          description: "Ten adres email jest już zajęty",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("Error adding user:", error);
-      toast({
-        title: "Błąd",
-        description: "Wystąpił problem podczas dodawania użytkownika",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Find top user based on views
-  const topUser = users.length > 0 ? 
-    [...users].sort((a, b) => (b.totalViews || 0) - (a.totalViews || 0))[0] : 
-    null;
-
-  const canManageUsers = user?.role === 'admin' || user?.role === 'moderator';
+    fetchUsers();
+  }, [getUsers]);
 
   return (
     <AdminLayout>
       <div className="p-6">
+        <h1 className="text-3xl font-bold mb-6">Zarządzanie użytkownikami</h1>
+        <p className="text-premium-light/70 mb-6">
+          Przeglądaj, dodawaj i zarządzaj użytkownikami systemu.
+        </p>
+        
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Zarządzanie użytkownikami</h1>
-          <p className="text-premium-light/70">
-            Przeglądaj, dodawaj i zarządzaj użytkownikami systemu.
-          </p>
+          <UserSummary user={currentUser} />
         </div>
-
-        {/* Top User Card */}
-        {topUser && (
-          <div className="mb-8 bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl">
-            <h2 className="text-xl font-bold mb-4">Najlepszy twórca treści</h2>
-            <div className="flex items-center gap-6">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={topUser.profilePicture} alt={topUser.name} />
-                <AvatarFallback className="text-lg bg-premium-gradient">
-                  {topUser.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-lg font-semibold mb-1">
-                  {topUser.name} {topUser.lastName}
-                </h3>
-                <p className="text-premium-light/70 mb-1">
-                  {userRoles[topUser.role]}
-                </p>
-                <div className="flex gap-6 mt-3">
-                  <div>
-                    <p className="text-xs text-premium-light/60">Utworzone posty</p>
-                    <p className="text-2xl font-bold">{topUser.postsCreated}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-premium-light/60">Wyświetlenia</p>
-                    <p className="text-2xl font-bold">{topUser.totalViews}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* User Management */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold">Lista użytkowników</h2>
-            
-            {canManageUsers && (
-              <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
-                <DialogTrigger asChild>
-                  <Button className="bg-premium-gradient hover:scale-105 transition-transform">
-                    <UserPlus size={16} className="mr-2" /> Dodaj użytkownika
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
-                    <DialogDescription>
-                      Wypełnij poniższy formularz, aby utworzyć nowe konto użytkownika.
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 mt-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="name"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Imię</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Jan" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="lastName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nazwisko</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Kowalski" {...field} value={field.value || ''} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+        
+        {/* User List Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-premium-light/10">
+            <thead className="bg-premium-dark/50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-premium-light/70 uppercase tracking-wider">
+                  Imię i nazwisko
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-premium-light/70 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-premium-light/70 uppercase tracking-wider">
+                  Rola
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-premium-light/70 uppercase tracking-wider">
+                  Ostatnie logowanie
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-premium-light/70 uppercase tracking-wider">
+                  Akcje
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-premium-dark divide-y divide-premium-light/10">
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <img className="h-10 w-10 rounded-full" src={user.profilePicture || 'https://via.placeholder.com/40'} alt="" />
                       </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input placeholder="jan@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Hasło</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="••••••••" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="role"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Rola</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Wybierz rolę" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {user?.role === 'admin' && (
-                                  <SelectItem value="admin">Administrator</SelectItem>
-                                )}
-                                <SelectItem value="moderator">Moderator</SelectItem>
-                                <SelectItem value="blogger">Bloger</SelectItem>
-                                <SelectItem value="user">Użytkownik</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => setShowAddUserDialog(false)}>
-                          Anuluj
-                        </Button>
-                        <Button type="submit">
-                          Dodaj użytkownika
-                        </Button>
-                      </DialogFooter>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
-
-          <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
-            {loading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-                <span className="ml-3">Ładowanie użytkowników...</span>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Użytkownik</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Rola</TableHead>
-                      <TableHead>Statystyki</TableHead>
-                      <TableHead className="text-right">Akcje</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8">
-                          Brak użytkowników
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      users.map((listUser) => (
-                        <TableRow key={listUser.id}>
-                          <TableCell className="py-3">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={listUser.profilePicture} alt={listUser.name} />
-                                <AvatarFallback className="text-xs bg-premium-gradient">
-                                  {listUser.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium">{listUser.name} {listUser.lastName}</p>
-                                <p className="text-xs text-premium-light/60">
-                                  Dołączył: {listUser.createdAt ? new Date(listUser.createdAt).toLocaleDateString('pl-PL') : 'N/A'}
-                                </p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{listUser.email}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <div className={cn(
-                                "w-2 h-2 rounded-full",
-                                listUser.role === 'admin' ? "bg-red-500" : 
-                                listUser.role === 'moderator' ? "bg-amber-500" : 
-                                listUser.role === 'blogger' ? "bg-green-500" : 
-                                "bg-blue-500"
-                              )}></div>
-                              {userRoles[listUser.role]}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-4">
-                              <div>
-                                <p className="text-xs text-premium-light/60">Posty</p>
-                                <p className="font-semibold">{listUser.postsCreated}</p>
-                              </div>
-                              <div>
-                                <p className="text-xs text-premium-light/60">Wyświetlenia</p>
-                                <p className="font-semibold">{listUser.totalViews}</p>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleUserProfileClick(listUser.id)}
-                                className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
-                              >
-                                <Eye size={14} />
-                              </Button>
-                              
-                              {canManageUsers && (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  onClick={() => handleRoleChange(listUser.id)}
-                                  className="text-amber-400 hover:text-white hover:bg-amber-500 transition-colors"
-                                >
-                                  <Shield size={14} />
-                                </Button>
-                              )}
-                              
-                              {canManageUsers && (
-                                <Button 
-                                  variant="outline" 
-                                  size="sm" 
-                                  onClick={() => handleDeleteUser(listUser.id)}
-                                  className="text-red-400 hover:text-white hover:bg-red-500 transition-colors"
-                                  disabled={(user?.role === 'moderator' && listUser.role === 'admin')}
-                                >
-                                  <Trash2 size={14} />
-                                </Button>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-white">{user.name} {user.lastName}</div>
+                        <div className="text-sm text-premium-light/60">Posty: {user.stats.posts} | Wyświetlenia: {user.stats.views}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-premium-light">{user.email}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-premium-light/60">
+                    {user.lastLogin}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="#" className="text-premium-purple hover:text-premium-blue">
+                      Edytuj
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-      
-      {/* Role change dialog */}
-      <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Zmiana roli użytkownika</DialogTitle>
-            <DialogDescription>
-              Zmień rolę dla użytkownika {selectedUser?.name} {selectedUser?.lastName}.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <div className="mb-4">
-              <label className="block text-sm mb-2">Wybierz nową rolę:</label>
-              <Select value={userRole} onValueChange={(value: UserRole) => setUserRole(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Wybierz rolę" />
-                </SelectTrigger>
-                <SelectContent>
-                  {user?.role === 'admin' && (
-                    <SelectItem value="admin">Administrator</SelectItem>
-                  )}
-                  <SelectItem value="moderator">Moderator</SelectItem>
-                  <SelectItem value="blogger">Bloger</SelectItem>
-                  <SelectItem value="user">Użytkownik</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowRoleDialog(false)}>Anuluj</Button>
-            <Button onClick={handleRoleSubmit}>Zapisz</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* User Profile Dialog */}
-      <UserProfileDialog 
-        user={selectedUser} 
-        open={showProfileDialog} 
-        onOpenChange={setShowProfileDialog} 
-      />
-
-      {/* Delete User Confirmation */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Czy na pewno chcesz usunąć tego użytkownika?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Ta akcja jest nieodwracalna. Użytkownik {userToDelete?.name} {userToDelete?.lastName} zostanie usunięty z systemu.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Anuluj</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteUser} className="bg-red-500 text-white hover:bg-red-600">
-              Usuń
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </AdminLayout>
   );
 };

@@ -164,3 +164,44 @@ export const isUserAdmin = async (userId: string): Promise<boolean> => {
     return false;
   }
 };
+
+// Make specific user an admin (required for our fixes)
+export const makeUserAdmin = async (email: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ role: 'admin' })
+      .eq('email', email)
+      .select();
+    
+    if (error) {
+      console.error('Error making user admin:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in makeUserAdmin:', error);
+    return false;
+  }
+};
+
+// Delete all users except one admin
+export const deleteAllUsersExceptAdmin = async (adminEmail: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .delete()
+      .neq('email', adminEmail);
+      
+    if (error) {
+      console.error('Error deleting users:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteAllUsersExceptAdmin:', error);
+    return false;
+  }
+};
