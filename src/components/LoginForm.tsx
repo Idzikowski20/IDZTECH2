@@ -16,7 +16,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { useTheme } from '@/utils/themeContext';
 
 const loginFormSchema = z.object({
   email: z.string().email('Wprowadź poprawny adres email'),
@@ -32,8 +33,10 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth(); // Using signIn from AuthProvider
+  const [showPassword, setShowPassword] = useState(false);
+  const { signIn } = useAuth();
   const { toast } = useToast();
+  const { theme } = useTheme();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
@@ -83,11 +86,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   };
 
   return (
-    <div className="max-w-md mx-auto py-8">
+    <div className="w-full max-w-md mx-auto py-6">
       {!hideHeader && (
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-bold mb-2">Zaloguj się</h1>
-          <p className="text-premium-light/70">
+          <h1 className={`text-2xl font-bold mb-2 ${theme === 'light' ? "text-gray-900" : "text-white"}`}>
+            Zaloguj się
+          </h1>
+          <p className={`${theme === 'light' ? "text-gray-600" : "text-gray-300"}`}>
             Wprowadź swoje dane, aby się zalogować
           </p>
         </div>
@@ -100,9 +105,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>
+                  Email
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="email@example.com" {...field} />
+                  <Input 
+                    placeholder="email@example.com" 
+                    className={`${theme === 'light' ? "bg-white" : "bg-gray-900"} h-10`}
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -114,9 +125,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hasło</FormLabel>
+                <FormLabel className={theme === 'light' ? "text-gray-700" : "text-gray-300"}>
+                  Hasło
+                </FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      className={`${theme === 'light' ? "bg-white" : "bg-gray-900"} h-10 pr-10`}
+                      {...field} 
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -127,7 +158,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
             <Button
               variant="link"
               type="button"
-              className="text-premium-light/70 hover:text-white"
+              className={`text-premium-purple p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
               onClick={() => navigate('/forgot-password')}
             >
               Nie pamiętasz hasła?
@@ -136,23 +167,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           
           <Button 
             type="submit" 
-            className="w-full bg-premium-gradient hover:bg-premium-gradient/90"
+            className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white"
             disabled={isLoading}
           >
             {isLoading ? (
-              <span className="flex items-center">
+              <span className="flex items-center justify-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Logowanie
+                Logowanie...
               </span>
             ) : "Zaloguj się"}
           </Button>
           
           <div className="text-center mt-4">
-            <span className="text-premium-light/70">Nie masz jeszcze konta? </span>
+            <span className={theme === 'light' ? "text-gray-600" : "text-gray-300"}>
+              Nie masz jeszcze konta?{" "}
+            </span>
             <Button
               variant="link"
               type="button"
-              className="p-0 hover:text-white"
+              className={`p-0 hover:${theme === 'light' ? "text-black" : "text-white"}`}
               onClick={() => navigate('/register')}
             >
               Zarejestruj się

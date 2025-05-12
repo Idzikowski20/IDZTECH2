@@ -12,24 +12,26 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-
-  // Make sure body scroll is always enabled
+  
+  // Always enable body scroll
   useEffect(() => {
     document.body.style.overflow = '';
     return () => {
       document.body.style.overflow = '';
     };
   }, []);
-
-  // Set initial load to true after a brief delay to ensure auth state is properly initialized
+  
+  // Set initial load to complete after a delay to ensure auth state is initialized
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoadComplete(true);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setInitialLoadComplete(true);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+  
   // Add debug logging
   useEffect(() => {
     console.log("RequireAuth - auth state:", { 
@@ -39,8 +41,8 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
       initialLoadComplete
     });
   }, [user, loading, location.pathname, initialLoadComplete]);
-
-  // Display loading indicator while verifying the session
+  
+  // Display loading indicator while auth is being verified
   if (loading || !initialLoadComplete) {
     return (
       <div className="flex items-center justify-center h-screen bg-premium-dark">
@@ -48,16 +50,13 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
       </div>
     );
   }
-
+  
+  // Redirect to login if user is not authenticated
   if (!user) {
     console.log("RequireAuth - redirecting to login");
-    // Redirect to login if user is not logged in, and pass current location
-    // Make sure we're not already on the login page to prevent redirect loops
-    if (location.pathname !== '/login') {
-      return <Navigate to="/login" state={{ from: location }} replace />;
-    }
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
+  
   console.log("RequireAuth - authorized, rendering children");
   return children;
 };
