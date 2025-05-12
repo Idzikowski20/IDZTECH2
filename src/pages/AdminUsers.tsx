@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -8,6 +7,15 @@ import { useAuth } from '@/utils/AuthProvider';
 import { User } from '@/utils/authTypes';
 import { fetchAllUsers } from '@/utils/authIntegration';
 import { Loader2 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -18,7 +26,7 @@ const AdminUsers = () => {
     const loadUsers = async () => {
       try {
         setLoading(true);
-        // Pobierz użytkowników z Supabase
+        // Fetch users from Supabase
         const supabaseUsers = await fetchAllUsers();
         setUsers(supabaseUsers);
       } catch (error) {
@@ -60,93 +68,82 @@ const AdminUsers = () => {
         )}
       </div>
       
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Nazwa
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Rola
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Data utworzenia
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Ostatnie logowanie
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  Akcje
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {user.profilePicture ? (
-                        <img
-                          className="h-10 w-10 rounded-full object-cover"
-                          src={user.profilePicture}
-                          alt={user.name}
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                          {user.name?.charAt(0)}
+      <div className="bg-gray-800 rounded-lg shadow overflow-hidden">
+        <Table>
+          <TableHeader className="bg-gray-900">
+            <TableRow className="border-b border-gray-700">
+              <TableHead className="text-gray-300 uppercase">Nazwa</TableHead>
+              <TableHead className="text-gray-300 uppercase">Email</TableHead>
+              <TableHead className="text-gray-300 uppercase">Rola</TableHead>
+              <TableHead className="text-gray-300 uppercase">Data utworzenia</TableHead>
+              <TableHead className="text-gray-300 uppercase">Ostatnie logowanie</TableHead>
+              <TableHead className="text-gray-300 uppercase text-right">Akcje</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow 
+                key={user.id} 
+                className="border-b border-gray-700 hover:bg-gray-700 dark:hover:bg-gray-700"
+              >
+                <TableCell className="py-4">
+                  <div className="flex items-center">
+                    {user.profilePicture ? (
+                      <img
+                        className="h-10 w-10 rounded-full object-cover"
+                        src={user.profilePicture}
+                        alt={user.name}
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
+                        {user.name?.charAt(0)}
+                      </div>
+                    )}
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-white">
+                        {user.name} {user.lastName || ''}
+                      </div>
+                      {user.jobTitle && (
+                        <div className="text-xs text-gray-400">
+                          {user.jobTitle}
                         </div>
                       )}
-                      <div className="ml-4">
-                        <div className="text-sm font-medium dark:text-white">
-                          {user.name} {user.lastName || ''}
-                        </div>
-                        {user.jobTitle && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {user.jobTitle}
-                          </div>
-                        )}
-                      </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-300">
-                    {user.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-300">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
-                      {user.role || 'user'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-300">
-                    {new Date(user.created_at).toLocaleDateString('pl-PL')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm dark:text-gray-300">
-                    {user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          Edytuj
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edytuj użytkownika</DialogTitle>
-                        </DialogHeader>
-                        <UserForm userId={user.id} user={user} />
-                      </DialogContent>
-                    </Dialog>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-gray-300">
+                  {user.email}
+                </TableCell>
+                <TableCell>
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900 text-green-100">
+                    {user.role || 'user'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-gray-300">
+                  {new Date(user.created_at).toLocaleDateString('pl-PL')}
+                </TableCell>
+                <TableCell className="text-gray-300">
+                  {user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="bg-black text-white hover:bg-gray-900 hover:text-white border-none">
+                        Edytuj
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edytuj użytkownika</DialogTitle>
+                      </DialogHeader>
+                      <UserForm userId={user.id} user={user} />
+                    </DialogContent>
+                  </Dialog>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
@@ -171,10 +168,10 @@ const UserForm = ({ userId, user }: { userId?: string; user?: any }) => {
     setIsLoading(true);
     
     try {
-      // Tutaj implementacja dodawania/edytowania użytkownika
+      // Here implement adding/editing user
       console.log("Form submitted:", formData);
       
-      // Symulacja opóźnienia
+      // Simulating delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
     } catch (error) {

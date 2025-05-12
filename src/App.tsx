@@ -60,6 +60,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            
+            {/* Portfolio/Projects page now accessible without auth */}
+            <Route path="/projects" element={<Projects />} />
 
             {/* Protected routes */}
             <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
@@ -73,7 +76,6 @@ function App() {
             <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
             <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
             
-            <Route path="/projects" element={<RequireAuth><Projects /></RequireAuth>} />
             <Route path="/content-plan" element={<RequireAuth><ContentPlan /></RequireAuth>} />
 
             {/* Service pages */}
