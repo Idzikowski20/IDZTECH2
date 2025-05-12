@@ -18,17 +18,18 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
   const [accessDenied, setAccessDenied] = useState(false);
   const redirected = useRef(false);
   
-  console.log("RequireAuth render:", { user, loading, path: location.pathname });
+  console.log("RequireAuth render:", { user, loading, path: location.pathname, requiredRole });
   
   // Initialize auth check with a short timer
   useEffect(() => {
     // Short timeout to allow auth state to load
     const timer = setTimeout(() => {
       setIsInitialized(true);
-      console.log("Auth initialized");
+      console.log("Auth initialized, user:", user);
       
       // Check for role-based access if a role is required
       if (user && requiredRole && user.role !== requiredRole) {
+        console.log("Access denied, required role:", requiredRole, "user role:", user.role);
         setAccessDenied(true);
       }
     }, 500);

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/utils/AuthProvider';
 import { User } from '@/utils/authTypes';
-import { fetchAllUsers, deleteUser as deleteUserApi, addUser as addUserApi, updateUserRole as updateUserRoleApi } from '@/utils/authIntegration';
+import { fetchAllUsers, deleteUser, addUser, updateUserRole } from '@/utils/authIntegration';
 import { Loader2, UserRound, Shield, Edit, Trash2 } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
@@ -55,12 +54,21 @@ const AdminUsers = () => {
   const handleDelete = async (userId: string) => {
     if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        await deleteUserApi(userId);
-        setUsers(users.filter(user => user.id !== userId));
-        toast({
-          title: "Sukces",
-          description: "Użytkownik został usunięty",
-        });
+        const success = await deleteUser(userId);
+        
+        if (success) {
+          setUsers(users.filter(user => user.id !== userId));
+          toast({
+            title: "Sukces",
+            description: "Użytkownik został usunięty",
+          });
+        } else {
+          toast({
+            title: "Błąd",
+            description: "Nie udało się usunąć użytkownika",
+            variant: "destructive"
+          });
+        }
       } catch (error) {
         console.error("Error deleting user:", error);
         toast({
@@ -271,11 +279,11 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
       
       if (userId) {
         // Update existing user
-        result = await updateUserRoleApi(userId, formData.role as any);
+        result = await updateUserRole(userId, formData.role as any);
         console.log("User updated:", result);
       } else {
         // Add new user
-        result = await addUserApi({
+        result = await addUser({
           name: formData.name,
           email: formData.email,
           role: formData.role as any,

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
 import { ExtendedUserProfile } from '@/utils/AuthProvider';
+import { User, UserRole } from './authTypes';
 
 // Check which authentication method is available and use it
 export const integrateAuth = async () => {
@@ -255,5 +256,113 @@ export const fetchAllUsers = async () => {
   } catch (error) {
     console.error('Error in fetchAllUsers:', error);
     return [];
+  }
+};
+
+// Add the missing functions for user management
+
+/**
+ * Add a new user to the system
+ */
+export const addUser = async (userData: any, password: string) => {
+  try {
+    console.log('Adding new user:', userData);
+    
+    // Create user in Supabase
+    const { data: { user }, error } = await supabase.auth.signUp({
+      email: userData.email,
+      password: password,
+      options: {
+        data: {
+          name: userData.name,
+          lastName: userData.lastName,
+          role: userData.role
+        }
+      }
+    });
+    
+    if (error) {
+      console.error('Error creating user:', error);
+      return { success: false, error };
+    }
+    
+    // Create profile
+    if (user) {
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: user.id,
+        email: userData.email,
+        name: userData.name,
+        lastName: userData.lastName,
+        role: userData.role,
+        jobTitle: userData.jobTitle,
+        profilePicture: userData.profilePicture,
+        bio: userData.bio,
+        created_at: new Date().toISOString()
+      });
+      
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        return { success: false, error: profileError };
+      }
+    }
+    
+    return { success: true, id: user?.id };
+  } catch (error) {
+    console.error('Error in addUser:', error);
+    return { success: false, error };
+  }
+};
+
+/**
+ * Update a user's role
+ */
+export const updateUserRole = async (userId: string, role: UserRole) => {
+  try {
+    console.log('Updating role for user:', userId, 'to', role);
+    
+    // Update the profile with the new role
+    const { error } = await supabase
+      .from('profiles')
+      .update({ role })
+      .eq('id', userId);
+    
+    if (error) {
+      console.error('Error updating user role:', error);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error in updateUserRole:', error);
+    return false;
+  }
+};
+
+/**
+ * Delete a user
+ */
+export const deleteUser = async (userId: string) => {
+  try {
+    console.log('Deleting user:', userId);
+    
+    // We can't directly delete users from auth.users with the client SDK
+    // But we can delete their profile, which is effectively the same for our purposes
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
+    
+    if (error) {
+      console.error('Error deleting user profile:', error);
+      return false;
+    }
+    
+    // Note: In a production system, you would use supabase admin to delete the actual auth.users entry,
+    // or have a server-side function that handles this
+    
+    return true;
+  } catch (error) {
+    console.error('Error in deleteUser:', error);
+    return false;
   }
 };
