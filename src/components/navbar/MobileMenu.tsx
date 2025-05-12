@@ -1,16 +1,13 @@
-
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useTheme } from '@/utils/themeContext';
-import { Menu } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { useAuth } from '@/utils/AuthProvider';
+import { useTheme } from '@/utils/themeContext';
+import { Moon, Sun, LogIn, Menu } from 'lucide-react';
+import { trackEvent } from '@/utils/analytics';
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import { Accordion } from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import MobileNavigationItem from './MobileNavigationItem';
-import MobileAccordionItem from './MobileAccordionItem';
-import MobileMenuHeader from './MobileMenuHeader';
-import MobileMenuFooter from './MobileMenuFooter';
 
 interface MobileMenuProps {
   isMenuOpen: boolean;
@@ -18,63 +15,38 @@ interface MobileMenuProps {
 }
 
 const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) => {
-  const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
+  const { theme, toggleDarkMode } = useTheme();
   const location = useLocation();
   
-  // Handle menu opening/closing with more reliable state management
+  // Handle menu opening/closing
   const handleMenuOpen = (open: boolean) => {
     setIsMenuOpen(open);
-    
-    // When opening menu, prevent body scroll
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
   };
   
-  // Close menu when route changes
+  // Close menu when route changes and ensure body scroll is managed properly
   useEffect(() => {
     if (isMenuOpen) {
       setIsMenuOpen(false);
-      document.body.style.overflow = '';
     }
-  }, [location.pathname, setIsMenuOpen, isMenuOpen]);
+  }, [location, setIsMenuOpen, isMenuOpen]);
   
-  // Clean up body scroll style when component unmounts
+  // Ensure body scroll is restored when component unmounts
   useEffect(() => {
     return () => {
       document.body.style.overflow = '';
     };
   }, []);
 
-  // Handle navigation click to close the menu
+  const isActive = (path: string) => location.pathname === path;
+  
+  // Determine text color based on theme
+  const textColor = theme === 'light' ? 'text-black' : 'text-white';
+  
+  // Helper for consistent navigation handling
   const handleNavigation = () => {
     setIsMenuOpen(false);
-    document.body.style.overflow = '';
   };
-
-  // Define offer categories and items
-  const offerCategories = [
-    {
-      title: "Strony www",
-      items: [
-        { path: "/tworzenie-stron-www", label: "Tworzenie stron www" },
-        { path: "/sklepy-internetowe", label: "Tworzenie sklepów internetowych" }
-      ]
-    },
-    {
-      title: "Pozycjonowanie (SEO)",
-      items: [
-        { path: "/pozycjonowanie-stron", label: "Pozycjonowanie stron internetowych" },
-        { path: "/pozycjonowanie-lokalne", label: "Pozycjonowanie lokalne" },
-        { path: "/audyt-seo", label: "Audyt SEO" },
-        { path: "/optymalizacja-seo", label: "Optymalizacja SEO" },
-        { path: "/copywriting-seo", label: "Copywriting SEO" },
-        { path: "/content-plan", label: "Content Plan" }
-      ]
-    }
-  ];
 
   return (
     <Drawer open={isMenuOpen} onOpenChange={handleMenuOpen}>
@@ -82,61 +54,150 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`md:hidden ${theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-gray-800 hover:text-white'}`}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`md:hidden ${textColor}`}
         >
           <Menu className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">Menu</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/90' : 'bg-black/90'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
+      <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
         <div className="px-6 py-8 flex flex-col h-full">
-          <MobileMenuHeader onClose={handleNavigation} />
+          <div className="flex items-center justify-between mb-8">
+            <h2 className={`text-xl font-bold ${textColor}`}>Menu</h2>
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  toggleDarkMode();
+                  trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
+                }} 
+                className={`${textColor}`}
+              >
+                {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+              
+              <Link to={isAuthenticated ? "/admin" : "/login"} onClick={handleNavigation}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`${textColor}`}
+                >
+                  <LogIn className="h-[1.2rem] w-[1.2rem]" />
+                  <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
 
-          <ScrollArea className="flex-1 overflow-y-auto pr-2">
+          <ScrollArea className="flex-1 overflow-hidden pr-2">
             <nav className="flex flex-col space-y-2">
-              <MobileNavigationItem 
-                to="/" 
-                label="Start" 
-                onClick={handleNavigation} 
-              />
+              <Link to="/" 
+                className={`${textColor} text-lg px-3 py-3 rounded-lg transition-colors ${isActive('/') ? 'font-bold border-b-2 border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                onClick={handleNavigation}
+              >
+                Start
+              </Link>
               
               <Accordion type="single" collapsible className="w-full">
-                <MobileAccordionItem 
-                  value="offer"
-                  title="Oferta"
-                  categories={offerCategories}
-                  onClick={handleNavigation}
-                />
+                <AccordionItem value="offer" className={theme === 'light' ? 'border-gray-200' : 'border-white/10'}>
+                  <AccordionTrigger className={`${textColor} text-lg px-3 py-2 hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white rounded-lg ${(isActive('/tworzenie-stron-www') || isActive('/sklepy-internetowe') || isActive('/pozycjonowanie-stron') || isActive('/pozycjonowanie-lokalne') || isActive('/audyt-seo') || isActive('/optymalizacja-seo') || isActive('/copywriting-seo') || isActive('/content-plan')) ? 'font-bold border-b-2 border-premium-blue' : ''}`}>
+                    Oferta
+                  </AccordionTrigger>
+                  <AccordionContent className="max-h-[250px] overflow-hidden">
+                    <div className="space-y-2 pl-2">
+                      <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-2`}>Strony www</h3>
+                      <Link to="/tworzenie-stron-www" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/tworzenie-stron-www') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Tworzenie stron www
+                      </Link>
+                      <Link to="/sklepy-internetowe" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/sklepy-internetowe') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Tworzenie sklepów internetowych
+                      </Link>
+                    
+                      <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-4`}>Pozycjonowanie (SEO)</h3>
+                      <Link to="/pozycjonowanie-stron" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-stron') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Pozycjonowanie stron internetowych
+                      </Link>
+                      <Link to="/pozycjonowanie-lokalne" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-lokalne') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Pozycjonowanie lokalne
+                      </Link>
+                      <Link to="/audyt-seo" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/audyt-seo') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Audyt SEO
+                      </Link>
+                      <Link to="/optymalizacja-seo" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/optymalizacja-seo') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Optymalizacja SEO
+                      </Link>
+                      <Link to="/copywriting-seo" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/copywriting-seo') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Copywriting SEO
+                      </Link>
+                      <Link to="/content-plan" 
+                        className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/content-plan') ? 'font-bold border-b border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                        onClick={handleNavigation}
+                      >
+                        Content Plan
+                      </Link>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
               
-              <MobileNavigationItem 
-                to="/projects" 
-                label="Portfolio" 
-                onClick={handleNavigation} 
-              />
+              <Link to="/projects" 
+                className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/projects') ? 'font-bold border-b-2 border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                onClick={handleNavigation}
+              >
+                Portfolio
+              </Link>
               
-              <MobileNavigationItem 
-                to="/about" 
-                label="O nas" 
-                onClick={handleNavigation} 
-              />
+              <Link to="/about" 
+                className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/about') ? 'font-bold border-b-2 border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                onClick={handleNavigation}
+              >
+                O nas
+              </Link>
               
-              <MobileNavigationItem 
-                to="/blog" 
-                label="Blog" 
-                onClick={handleNavigation} 
-              />
+              <Link to="/blog" 
+                className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/blog') ? 'font-bold border-b-2 border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                onClick={handleNavigation}
+              >
+                Blog
+              </Link>
               
-              <MobileNavigationItem 
-                to="/contact" 
-                label="Kontakt" 
-                onClick={handleNavigation} 
-              />
+              <Link to="/contact" 
+                className={`${textColor} text-lg transition-colors px-3 py-3 rounded-lg ${isActive('/contact') ? 'font-bold border-b-2 border-premium-blue' : ''} hover:bg-gray-100 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white`}
+                onClick={handleNavigation}
+              >
+                Kontakt
+              </Link>
             </nav>
           </ScrollArea>
           
-          <MobileMenuFooter onClose={handleNavigation} />
+          <Link to="/contact" className="mt-6" onClick={handleNavigation}>
+            <Button className={`w-full ${theme === 'light' ? 'bg-black hover:bg-black/80' : 'bg-black hover:bg-black/80'} ${theme === 'light' ? 'text-white hover:text-white' : 'text-white hover:text-white'}`}>
+              Umów spotkanie
+            </Button>
+          </Link>
         </div>
       </DrawerContent>
     </Drawer>
