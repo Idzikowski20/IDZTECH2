@@ -16,7 +16,8 @@ export const sendNotification = ({
   fromUserId,
   targetId,
   targetType,
-  status = 'unread'
+  status = 'unread',
+  fromUserName = ''
 }: {
   type: string;
   title: string;
@@ -25,6 +26,7 @@ export const sendNotification = ({
   targetId?: string;
   targetType?: string;
   status?: 'unread' | 'read' | 'pending' | 'approved' | 'rejected';
+  fromUserName?: string;
 }) => {
   try {
     if (!notificationService) {
@@ -43,7 +45,8 @@ export const sendNotification = ({
         targetType,
         status,
         createdAt: new Date().toISOString(),
-        read: false
+        read: false,
+        fromUserName
       };
       
       offlineNotifications.push(newNotification);
@@ -59,7 +62,8 @@ export const sendNotification = ({
       fromUserId,
       targetId,
       targetType,
-      status: status as any
+      status: status as any,
+      fromUserName
     });
 
     return true;
@@ -86,6 +90,7 @@ export const sendApprovalRequest = (
     title,
     message: enhancedMessage,
     fromUserId,
+    fromUserName,
     targetId,
     targetType,
     status: 'pending'
@@ -99,6 +104,7 @@ export const notifyPostCreated = (userId: string, userName: string, postId: stri
     title: 'Nowy post został utworzony',
     message: `Użytkownik ${userName} utworzył nowy post "${postTitle}"`,
     fromUserId: userId,
+    fromUserName: userName,
     targetId: postId,
     targetType: 'post'
   });
@@ -111,6 +117,7 @@ export const addCommentNotification = (postId: string, postTitle: string, userNa
     title: 'Nowy komentarz',
     message: `${userName} dodał komentarz do "${postTitle}"`,
     fromUserId: userId,
+    fromUserName: userName,
     targetId: postId,
     targetType: 'post'
   });
@@ -123,6 +130,7 @@ export const addLikeNotification = (postId: string, postTitle: string, userName:
     title: 'Nowe polubienie',
     message: `${userName} polubił "${postTitle}"`,
     fromUserId: userId,
+    fromUserName: userName,
     targetId: postId,
     targetType: 'post'
   });

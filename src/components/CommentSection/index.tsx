@@ -9,7 +9,7 @@ import CommentHeader from './CommentHeader';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { addCommentNotification } from '@/utils/notifications';
+import { addCommentNotification, sendApprovalRequest } from '@/utils/notificationHelpers';
 
 export interface Comment {
   id: string;
@@ -33,6 +33,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isGuestCommentDialogOpen, setIsGuestCommentDialogOpen] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestComment, setGuestComment] = useState('');
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -98,11 +101,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
 
   const handleAddComment = async (content: string) => {
     if (!user) {
-      toast({
-        title: 'Musisz być zalogowany',
-        description: 'Zaloguj się aby dodać komentarz',
-      });
-      navigate('/login');
+      // Show dialog for guest comment instead of redirecting to login
+      setGuestComment(content);
+      setIsGuestCommentDialogOpen(true);
       return false;
     }
 
@@ -186,12 +187,108 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
     }
   };
 
+  const handleGuestComment = async () => {
+    if (!guestName.trim() || !guestComment.trim()) {
+      toast({
+        title: 'Błąd',
+        description: 'Imię i komentarz są wymagane',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Send approval request notification to admin
+      await sendApprovalRequest(
+        'guest', // fromUserId
+        guestName, // fromUserName
+        postId, // targetId
+        'comment', // targetType
+        'Prośba o zatwierdzenie komentarza gościa',
+        `${guestName} chce dodać komentarz do postu "${postTitle}": "${guestComment}"`
+      );
+      
+      toast({
+        title: 'Komentarz wysłany',
+        description: 'Twój komentarz został wysłany do zatwierdzenia przez administratora',
+      });
+      
+      // Reset form
+      setGuestName('');
+      setGuestComment('');
+      setIsGuestCommentDialogOpen(false);
+    } catch (err) {
+      console.error('Error sending guest comment:', err);
+      toast({
+        title: 'Błąd',
+        description: 'Wystąpił problem podczas wysyłania komentarza',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleReportComment = (commentId: string) => {
     console.log(`Reporting comment with ID: ${commentId}`);
     toast({
       title: 'Komentarz zgłoszony',
       description: 'Dziękujemy za zgłoszenie. Sprawdzimy ten komentarz.',
     });
+  };
+
+  // Dialog for guest comments
+  const GuestCommentDialog = () => {
+    if (!isGuestCommentDialogOpen) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-premium-dark border border-premium-light/20 rounded-lg p-6 max-w-md w-full">
+          <h3 className="text-xl font-bold mb-4">Dodaj komentarz jako gość</h3>
+          <p className="mb-4 text-premium-light/70">
+            Twój komentarz zostanie wysłany do zatwierdzenia przez administratora.
+          </p>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="guestName" className="block text-sm font-medium mb-1">
+                Twoje imię
+              </label>
+              <input
+                id="guestName"
+                type="text"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                className="w-full p-2 bg-premium-light/5 border border-premium-light/20 rounded-md text-white hover:bg-black hover:text-white"
+                placeholder="Imię"
+              />
+            </div>
+            <div>
+              <label htmlFor="guestComment" className="block text-sm font-medium mb-1">
+                Twój komentarz
+              </label>
+              <textarea
+                id="guestComment"
+                value={guestComment}
+                onChange={(e) => setGuestComment(e.target.value)}
+                className="w-full p-2 bg-premium-light/5 border border-premium-light/20 rounded-md text-white min-h-20 hover:bg-black hover:text-white"
+                placeholder="Twój komentarz..."
+                readOnly
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsGuestCommentDialogOpen(false)}
+                className="hover:bg-black hover:text-white"
+              >
+                Anuluj
+              </Button>
+              <Button onClick={handleGuestComment} className="hover:bg-black hover:text-white">
+                Wyślij
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -241,6 +338,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
           </Button>
         </div>
       )}
+      
+      {/* Guest comment dialog */}
+      <GuestCommentDialog />
     </div>
   );
 };
