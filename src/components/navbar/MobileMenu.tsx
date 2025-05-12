@@ -66,8 +66,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 to={item.href}
                 className={`px-3 py-3 text-lg font-medium rounded-md ${
                   theme === 'light'
-                    ? 'text-gray-800 hover:bg-gray-100 hover:text-black'
-                    : 'text-white hover:bg-white/10 hover:text-white'
+                    ? 'text-gray-800 hover:bg-gray-100 hover:text-white'
+                    : 'text-white hover:bg-white hover:text-black'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -81,8 +81,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   to="/admin"
                   className={`px-3 py-3 text-lg font-medium rounded-md ${
                     theme === 'light'
-                      ? 'text-gray-800 hover:bg-gray-100 hover:text-black'
-                      : 'text-white hover:bg-white/10 hover:text-white'
+                      ? 'text-gray-800 hover:bg-gray-100 hover:text-white'
+                      : 'text-white hover:bg-white hover:text-black'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -91,8 +91,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 <button
                   className={`px-3 py-3 text-left text-lg font-medium rounded-md ${
                     theme === 'light'
-                      ? 'text-gray-800 hover:bg-gray-100 hover:text-black'
-                      : 'text-white hover:bg-white/10 hover:text-white'
+                      ? 'text-gray-800 hover:bg-gray-100 hover:text-white'
+                      : 'text-white hover:bg-white hover:text-black'
                   }`}
                   onClick={() => {
                     signOut();
