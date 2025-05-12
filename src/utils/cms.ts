@@ -1,3 +1,4 @@
+
 import { supabase } from './supabaseClient';
 
 // Types for CMS content
@@ -26,7 +27,7 @@ export interface CMSPage {
 export const enableRLSOnCMSTables = async (): Promise<{success: boolean; message: string}> => {
   try {
     // Enable RLS on cms_content table
-    const { error: contentError } = await supabase.rpc('enable_rls_on_cms_content', {});
+    const { error: contentError } = await supabase.rpc('enable_rls_on_cms_content');
     
     if (contentError) {
       console.error('Error enabling RLS for cms_content:', contentError);
@@ -34,7 +35,7 @@ export const enableRLSOnCMSTables = async (): Promise<{success: boolean; message
     }
     
     // Enable RLS on cms_pages table
-    const { error: pagesError } = await supabase.rpc('enable_rls_on_cms_pages', {});
+    const { error: pagesError } = await supabase.rpc('enable_rls_on_cms_pages');
     
     if (pagesError) {
       console.error('Error enabling RLS for cms_pages:', pagesError);
