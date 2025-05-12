@@ -23,6 +23,7 @@ export interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error?: any }>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: any }>;
 }
 
 // Create auth context
@@ -71,6 +72,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: error.message || "Wystąpił nieoczekiwany błąd",
         variant: "destructive",
       });
+    }
+  };
+
+  // Password reset function
+  const resetPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      
+      return { error };
+    } catch (error) {
+      return { error };
     }
   };
 
@@ -144,6 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     updateProfile,
+    resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
