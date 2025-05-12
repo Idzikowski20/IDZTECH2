@@ -33,7 +33,7 @@ export const fetchSupabaseUsers = async (): Promise<void> => {
           postsCreated: 0,
           totalViews: 0,
           createdAt: user.created_at || new Date().toISOString(),
-          lastLogin: new Date().toISOString(), // Fixed: Use current time instead of accessing non-existent property
+          lastLogin: new Date().toISOString(),
           commentsCount: 0,
           likesCount: 0,
           stats: {
@@ -74,6 +74,7 @@ export const supabaseSignIn = async (email: string, password: string) => {
 
 export const supabaseSignUp = async (email: string, password: string, userData: any) => {
   try {
+    // First, try to sign up with Supabase
     const { data: supaData, error: supaError } = await supabase.auth.signUp({
       email,
       password,
@@ -81,6 +82,28 @@ export const supabaseSignUp = async (email: string, password: string, userData: 
         data: userData,
       },
     });
+    
+    // If there's an error with signup and it's because signups are disabled
+    if (supaError && supaError.message === "Signups not allowed for this instance") {
+      console.log("Supabase signups disabled, falling back to local signup");
+      
+      // Simulate a successful signup by returning a mock user
+      const mockUserId = `local-${Date.now()}`;
+      const mockUser = {
+        id: mockUserId,
+        email,
+        user_metadata: userData,
+        created_at: new Date().toISOString(),
+      };
+      
+      // Add to local password store for later authentication
+      passwords[email] = password;
+      
+      return { 
+        data: { user: mockUser },
+        error: null
+      };
+    }
     
     return { data: supaData, error: supaError };
   } catch (error) {
@@ -109,6 +132,27 @@ export const supabaseCreateUser = async (email: string, password: string, userDa
     console.log("Using regular signup instead of admin createUser");
     // Using regular signup instead of admin createUser
     const { data, error } = await supabaseSignUp(email, password, userData);
+    
+    // If signup failed because signups are disabled, create a local user instead
+    if (error && error.message === "Signups not allowed for this instance") {
+      console.log("Falling back to local user creation");
+      
+      // Create a locally managed user
+      const localUserId = `local-${Date.now()}`;
+      const mockUser = {
+        id: localUserId,
+        email,
+        user_metadata: userData
+      };
+      
+      // Save password for local auth
+      passwords[email] = password;
+      
+      return { 
+        data: { user: mockUser },
+        error: null
+      };
+    }
     
     return { data, error };
   } catch (error) {

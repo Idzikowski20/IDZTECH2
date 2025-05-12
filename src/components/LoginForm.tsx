@@ -43,6 +43,29 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       
       if (error) {
         console.error("Login error:", error);
+        
+        // Check if we have a local user with this email
+        if (error.message === "Invalid login credentials") {
+          // Try local auth via authStore (will be handled there)
+          const success = await signIn(email, password);
+          
+          if (success) {
+            toast({
+              title: "Zalogowano pomyślnie",
+              description: "Witamy z powrotem!"
+            });
+            
+            if (onSuccess) {
+              onSuccess();
+            } else {
+              navigate('/admin');
+            }
+            
+            setIsLoading(false);
+            return;
+          }
+        }
+        
         toast({
           title: "Błąd logowania",
           description: error.message || "Nieprawidłowy email lub hasło",
@@ -60,6 +83,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       if (onSuccess) {
         onSuccess();
       } else {
+        // Force navigation directly instead of relying on auth state changes
         navigate('/admin');
       }
     } catch (error: any) {

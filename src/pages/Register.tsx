@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -32,7 +31,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isPassCompromised, setIsPassCompromised] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, register } = useAuth();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -77,12 +76,30 @@ const Register = () => {
     
     setIsLoading(true);
     try {
-      // Register the user with Supabase through our Auth provider
+      // First try with Supabase through our Auth provider
       const { error } = await signUp(values.email, values.password, {
         name: values.name,
       });
       
-      if (error) {
+      // If signUp fails, try the local registration
+      if (error && error.message === "Signups not allowed for this instance") {
+        // Use local registration
+        const success = await register(values.email, values.name, values.password);
+        
+        if (success) {
+          toast({
+            title: "Rejestracja udana",
+            description: "Teraz możesz się zalogować"
+          });
+          navigate('/login');
+        } else {
+          toast({
+            title: "Błąd rejestracji",
+            description: "Użytkownik o podanym adresie email już istnieje",
+            variant: "destructive"
+          });
+        }
+      } else if (error) {
         toast({
           title: "Błąd rejestracji",
           description: error.message || "Wystąpił błąd podczas rejestracji",

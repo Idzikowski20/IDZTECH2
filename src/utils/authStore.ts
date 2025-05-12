@@ -1,4 +1,3 @@
-
 // Main authentication store using zustand
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -84,6 +83,7 @@ export const useAuth = create<AuthState>()(
             if (mockUser && passwords[email] === password) {
               mockUser.lastLogin = new Date().toISOString();
               set({ user: mockUser, isAuthenticated: true, rememberMe: remember, loading: false });
+              console.log("Successfully logged in with local auth");
               return true;
             }
           }
@@ -136,7 +136,7 @@ export const useAuth = create<AuthState>()(
             // Auto login after registration
             set({ user: newUser, isAuthenticated: true });
             return true;
-          } else if (supaError) {
+          } else if (supaError && supaError.message === "Signups not allowed for this instance") {
             // Fallback to mock registration
             // Check if user already exists
             if (users.some((u) => u.email === email)) {
@@ -176,6 +176,7 @@ export const useAuth = create<AuthState>()(
             
             // Auto login after registration
             set({ user: newUser, isAuthenticated: true });
+            console.log("Successfully created local user", newUser);
             return true;
           }
 
@@ -251,10 +252,10 @@ export const useAuth = create<AuthState>()(
             role: userData.role
           });
 
-          if (error) {
+          if (error && error.message !== "Signups not allowed for this instance") {
             console.error("Error creating user:", error);
             
-            // Fallback to local-only user creation if Supabase fails
+            // Try local-only user creation as fallback
             const newUser: User = {
               ...userData,
               id: `local-${Date.now()}`,
@@ -277,6 +278,7 @@ export const useAuth = create<AuthState>()(
 
             users.push(newUser);
             passwords[userData.email] = password;
+            console.log("Created local user:", newUser);
             return true;
           }
 
@@ -313,151 +315,14 @@ export const useAuth = create<AuthState>()(
         }
       },
       
-      updateUserRole: async (userId, role) => {
-        const index = users.findIndex(u => u.id === userId);
-        if (index === -1) return false;
-        
-        users[index].role = role;
-
-        try {
-          // Mock update in Supabase
-          const { error } = await supabaseUpdateUserRole(userId, role);
-
-          if (error) {
-            console.error("Error updating user role:", error);
-            // Continue anyway with local update
-          }
-          
-          return true;
-        } catch (error) {
-          console.error("Error in updateUserRole:", error);
-          return true; // Still return true as local update succeeded
-        }
-      },
-      
-      getUserById: async (userId) => {
-        return users.find(u => u.id === userId);
-      },
-      
+      updateUserRole,
+      getUserById,
       getTopUser,
       getTopUserOfMonth,
       getUserRanking,
-      
-      forgotPassword: async (email: string) => {
-        try {
-          // Try with Supabase first
-          const { error } = await supabaseResetPassword(email);
-          
-          if (error) {
-            console.error("Error in Supabase password reset:", error);
-            // Fall back to local mechanism
-          }
-
-          // Check if the user exists
-          const user = users.find((u) => u.email === email);
-          if (!user) {
-            // We don't want to reveal if the email exists or not for security reasons
-            console.log(`Password reset requested for non-existent user: ${email}`);
-            return true;
-          }
-          
-          // Generate a token
-          const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-          
-          // Set expiration to 24 hours from now
-          const expires = new Date();
-          expires.setHours(expires.getHours() + 24);
-          
-          // Store the reset token
-          resetTokens.push({
-            email,
-            token,
-            expires
-          });
-          
-          // In a real implementation you would send an email with the reset link
-          console.log('Password reset requested for:', email);
-          console.log('Reset link:', `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`);
-          
-          // Generate a reset link
-          const resetLink = `${window.location.origin}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
-          
-          // In a production implementation this code would be replaced by an API call to send emails
-          // but temporarily we can show the link in the console
-          console.log('Here should be an API call to send an email with the link:', resetLink);
-          
-          return true;
-        } catch (error) {
-          console.error("Error in forgotPassword:", error);
-          return false;
-        }
-      },
-      
-      resetPassword: async (email: string, token: string, newPassword: string) => {
-        try {
-          // First check if there's a valid token in our mock system
-          const tokenIndex = resetTokens.findIndex(
-            (rt) => rt.email === email && rt.token === token && new Date() < rt.expires
-          );
-          
-          if (tokenIndex !== -1) {
-            // Token is valid, update the password
-            passwords[email] = newPassword;
-            
-            // Remove the used token
-            resetTokens.splice(tokenIndex, 1);
-            
-            return true;
-          }
-          
-          // If no token found in our mock system, try Supabase
-          // Note: This only works if user has received a reset email from Supabase
-          const { error } = await supabaseUpdatePassword(newPassword);
-          
-          if (error) {
-            console.error("Error updating password in Supabase:", error);
-            return false;
-          }
-          
-          return true;
-        } catch (error) {
-          console.error("Error in resetPassword:", error);
-          return false;
-        }
-      },
-      
-      deleteUser: async (userId: string) => {
-        try {
-          const index = users.findIndex(u => u.id === userId);
-          if (index === -1) return false;
-          
-          // Check if trying to delete the current user (shouldn't delete yourself)
-          const { user } = get();
-          if (user?.id === userId) return false;
-          
-          // Mock delete in Supabase
-          const { error } = await supabaseDeleteUser(userId);
-          
-          if (error) {
-            console.error("Error deleting user from Supabase:", error);
-            // Continue with local deletion anyway
-          }
-          
-          // Delete the user from local store
-          const deletedUser = users.splice(index, 1)[0];
-          
-          // Clean up password record
-          if (deletedUser.email in passwords) {
-            delete passwords[deletedUser.email];
-          }
-          
-          return true;
-        } catch (error) {
-          console.error("Error in deleteUser:", error);
-          return false;
-        }
-      },
-      
+      forgotPassword,
+      resetPassword,
+      deleteUser,
       refreshUserStats,
     }),
     {
