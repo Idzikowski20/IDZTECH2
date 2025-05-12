@@ -2,14 +2,25 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/utils/AuthProvider";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface RequireAuthProps {
   children: JSX.Element;
 }
 
 const RequireAuth = ({ children }: RequireAuthProps) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // If user is authenticated, ensure proper navigation
+    if (isAuthenticated && user && location.pathname === "/login") {
+      console.log("User is authenticated, redirecting to /admin");
+      navigate("/admin", { replace: true });
+    }
+  }, [isAuthenticated, user, location.pathname, navigate]);
   
   // Loading state
   if (loading) {

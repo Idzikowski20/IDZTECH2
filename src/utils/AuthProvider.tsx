@@ -40,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let isMounted = true;
     
+    console.log("Setting up auth provider");
+    
     // Set up auth state listener FIRST to prevent missing auth events
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
@@ -48,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!isMounted) return;
         
         if (currentSession) {
+          console.log("Session exists in auth state change");
           setSession(currentSession);
           setUser({
             ...currentSession.user,
@@ -59,6 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
           setIsAuthenticated(true);
         } else {
+          console.log("No session in auth state change");
           setSession(null);
           setUser(null);
           setIsAuthenticated(false);
@@ -71,9 +75,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // THEN check for existing session
     const checkSession = async () => {
       try {
+        console.log("Checking for existing session");
         const { data } = await supabase.auth.getSession();
         
         if (data.session && isMounted) {
+          console.log("Existing session found:", data.session.user.id);
           setSession(data.session);
           setUser({
             ...data.session.user,
@@ -84,6 +90,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             jobTitle: data.session.user.user_metadata?.jobTitle || null
           });
           setIsAuthenticated(true);
+        } else {
+          console.log("No existing session found");
         }
         
         if (isMounted) setLoading(false);
@@ -113,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Use a small delay to prevent potential auth race conditions
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
@@ -120,6 +129,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         console.error("Sign in error:", error);
+        setLoading(false);
         return { error };
       }
       
@@ -127,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { data };
     } catch (error) {
       console.error("Unexpected error during sign in:", error);
+      setLoading(false);
       return { error };
     }
   };
@@ -136,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Attempting to sign up with email:", email);
       
+      setLoading(true);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -143,6 +155,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           data: userData
         }
       });
+      
+      setLoading(false);
       
       if (error) {
         console.error("Sign up error:", error);
@@ -153,6 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { data };
     } catch (error) {
       console.error("Unexpected error during sign up:", error);
+      setLoading(false);
       return { error };
     }
   };
@@ -160,12 +175,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Sign out function
   const signOut = async () => {
     try {
+      setLoading(true);
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
+      setLoading(false);
     } catch (error) {
       console.error("Sign out error:", error);
+      setLoading(false);
     }
   };
   

@@ -34,6 +34,7 @@ const Login = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      console.log("User is authenticated in Login page, redirecting to:", from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from]);
@@ -72,7 +73,9 @@ const Login = () => {
         description: "Witamy z powrotem!"
       });
       
-      // Navigation happens in useEffect when isAuthenticated changes
+      // Manual navigation after successful login
+      console.log("Login successful, redirecting to:", from);
+      navigate(from, { replace: true });
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({
