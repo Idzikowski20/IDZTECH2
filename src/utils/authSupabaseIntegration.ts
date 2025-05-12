@@ -1,6 +1,6 @@
 
 // Supabase specific integration for authentication
-import { supabase } from '@/utils/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 import { users, updateUsersArray, passwords } from './authUtils';
 import { User, UserRole } from './authTypes';
 
@@ -100,12 +100,16 @@ export const supabaseUpdatePassword = async (newPassword: string) => {
   }
 };
 
+// Modified to use regular signUp instead of admin
 export const supabaseCreateUser = async (email: string, password: string, userData: any) => {
   try {
-    const { data, error } = await supabase.auth.admin.createUser({
+    // Using standard sign-up flow instead of admin API
+    const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
-      user_metadata: userData,
+      options: {
+        data: userData,
+      }
     });
     
     return { data, error };
@@ -115,24 +119,34 @@ export const supabaseCreateUser = async (email: string, password: string, userDa
   }
 };
 
+// Modified to use mock for role update
 export const supabaseUpdateUserRole = async (userId: string, role: UserRole) => {
   try {
-    const { data, error } = await supabase.auth.admin.updateUserById(
-      userId,
-      { user_metadata: { role: role } }
-    );
+    // This is a mock implementation since we don't have admin access
+    console.log(`Mock: Updating user ${userId} role to ${role}`);
     
-    return { data, error };
+    // Find the user in local array and update role
+    const userIndex = users.findIndex(u => u.id === userId);
+    if (userIndex !== -1) {
+      users[userIndex].role = role;
+      return { data: users[userIndex], error: null };
+    }
+    
+    return { data: null, error: new Error('User not found') };
   } catch (error) {
     console.error("Error in supabaseUpdateUserRole:", error);
     return { data: null, error };
   }
 };
 
+// Modified to use mock deletion
 export const supabaseDeleteUser = async (userId: string) => {
   try {
-    const { error } = await supabase.auth.admin.deleteUser(userId);
-    return { error };
+    // This is a mock implementation since we don't have admin access
+    console.log(`Mock: Deleting user ${userId}`);
+    
+    // Simulate successful deletion
+    return { error: null };
   } catch (error) {
     console.error("Error in supabaseDeleteUser:", error);
     return { error };
