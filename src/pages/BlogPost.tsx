@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
 
@@ -12,6 +12,8 @@ import CommentSection from '@/components/CommentSection';
 import LikeButton from '@/components/LikeButton';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from '@/utils/themeContext';
+import { supabase } from '@/utils/supabaseClient';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +23,7 @@ const BlogPost = () => {
   const viewCountUpdated = useRef(false);
   const isMobile = useIsMobile();
   const { theme } = useTheme();
+  const [authorProfile, setAuthorProfile] = useState<any>(null);
   
   const post = slug ? getPostBySlug(slug) : undefined;
   
@@ -36,6 +39,29 @@ const BlogPost = () => {
       viewCountUpdated.current = true;
     }
   }, [post?.id, incrementView]);
+
+  // Fetch author profile from Supabase if we have an author ID
+  useEffect(() => {
+    const fetchAuthorProfile = async () => {
+      if (post?.authorId) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', post.authorId)
+            .single();
+            
+          if (!error && data) {
+            setAuthorProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching author profile:', error);
+        }
+      }
+    };
+    
+    fetchAuthorProfile();
+  }, [post?.authorId]);
   
   if (!post) {
     return (
@@ -53,9 +79,10 @@ const BlogPost = () => {
     );
   }
 
-  // Używamy autora z posta zamiast zalogowanego użytkownika
-  const authorDisplayName = post.author || "IDZ.TECH";
+  // Używamy danych autora z profilu lub z posta jako fallback
+  const authorDisplayName = authorProfile?.name || post.author || "IDZ.TECH";
   const authorInitial = authorDisplayName.charAt(0);
+  const authorProfilePicture = authorProfile?.profilePicture || null;
 
   // Safely access post properties with fallbacks for undefined values
   const commentsCount = post.comments ? post.comments.length : 0;
@@ -114,13 +141,18 @@ const BlogPost = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
             <div className="flex items-center mb-4">
-              {/* Używamy statycznego avatara dla autora bloga */}
-              <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                {authorInitial}
-              </div>
+              {/* Używamy avatara z profilem z Supabase */}
+              <Avatar className="h-10 w-10 border">
+                <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
+                <AvatarFallback className="bg-premium-gradient text-white">
+                  {authorInitial}
+                </AvatarFallback>
+              </Avatar>
               <div className="ml-3">
                 <div className="font-medium">{authorDisplayName}</div>
-                <div className="text-sm text-premium-light/60">Autor</div>
+                <div className="text-sm text-premium-light/60">
+                  {authorProfile?.jobTitle || "Autor"}
+                </div>
               </div>
             </div>
 

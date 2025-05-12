@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/utils/AuthProvider';
-import { useNotifications, NotificationType, NotificationStatus } from '@/utils/notifications';
+import { useSupabaseNotifications, NotificationType, NotificationStatus } from '@/hooks/useSupabaseNotifications';
 import { 
   Card, 
   CardContent, 
@@ -85,7 +86,14 @@ const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => 
 const AdminNotifications = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { notifications, markAsRead, updateNotificationStatus, deleteNotification, markAllAsRead } = useNotifications();
+  const { 
+    notifications, 
+    markAsRead, 
+    updateNotificationStatus, 
+    deleteNotification, 
+    markAllAsRead,
+    loading: notificationsLoading 
+  } = useSupabaseNotifications();
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
@@ -167,8 +175,8 @@ const AdminNotifications = () => {
     });
   };
 
-  // If not loaded yet, show loading state
-  if (!isLoaded) {
+  // If not loaded yet or notifications are still loading, show loading state
+  if (!isLoaded || notificationsLoading) {
     return (
       <AdminLayout>
         <div className="p-6">

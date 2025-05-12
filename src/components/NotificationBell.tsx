@@ -9,12 +9,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
-import { useNotifications, NotificationType } from '@/utils/notifications';
+import { useSupabaseNotifications, NotificationType } from '@/hooks/useSupabaseNotifications';
 import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 const NotificationBell: React.FC = () => {
-  const { notifications, markAsRead, unreadCount } = useNotifications();
+  const { notifications, markAsRead, unreadCount } = useSupabaseNotifications();
   const navigate = useNavigate();
 
   const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {

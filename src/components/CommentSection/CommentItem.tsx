@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Heart, MessageSquare } from 'lucide-react';
 import { Comment } from './index';
 import { Button } from '@/components/ui/button';
 import CommentForm from './CommentForm';
 import { useTheme } from '@/utils/themeContext';
+import { supabase } from '@/utils/supabaseClient';
 
 interface CommentItemProps {
   comment: Comment;
@@ -22,6 +23,30 @@ const CommentItem: React.FC<CommentItemProps> = ({
 }) => {
   const [replyOpen, setReplyOpen] = useState(false);
   const { theme } = useTheme();
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  
+  // Fetch user profile picture from Supabase profiles
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (comment.authorId) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('profilePicture, name')
+            .eq('id', comment.authorId)
+            .single();
+            
+          if (!error && data) {
+            setProfilePicture(data.profilePicture);
+          }
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    };
+    
+    fetchUserProfile();
+  }, [comment.authorId]);
   
   const handleLike = () => {
     if (onLike) {
@@ -41,12 +66,16 @@ const CommentItem: React.FC<CommentItemProps> = ({
     return false;
   };
 
+  // Use profile picture from Supabase if available, otherwise fall back to the one provided in the comment
+  const avatarSrc = profilePicture || comment.authorImage;
+  const authorInitials = comment.author.slice(0, 2).toUpperCase();
+
   return (
     <div className="w-full">
       <div className="flex gap-4">
         <Avatar className="h-10 w-10 border">
-          <AvatarImage src={comment.authorImage} alt={comment.author} />
-          <AvatarFallback>{comment.author.slice(0, 2).toUpperCase()}</AvatarFallback>
+          <AvatarImage src={avatarSrc || ''} alt={comment.author} />
+          <AvatarFallback>{authorInitials}</AvatarFallback>
         </Avatar>
         
         <div className="flex-1">
