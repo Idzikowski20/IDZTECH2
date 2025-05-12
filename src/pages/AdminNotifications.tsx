@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
@@ -45,15 +44,22 @@ const NotificationIcon = ({ type }: { type: string }) => {
     case 'post_deleted':
       return <FileText className="h-5 w-5 text-red-500" />;
     case 'comment_added':
+    case 'comment':
       return <MessageSquare className="h-5 w-5 text-green-500" />;
     case 'like_added':
+    case 'like':
       return <ThumbsUp className="h-5 w-5 text-blue-500" />;
     case 'approval_request':
       return <AlertCircle className="h-5 w-5 text-amber-500" />;
     case 'approval_accepted':
+    case 'success':
       return <Check className="h-5 w-5 text-green-500" />;
     case 'approval_rejected':
+    case 'error':
       return <X className="h-5 w-5 text-red-500" />;
+    case 'info':
+    case 'warning':
+      return <Info className="h-5 w-5 text-amber-500" />;
     default:
       return <Info className="h-5 w-5 text-gray-500" />;
   }
@@ -78,15 +84,17 @@ const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => 
 
 const AdminNotifications = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
-  const { notifications, markAsRead, updateNotificationStatus, deleteNotification } = useNotifications();
+  const { user } = useAuth();
+  const { notifications, markAsRead, updateNotificationStatus, deleteNotification, markAllAsRead } = useNotifications();
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
 
   // Redirect if not authenticated or not admin
-  if (!auth.isAuthenticated || auth.user?.role !== 'admin') {
+  if (!user || user.role !== 'admin') {
+    // Using useEffect instead of a direct navigate would be better practice
+    // but for simplicity we'll keep this pattern
     navigate('/login');
     return null;
   }
@@ -134,6 +142,14 @@ const AdminNotifications = () => {
     });
   };
 
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+    toast({
+      title: 'Oznaczono jako przeczytane',
+      description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="p-6">
@@ -142,6 +158,13 @@ const AdminNotifications = () => {
             <h1 className="text-2xl font-bold">Powiadomienia</h1>
             <p className="text-muted-foreground">Zarządzaj powiadomieniami systemu</p>
           </div>
+          <Button 
+            variant="outline" 
+            onClick={handleMarkAllAsRead}
+            className="hover:bg-white hover:text-black"
+          >
+            Oznacz wszystkie jako przeczytane
+          </Button>
         </div>
 
         <Tabs defaultValue="all">
@@ -216,6 +239,7 @@ const AdminNotifications = () => {
                       variant="ghost" 
                       size="sm"
                       onClick={() => handleDelete(notification)}
+                      className="hover:bg-white hover:text-black"
                     >
                       Usuń
                     </Button>
@@ -236,7 +260,6 @@ const AdminNotifications = () => {
               notifications
                 .filter(n => n.status === 'pending')
                 .map(notification => (
-                  // Same card component as above, but filtered for pending
                   <Card 
                     key={notification.id}
                     className="border-l-4 border-l-amber-500"
@@ -295,7 +318,6 @@ const AdminNotifications = () => {
               notifications
                 .filter(n => n.status === 'unread')
                 .map(notification => (
-                  // Similar card component, but for unread notifications
                   <Card 
                     key={notification.id}
                     className="border-l-4 border-l-blue-500"
@@ -323,6 +345,7 @@ const AdminNotifications = () => {
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleDelete(notification)}
+                        className="hover:bg-white hover:text-black"
                       >
                         Usuń
                       </Button>
@@ -343,7 +366,6 @@ const AdminNotifications = () => {
               notifications
                 .filter(n => n.status === 'approved' || n.status === 'rejected')
                 .map(notification => (
-                  // Similar card component, but for processed notifications
                   <Card 
                     key={notification.id}
                     className={notification.status === 'approved' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'}
@@ -377,6 +399,7 @@ const AdminNotifications = () => {
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleDelete(notification)}
+                        className="hover:bg-white hover:text-black"
                       >
                         Usuń
                       </Button>
@@ -408,7 +431,11 @@ const AdminNotifications = () => {
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setOpenDialog(false)}
+              className="hover:bg-white hover:text-black"
+            >
               Anuluj
             </Button>
             <Button 

@@ -33,6 +33,14 @@ const NotificationBell: React.FC = () => {
       case 'warning':
       case 'approval_request':
         return <div className="flex-shrink-0 w-2 h-2 bg-amber-500 rounded-full mt-1"></div>;
+      case 'comment':
+      case 'comment_added':
+        return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
+      case 'like':
+      case 'like_added':
+        return <div className="flex-shrink-0 w-2 h-2 bg-purple-500 rounded-full mt-1"></div>;
+      case 'info':
+        return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
       default:
         return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
     }
