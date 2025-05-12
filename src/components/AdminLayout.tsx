@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Settings, User } from 'lucide-react';
+import { Home, LogOut, Settings, User, Users, Bell, BarChart2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,9 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNotifications } from '@/utils/notifications';
 import NotificationBell from './NotificationBell';
+import AdminMobileMenu from './navbar/AdminMobileMenu';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -29,6 +31,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   const { theme } = useTheme();
   const { pathname } = useLocation();
   const { unreadCount } = useNotifications();
+  const isMobile = useIsMobile();
   
   console.log("AdminLayout rendered, user:", user);
   
@@ -47,6 +50,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   // Bezpiecznie pobieramy avatar
   const userAvatar = user?.profilePicture || '';
 
+  // If on mobile, render mobile menu and content
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-premium-dark">
+        <AdminMobileMenu />
+        <div className="pt-16 px-3 pb-3">
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
     <div className="min-h-screen bg-premium-dark">
       <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
@@ -136,7 +152,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     to="/admin" 
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
-                    Dashboard
+                    <div className="flex items-center">
+                      <Home className="w-5 h-5 mr-2" />
+                      {isSidebarOpen && <span>Dashboard</span>}
+                    </div>
                   </Link>
                 </li>
                 <li className="mb-2">
@@ -144,7 +163,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     to="/admin/stats" 
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
-                    Statystyki
+                    <div className="flex items-center">
+                      <BarChart2 className="w-5 h-5 mr-2" />
+                      {isSidebarOpen && <span>Statystyki</span>}
+                    </div>
                   </Link>
                 </li>
                 <li className="mb-2">
@@ -152,7 +174,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     to="/profile" 
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
-                    Profil
+                    <div className="flex items-center">
+                      <User className="w-5 h-5 mr-2" />
+                      {isSidebarOpen && <span>Profil</span>}
+                    </div>
                   </Link>
                 </li>
                 <li className="mb-2">
@@ -160,7 +185,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     to="/admin/notifications" 
                     className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
-                    Powiadomienia
+                    <Bell className="w-5 h-5 mr-2" />
+                    {isSidebarOpen && <span>Powiadomienia</span>}
                     {unreadCount > 0 && (
                       <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                         {unreadCount}
@@ -173,7 +199,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     to="/admin/users" 
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
-                    Użytkownicy
+                    <div className="flex items-center">
+                      <Users className="w-5 h-5 mr-2" />
+                      {isSidebarOpen && <span>Użytkownicy</span>}
+                    </div>
                   </Link>
                 </li>
                 <li className="mb-2">
@@ -181,7 +210,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     to="/admin/settings" 
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
-                    Ustawienia
+                    <div className="flex items-center">
+                      <Settings className="w-5 h-5 mr-2" />
+                      {isSidebarOpen && <span>Ustawienia</span>}
+                    </div>
                   </Link>
                 </li>
               </ul>
