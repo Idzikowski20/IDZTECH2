@@ -1,8 +1,7 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/utils/AuthProvider';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from "uuid";
 
 // Define types
 export type NotificationType = 
@@ -36,421 +35,174 @@ export interface Notification {
   comment?: string;
 }
 
-// Maximum retry attempts for failed API calls
-const MAX_RETRY_ATTEMPTS = 3;
-
-// Sample mock data for use when Supabase connection fails
-const MOCK_NOTIFICATIONS: Notification[] = [
+// Sample mock notifications for initial state
+const INITIAL_NOTIFICATIONS: Notification[] = [
   {
     id: '1',
     type: 'info',
-    title: 'Tryb offline',
-    message: 'System działa w trybie offline. Niektóre funkcje mogą być niedostępne.',
+    title: 'System info',
+    message: 'Welcome to the notification system! This is a local storage based implementation.',
     createdAt: new Date().toISOString(),
     status: 'unread'
   },
   {
     id: '2',
-    type: 'warning',
-    title: 'Problem z połączeniem',
-    message: 'Wystąpiły problemy z połączeniem do serwera. Spróbuj ponownie za chwilę.',
+    type: 'success',
+    title: 'Setup complete',
+    message: 'Notification system has been successfully initialized.',
     createdAt: new Date().toISOString(),
     status: 'unread'
   }
 ];
+
+// Storage key for notifications
+const STORAGE_KEY = 'app_notifications';
 
 export const useNotificationService = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
   const [isOfflineMode, setIsOfflineMode] = useState(false);
-  const { user } = useAuth();
+  const [retrying, setRetrying] = useState(false);
   const { toast } = useToast();
 
-  // Fetch notifications from Supabase with retry logic and fallback
+  // Load notifications from localStorage
   const fetchNotifications = useCallback(async () => {
-    if (!user) {
-      setNotifications([]);
-      setUnreadCount(0);
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
-      console.log("Fetching notifications...");
-
-      // Check online status first
+      console.log("Fetching notifications from local storage...");
+      
+      // Check online status
       if (!navigator.onLine) {
-        console.log("Browser is offline, using mock data");
         setIsOfflineMode(true);
-        setNotifications(MOCK_NOTIFICATIONS);
-        setUnreadCount(MOCK_NOTIFICATIONS.filter(n => n.status === 'unread').length);
-        setLoading(false);
-        return;
-      }
-
-      // Create a fetch with timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      try {
-        // First test the connection with a simple query
-        const { error: testError } = await supabase
-          .from('notifications')
-          .select('count', { count: 'exact', head: true })
-          .abortSignal(controller.signal);
-          
-        if (testError) {
-          console.error("Connection test failed:", testError);
-          throw new Error("Nie można połączyć z serwerem powiadomień");
-        }
-        
-        // If connection test passed, proceed with the actual query
-        const { data, error: fetchError } = await supabase
-          .from('notifications')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .abortSignal(controller.signal);
-          
-        clearTimeout(timeoutId);
-        
-        if (fetchError) {
-          throw fetchError;
-        }
-
-        // If we have no data, set an empty array and return
-        if (!data || data.length === 0) {
-          console.log("No notifications found");
-          setNotifications([]);
-          setUnreadCount(0);
-          setLoading(false);
-          setRetryCount(0); // Reset retry count on success
-          setIsOfflineMode(false);
-          return;
-        }
-        
-        console.log("Raw notifications data:", data);
-
-        // Transform the Supabase data to match our Notification interface
-        const transformedNotifications: Notification[] = await Promise.all(data.map(async notification => {
-          // Try to get user name if we have user_id
-          let fromUserName = '';
-          if (notification.user_id) {
-            try {
-              const { data: userData } = await supabase
-                .from('profiles')
-                .select('name, lastName')
-                .eq('id', notification.user_id)
-                .maybeSingle();
-              
-              if (userData) {
-                fromUserName = userData.name || '';
-                if (userData.lastName) {
-                  fromUserName += ` ${userData.lastName}`;
-                }
-              }
-            } catch (e) {
-              console.error('Error fetching user data:', e);
-            }
-          }
-
-          return {
-            id: notification.id,
-            type: notification.type as NotificationType || 'info',
-            title: notification.title,
-            message: notification.message,
-            createdAt: notification.created_at,
-            status: notification.is_read ? 'read' as NotificationStatus : 'unread' as NotificationStatus,
-            fromUserId: notification.user_id,
-            targetId: notification.target_id || '',
-            targetType: notification.target_type || '',
-            fromUserName: fromUserName || 'Użytkownik', // Use fetched user name or default
-          };
-        }));
-        
-        console.log("Transformed notifications:", transformedNotifications);
-        setNotifications(transformedNotifications);
-        
-        // Count unread notifications
-        const unread = transformedNotifications.filter(n => n.status === 'unread').length;
-        setUnreadCount(unread);
-        setRetryCount(0); // Reset retry count on success
-        setIsOfflineMode(false);
-      } catch (fetchErr) {
-        clearTimeout(timeoutId);
-        throw fetchErr;
-      }
-    } catch (error: any) {
-      console.error('Error in fetchNotifications:', error);
-      
-      // Implement exponential backoff retry
-      if (retryCount < MAX_RETRY_ATTEMPTS) {
-        const nextRetryCount = retryCount + 1;
-        setRetryCount(nextRetryCount);
-        
-        const delayMs = Math.min(1000 * Math.pow(2, nextRetryCount), 10000); // Max 10 seconds
-        console.log(`Retrying in ${delayMs}ms (attempt ${nextRetryCount}/${MAX_RETRY_ATTEMPTS})`);
-        
-        setTimeout(() => {
-          fetchNotifications();
-        }, delayMs);
+        console.log("Device is offline");
       } else {
-        // Max retries reached, switch to offline mode
-        console.log("Max retries reached, switching to offline mode");
-        setIsOfflineMode(true);
-        setError('Wystąpił błąd podczas pobierania powiadomień. Przełączono na tryb offline.');
-        setNotifications(MOCK_NOTIFICATIONS);
-        setUnreadCount(MOCK_NOTIFICATIONS.filter(n => n.status === 'unread').length);
-        setLoading(false);
+        setIsOfflineMode(false);
       }
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Get notifications from localStorage
+      const savedNotifications = localStorage.getItem(STORAGE_KEY);
+      let notificationData: Notification[] = [];
+      
+      if (savedNotifications) {
+        notificationData = JSON.parse(savedNotifications);
+        console.log("Loaded notifications:", notificationData.length);
+      } else {
+        // If no notifications found, use initial data
+        notificationData = INITIAL_NOTIFICATIONS;
+        console.log("No saved notifications found, using initial data");
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notificationData));
+      }
+      
+      setNotifications(notificationData);
+      const unread = notificationData.filter(n => n.status === 'unread').length;
+      setUnreadCount(unread);
+      
+    } catch (error) {
+      console.error('Error in fetchNotifications:', error);
+      setError('Failed to load notifications');
+      setIsOfflineMode(true);
     } finally {
-      if (retryCount >= MAX_RETRY_ATTEMPTS) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  }, [user, retryCount]);
-
-  // Create a local notification in offline mode
-  const createLocalNotification = (notification: Omit<Notification, 'id' | 'createdAt'>) => {
+  }, []);
+  
+  // Save notifications to localStorage
+  const saveNotifications = useCallback((notifications: Notification[]) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+    } catch (error) {
+      console.error('Error saving notifications to localStorage:', error);
+    }
+  }, []);
+  
+  // Add a new notification
+  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'createdAt'>) => {
     const newNotification: Notification = {
       ...notification,
-      id: Date.now().toString(),
+      id: uuidv4(),
       createdAt: new Date().toISOString()
     };
     
-    setNotifications(prev => [newNotification, ...prev]);
+    setNotifications(prev => {
+      const updated = [newNotification, ...prev];
+      saveNotifications(updated);
+      return updated;
+    });
+    
     if (notification.status === 'unread') {
       setUnreadCount(prev => prev + 1);
     }
     
-    return true;
-  };
-
+    return newNotification.id;
+  }, [saveNotifications]);
+  
   // Mark a notification as read
-  const markAsRead = useCallback(async (id: string) => {
-    // In offline mode, update local state only
-    if (isOfflineMode) {
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
-          notification.id === id 
-            ? { ...notification, status: 'read' } 
-            : notification
-        )
+  const markAsRead = useCallback((id: string) => {
+    setNotifications(prev => {
+      const updated = prev.map(notification => 
+        notification.id === id 
+          ? { ...notification, status: 'read' as NotificationStatus } 
+          : notification
       );
-      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-      return;
-    }
+      saveNotifications(updated);
+      return updated;
+    });
     
-    // Online mode - update database
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error marking notification as read:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się oznaczyć powiadomienia jako przeczytane",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
-          notification.id === id 
-            ? { ...notification, status: 'read' } 
-            : notification
-        )
-      );
-      setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-    } catch (error) {
-      console.error('Error in markAsRead:', error);
-    }
-  }, [isOfflineMode, toast]);
-
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  }, [saveNotifications]);
+  
   // Mark all notifications as read
-  const markAllAsRead = useCallback(async () => {
-    // In offline mode, update local state only
-    if (isOfflineMode) {
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
-          ({ ...notification, status: 'read' })
-        )
-      );
-      setUnreadCount(0);
-      toast({
-        title: "Sukces",
-        description: "Wszystkie powiadomienia zostały oznaczone jako przeczytane",
-      });
-      return;
-    }
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => {
+      const updated = prev.map(notification => ({ ...notification, status: 'read' as NotificationStatus }));
+      saveNotifications(updated);
+      return updated;
+    });
     
-    // Online mode - update database
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('is_read', false);
-
-      if (error) {
-        console.error('Error marking all notifications as read:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się oznaczyć wszystkich powiadomień jako przeczytane",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Update local state
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
-          ({ ...notification, status: 'read' })
-        )
-      );
-      setUnreadCount(0);
-      
-      toast({
-        title: "Sukces",
-        description: "Wszystkie powiadomienia zostały oznaczone jako przeczytane",
-      });
-    } catch (error) {
-      console.error('Error in markAllAsRead:', error);
-    }
-  }, [isOfflineMode, toast]);
-
-  // Add a new notification
-  const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'createdAt'>) => {
-    // In offline mode, create a local notification
-    if (isOfflineMode) {
-      const success = createLocalNotification(notification);
-      return success;
-    }
+    setUnreadCount(0);
     
-    // Online mode - add to database
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .insert({
-          type: notification.type,
-          title: notification.title,
-          message: notification.message,
-          user_id: notification.fromUserId,
-          target_id: notification.targetId,
-          target_type: notification.targetType,
-          is_read: notification.status === 'read',
-        });
-
-      if (error) {
-        console.error('Error adding notification:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się dodać powiadomienia",
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      fetchNotifications(); // Refresh notifications
-      return true;
-    } catch (error) {
-      console.error('Error in addNotification:', error);
-      
-      // Fallback to local notification if database insert fails
-      const success = createLocalNotification(notification);
-      return success;
-    }
-  }, [fetchNotifications, isOfflineMode, toast]);
-
+    toast({
+      title: "Sukces",
+      description: "Wszystkie powiadomienia zostały oznaczone jako przeczytane",
+    });
+  }, [saveNotifications, toast]);
+  
   // Delete a notification
-  const deleteNotification = useCallback(async (id: string) => {
-    // In offline mode, update local state only
-    if (isOfflineMode) {
-      const deletedNotification = notifications.find(n => n.id === id);
-      setNotifications(prevNotifications => 
-        prevNotifications.filter(n => n.id !== id)
-      );
+  const deleteNotification = useCallback((id: string) => {
+    setNotifications(prev => {
+      const notification = prev.find(n => n.id === id);
+      const updated = prev.filter(n => n.id !== id);
+      saveNotifications(updated);
       
-      // Update unread count if needed
-      if (deletedNotification && deletedNotification.status === 'unread') {
-        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
+      if (notification && notification.status === 'unread') {
+        setUnreadCount(count => Math.max(0, count - 1));
       }
       
-      toast({
-        title: "Sukces",
-        description: "Powiadomienie zostało usunięte",
-      });
-      return;
-    }
+      return updated;
+    });
     
-    // Online mode - delete from database
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error deleting notification:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się usunąć powiadomienia",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Update local state
-      const deletedNotification = notifications.find(n => n.id === id);
-      setNotifications(prevNotifications => 
-        prevNotifications.filter(n => n.id !== id)
-      );
-      
-      // Update unread count if needed
-      if (deletedNotification && deletedNotification.status === 'unread') {
-        setUnreadCount(prevCount => Math.max(0, prevCount - 1));
-      }
-      
-      toast({
-        title: "Sukces",
-        description: "Powiadomienie zostało usunięte",
-      });
-    } catch (error) {
-      console.error('Error in deleteNotification:', error);
-    }
-  }, [notifications, isOfflineMode, toast]);
-
-  // Handle approval action
-  const handleApprove = useCallback(async (id: string) => {
-    // In offline mode, update local state only
-    if (isOfflineMode) {
-      markAsRead(id);
-      toast({
-        title: "Tryb offline",
-        description: "Działanie zostanie zsynchronizowane po połączeniu z serwerem",
-      });
-      return;
-    }
+    toast({
+      title: "Sukces",
+      description: "Powiadomienie zostało usunięte",
+    });
+  }, [saveNotifications, toast]);
+  
+  // Handle approval
+  const handleApprove = useCallback((id: string) => {
+    markAsRead(id);
     
-    try {
-      // Mark notification as read
-      await markAsRead(id);
+    setNotifications(prev => {
+      const notification = prev.find(n => n.id === id);
       
-      // Find the notification in our local state
-      const notification = notifications.find(n => n.id === id);
-      if (!notification) return;
-
-      // Create response notification for user
-      if (notification.fromUserId) {
-        addNotification({
+      if (notification && notification.fromUserId) {
+        // Create a response notification
+        const responseNotification: Omit<Notification, 'id' | 'createdAt'> = {
           type: 'approval_accepted',
           title: 'Prośba zaakceptowana',
           message: 'Twoja prośba została zaakceptowana',
@@ -458,41 +210,40 @@ export const useNotificationService = () => {
           fromUserId: notification.fromUserId,
           targetId: notification.targetId,
           targetType: notification.targetType
-        });
+        };
+        
+        // Add the new notification
+        const newId = uuidv4();
+        const newNotification: Notification = {
+          ...responseNotification,
+          id: newId,
+          createdAt: new Date().toISOString()
+        };
+        
+        const updated = [newNotification, ...prev];
+        saveNotifications(updated);
+        return updated;
       }
       
-      toast({
-        title: "Sukces",
-        description: "Powiadomienie zostało zatwierdzone",
-      });
-    } catch (error) {
-      console.error('Error in handleApprove:', error);
-    }
-  }, [notifications, isOfflineMode, markAsRead, addNotification, toast]);
-
-  // Handle reject action
-  const handleReject = useCallback(async (id: string, comment?: string) => {
-    // In offline mode, update local state only
-    if (isOfflineMode) {
-      markAsRead(id);
-      toast({
-        title: "Tryb offline",
-        description: "Działanie zostanie zsynchronizowane po połączeniu z serwerem",
-      });
-      return;
-    }
+      return prev;
+    });
     
-    try {
-      // Mark notification as read
-      await markAsRead(id);
+    toast({
+      title: "Sukces",
+      description: "Powiadomienie zostało zatwierdzone",
+    });
+  }, [markAsRead, saveNotifications, toast]);
+  
+  // Handle rejection
+  const handleReject = useCallback((id: string, comment?: string) => {
+    markAsRead(id);
+    
+    setNotifications(prev => {
+      const notification = prev.find(n => n.id === id);
       
-      // Find the notification in our local state
-      const notification = notifications.find(n => n.id === id);
-      if (!notification) return;
-
-      // Create response notification for user
-      if (notification.fromUserId) {
-        addNotification({
+      if (notification && notification.fromUserId) {
+        // Create a response notification
+        const responseNotification: Omit<Notification, 'id' | 'createdAt'> = {
           type: 'approval_rejected',
           title: 'Prośba odrzucona',
           message: comment || 'Twoja prośba została odrzucona',
@@ -501,64 +252,43 @@ export const useNotificationService = () => {
           targetId: notification.targetId,
           targetType: notification.targetType,
           comment
-        });
+        };
+        
+        // Add the new notification
+        const newId = uuidv4();
+        const newNotification: Notification = {
+          ...responseNotification,
+          id: newId,
+          createdAt: new Date().toISOString()
+        };
+        
+        const updated = [newNotification, ...prev];
+        saveNotifications(updated);
+        return updated;
       }
       
-      toast({
-        title: "Sukces",
-        description: "Powiadomienie zostało odrzucone",
-      });
-    } catch (error) {
-      console.error('Error in handleReject:', error);
-    }
-  }, [notifications, isOfflineMode, markAsRead, addNotification, toast]);
-
-  // Listen for real-time updates
-  useEffect(() => {
-    if (!user || isOfflineMode) return;
+      return prev;
+    });
     
-    console.log("Setting up notifications listener for user:", user);
+    toast({
+      title: "Sukces",
+      description: "Powiadomienie zostało odrzucone",
+    });
+  }, [markAsRead, saveNotifications, toast]);
+  
+  // Load notifications on init and when online status changes
+  useEffect(() => {
     fetchNotifications();
     
-    const channel = supabase
-      .channel('notifications-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications'
-        },
-        () => {
-          console.log("Received notification change event");
-          fetchNotifications();
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      console.log("Cleaning up notifications listener");
-      supabase.removeChannel(channel);
-    };
-  }, [user, isOfflineMode, fetchNotifications]);
-
-  // Handle online/offline events
-  useEffect(() => {
     const handleOnline = () => {
-      console.log("Browser went online, refreshing notifications...");
-      setRetryCount(0);
+      console.log("Device is now online");
       setIsOfflineMode(false);
       fetchNotifications();
     };
     
     const handleOffline = () => {
-      console.log("Browser went offline, switching to offline mode");
+      console.log("Device is now offline");
       setIsOfflineMode(true);
-      
-      if (notifications.length === 0) {
-        setNotifications(MOCK_NOTIFICATIONS);
-        setUnreadCount(MOCK_NOTIFICATIONS.filter(n => n.status === 'unread').length);
-      }
     };
     
     window.addEventListener('online', handleOnline);
@@ -568,20 +298,21 @@ export const useNotificationService = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [fetchNotifications, notifications]);
-
+  }, [fetchNotifications]);
+  
   return {
     notifications,
     unreadCount,
     loading,
     error,
     isOfflineMode,
+    retrying,
     markAsRead,
     markAllAsRead,
     addNotification,
+    deleteNotification,
     handleApprove,
     handleReject,
-    deleteNotification,
     fetchNotifications,
   };
 };

@@ -1,8 +1,15 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { useNotificationService } from '@/hooks/useNotificationService';
 
-// Helper do wysyłania powiadomień bezpośrednio przez Supabase
-export const sendNotification = async ({
+// Helper for sending notifications without directly importing the hook
+let notificationService: ReturnType<typeof useNotificationService> | null = null;
+
+export const setNotificationService = (service: ReturnType<typeof useNotificationService>) => {
+  notificationService = service;
+};
+
+// Helper to send a notification
+export const sendNotification = ({
   type,
   title,
   message,
@@ -20,29 +27,30 @@ export const sendNotification = async ({
   status?: 'unread' | 'read' | 'pending' | 'approved' | 'rejected';
 }) => {
   try {
-    const { error } = await supabase.from('notifications').insert({
-      type,
-      title,
-      message,
-      user_id: fromUserId,
-      target_id: targetId,
-      target_type: targetType,
-      is_read: status !== 'unread'
-    });
-
-    if (error) {
-      console.error('Error sending notification:', error);
+    if (!notificationService) {
+      console.warn('Notification service not initialized');
       return false;
     }
+
+    notificationService.addNotification({
+      type: type as any,
+      title,
+      message,
+      fromUserId,
+      targetId,
+      targetType,
+      status: status as any
+    });
+
     return true;
   } catch (error) {
-    console.error('Error in sendNotification:', error);
+    console.error('Error sending notification:', error);
     return false;
   }
 };
 
-// Helper dla wysyłania powiadomienia o prośbie o zatwierdzenie
-export const sendApprovalRequest = async (
+// Helper for sending a notification about a prośba o zatwierdzenie
+export const sendApprovalRequest = (
   fromUserId: string,
   fromUserName: string,
   targetId: string,
@@ -64,8 +72,8 @@ export const sendApprovalRequest = async (
   });
 };
 
-// Helper dla wysyłania powiadomienia o utworzeniu posta
-export const notifyPostCreated = async (userId: string, userName: string, postId: string, postTitle: string) => {
+// Helper for sending a notification about utworzenie posta
+export const notifyPostCreated = (userId: string, userName: string, postId: string, postTitle: string) => {
   return sendNotification({
     type: 'post_created',
     title: 'Nowy post został utworzony',
@@ -76,150 +84,26 @@ export const notifyPostCreated = async (userId: string, userName: string, postId
   });
 };
 
-// Helper dla wysyłania powiadomienia o komentarzu
-export const addCommentNotification = async (postId: string, postTitle: string, userName: string, userId: string = "") => {
-  // Get user's full name from profile if available
-  let fullName = userName;
-  
-  if (userId) {
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('name, lastName, role')
-        .eq('id', userId)
-        .maybeSingle();
-        
-      if (data && data.name) {
-        fullName = data.name;
-        if (data.lastName) {
-          fullName += ` ${data.lastName}`;
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  }
-  
+// Helper for sending a notification about a komentarz
+export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return sendNotification({
     type: 'comment_added',
     title: 'Nowy komentarz',
-    message: `${fullName} dodał komentarz do "${postTitle}"`,
+    message: `${userName} dodał komentarz do "${postTitle}"`,
     fromUserId: userId,
     targetId: postId,
     targetType: 'post'
   });
 };
 
-// Helper dla wysyłania powiadomienia o polubieniu
-export const addLikeNotification = async (postId: string, postTitle: string, userName: string, userId: string = "") => {
-  // Get user's full name from profile if available
-  let fullName = userName;
-  
-  if (userId) {
-    try {
-      const { data } = await supabase
-        .from('profiles')
-        .select('name, lastName')
-        .eq('id', userId)
-        .maybeSingle();
-        
-      if (data && data.name) {
-        fullName = data.name;
-        if (data.lastName) {
-          fullName += ` ${data.lastName}`;
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-  }
-  
+// Helper for sending a notification about polubienie
+export const addLikeNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return sendNotification({
     type: 'like_added',
     title: 'Nowe polubienie',
-    message: `${fullName} polubił "${postTitle}"`,
+    message: `${userName} polubił "${postTitle}"`,
     fromUserId: userId,
     targetId: postId,
     targetType: 'post'
   });
 };
-
-// Update role assignments for specific users
-export const updateAdministratorRoles = async () => {
-  try {
-    console.log("Updating administrator roles...");
-    
-    // Find users by email patterns and update their roles
-    const updateRoleForEmail = async (emailPattern: string) => {
-      // Search with ILIKE to find partial email matches
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .ilike('email', `%${emailPattern}%`);
-      
-      if (error) {
-        console.error(`Error searching for users with email containing ${emailPattern}:`, error);
-        return;
-      }
-      
-      if (data && data.length > 0) {
-        console.log(`Found ${data.length} user(s) with email containing ${emailPattern}`);
-        
-        for (const user of data) {
-          console.log(`Checking user: ${user.email}`);
-          
-          if (user.role !== 'administrator') {
-            const { error: updateError } = await supabase
-              .from('profiles')
-              .update({ role: 'administrator' })
-              .eq('id', user.id);
-              
-            if (updateError) {
-              console.error(`Error updating role for ${user.email}:`, updateError);
-            } else {
-              console.log(`Updated ${user.email} to administrator role`);
-            }
-          } else {
-            console.log(`${user.email} is already an administrator`);
-          }
-        }
-      } else {
-        console.log(`No users found with email containing ${emailPattern}`);
-      }
-    };
-    
-    // Update roles for specific users
-    await updateRoleForEmail('patryk.idzikowski');
-    await updateRoleForEmail('ola.gor');
-    
-    // Remove test admin user if exists
-    const { data: adminData } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', 'admin@example.com');
-
-    if (adminData && adminData.length > 0) {
-      await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', adminData[0].id);
-      console.log('Deleted admin@example.com user');
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Error in updateAdministratorRoles:', error);
-    return { success: false, error };
-  }
-};
-
-// Call this on application startup to ensure administrator roles are set
-setTimeout(() => {
-  updateAdministratorRoles().then(result => {
-    if (result.success) {
-      console.log('Administrator roles updated successfully');
-    } else {
-      console.error('Failed to update administrator roles');
-    }
-  });
-}, 2000);

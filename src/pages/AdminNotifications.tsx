@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
-import { useAuth } from '@/utils/AuthProvider';
 import { 
   Card, 
   CardContent, 
@@ -38,11 +37,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useNotificationService } from '@/hooks/useNotificationService';
+import { setNotificationService } from '@/utils/notificationHelpers';
 
 const AdminNotifications = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { toast } = useToast();
+  const notificationService = useNotificationService();
+  
   const {
     notifications,
     unreadCount,
@@ -55,11 +55,16 @@ const AdminNotifications = () => {
     fetchNotifications,
     handleApprove,
     handleReject,
-  } = useNotificationService();
+  } = notificationService;
   
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+
+  // Initialize the notification service for helpers
+  useEffect(() => {
+    setNotificationService(notificationService);
+  }, [notificationService]);
 
   // Load notifications on component mount
   useEffect(() => {
