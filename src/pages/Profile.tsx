@@ -6,6 +6,7 @@ import AdminLayout from '@/components/AdminLayout';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileSection from '@/components/profile/ProfileSection';
 import { ExtendedUserProfile } from '@/utils/AuthProvider';
+import { User } from '@/utils/authTypes';
 
 const Profile = () => {
   const { user, getCurrentUser } = useAuth();
