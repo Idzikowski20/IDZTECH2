@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare } from 'lucide-react';
+import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
@@ -14,9 +15,18 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import UserRanking from '@/components/UserRanking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -60,6 +70,16 @@ const Admin = () => {
     byLikes: [],
     byComments: []
   });
+  
+  // Pagination state
+  const [currentCommentsPage, setCurrentCommentsPage] = useState(1);
+  const [currentPostsPage, setCurrentPostsPage] = useState(1);
+  const commentsPerPage = 5;
+  const postsPerPage = 5;
+  
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
 
   // Dodajemy logowanie dla diagnostyki
   useEffect(() => {
@@ -72,6 +92,20 @@ const Admin = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate, user]);
+  
+  // Filter posts based on search term
+  useEffect(() => {
+    if (!Array.isArray(posts)) {
+      setFilteredPosts([]);
+      return;
+    }
+    
+    const filtered = searchTerm
+      ? posts.filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      : posts;
+      
+    setFilteredPosts(filtered);
+  }, [posts, searchTerm]);
   
   // Get all comments from all posts
   useEffect(() => {
@@ -93,7 +127,7 @@ const Admin = () => {
     // Sort by date, newest first
     const sortedComments = allComments.sort((a, b) => 
       new Date(b.date).getTime() - new Date(a.date).getTime()
-    ).slice(0, 5); // Get only 5 most recent
+    );
     
     setRecentComments(sortedComments);
     
@@ -211,6 +245,18 @@ const Admin = () => {
       });
     }
   };
+  
+  // Calculate pagination
+  const commentsStartIndex = (currentCommentsPage - 1) * commentsPerPage;
+  const commentsEndIndex = commentsStartIndex + commentsPerPage;
+  const paginatedComments = recentComments.slice(commentsStartIndex, commentsEndIndex);
+  
+  const postsStartIndex = (currentPostsPage - 1) * postsPerPage;
+  const postsEndIndex = postsStartIndex + postsPerPage;
+  const paginatedPosts = filteredPosts.slice(postsStartIndex, postsEndIndex);
+  
+  const totalCommentsPages = Math.ceil(recentComments.length / commentsPerPage);
+  const totalPostsPages = Math.ceil(filteredPosts.length / postsPerPage);
   
   // Safety check - render loading or null until authenticated
   if (!isAuthenticated) {
@@ -382,47 +428,98 @@ const Admin = () => {
                 Brak komentarzy do wyświetlenia.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Użytkownik</TableHead>
-                    <TableHead>Treść</TableHead>
-                    <TableHead>Post</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Akcje</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {recentComments.map(comment => (
-                    <TableRow key={comment.id}>
-                      <TableCell className="font-medium">{comment.userName}</TableCell>
-                      <TableCell>{comment.content}</TableCell>
-                      <TableCell>{comment.postTitle}</TableCell>
-                      <TableCell>{new Date(comment.date).toLocaleDateString('pl-PL')}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleReply(comment.id)}
-                            className="text-blue-400 hover:text-white hover:bg-blue-500"
-                          >
-                            <Reply size={14} />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleDeleteComment(comment.id, comment.postId)}
-                            className="text-red-400 hover:text-white hover:bg-red-500"
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Użytkownik</TableHead>
+                      <TableHead>Treść</TableHead>
+                      <TableHead>Post</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Akcje</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedComments.map(comment => (
+                      <TableRow key={comment.id}>
+                        <TableCell className="font-medium">{comment.userName}</TableCell>
+                        <TableCell>{comment.content}</TableCell>
+                        <TableCell>{comment.postTitle}</TableCell>
+                        <TableCell>{new Date(comment.date).toLocaleDateString('pl-PL')}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleReply(comment.id)}
+                              className="text-blue-400 hover:text-white hover:bg-blue-500"
+                            >
+                              <Reply size={14} />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleDeleteComment(comment.id, comment.postId)}
+                              className="text-red-400 hover:text-white hover:bg-red-500"
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* Comments Pagination */}
+                {totalCommentsPages > 1 && (
+                  <div className="flex justify-center py-4">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentCommentsPage(prev => Math.max(prev - 1, 1))} 
+                            className={currentCommentsPage === 1 ? "pointer-events-none opacity-50" : "hover:bg-white hover:text-black"}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({length: Math.min(totalCommentsPages, 5)}, (_, i) => {
+                          // Display logic for page numbers
+                          let pageNum;
+                          if (totalCommentsPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentCommentsPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentCommentsPage >= totalCommentsPages - 2) {
+                            pageNum = totalCommentsPages - 4 + i;
+                          } else {
+                            pageNum = currentCommentsPage - 2 + i;
+                          }
+                          
+                          return (
+                            <PaginationItem key={i}>
+                              <PaginationLink 
+                                onClick={() => setCurrentCommentsPage(pageNum)}
+                                isActive={currentCommentsPage === pageNum}
+                                className={currentCommentsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentCommentsPage(prev => Math.min(prev + 1, totalCommentsPages))} 
+                            className={currentCommentsPage === totalCommentsPages ? "pointer-events-none opacity-50" : "hover:bg-white hover:text-black"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </>
             )}
           </div>
           
@@ -463,9 +560,20 @@ const Admin = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Blog</h2>
-            <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105 transition-transform">
-              <Plus size={16} className="mr-2" /> Dodaj nowy post
-            </Button>
+            <div className="flex gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-premium-light/50" size={16} />
+                <Input
+                  placeholder="Wyszukaj po tytule..."
+                  className="pl-10 bg-premium-dark/30 border-premium-light/10 w-64"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105 transition-transform">
+                <Plus size={16} className="mr-2" /> Dodaj nowy post
+              </Button>
+            </div>
           </div>
 
           <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
@@ -480,14 +588,14 @@ const Admin = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
-                  {!Array.isArray(posts) || posts.length === 0 ? (
+                  {!Array.isArray(paginatedPosts) || paginatedPosts.length === 0 ? (
                     <tr>
                       <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
-                        Brak postów. Dodaj pierwszy post, aby zacząć.
+                        {searchTerm ? 'Brak wyników wyszukiwania' : 'Brak postów. Dodaj pierwszy post, aby zacząć.'}
                       </td>
                     </tr>
                   ) : (
-                    posts.map(post => (
+                    paginatedPosts.map(post => (
                       <tr key={post.id}>
                         <td className="py-3 px-4 font-medium">{post.title}</td>
                         <td className="py-3 px-4 text-premium-light/70">
@@ -528,6 +636,55 @@ const Admin = () => {
                 </tbody>
               </table>
             </div>
+            
+            {/* Blog Posts Pagination */}
+            {totalPostsPages > 1 && (
+              <div className="flex justify-center py-4">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPostsPage(prev => Math.max(prev - 1, 1))} 
+                        className={currentPostsPage === 1 ? "pointer-events-none opacity-50" : "hover:bg-white hover:text-black"}
+                      />
+                    </PaginationItem>
+                    
+                    {Array.from({length: Math.min(totalPostsPages, 5)}, (_, i) => {
+                      // Display logic for page numbers
+                      let pageNum;
+                      if (totalPostsPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPostsPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPostsPage >= totalPostsPages - 2) {
+                        pageNum = totalPostsPages - 4 + i;
+                      } else {
+                        pageNum = currentPostsPage - 2 + i;
+                      }
+                      
+                      return (
+                        <PaginationItem key={i}>
+                          <PaginationLink 
+                            onClick={() => setCurrentPostsPage(pageNum)}
+                            isActive={currentPostsPage === pageNum}
+                            className={currentPostsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPostsPage(prev => Math.min(prev + 1, totalPostsPages))} 
+                        className={currentPostsPage === totalPostsPages ? "pointer-events-none opacity-50" : "hover:bg-white hover:text-black"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
         </div>
       </div>

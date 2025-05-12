@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageSquare } from 'lucide-react';
+import { Heart, MessageSquare, BadgeCheck } from 'lucide-react';
 import { Comment } from './index';
 import { Button } from '@/components/ui/button';
 import CommentForm from './CommentForm';
@@ -23,7 +23,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
 }) => {
   const [replyOpen, setReplyOpen] = useState(false);
   const { theme } = useTheme();
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<{
+    profilePicture: string | null;
+    name: string | null;
+    lastName: string | null;
+    role: string | null;
+  }>({
+    profilePicture: null,
+    name: null,
+    lastName: null,
+    role: null
+  });
   
   // Fetch user profile picture from Supabase profiles
   useEffect(() => {
@@ -32,12 +42,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
         try {
           const { data, error } = await supabase
             .from('profiles')
-            .select('profilePicture, name')
+            .select('profilePicture, name, lastName, role')
             .eq('id', comment.authorId)
             .single();
             
           if (!error && data) {
-            setProfilePicture(data.profilePicture);
+            setProfileData({
+              profilePicture: data.profilePicture,
+              name: data.name,
+              lastName: data.lastName,
+              role: data.role
+            });
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);
@@ -67,21 +82,39 @@ const CommentItem: React.FC<CommentItemProps> = ({
   };
 
   // Use profile picture from Supabase if available, otherwise fall back to the one provided in the comment
-  const avatarSrc = profilePicture || comment.authorImage;
-  const authorInitials = comment.author.slice(0, 2).toUpperCase();
+  const avatarSrc = profileData.profilePicture || comment.authorImage;
+  
+  // Display full name if available, otherwise use the author from comment
+  const fullName = profileData.name 
+    ? `${profileData.name}${profileData.lastName ? ' ' + profileData.lastName : ''}`
+    : comment.author;
+    
+  // Check if the user has a special role
+  const isVerified = profileData.role && ['admin', 'moderator', 'blogger'].includes(profileData.role);
+  
+  const authorInitials = fullName.slice(0, 2).toUpperCase();
 
   return (
     <div className="w-full">
       <div className="flex gap-4">
         <Avatar className="h-10 w-10 border">
-          <AvatarImage src={avatarSrc || ''} alt={comment.author} />
+          <AvatarImage src={avatarSrc || ''} alt={fullName} />
           <AvatarFallback>{authorInitials}</AvatarFallback>
         </Avatar>
         
         <div className="flex-1">
           <div className="flex items-center justify-between mb-1">
-            <div>
-              <span className="font-medium">{comment.author}</span>
+            <div className="flex items-center">
+              <span className="font-medium">{fullName}</span>
+              
+              {isVerified && (
+                <BadgeCheck 
+                  size={16} 
+                  className="ml-1 text-blue-500" 
+                  fill="#3B82F6"
+                />
+              )}
+              
               <span className={`text-xs ml-2 ${theme === 'light' ? 'text-gray-500' : 'text-premium-light/50'}`}>{comment.date}</span>
             </div>
           </div>

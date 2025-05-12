@@ -50,10 +50,13 @@ export const sendApprovalRequest = async (
   title: string,
   message: string
 ) => {
+  // Format message to include fromUserName for UI display
+  const enhancedMessage = message.includes(fromUserName) ? message : `${fromUserName}: ${message}`;
+  
   return sendNotification({
     type: 'approval_request',
     title,
-    message,
+    message: enhancedMessage,
     fromUserId,
     targetId,
     targetType,
@@ -75,10 +78,32 @@ export const notifyPostCreated = async (userId: string, userName: string, postId
 
 // Helper dla wysyłania powiadomienia o komentarzu
 export const addCommentNotification = async (postId: string, postTitle: string, userName: string, userId: string = "") => {
+  // Get user's full name from profile if available
+  let fullName = userName;
+  
+  if (userId) {
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('name, lastName')
+        .eq('id', userId)
+        .single();
+        
+      if (data && data.name) {
+        fullName = data.name;
+        if (data.lastName) {
+          fullName += ` ${data.lastName}`;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  }
+  
   return sendNotification({
     type: 'comment_added',
     title: 'Nowy komentarz',
-    message: `${userName} dodał komentarz do "${postTitle}"`,
+    message: `${fullName} dodał komentarz do "${postTitle}"`,
     fromUserId: userId,
     targetId: postId,
     targetType: 'post'
@@ -87,10 +112,32 @@ export const addCommentNotification = async (postId: string, postTitle: string, 
 
 // Helper dla wysyłania powiadomienia o polubieniu
 export const addLikeNotification = async (postId: string, postTitle: string, userName: string, userId: string = "") => {
+  // Get user's full name from profile if available
+  let fullName = userName;
+  
+  if (userId) {
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('name, lastName')
+        .eq('id', userId)
+        .single();
+        
+      if (data && data.name) {
+        fullName = data.name;
+        if (data.lastName) {
+          fullName += ` ${data.lastName}`;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  }
+  
   return sendNotification({
     type: 'like_added',
     title: 'Nowe polubienie',
-    message: `${userName} polubił "${postTitle}"`,
+    message: `${fullName} polubił "${postTitle}"`,
     fromUserId: userId,
     targetId: postId,
     targetType: 'post'

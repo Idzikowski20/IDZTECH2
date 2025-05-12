@@ -32,6 +32,8 @@ export interface Notification {
   targetId?: string; // ID of post, user, etc. that the notification is about
   targetType?: string; // Type of target: "post", "user", etc.
   comment?: string; // Admin feedback in case of rejection
+  // Required additions for UI display
+  fromUserName?: string; // Added field for UI display
 }
 
 export const useSupabaseNotifications = () => {
@@ -68,16 +70,40 @@ export const useSupabaseNotifications = () => {
       }
 
       // Transform the Supabase data to match our Notification interface
-      const transformedNotifications: Notification[] = data.map(notification => ({
-        id: notification.id,
-        type: notification.type as NotificationType || 'info',
-        title: notification.title,
-        message: notification.message,
-        createdAt: notification.created_at,
-        status: notification.is_read ? 'read' as NotificationStatus : 'unread' as NotificationStatus,
-        fromUserId: notification.user_id,
-        targetId: notification.target_id || '',
-        targetType: notification.target_type || '',
+      const transformedNotifications: Notification[] = await Promise.all(data.map(async notification => {
+        // Try to get user name if we have user_id
+        let fromUserName = '';
+        if (notification.user_id) {
+          try {
+            const { data: userData } = await supabase
+              .from('profiles')
+              .select('name, lastName')
+              .eq('id', notification.user_id)
+              .single();
+            
+            if (userData) {
+              fromUserName = userData.name;
+              if (userData.lastName) {
+                fromUserName += ` ${userData.lastName}`;
+              }
+            }
+          } catch (e) {
+            console.error('Error fetching user data:', e);
+          }
+        }
+
+        return {
+          id: notification.id,
+          type: notification.type as NotificationType || 'info',
+          title: notification.title,
+          message: notification.message,
+          createdAt: notification.created_at,
+          status: notification.is_read ? 'read' as NotificationStatus : 'unread' as NotificationStatus,
+          fromUserId: notification.user_id,
+          targetId: notification.target_id || '',
+          targetType: notification.target_type || '',
+          fromUserName: fromUserName || 'Użytkownik', // Use fetched user name or default
+        };
       }));
 
       setNotifications(transformedNotifications);
