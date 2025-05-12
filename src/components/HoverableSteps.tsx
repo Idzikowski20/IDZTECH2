@@ -94,4 +94,3 @@ const HoverableSteps: React.FC<HoverableStepsProps> = ({ steps, className = "" }
 };
 
 export default HoverableSteps;
-

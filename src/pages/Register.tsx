@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { UserPlus, Loader2 } from 'lucide-react';
+import { UserPlus, Loader2, Eye, EyeOff } from 'lucide-react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -14,17 +14,22 @@ import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import PageDotAnimation from '@/components/PageDotAnimation';
+import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
+import { isPasswordCompromised, passwordSchema } from '@/utils/passwordValidation';
 
+// Enhanced register schema with custom password validation
 const registerSchema = z.object({
   name: z.string().min(2, 'Imię musi mieć co najmniej 2 znaki'),
   email: z.string().email('Wprowadź poprawny adres email'),
-  password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków')
+  password: passwordSchema
 });
 
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPassCompromised, setIsPassCompromised] = useState(false);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -35,7 +40,37 @@ const Register = () => {
     }
   });
 
+  // Check password against compromised list when it changes
+  const password = form.watch('password');
+  
+  useEffect(() => {
+    const checkPassword = async () => {
+      if (password && password.length >= 4) {
+        const compromised = await isPasswordCompromised(password);
+        setIsPassCompromised(compromised);
+        
+        if (compromised) {
+          form.setError('password', { 
+            type: 'manual', 
+            message: 'To hasło jest zbyt popularne i znane. Wybierz bezpieczniejsze hasło.' 
+          });
+        }
+      }
+    };
+    
+    checkPassword();
+  }, [password, form]);
+
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+    if (isPassCompromised) {
+      toast({
+        title: "Hasło zagrożone",
+        description: "To hasło znajduje się na liście wyciekniętych haseł. Wybierz inne hasło.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     try {
       // Register the user with Supabase
@@ -121,8 +156,23 @@ const Register = () => {
                   <FormItem>
                     <FormLabel>Hasło</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" className="bg-slate-950" {...field} />
+                      <div className="relative">
+                        <Input 
+                          type={showPassword ? "text" : "password"} 
+                          placeholder="••••••••" 
+                          className="bg-slate-950 pr-10" 
+                          {...field} 
+                        />
+                        <button 
+                          type="button"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
                     </FormControl>
+                    <PasswordStrengthIndicator password={field.value} />
                     <FormMessage />
                   </FormItem>
                 )} 

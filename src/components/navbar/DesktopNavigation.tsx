@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -17,9 +16,8 @@ const DesktopNavigation = () => {
   const location = useLocation();
   
   const linkClass = cn(
-    "transition-colors duration-300 px-4 py-2 rounded-md relative",
-    "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue",
-    theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'
+    "transition-colors duration-300 px-4 py-2 rounded-md",
+    theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-white/10 hover:text-white'
   );
   
   const isActive = (path: string) => {
@@ -33,7 +31,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/" 
-              className={`${linkClass} ${isActive('/') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+              className={`${linkClass} ${isActive('/') ? 'font-bold' : ''}`}
             >
               Start
             </Link>
@@ -41,7 +39,7 @@ const DesktopNavigation = () => {
           
           <NavigationMenuItem>
             <NavigationMenuTrigger 
-              className={`transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue ${theme === 'light' ? 'text-black hover:bg-transparent hover:text-black' : 'text-white hover:bg-transparent hover:text-white'}`}
+              className={`transition-colors duration-300 ${theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-white/10 hover:text-white'}`}
             >
               Usługi
             </NavigationMenuTrigger>
@@ -185,7 +183,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/projects" 
-              className={`${linkClass} ${isActive('/projects') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+              className={`${linkClass} ${isActive('/projects') ? 'font-bold' : ''}`}
             >
               Portfolio
             </Link>
@@ -194,7 +192,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/about" 
-              className={`${linkClass} ${isActive('/about') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+              className={`${linkClass} ${isActive('/about') ? 'font-bold' : ''}`}
             >
               O nas
             </Link>
@@ -203,7 +201,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/blog" 
-              className={`${linkClass} ${isActive('/blog') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+              className={`${linkClass} ${isActive('/blog') ? 'font-bold' : ''}`}
             >
               Blog
             </Link>
@@ -212,7 +210,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/contact" 
-              className={`${linkClass} ${isActive('/contact') ? 'font-bold after:scale-x-100 after:bg-premium-blue' : ''}`}
+              className={`${linkClass} ${isActive('/contact') ? 'font-bold' : ''}`}
             >
               Kontakt
             </Link>
