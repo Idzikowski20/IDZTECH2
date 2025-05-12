@@ -63,7 +63,7 @@ const VerticalProcessSteps = () => {
           )}
           
           {/* Content - alternating left/right placement */}
-          <div className={`flex-grow px-8 text-right`}>
+          <div className={`flex-grow px-8`}>
             <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
             <p className="text-premium-light/70 text-lg">{step.description}</p>
           </div>
