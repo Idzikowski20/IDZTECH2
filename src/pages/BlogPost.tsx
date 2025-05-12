@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
@@ -43,12 +42,13 @@ const BlogPost = () => {
   // Fetch author profile from Supabase if we have an author ID
   useEffect(() => {
     const fetchAuthorProfile = async () => {
-      if (post?.authorId) {
+      // Use post.author instead of post.authorId since that's what's available in the BlogPost type
+      if (post?.author) {
         try {
           const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', post.authorId)
+            .eq('name', post.author) // Using name instead of ID
             .single();
             
           if (!error && data) {
@@ -61,7 +61,7 @@ const BlogPost = () => {
     };
     
     fetchAuthorProfile();
-  }, [post?.authorId]);
+  }, [post?.author]);
   
   if (!post) {
     return (

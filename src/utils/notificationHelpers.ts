@@ -1,6 +1,5 @@
 
 import { supabase } from '@/utils/supabaseClient';
-import { useSupabaseNotifications } from '@/hooks/useSupabaseNotifications';
 
 // Helper do wysyłania powiadomień bezpośrednio przez Supabase
 export const sendNotification = async ({
@@ -8,7 +7,6 @@ export const sendNotification = async ({
   title,
   message,
   fromUserId,
-  fromUserName,
   targetId,
   targetType,
   status = 'unread'
@@ -17,7 +15,6 @@ export const sendNotification = async ({
   title: string;
   message: string;
   fromUserId?: string;
-  fromUserName?: string;
   targetId?: string;
   targetType?: string;
   status?: 'unread' | 'read' | 'pending' | 'approved' | 'rejected';
@@ -58,7 +55,6 @@ export const sendApprovalRequest = async (
     title,
     message,
     fromUserId,
-    fromUserName,
     targetId,
     targetType,
     status: 'pending'
@@ -72,7 +68,6 @@ export const notifyPostCreated = async (userId: string, userName: string, postId
     title: 'Nowy post został utworzony',
     message: `Użytkownik ${userName} utworzył nowy post "${postTitle}"`,
     fromUserId: userId,
-    fromUserName: userName,
     targetId: postId,
     targetType: 'post'
   });
@@ -85,7 +80,6 @@ export const addCommentNotification = async (postId: string, postTitle: string, 
     title: 'Nowy komentarz',
     message: `${userName} dodał komentarz do "${postTitle}"`,
     fromUserId: userId,
-    fromUserName: userName,
     targetId: postId,
     targetType: 'post'
   });
@@ -98,7 +92,6 @@ export const addLikeNotification = async (postId: string, postTitle: string, use
     title: 'Nowe polubienie',
     message: `${userName} polubił "${postTitle}"`,
     fromUserId: userId,
-    fromUserName: userName,
     targetId: postId,
     targetType: 'post'
   });

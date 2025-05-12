@@ -29,7 +29,6 @@ export interface Notification {
   createdAt: string;
   status: NotificationStatus;
   fromUserId?: string;
-  fromUserName?: string;
   targetId?: string; // ID of post, user, etc. that the notification is about
   targetType?: string; // Type of target: "post", "user", etc.
   comment?: string; // Admin feedback in case of rejection
@@ -77,10 +76,8 @@ export const useSupabaseNotifications = () => {
         createdAt: notification.created_at,
         status: notification.is_read ? 'read' as NotificationStatus : 'unread' as NotificationStatus,
         fromUserId: notification.user_id,
-        fromUserName: notification.fromUserName || '',
         targetId: notification.target_id || '',
         targetType: notification.target_type || '',
-        comment: notification.comment || ''
       }));
 
       setNotifications(transformedNotifications);
@@ -108,7 +105,6 @@ export const useSupabaseNotifications = () => {
           user_id: notification.fromUserId,
           target_id: notification.targetId ? notification.targetId : null,
           target_type: notification.targetType ? notification.targetType : null,
-          comment: notification.comment
         });
 
       if (error) {
@@ -181,8 +177,7 @@ export const useSupabaseNotifications = () => {
       const { error } = await supabase
         .from('notifications')
         .update({ 
-          is_read: status === 'read', 
-          comment: comment
+          is_read: status === 'read'
         })
         .eq('id', id);
 
@@ -218,7 +213,6 @@ export const useSupabaseNotifications = () => {
           fromUserId: notificationToUpdate.fromUserId,
           targetId: notificationToUpdate.targetId,
           targetType: notificationToUpdate.targetType,
-          comment: comment
         });
       }
 

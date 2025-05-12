@@ -50,8 +50,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           id,
           content,
           created_at,
-          user_id,
-          profiles(name, profilePicture)
+          user_id
         `)
         .eq('post_id', postId)
         .order('created_at', { ascending: true });
@@ -66,13 +65,13 @@ const CommentSection: React.FC<CommentSectionProps> = ({
       if (user) {
         const { data: likesData } = await supabase
           .from('blog_likes')
-          .select('comment_id')
+          .select('id, post_id')
           .eq('user_id', user.id);
 
         if (likesData) {
           userLikes = likesData.reduce((acc, like) => {
-            if (like.comment_id) {
-              acc[like.comment_id] = true;
+            if (like.post_id) {
+              acc[like.post_id] = true;
             }
             return acc;
           }, {} as Record<string, boolean>);
@@ -85,23 +84,47 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         const { count } = await supabase
           .from('blog_likes')
           .select('id', { count: 'exact', head: true })
-          .eq('comment_id', comment.id);
+          .eq('post_id', comment.id);
         
         commentLikeCounts[comment.id] = count || 0;
       }
 
+      // Pobierz dane użytkowników, którzy napisali komentarze
+      const userProfiles: Record<string, { name: string, profilePicture: string }> = {};
+      
+      for (const comment of commentsData || []) {
+        if (comment.user_id && !userProfiles[comment.user_id]) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('name, profilePicture')
+            .eq('id', comment.user_id)
+            .single();
+          
+          if (profile) {
+            userProfiles[comment.user_id] = {
+              name: profile.name || 'Użytkownik anonimowy',
+              profilePicture: profile.profilePicture || null
+            };
+          }
+        }
+      }
+
       // Przekształć dane z Supabase na format używany przez nasz komponent
-      const formattedComments: Comment[] = (commentsData || []).map(comment => ({
-        id: comment.id,
-        authorId: comment.user_id,
-        author: comment.profiles?.name || 'Użytkownik anonimowy',
-        authorImage: comment.profiles?.profilePicture || null,
-        content: comment.content,
-        date: new Date(comment.created_at).toLocaleDateString('pl-PL'),
-        likes: commentLikeCounts[comment.id] || 0,
-        userLiked: !!userLikes[comment.id],
-        replies: []
-      }));
+      const formattedComments: Comment[] = (commentsData || []).map(comment => {
+        const userData = comment.user_id ? userProfiles[comment.user_id] : null;
+        
+        return {
+          id: comment.id,
+          authorId: comment.user_id,
+          author: userData?.name || 'Użytkownik anonimowy',
+          authorImage: userData?.profilePicture || null,
+          content: comment.content,
+          date: new Date(comment.created_at).toLocaleDateString('pl-PL'),
+          likes: commentLikeCounts[comment.id] || 0,
+          userLiked: !!userLikes[comment.id],
+          replies: []
+        };
+      });
 
       setComments(formattedComments);
     } catch (error) {
@@ -214,7 +237,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           .from('blog_likes')
           .delete()
           .eq('user_id', user.id)
-          .eq('comment_id', commentId);
+          .eq('post_id', commentId);
 
         if (error) {
           console.error('Error removing like:', error);
@@ -240,8 +263,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           .from('blog_likes')
           .insert({
             user_id: user.id,
-            comment_id: commentId,
-            post_id: postId
+            post_id: commentId
           });
 
         if (error) {
