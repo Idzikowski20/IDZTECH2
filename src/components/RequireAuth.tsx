@@ -18,11 +18,16 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
   const [accessDenied, setAccessDenied] = useState(false);
   const redirected = useRef(false);
   
-  console.log("RequireAuth render:", { user, loading, path: location.pathname, requiredRole });
+  console.log("RequireAuth render:", { 
+    user, 
+    loading, 
+    path: location.pathname, 
+    requiredRole,
+    pathname: location.pathname
+  });
   
-  // Initialize auth check with a short timer
+  // Initialize auth check with a short timer to ensure auth state is loaded
   useEffect(() => {
-    // Short timeout to allow auth state to load
     const timer = setTimeout(() => {
       setIsInitialized(true);
       console.log("Auth initialized, user:", user);
@@ -87,7 +92,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // User is authenticated - IMPORTANT: return the children directly, don't navigate
+  // User is authenticated - render the children directly
   console.log("User is authenticated, rendering children");
   return children;
 };

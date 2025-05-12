@@ -2,33 +2,36 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type CommentNotificationType = 'comment' | 'like' | 'info' | 'error' | 'success' | 'warning';
+export type NotificationType = 'comment' | 'like' | 'info' | 'error' | 'success' | 'warning' | 
+  'approval_request' | 'approval_accepted' | 'approval_rejected' | 'post_created' | 
+  'post_edited' | 'post_deleted' | 'comment_added' | 'like_added' | 'user_edited';
+
+export type NotificationStatus = 'read' | 'unread' | 'pending' | 'approved' | 'rejected';
 
 export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: CommentNotificationType;
-  timestamp: Date;
-  read: boolean;
-  data?: {
-    postId?: string;
-    postTitle?: string;
-    commentId?: string;
-    userId?: string;
-    userName?: string;
-  };
+  type: NotificationType;
+  status: NotificationStatus;
+  createdAt: string;
+  fromUserId?: string;
+  fromUserName?: string;
+  targetId?: string;
+  targetType?: string;
+  comment?: string;
 }
 
 interface NotificationState {
   notifications: Notification[];
-  unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp'>) => string;
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'status'>) => string;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
+  updateNotificationStatus: (id: string, status: NotificationStatus, comment?: string) => void;
   deleteNotification: (id: string) => void;
   deleteAllNotifications: () => void;
-  getNotifications: (limit?: number) => Notification[];
+  getNotifications: () => Notification[];
+  getUnreadCount: () => number;
 }
 
 // Initialize notification store
@@ -36,69 +39,64 @@ export const useNotifications = create<NotificationState>()(
   persist(
     (set, get) => ({
       notifications: [],
-      unreadCount: 0,
 
       addNotification: (notification) => {
         // Create a new notification with ID and timestamp
         const newNotification: Notification = {
           ...notification,
           id: Date.now().toString(),
-          timestamp: new Date(),
-          read: false,
+          createdAt: new Date().toISOString(),
+          status: 'unread',
         };
 
-        // Add notification and update unread count
+        // Add notification
         set((state) => ({
           notifications: [newNotification, ...state.notifications],
-          unreadCount: state.unreadCount + 1,
         }));
 
         return newNotification.id;
       },
 
       markAsRead: (id) => {
-        set((state) => {
-          const notification = state.notifications.find((n) => n.id === id);
-          if (!notification || notification.read) {
-            return state; // No changes needed
-          }
-
-          return {
-            notifications: state.notifications.map((n) =>
-              n.id === id ? { ...n, read: true } : n
-            ),
-            unreadCount: Math.max(0, state.unreadCount - 1),
-          };
-        });
+        set((state) => ({
+          notifications: state.notifications.map((n) =>
+            n.id === id && n.status === 'unread' ? { ...n, status: 'read' } : n
+          ),
+        }));
       },
 
       markAllAsRead: () => {
         set((state) => ({
-          notifications: state.notifications.map((n) => ({ ...n, read: true })),
-          unreadCount: 0,
+          notifications: state.notifications.map((n) =>
+            n.status === 'unread' ? { ...n, status: 'read' } : n
+          ),
+        }));
+      },
+
+      updateNotificationStatus: (id, status, comment) => {
+        set((state) => ({
+          notifications: state.notifications.map((n) =>
+            n.id === id ? { ...n, status, ...(comment ? { comment } : {}) } : n
+          ),
         }));
       },
 
       deleteNotification: (id) => {
-        set((state) => {
-          const notification = state.notifications.find((n) => n.id === id);
-          return {
-            notifications: state.notifications.filter((n) => n.id !== id),
-            unreadCount: notification && !notification.read
-              ? Math.max(0, state.unreadCount - 1)
-              : state.unreadCount,
-          };
-        });
+        set((state) => ({
+          notifications: state.notifications.filter((n) => n.id !== id),
+        }));
       },
 
       deleteAllNotifications: () => {
-        set({ notifications: [], unreadCount: 0 });
+        set({ notifications: [] });
       },
 
-      getNotifications: (limit) => {
-        const notifications = get().notifications;
-        if (!limit) return notifications;
-        return notifications.slice(0, limit);
+      getNotifications: () => {
+        return get().notifications;
+      },
+
+      getUnreadCount: () => {
+        return get().notifications.filter(n => n.status === 'unread').length;
       },
     }),
     {
@@ -107,19 +105,37 @@ export const useNotifications = create<NotificationState>()(
   )
 );
 
+// Helper for adding a notification
+export const addSystemNotification = (
+  title: string,
+  message: string,
+  type: NotificationType,
+  fromUserName?: string,
+  fromUserId?: string,
+  targetId?: string,
+  targetType?: string
+) => {
+  return useNotifications.getState().addNotification({
+    title,
+    message,
+    type,
+    fromUserName,
+    fromUserId,
+    targetId,
+    targetType
+  });
+};
+
 // Helper for adding a comment notification
 export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return useNotifications.getState().addNotification({
     title: 'Nowy komentarz',
     message: `${userName} dodał komentarz do "${postTitle}"`,
-    type: 'comment',
-    read: false,
-    data: {
-      postId,
-      postTitle,
-      userId,
-      userName
-    }
+    type: 'comment_added',
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post'
   });
 };
 
@@ -128,13 +144,10 @@ export const addLikeNotification = (postId: string, postTitle: string, userName:
   return useNotifications.getState().addNotification({
     title: 'Nowe polubienie',
     message: `${userName} polubił "${postTitle}"`,
-    type: 'like',
-    read: false,
-    data: {
-      postId,
-      postTitle,
-      userId,
-      userName
-    }
+    type: 'like_added',
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post'
   });
 };

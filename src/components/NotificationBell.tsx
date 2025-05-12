@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Bell } from 'lucide-react';
 import { 
@@ -8,26 +9,22 @@ import {
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
-import { useNotifications } from '@/utils/notifications';
+import { useNotifications, NotificationType } from '@/utils/notifications';
 import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 const NotificationBell: React.FC = () => {
-  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { notifications, markAsRead, getUnreadCount } = useNotifications();
+  const unreadCount = getUnreadCount();
   const navigate = useNavigate();
 
   const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {
     markAsRead(id);
     
-    // Kieruj do konkretnej treści jeśli mamy target
+    // Navigate to specific content if we have a target
     if (targetType === 'post' && targetId) {
-      // Znajdź post po ID i przekieruj do jego szczegółów
       navigate(`/blog/${targetId}`);
-    } else if (targetType === 'admin') {
-      // Przekierowanie do panelu administracyjnego dla powiadomień admin
-      navigate('/admin');
     }
-    // Usuwamy domyślne przekierowanie do listy powiadomień, żeby nie zawsze tam przekierowywało
   };
   
   // Handle separate click on "Zobacz wszystkie" button
@@ -37,7 +34,7 @@ const NotificationBell: React.FC = () => {
     navigate('/admin/notifications');
   };
 
-  const getNotificationIcon = (type: string) => {
+  const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
       case 'success':
       case 'approval_accepted':

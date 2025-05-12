@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/utils/AuthProvider';
-import { useNotifications, Notification, NotificationStatus } from '@/utils/notifications';
+import { useNotifications, NotificationType, NotificationStatus } from '@/utils/notifications';
 import { 
   Card, 
   CardContent, 
@@ -86,41 +86,43 @@ const AdminNotifications = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { notifications, markAsRead, updateNotificationStatus, deleteNotification, markAllAsRead } = useNotifications();
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
   const [isLoaded, setIsLoaded] = useState(false);
 
+  console.log("AdminNotifications render - notifications:", notifications);
+  console.log("AdminNotifications render - user:", user);
+  
   // Set loaded state after initial render - with delay to ensure notifications are loaded
   useEffect(() => {
     console.log("AdminNotifications component mounted");
     
     // Add a delay to ensure notifications state is fully loaded
     const timer = setTimeout(() => {
-      console.log("Notifications count after delay:", notifications.length);
+      console.log("Setting isLoaded to true");
       setIsLoaded(true);
     }, 1000);
     
     return () => clearTimeout(timer);
   }, []);
 
-  // Redirect if not authenticated or not admin
+  // Redirect if not authenticated
   useEffect(() => {
-    if (!user) {
+    if (isLoaded && !user) {
+      console.log("No user found, redirecting to login");
       navigate('/login');
-    } else if (user.role !== 'admin') {
-      navigate('/admin');
     }
-  }, [user, navigate]);
+  }, [user, navigate, isLoaded]);
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = (notification: any) => {
     if (notification.status === 'unread') {
       markAsRead(notification.id);
     }
   };
 
-  const handleApprove = (notification: Notification) => {
+  const handleApprove = (notification: any) => {
     updateNotificationStatus(notification.id, 'approved');
     toast({
       title: 'Zatwierdzono',
@@ -128,7 +130,7 @@ const AdminNotifications = () => {
     });
   };
 
-  const openRejectDialog = (notification: Notification) => {
+  const openRejectDialog = (notification: any) => {
     setSelectedNotification(notification);
     setRejectionComment('');
     setOpenDialog(true);
@@ -149,7 +151,7 @@ const AdminNotifications = () => {
     }
   };
 
-  const handleDelete = (notification: Notification) => {
+  const handleDelete = (notification: any) => {
     deleteNotification(notification.id);
     toast({
       title: 'Usunięto',
@@ -176,11 +178,8 @@ const AdminNotifications = () => {
       </AdminLayout>
     );
   }
-
-  // Add debugging information if no notifications
-  if (notifications.length === 0) {
-    console.log("No notifications found in store");
-  }
+  
+  // If we're loaded but user is not authenticated, redirect handled by useEffect
 
   return (
     <AdminLayout>
