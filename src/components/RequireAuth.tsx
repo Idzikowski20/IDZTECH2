@@ -24,7 +24,8 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     loading, 
     path: location.pathname, 
     requiredRole,
-    pathname: location.pathname
+    pathname: location.pathname,
+    userRole: user?.role
   });
   
   // Initialize auth check with a short timer to ensure auth state is loaded
@@ -34,9 +35,17 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       console.log("Auth initialized, user:", user);
       
       // Check for role-based access if a role is required
-      if (user && requiredRole && user.role !== requiredRole) {
-        console.log("Access denied, required role:", requiredRole, "user role:", user.role);
-        setAccessDenied(true);
+      if (user && requiredRole) {
+        // Check if the user has the required role or if they are an admin or administrator
+        const hasRequiredRole = 
+          user.role === requiredRole || 
+          user.role === 'admin' || 
+          user.role === 'administrator';
+          
+        if (!hasRequiredRole) {
+          console.log("Access denied, required role:", requiredRole, "user role:", user.role);
+          setAccessDenied(true);
+        }
       }
     }, 500);
     
@@ -75,19 +84,27 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
           <h2 className="text-2xl font-bold text-white mb-4">Brak uprawnień</h2>
           <p className="text-gray-300 mb-6">
             Nie posiadasz wymaganych uprawnień, aby zobaczyć tę stronę.
+            {user?.role && (
+              <span className="block mt-2">
+                Twoja rola: <strong>{user.role}</strong><br />
+                Wymagana rola: <strong>{requiredRole}</strong>
+              </span>
+            )}
           </p>
-          <Button 
-            onClick={() => navigate("/admin")} 
-            className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black mr-3"
-          >
-            Powrót do panelu
-          </Button>
-          <Button 
-            onClick={() => navigate("/")} 
-            className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
-          >
-            Strona główna
-          </Button>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Button 
+              onClick={() => navigate("/admin")} 
+              className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-black hover:text-white"
+            >
+              Powrót do panelu
+            </Button>
+            <Button 
+              onClick={() => navigate("/")} 
+              className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-black hover:text-white"
+            >
+              Strona główna
+            </Button>
+          </div>
         </div>
       </div>
     );

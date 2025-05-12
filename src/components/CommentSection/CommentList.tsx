@@ -62,10 +62,17 @@ const CommentList: React.FC<CommentListProps> = ({
             {paginatedComments.map((comment) => (
               <CommentItem
                 key={comment.id}
-                comment={comment}
-                onLike={onLikeComment}
-                onReply={onReplyComment}
-                showControls={showControls}
+                id={comment.id}
+                author={{
+                  name: comment.userName || 'Użytkownik',
+                  profilePicture: comment.userAvatar,
+                  role: comment.userRole
+                }}
+                content={comment.content}
+                createdAt={comment.createdAt}
+                onReport={onLikeComment ? () => onLikeComment(comment.id) : undefined}
+                currentUserId={undefined}
+                authorId={comment.userId}
               />
             ))}
           </div>
@@ -76,7 +83,7 @@ const CommentList: React.FC<CommentListProps> = ({
                 <PaginationItem>
                   <PaginationPrevious 
                     onClick={handlePrevPage} 
-                    className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'hover:bg-white hover:text-black'}`} 
+                    className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : 'hover:bg-black hover:text-white'}`} 
                   />
                 </PaginationItem>
                 
@@ -98,7 +105,7 @@ const CommentList: React.FC<CommentListProps> = ({
                       <PaginationLink 
                         onClick={() => setCurrentPage(pageNum)}
                         isActive={currentPage === pageNum}
-                        className={currentPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
+                        className={currentPage !== pageNum ? "hover:bg-black hover:text-white" : ""}
                       >
                         {pageNum}
                       </PaginationLink>
@@ -109,7 +116,7 @@ const CommentList: React.FC<CommentListProps> = ({
                 <PaginationItem>
                   <PaginationNext 
                     onClick={handleNextPage} 
-                    className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'hover:bg-white hover:text-black'}`} 
+                    className={`${currentPage === totalPages ? 'pointer-events-none opacity-50' : 'hover:bg-black hover:text-white'}`} 
                   />
                 </PaginationItem>
               </PaginationContent>

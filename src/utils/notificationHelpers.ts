@@ -174,7 +174,7 @@ export const findUserByEmail = async (email: string) => {
       .eq('email', email)
       .single();
     
-    if (error) {
+    if (error && error.code !== 'PGRST116') { // Not found is not a real error
       console.error('Error finding user by email:', error);
       return { success: false, error };
     }
@@ -193,16 +193,30 @@ export const updateUserRoles = async () => {
     const { data: aleksandraData } = await supabase
       .from('profiles')
       .select('*')
-      .eq('email', 'ola.gor109@gmail.com')
-      .single();
+      .eq('email', 'ola.gor109@gmail.com');
     
-    if (aleksandraData) {
-      if (!aleksandraData.role || aleksandraData.role !== 'blogger') {
+    if (aleksandraData && aleksandraData.length > 0) {
+      if (!aleksandraData[0].role || aleksandraData[0].role !== 'blogger') {
         await supabase
           .from('profiles')
           .update({ role: 'blogger' })
-          .eq('id', aleksandraData.id);
+          .eq('id', aleksandraData[0].id);
         console.log('Updated Aleksandra to blogger role');
+      }
+    } else {
+      console.log('Aleksandra not found, will try to find by similar email');
+      // Try to find by partial email match if exact match fails
+      const { data: similarEmailsData } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', '%ola%gor%');
+        
+      if (similarEmailsData && similarEmailsData.length > 0) {
+        await supabase
+          .from('profiles')
+          .update({ role: 'blogger' })
+          .eq('id', similarEmailsData[0].id);
+        console.log('Updated user with similar email to blogger role:', similarEmailsData[0].email);
       }
     }
     
@@ -210,16 +224,30 @@ export const updateUserRoles = async () => {
     const { data: patrykData } = await supabase
       .from('profiles')
       .select('*')
-      .eq('email', 'patryk.idzikowski@interia.pl')
-      .single();
+      .eq('email', 'patryk.idzikowski@interia.pl');
     
-    if (patrykData) {
-      if (!patrykData.role || patrykData.role !== 'administrator') {
+    if (patrykData && patrykData.length > 0) {
+      if (!patrykData[0].role || patrykData[0].role !== 'administrator') {
         await supabase
           .from('profiles')
           .update({ role: 'administrator' })
-          .eq('id', patrykData.id);
+          .eq('id', patrykData[0].id);
         console.log('Updated Patryk to administrator role');
+      }
+    } else {
+      console.log('Patryk not found, will try to find by similar email');
+      // Try to find by partial email match if exact match fails
+      const { data: similarEmailsData } = await supabase
+        .from('profiles')
+        .select('*')
+        .ilike('email', '%patryk%idzikowski%');
+        
+      if (similarEmailsData && similarEmailsData.length > 0) {
+        await supabase
+          .from('profiles')
+          .update({ role: 'administrator' })
+          .eq('id', similarEmailsData[0].id);
+        console.log('Updated user with similar email to administrator role:', similarEmailsData[0].email);
       }
     }
 
@@ -227,15 +255,21 @@ export const updateUserRoles = async () => {
     const { data: adminData } = await supabase
       .from('profiles')
       .select('*')
-      .eq('email', 'admin@example.com')
-      .single();
+      .eq('email', 'admin@example.com');
 
-    if (adminData) {
+    if (adminData && adminData.length > 0) {
       await supabase
         .from('profiles')
         .delete()
-        .eq('id', adminData.id);
+        .eq('id', adminData[0].id);
       console.log('Deleted Admin user');
+      
+      // Also delete from auth.users if possible
+      try {
+        await supabase.auth.admin.deleteUser(adminData[0].id);
+      } catch (e) {
+        console.log('Could not delete from auth.users, may require admin rights');
+      }
     }
     
     return { success: true };

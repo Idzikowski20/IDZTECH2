@@ -13,8 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, MessageCircle, CornerDownRight } from 'lucide-react';
-import { sendApprovalRequest } from '@/utils/notifications';
 import { useTheme } from '@/utils/themeContext';
+import { useNotifications } from '@/utils/notifications';
 
 interface CommentSectionProps {
   postId: string;
@@ -32,6 +32,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const { addComment, deleteComment, getPostComments, addReplyToComment, deleteReplyFromComment } = useBlogStore();
   const { toast } = useToast();
   const { theme } = useTheme();
+  const { addNotification } = useNotifications();
   
   // Add null check and default to empty array if comments are undefined
   const comments = getPostComments(postId) || [];
@@ -131,15 +132,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     
     const post = useBlogStore.getState().posts.find(p => p.id === postId);
     
-    // Send notification to admin for approval
-    sendApprovalRequest(
-      'guest', // Guest user ID
-      guestName, // Guest name
-      postId,
-      'comment',
-      'Prośba o dodanie komentarza',
-      `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}".`
-    );
+    // Send notification to admin for approval using addNotification instead of sendApprovalRequest
+    addNotification({
+      type: 'approval_request',
+      title: 'Prośba o dodanie komentarza',
+      message: `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}"`,
+      fromUserId: 'guest',
+      fromUserName: guestName,
+      targetId: postId,
+      targetType: 'comment'
+    });
     
     setShowGuestDialog(false);
     setComment('');
@@ -218,7 +220,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         <div className="flex justify-end">
           <Button 
             onClick={handleCommentSubmit} 
-            className="bg-premium-gradient"
+            className="bg-premium-gradient hover:bg-black hover:text-white"
             disabled={!comment.trim()}
           >
             {isAuthenticated ? "Dodaj komentarz" : "Dodaj komentarz jako gość"}
@@ -253,7 +255,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                       variant="ghost" 
                       size="sm"
                       onClick={() => handleDeleteComment(comment.id)}
-                      className="text-premium-light/50 p-1 h-8 w-8"
+                      className="text-premium-light/50 p-1 h-8 w-8 hover:bg-black hover:text-white"
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -268,7 +270,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                       variant="ghost"
                       size="sm"
                       onClick={() => setReplyingToId(replyingToId === comment.id ? null : comment.id)}
-                      className="text-sm text-premium-light/70"
+                      className="text-sm text-premium-light/70 hover:bg-black hover:text-white"
                     >
                       Odpowiedz
                     </Button>
@@ -291,6 +293,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                         variant="outline" 
                         size="sm" 
                         onClick={() => setReplyingToId(null)}
+                        className="hover:bg-black hover:text-white"
                       >
                         Anuluj
                       </Button>
@@ -298,6 +301,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                         size="sm" 
                         onClick={() => handleReplySubmit(comment.id)}
                         disabled={!replyContent.trim()}
+                        className="hover:bg-black hover:text-white"
                       >
                         Odpowiedz
                       </Button>
@@ -347,7 +351,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                             variant="ghost" 
                             size="sm"
                             onClick={() => handleDeleteReply(comment.id, reply.id)}
-                            className="text-premium-light/50 p-1 h-6 w-6"
+                            className="text-premium-light/50 p-1 h-6 w-6 hover:bg-black hover:text-white"
                           >
                             <Trash2 size={14} />
                           </Button>
@@ -389,10 +393,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowGuestDialog(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowGuestDialog(false)}
+                className="hover:bg-black hover:text-white"
+              >
                 Anuluj
               </Button>
-              <Button onClick={handleGuestCommentSubmit}>
+              <Button 
+                onClick={handleGuestCommentSubmit}
+                className="hover:bg-black hover:text-white"
+              >
                 Wyślij komentarz
               </Button>
             </div>
@@ -410,8 +421,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDeleteComment}>Anuluj</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteComment} className="bg-red-500 text-white">
+            <AlertDialogCancel onClick={cancelDeleteComment} className="hover:bg-black hover:text-white">Anuluj</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteComment} className="bg-red-500 text-white hover:bg-black hover:text-white">
               Usuń
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -428,8 +439,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDeleteReply}>Anuluj</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteReply} className="bg-red-500 text-white">
+            <AlertDialogCancel onClick={cancelDeleteReply} className="hover:bg-black hover:text-white">Anuluj</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteReply} className="bg-red-500 text-white hover:bg-black hover:text-white">
               Usuń
             </AlertDialogAction>
           </AlertDialogFooter>

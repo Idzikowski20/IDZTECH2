@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { addCommentNotification } from '@/utils/notificationHelpers';
 
-interface Comment {
+export interface Comment {
   id: string;
   content: string;
   createdAt: string;
@@ -19,6 +19,10 @@ interface Comment {
   userName?: string;
   userAvatar?: string;
   userRole?: string;
+}
+
+interface CommentHeaderProps {
+  count: number;
 }
 
 interface CommentSectionProps {
@@ -236,7 +240,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
       
       {!loading && comments.length > 0 && (
         <div className="flex justify-center mt-8">
-          <Button variant="outline" className="hover:bg-white hover:text-black">
+          <Button variant="outline" className="hover:bg-black hover:text-white">
             Załaduj więcej
           </Button>
         </div>

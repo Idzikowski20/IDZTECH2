@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -76,14 +77,22 @@ const NotificationBell = () => {
       
       {error && (
         <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          Nie udało się pobrać powiadomień.
+          {error === "Nie udało się pobrać powiadomień: TypeError: Failed to fetch" ? 
+            "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
+            error}
           <button 
             onClick={handleRetry}
-            className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-premium-purple/80"
+            className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"
             disabled={retrying}
           >
             {retrying ? "Odświeżanie..." : "Odśwież"}
           </button>
+        </div>
+      )}
+      
+      {!error && !loading && unreadCount === 0 && (
+        <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
+          Brak nowych powiadomień
         </div>
       )}
     </div>

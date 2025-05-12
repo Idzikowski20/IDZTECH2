@@ -70,7 +70,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         {onReport && currentUserId !== authorId && (
           <button 
             onClick={() => onReport(id)} 
-            className="text-xs text-slate-500 mt-2 flex items-center hover:text-black hover:bg-white"
+            className="text-xs text-slate-500 mt-2 flex items-center hover:bg-black hover:text-white px-2 py-1 rounded-sm transition-colors"
           >
             <Flag className="h-3 w-3 mr-1" /> Zgłoś
           </button>
