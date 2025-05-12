@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -24,7 +25,7 @@ const colors = {
 };
 
 const AdminStats = () => {
-  const { user } = useAuth();
+  const auth = useAuth();
   const getTotalComments = useBlogStore(state => state.getTotalComments);
   const getTotalLikes = useBlogStore(state => state.getTotalLikes);
   const posts = useBlogStore(state => state.posts);

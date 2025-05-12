@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/authStore';
 import { useNotifications, Notification, NotificationStatus } from '@/utils/notifications';
 import { 
   Card, 
@@ -77,7 +78,7 @@ const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => 
 
 const AdminNotifications = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const auth = useAuth();
   const { notifications, markAsRead, updateNotificationStatus, deleteNotification } = useNotifications();
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
@@ -85,7 +86,7 @@ const AdminNotifications = () => {
   const { toast } = useToast();
 
   // Redirect if not authenticated or not admin
-  if (!isAuthenticated || user?.role !== 'admin') {
+  if (!auth.isAuthenticated || auth.user?.role !== 'admin') {
     navigate('/login');
     return null;
   }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,7 @@ const userFormSchema = z.object({
 type UserFormValues = z.infer<typeof userFormSchema>;
 
 const AdminUsers = () => {
-  const { getUsers, updateUserRole, deleteUser, user: currentUser, addUser } = useAuth();
+  const auth = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,12 +62,12 @@ const AdminUsers = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const usersList = await getUsers();
+        const usersList = await auth.getUsers();
         
         // Filter out the current user and deduplicate by email
         const uniqueEmails = new Set();
         const filteredUsers = usersList.filter(u => {
-          if (u.id === currentUser?.id) return false;
+          if (u.id === auth.user?.id) return false;
           
           // Check for duplicate email
           if (uniqueEmails.has(u.email)) return false;
@@ -97,12 +96,12 @@ const AdminUsers = () => {
     
     fetchUsers();
     // We don't need activeProfile in deps as we only want to set it initially
-  }, [getUsers, toast, currentUser]);
+  }, [auth, toast]);
 
   // Handle role change
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     try {
-      const result = await updateUserRole(userId, newRole);
+      const result = await auth.updateUserRole(userId, newRole);
       
       if (result) {
         // Update local state
@@ -140,7 +139,7 @@ const AdminUsers = () => {
   const handleDeleteUser = async (userId: string) => {
     if (window.confirm("Czy na pewno chcesz usunąć tego użytkownika? Tej operacji nie można cofnąć.")) {
       try {
-        const result = await deleteUser(userId);
+        const result = await auth.deleteUser(userId);
         
         if (result) {
           // Update users list
@@ -206,16 +205,16 @@ const AdminUsers = () => {
         jobTitle: '',
       };
       
-      const success = await addUser(userData, data.password);
+      const success = await auth.addUser(userData, data.password);
       
       if (success) {
         // Refresh users list
-        const refreshedUsers = await getUsers();
+        const refreshedUsers = await auth.getUsers();
         
         // Filter out current user and deduplicate by email
         const uniqueEmails = new Set();
         const filteredUsers = refreshedUsers.filter(u => {
-          if (u.id === currentUser?.id) return false;
+          if (u.id === auth.user?.id) return false;
           
           // Check for duplicate email
           if (uniqueEmails.has(u.email)) return false;

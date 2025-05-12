@@ -4,7 +4,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabaseUpdateUserRole } from './authSupabaseIntegration';
 import { User, UserRole } from './authTypes';
-import { Password } from './passwordValidation';
+// Remove the incorrect import
+// import { Password } from './passwordValidation';
 
 // Initial users
 let users: User[] = [
@@ -82,6 +83,7 @@ export const updateUserRole = async (userId: string, role: UserRole): Promise<bo
 interface AuthStore {
   currentUserId: string | null;
   isAuthenticated: boolean;
+  user: User | null; // Add user property
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (email: string, name: string, password: string) => Promise<boolean>;
@@ -91,6 +93,10 @@ interface AuthStore {
   deleteUser: (userId: string) => Promise<boolean>;
   getUsers: () => User[];
   getCurrentUser: () => User | null;
+  getUserRanking: () => Promise<User[]>; // Add missing methods
+  refreshUserStats: () => void; // Add missing methods
+  updateUserRole: (userId: string, role: UserRole) => Promise<boolean>; // Add missing method
+  addUser: (userData: Partial<User>, password: string) => Promise<boolean>; // Add missing method
 }
 
 // Create the auth store
@@ -99,6 +105,7 @@ export const useAuth = create<AuthStore>()(
     (set, get) => ({
       currentUserId: null,
       isAuthenticated: false,
+      user: null, // Initialize user property
       
       // Login
       login: async (email: string, password: string) => {
@@ -119,7 +126,7 @@ export const useAuth = create<AuthStore>()(
           
           updateUsersArray(updatedUsers);
           
-          set({ currentUserId: user.id, isAuthenticated: true });
+          set({ currentUserId: user.id, isAuthenticated: true, user });
           return true;
         } catch (error) {
           console.error("Login error:", error);
@@ -129,7 +136,7 @@ export const useAuth = create<AuthStore>()(
       
       // Logout
       logout: async () => {
-        set({ currentUserId: null, isAuthenticated: false });
+        set({ currentUserId: null, isAuthenticated: false, user: null });
       },
       
       // Register
@@ -223,6 +230,12 @@ export const useAuth = create<AuthStore>()(
           };
           
           updateUsersArray(updatedUsers);
+          
+          // Update current user if it's the logged-in user
+          if (get().currentUserId === userId) {
+            set({ user: updatedUsers[userIndex] });
+          }
+          
           return true;
         } catch (error) {
           console.error("Update user error:", error);
@@ -266,9 +279,92 @@ export const useAuth = create<AuthStore>()(
         const { currentUserId } = get();
         if (!currentUserId) return null;
         
-        return users.find(u => u.id === currentUserId) || null;
+        const currentUser = users.find(u => u.id === currentUserId) || null;
+        
+        // Update the user state if found
+        if (currentUser && get().user?.id !== currentUser.id) {
+          set({ user: currentUser });
+        }
+        
+        return currentUser;
+      },
+      
+      // Get user ranking
+      getUserRanking: async () => {
+        // Sort users by points (descending)
+        return [...users].sort((a, b) => 
+          b.stats.pointsTotal - a.stats.pointsTotal
+        );
+      },
+      
+      // Refresh user stats
+      refreshUserStats: () => {
+        // This function would typically update user stats based on activities
+        console.log("Refreshing user stats");
+        // Implementation would depend on your specific requirements
+      },
+      
+      // Update user role (implementation already exists as external function)
+      updateUserRole: async (userId: string, role: UserRole) => {
+        return updateUserRole(userId, role);
+      },
+      
+      // Add user
+      addUser: async (userData: Partial<User>, password: string) => {
+        try {
+          if (!userData.email || !password) {
+            return false;
+          }
+          
+          const existingUser = users.find(u => 
+            u.email.toLowerCase() === userData.email!.toLowerCase()
+          );
+          
+          if (existingUser) {
+            return false;
+          }
+          
+          // Create new user
+          const newUser: User = {
+            id: `local-${Date.now()}`,
+            email: userData.email.toLowerCase(),
+            name: userData.name || 'User',
+            role: userData.role || 'user',
+            lastName: userData.lastName || '',
+            profilePicture: userData.profilePicture || '',
+            bio: userData.bio || '',
+            jobTitle: userData.jobTitle || '',
+            postsCreated: 0,
+            commentsCount: 0,
+            likesCount: 0,
+            totalViews: 0,
+            createdAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString(),
+            stats: {
+              views: 0,
+              posts: 0,
+              comments: 0,
+              likes: 0,
+              pointsTotal: 0,
+              pointsThisMonth: 0,
+              lastUpdated: new Date().toISOString()
+            }
+          };
+          
+          // Add user and password
+          updateUsersArray([...users, newUser]);
+          passwords[userData.email.toLowerCase()] = password;
+          
+          return true;
+        } catch (error) {
+          console.error("Add user error:", error);
+          return false;
+        }
       }
     }),
     { name: "auth-store" }
   )
 );
+
+// Export the User type for other components to use
+export { User } from './authTypes';
