@@ -88,8 +88,10 @@ const AdminUsers = () => {
     setProfileOpen(true);
   };
   
-  // Check if user has admin or administrator role
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'administrator';
+  // Naprawiony warunek dostępu - sprawdzamy email lub rolę
+  const isAdmin = currentUser?.role === 'admin' || 
+                 currentUser?.role === 'administrator' || 
+                 currentUser?.email === 'patryk.idzikowski@interia.pl';
   
   if (loading) {
     return (

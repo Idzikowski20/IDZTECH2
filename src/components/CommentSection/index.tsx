@@ -1,8 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import CommentHeader from './CommentHeader';
@@ -198,11 +198,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
     }
 
     try {
+      // Generuj unikalny identyfikator dla gościa
+      const guestId = "guest-" + uuidv4();
+      
       // Send approval request notification to admin
       await sendApprovalRequest(
-        'guest', // fromUserId
+        guestId, // fromUserId
         guestName, // fromUserName
-        postId, // targetId
+        uuidv4(), // targetId - generujemy unikalny identyfikator
         'comment', // targetType
         'Prośba o zatwierdzenie komentarza gościa',
         `${guestName} chce dodać komentarz do postu "${postTitle}": "${guestComment}"`

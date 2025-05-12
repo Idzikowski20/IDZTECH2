@@ -1,14 +1,8 @@
 
-import { useNotificationService } from '@/hooks/useNotificationService';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationService from '@/services/notificationService';
 
-// Helper for sending notifications without directly importing the hook
-let notificationService: ReturnType<typeof useNotificationService> | null = null;
-
-export const setNotificationService = (service: ReturnType<typeof useNotificationService>) => {
-  notificationService = service;
-};
-
-// Helper to send a notification
+// Helper dla wysyłania powiadomień bez bezpośredniego importu hooka
 export const sendNotification = ({
   type,
   title,
@@ -29,33 +23,9 @@ export const sendNotification = ({
   fromUserName?: string;
 }) => {
   try {
-    if (!notificationService) {
-      console.warn('Notification service not initialized, storing offline notification');
-      
-      // Store notification locally when service is not available
-      const offlineNotifications = JSON.parse(localStorage.getItem('offlineNotifications') || '[]');
-      
-      const newNotification = {
-        id: `offline-${Date.now()}`,
-        type,
-        title,
-        message,
-        fromUserId,
-        targetId,
-        targetType,
-        status,
-        createdAt: new Date().toISOString(),
-        read: false,
-        fromUserName
-      };
-      
-      offlineNotifications.push(newNotification);
-      localStorage.setItem('offlineNotifications', JSON.stringify(offlineNotifications));
-      
-      return true;
-    }
-
-    notificationService.addNotification({
+    const service = NotificationService.getInstance();
+    
+    service.addNotification({
       type: type as any,
       title,
       message,
@@ -73,7 +43,7 @@ export const sendNotification = ({
   }
 };
 
-// Helper for sending a notification about a prośba o zatwierdzenie
+// Helper dla wysyłania powiadomienia o prośbie o zatwierdzenie
 export const sendApprovalRequest = (
   fromUserId: string,
   fromUserName: string,
@@ -97,7 +67,7 @@ export const sendApprovalRequest = (
   });
 };
 
-// Helper for sending a notification about utworzenie posta
+// Helper dla wysyłania powiadomienia o utworzeniu posta
 export const notifyPostCreated = (userId: string, userName: string, postId: string, postTitle: string) => {
   return sendNotification({
     type: 'post_created',
@@ -110,7 +80,7 @@ export const notifyPostCreated = (userId: string, userName: string, postId: stri
   });
 };
 
-// Helper for sending a notification about a komentarz
+// Helper dla wysyłania powiadomienia o komentarzu
 export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return sendNotification({
     type: 'comment_added',
@@ -123,7 +93,7 @@ export const addCommentNotification = (postId: string, postTitle: string, userNa
   });
 };
 
-// Helper for sending a notification about polubienie
+// Helper dla wysyłania powiadomienia o polubieniu
 export const addLikeNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return sendNotification({
     type: 'like_added',
