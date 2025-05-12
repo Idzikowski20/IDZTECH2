@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Bell } from 'lucide-react';
 import { 
@@ -27,10 +26,15 @@ const NotificationBell: React.FC = () => {
     } else if (targetType === 'admin') {
       // Przekierowanie do panelu administracyjnego dla powiadomień admin
       navigate('/admin');
-    } else {
-      // Domyślne przekierowanie do listy wszystkich powiadomień
-      navigate('/admin/notifications');
     }
+    // Usuwamy domyślne przekierowanie do listy powiadomień, żeby nie zawsze tam przekierowywało
+  };
+  
+  // Handle separate click on "Zobacz wszystkie" button
+  const handleViewAllClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate('/admin/notifications');
   };
 
   const getNotificationIcon = (type: string) => {
@@ -142,7 +146,7 @@ const NotificationBell: React.FC = () => {
             variant="ghost" 
             size="sm" 
             className="w-full hover:bg-white hover:text-black"
-            onClick={() => navigate('/admin/notifications')}
+            onClick={handleViewAllClick}
           >
             Zobacz wszystkie
           </Button>

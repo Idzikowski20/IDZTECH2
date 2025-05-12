@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/utils/AuthProvider';
 import { User } from '@/utils/authTypes';
-import { fetchAllUsers } from '@/utils/authIntegration';
-import { Loader2 } from 'lucide-react';
+import { fetchAllUsers, deleteUser as deleteUserApi, addUser as addUserApi, updateUserRole as updateUserRoleApi } from '@/utils/authIntegration';
+import { Loader2, UserRound, Shield, Edit, Trash2 } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
+import { useToast } from '@/hooks/use-toast';
+import UserProfileDialog from '@/components/UserProfileDialog';
 import {
   Table,
   TableBody,
@@ -23,6 +25,9 @@ const AdminUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { toast } = useToast();
   
   useEffect(() => {
     const loadUsers = async () => {
@@ -34,13 +39,43 @@ const AdminUsers = () => {
         setUsers(supabaseUsers);
       } catch (error) {
         console.error("Error loading users:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się załadować użytkowników",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
     
     loadUsers();
-  }, []);
+  }, [toast]);
+
+  const handleDelete = async (userId: string) => {
+    if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
+      try {
+        await deleteUserApi(userId);
+        setUsers(users.filter(user => user.id !== userId));
+        toast({
+          title: "Sukces",
+          description: "Użytkownik został usunięty",
+        });
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się usunąć użytkownika",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const viewUserProfile = (user: User) => {
+    setSelectedUser(user);
+    setProfileOpen(true);
+  };
   
   const isAdmin = currentUser?.role === 'admin';
   
@@ -54,27 +89,49 @@ const AdminUsers = () => {
     );
   }
 
+  if (!isAdmin) {
+    return (
+      <AdminLayout>
+        <div className="flex flex-col items-center justify-center h-[60vh] bg-premium-dark">
+          <div className="bg-gray-800 p-8 rounded-xl shadow-lg max-w-md text-center">
+            <div className="flex justify-center mb-4">
+              <Shield className="h-16 w-16 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-4">Brak uprawnień</h2>
+            <p className="text-gray-300 mb-6">
+              Tylko administratorzy mają dostęp do zarządzania użytkownikami.
+            </p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Zarządzaj użytkownikami</h1>
-          {isAdmin && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>Dodaj użytkownika</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
-                </DialogHeader>
-                <UserForm />
-              </DialogContent>
-            </Dialog>
-          )}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Dodaj użytkownika</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
+              </DialogHeader>
+              <UserForm onSuccess={(newUser) => {
+                setUsers([...users, newUser]);
+                toast({
+                  title: "Sukces",
+                  description: "Użytkownik został dodany",
+                });
+              }} />
+            </DialogContent>
+          </Dialog>
         </div>
         
-        <div className="bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-transparent rounded-lg shadow overflow-hidden">
           <Table>
             <TableHeader className="bg-gray-900">
               <TableRow className="border-b border-gray-700">
@@ -131,10 +188,20 @@ const AdminUsers = () => {
                   <TableCell className="text-gray-300">
                     {user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right space-x-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-transparent text-white hover:bg-white hover:text-black border-none"
+                      onClick={() => viewUserProfile(user)}
+                    >
+                      <UserRound className="h-4 w-4 mr-1" />
+                      Profil
+                    </Button>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="bg-black text-white hover:bg-white hover:text-black border-none">
+                        <Button variant="outline" size="sm" className="bg-transparent text-white hover:bg-white hover:text-black border-none">
+                          <Edit className="h-4 w-4 mr-1" />
                           Edytuj
                         </Button>
                       </DialogTrigger>
@@ -142,9 +209,28 @@ const AdminUsers = () => {
                         <DialogHeader>
                           <DialogTitle>Edytuj użytkownika</DialogTitle>
                         </DialogHeader>
-                        <UserForm userId={user.id} user={user} />
+                        <UserForm 
+                          userId={user.id} 
+                          user={user} 
+                          onSuccess={(updatedUser) => {
+                            setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+                            toast({
+                              title: "Sukces",
+                              description: "Użytkownik został zaktualizowany",
+                            });
+                          }} 
+                        />
                       </DialogContent>
                     </Dialog>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
+                      onClick={() => handleDelete(user.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Usuń
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -152,20 +238,26 @@ const AdminUsers = () => {
           </Table>
         </div>
       </div>
+
+      {/* User Profile Dialog */}
+      <UserProfileDialog user={selectedUser} open={profileOpen} onOpenChange={setProfileOpen} />
     </AdminLayout>
   );
 };
 
-const UserForm = ({ userId, user }: { userId?: string; user?: any }) => {
+const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; onSuccess?: (user: any) => void }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     role: user?.role || 'user',
     password: '',
+    lastName: user?.lastName || '',
+    jobTitle: user?.jobTitle || '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -175,14 +267,49 @@ const UserForm = ({ userId, user }: { userId?: string; user?: any }) => {
     setIsLoading(true);
     
     try {
-      // Here implement adding/editing user
-      console.log("Form submitted:", formData);
+      let result;
       
-      // Simulating delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (userId) {
+        // Update existing user
+        result = await updateUserRoleApi(userId, formData.role as any);
+        console.log("User updated:", result);
+      } else {
+        // Add new user
+        result = await addUserApi({
+          name: formData.name,
+          email: formData.email,
+          role: formData.role as any,
+          lastName: formData.lastName,
+          jobTitle: formData.jobTitle,
+          profilePicture: '',
+          stats: {
+            views: 0,
+            posts: 0,
+            comments: 0,
+            likes: 0,
+            pointsTotal: 0,
+            pointsThisMonth: 0,
+            lastUpdated: new Date().toISOString()
+          }
+        }, formData.password);
+        console.log("User added:", result);
+      }
       
+      if (onSuccess) {
+        onSuccess({
+          id: userId || result?.id || Math.random().toString(),
+          ...formData,
+          createdAt: user?.createdAt || new Date().toISOString(),
+          lastLogin: user?.lastLogin || null
+        });
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
+      toast({
+        title: "Błąd",
+        description: userId ? "Nie udało się zaktualizować użytkownika" : "Nie udało się dodać użytkownika",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -190,15 +317,27 @@ const UserForm = ({ userId, user }: { userId?: string; user?: any }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-      <div className="space-y-2">
-        <Label htmlFor="name">Imię</Label>
-        <Input 
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Imię</Label>
+          <Input 
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="lastName">Nazwisko</Label>
+          <Input 
+            id="lastName"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+        </div>
       </div>
       
       <div className="space-y-2">
@@ -214,12 +353,22 @@ const UserForm = ({ userId, user }: { userId?: string; user?: any }) => {
       </div>
       
       <div className="space-y-2">
+        <Label htmlFor="jobTitle">Stanowisko</Label>
+        <Input 
+          id="jobTitle"
+          name="jobTitle"
+          value={formData.jobTitle}
+          onChange={handleChange}
+        />
+      </div>
+      
+      <div className="space-y-2">
         <Label htmlFor="role">Rola</Label>
         <select 
           id="role"
           name="role"
           value={formData.role}
-          onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+          onChange={handleChange}
           className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 px-3"
           required
         >

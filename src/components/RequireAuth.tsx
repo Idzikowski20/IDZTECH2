@@ -86,7 +86,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // User is authenticated
+  // User is authenticated - IMPORTANT: return the children directly, don't navigate
   console.log("User is authenticated, rendering children");
   return children;
 };

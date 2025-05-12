@@ -1,5 +1,5 @@
 
-import { User, UserRole } from '@/utils/auth';
+import { User } from '@/utils/authTypes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CalendarIcon, BarChart, FileText, UserIcon } from 'lucide-react';
+import { CalendarIcon, BarChart, FileText, UserRound } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
@@ -18,7 +18,7 @@ interface UserProfileDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const userRoles: Record<UserRole, string> = {
+const userRoles: Record<string, string> = {
   'admin': 'Administrator',
   'moderator': 'Moderator',
   'blogger': 'Bloger',
@@ -53,7 +53,7 @@ const UserProfileDialog = ({ user, open, onOpenChange }: UserProfileDialogProps)
               <h3 className="text-xl font-bold">{user.name} {user.lastName}</h3>
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-                <span className="text-premium-light/70">{userRoles[user.role]}</span>
+                <span className="text-premium-light/70">{userRoles[user.role] || 'Użytkownik'}</span>
               </div>
               <p className="mt-2 text-premium-light/70">{user.email}</p>
             </div>
@@ -70,7 +70,7 @@ const UserProfileDialog = ({ user, open, onOpenChange }: UserProfileDialogProps)
             <div className="mb-6">
               <h4 className="text-sm font-medium mb-2 text-premium-light/50">STANOWISKO</h4>
               <p className="flex items-center">
-                <UserIcon size={16} className="mr-2 text-premium-light/70" />
+                <UserRound size={16} className="mr-2 text-premium-light/70" />
                 {user.jobTitle}
               </p>
             </div>

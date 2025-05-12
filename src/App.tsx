@@ -69,7 +69,7 @@ function App() {
             <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
             <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
             <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
-            <Route path="/admin/users" element={<RequireAuth><AdminUsers /></RequireAuth>} />
+            <Route path="/admin/users" element={<RequireAuth requiredRole="admin"><AdminUsers /></RequireAuth>} />
             <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
             
             {/* Blog post editor routes */}

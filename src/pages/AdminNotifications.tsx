@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
-import { useAuth } from '@/utils/authStore';
+import { useAuth } from '@/utils/AuthProvider';
 import { useNotifications, Notification, NotificationStatus } from '@/utils/notifications';
 import { 
   Card, 
@@ -93,12 +92,18 @@ const AdminNotifications = () => {
   const { toast } = useToast();
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Set loaded state after initial render
+  // Set loaded state after initial render - with delay to ensure notifications are loaded
   useEffect(() => {
     console.log("AdminNotifications component mounted");
-    console.log("Notifications count:", notifications.length);
-    setIsLoaded(true);
-  }, [notifications]);
+    
+    // Add a delay to ensure notifications state is fully loaded
+    const timer = setTimeout(() => {
+      console.log("Notifications count after delay:", notifications.length);
+      setIsLoaded(true);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
