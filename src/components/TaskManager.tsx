@@ -37,8 +37,6 @@ interface Task {
   priority: string;
   due_date: string | null;
   created_at: string;
-  updated_at: string;
-  user_id: string;
 }
 
 const taskSchema = z.object({
@@ -80,7 +78,7 @@ const TaskManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTasks(data as Task[] || []);
+      setTasks(data || []);
     } catch (error: any) {
       toast({
         title: 'Błąd przy pobieraniu zadań',
@@ -254,7 +252,7 @@ const TaskManager = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">Zadania</h2>
-        <Button onClick={openAddDialog} className="bg-premium-gradient hover:text-black hover:bg-white">
+        <Button onClick={openAddDialog} className="bg-premium-gradient">
           <Plus size={16} className="mr-2" /> Dodaj zadanie
         </Button>
       </div>
@@ -267,7 +265,7 @@ const TaskManager = () => {
         ) : tasks.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-premium-light/70">Nie masz jeszcze żadnych zadań</p>
-            <Button onClick={openAddDialog} variant="outline" className="mt-4 hover:text-black hover:bg-white">
+            <Button onClick={openAddDialog} variant="outline" className="mt-4">
               Dodaj pierwsze zadanie
             </Button>
           </div>
@@ -448,7 +446,7 @@ const TaskManager = () => {
                 >
                   Anuluj
                 </Button>
-                <Button type="submit" className="bg-premium-gradient hover:text-black hover:bg-white">
+                <Button type="submit" className="bg-premium-gradient">
                   {editingTask ? 'Zapisz zmiany' : 'Dodaj zadanie'}
                 </Button>
               </DialogFooter>

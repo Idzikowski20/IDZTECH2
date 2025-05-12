@@ -243,43 +243,45 @@ export const useAuth = create<AuthState>()(
         }
 
         try {
-          // Modified: Using regular sign-up instead of admin API
-          console.log("Creating user with standard sign-up");
-          
-          // Generate unique ID for local user
-          const localId = `local-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-          
-          const newUser: User = {
-            ...userData,
-            id: localId,
-            postsCreated: 0,
-            totalViews: 0,
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            commentsCount: 0,
-            likesCount: 0,
-            stats: {
-              views: 0,
-              posts: 0,
-              comments: 0,
-              likes: 0,
-              pointsTotal: 0,
-              pointsThisMonth: 0,
-              lastUpdated: new Date().toISOString()
-            }
-          };
-
-          users.push(newUser);
-          passwords[userData.email] = password;
-          
-          // Try to register with Supabase in background, but don't rely on it
-          supabaseSignUp(userData.email, password, { 
+          // Try to create user in Supabase
+          const { data, error } = await supabaseCreateUser(userData.email, password, {
             name: userData.name,
             last_name: userData.lastName,
-            role: userData.role 
-          }).catch(err => console.log("Error registering user with Supabase:", err));
+            role: userData.role
+          });
+
+          if (error) {
+            console.error("Error creating Supabase user:", error);
+            return false;
+          }
+
+          if (data?.user) {
+            const newUser: User = {
+              ...userData,
+              id: data.user.id,
+              postsCreated: 0,
+              totalViews: 0,
+              createdAt: data.user.created_at,
+              lastLogin: new Date().toISOString(),
+              commentsCount: 0,
+              likesCount: 0,
+              stats: {
+                views: 0,
+                posts: 0,
+                comments: 0,
+                likes: 0,
+                pointsTotal: 0,
+                pointsThisMonth: 0,
+                lastUpdated: new Date().toISOString()
+              }
+            };
+
+            users.push(newUser);
+            passwords[userData.email] = password;
+            return true;
+          }
           
-          return true;
+          return false;
         } catch (error) {
           console.error("Error in addUser:", error);
           return false;
