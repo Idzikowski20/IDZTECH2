@@ -34,7 +34,7 @@ const Profile = () => {
     ...user,
     app_metadata: user.app_metadata || {},
     aud: user.aud || "authenticated",
-    created_at: user.created_at || user.createdAt || new Date().toISOString(),
+    created_at: user.created_at || new Date().toISOString(), // Using created_at consistently
     // Add default stats property if it's not present (required by User type)
     stats: (user as any).stats || {
       views: 0,
