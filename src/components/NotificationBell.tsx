@@ -13,10 +13,12 @@ import { useSupabaseNotifications, NotificationType } from '@/hooks/useSupabaseN
 import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 const NotificationBell: React.FC = () => {
-  const { notifications, markAsRead, unreadCount, error, fetchNotifications } = useSupabaseNotifications();
+  const { notifications, markAsRead, unreadCount, error, fetchNotifications, loading } = useSupabaseNotifications();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {
     markAsRead(id);
@@ -38,6 +40,10 @@ const NotificationBell: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     fetchNotifications();
+    toast({
+      title: "Odświeżanie",
+      description: "Próba ponownego pobrania powiadomień...",
+    });
   };
 
   const getNotificationIcon = (type: NotificationType) => {
@@ -109,7 +115,11 @@ const NotificationBell: React.FC = () => {
           )}
         </div>
         <ScrollArea className="h-[300px]">
-          {error ? (
+          {loading ? (
+            <div className="p-4 flex justify-center">
+              <div className="animate-spin w-6 h-6 border-2 border-slate-500 border-t-transparent rounded-full"></div>
+            </div>
+          ) : error ? (
             <Alert variant="destructive" className="mt-2">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="flex flex-col gap-2">
@@ -117,7 +127,7 @@ const NotificationBell: React.FC = () => {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="flex items-center gap-2 mt-1"
+                  className="flex items-center gap-2 mt-1 hover:bg-white hover:text-black"
                   onClick={handleRetryFetch}
                 >
                   <RefreshCw className="h-3 w-3" />

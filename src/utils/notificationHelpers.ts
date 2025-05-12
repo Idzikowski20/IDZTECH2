@@ -85,7 +85,7 @@ export const addCommentNotification = async (postId: string, postTitle: string, 
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('name, lastName')
+        .select('name, lastName, role')
         .eq('id', userId)
         .single();
         
@@ -143,3 +143,91 @@ export const addLikeNotification = async (postId: string, postTitle: string, use
     targetType: 'post'
   });
 };
+
+// Helper function to update user role to add verification badge
+export const updateUserRole = async (userId: string, role: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ role })
+      .eq('id', userId)
+      .select();
+    
+    if (error) {
+      console.error('Error updating user role:', error);
+      return { success: false, error };
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateUserRole:', error);
+    return { success: false, error };
+  }
+};
+
+// Helper function to check if a user exists by email
+export const findUserByEmail = async (email: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', email)
+      .single();
+    
+    if (error) {
+      console.error('Error finding user by email:', error);
+      return { success: false, error };
+    }
+    
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in findUserByEmail:', error);
+    return { success: false, error };
+  }
+};
+
+// Let's make sure Aleksandra has the blogger role
+export const ensureAleksandraHasBloggerRole = async () => {
+  try {
+    // Find Aleksandra by email
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', 'ola.gor109@gmail.com')
+      .single();
+    
+    if (error) {
+      console.error('Error finding Aleksandra:', error);
+      return { success: false, error };
+    }
+    
+    // If Aleksandra exists but doesn't have a role or has a different role than blogger
+    if (data && (!data.role || data.role !== 'blogger')) {
+      // Update her role to blogger
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ role: 'blogger' })
+        .eq('id', data.id);
+      
+      if (updateError) {
+        console.error('Error updating Aleksandra role:', updateError);
+        return { success: false, error: updateError };
+      }
+      
+      console.log('Successfully updated Aleksandra to blogger role');
+      return { success: true };
+    } else if (data && data.role === 'blogger') {
+      console.log('Aleksandra already has blogger role');
+      return { success: true };
+    } else {
+      console.error('Aleksandra not found');
+      return { success: false, error: 'User not found' };
+    }
+  } catch (error) {
+    console.error('Error in ensureAleksandraHasBloggerRole:', error);
+    return { success: false, error };
+  }
+};
+
+// Call the function to ensure Aleksandra has the blogger role
+ensureAleksandraHasBloggerRole();

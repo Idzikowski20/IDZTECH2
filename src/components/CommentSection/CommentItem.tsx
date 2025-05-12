@@ -1,178 +1,80 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { pl } from 'date-fns/locale';
+import { Check, Flag } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageSquare, BadgeCheck } from 'lucide-react';
-import { Comment } from './index';
-import { Button } from '@/components/ui/button';
-import CommentForm from './CommentForm';
-import { useTheme } from '@/utils/themeContext';
-import { supabase } from '@/utils/supabaseClient';
 
 interface CommentItemProps {
-  comment: Comment;
-  onLike?: (commentId: string) => void;
-  onReply?: (commentId: string, content: string) => Promise<boolean>;
-  showControls?: boolean;
+  id: string;
+  author: {
+    name: string;
+    profilePicture?: string;
+    role?: string;
+  };
+  content: string;
+  createdAt: string;
+  onReport?: (commentId: string) => void;
+  currentUserId?: string;
+  authorId?: string;
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({
-  comment,
-  onLike,
-  onReply,
-  showControls = true
-}) => {
-  const [replyOpen, setReplyOpen] = useState(false);
-  const { theme } = useTheme();
-  const [profileData, setProfileData] = useState<{
-    profilePicture: string | null;
-    name: string | null;
-    lastName: string | null;
-    role: string | null;
-  }>({
-    profilePicture: null,
-    name: null,
-    lastName: null,
-    role: null
-  });
-  
-  // Fetch user profile picture from Supabase profiles
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (comment.authorId) {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('profilePicture, name, lastName, role')
-            .eq('id', comment.authorId)
-            .single();
-            
-          if (!error && data) {
-            setProfileData({
-              profilePicture: data.profilePicture,
-              name: data.name,
-              lastName: data.lastName,
-              role: data.role
-            });
-          }
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
-        }
-      }
-    };
-    
-    fetchUserProfile();
-  }, [comment.authorId]);
-  
-  const handleLike = () => {
-    if (onLike) {
-      onLike(comment.id);
-    }
-  };
-  
-  const handleReplySubmit = async (content: string) => {
-    if (onReply) {
-      const success = await onReply(comment.id, content);
-      if (success) {
-        setReplyOpen(false);
-        return true;
-      }
-      return false;
-    }
-    return false;
-  };
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(part => part.charAt(0))
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
 
-  // Use profile picture from Supabase if available, otherwise fall back to the one provided in the comment
-  const avatarSrc = profileData.profilePicture || comment.authorImage;
-  
-  // Display full name if available, otherwise use the author from comment
-  const fullName = profileData.name 
-    ? `${profileData.name}${profileData.lastName ? ' ' + profileData.lastName : ''}`
-    : comment.author;
-    
-  // Check if the user has a special role
-  const isVerified = profileData.role && ['admin', 'moderator', 'blogger'].includes(profileData.role);
-  
-  const authorInitials = fullName.slice(0, 2).toUpperCase();
+const CommentItem: React.FC<CommentItemProps> = ({
+  id,
+  author,
+  content,
+  createdAt,
+  onReport,
+  currentUserId,
+  authorId,
+}) => {
+  const formattedDate = formatDistanceToNow(new Date(createdAt), { 
+    addSuffix: true,
+    locale: pl 
+  });
+
+  // Check if user has a special role to display verification badge
+  const hasVerificationBadge = author.role && ['admin', 'blogger', 'moderator'].includes(author.role.toLowerCase());
 
   return (
-    <div className="w-full">
-      <div className="flex gap-4">
-        <Avatar className="h-10 w-10 border">
-          <AvatarImage src={avatarSrc || ''} alt={fullName} />
-          <AvatarFallback>{authorInitials}</AvatarFallback>
+    <div className="flex gap-3 py-4">
+      <div className="flex-shrink-0">
+        <Avatar className="h-10 w-10">
+          {author.profilePicture ? (
+            <AvatarImage src={author.profilePicture} alt={author.name} />
+          ) : (
+            <AvatarFallback>{getInitials(author.name)}</AvatarFallback>
+          )}
         </Avatar>
-        
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <div className="flex items-center">
-              <span className="font-medium">{fullName}</span>
-              
-              {isVerified && (
-                <BadgeCheck 
-                  size={16} 
-                  className="ml-1 text-blue-500" 
-                  fill="#3B82F6"
-                />
-              )}
-              
-              <span className={`text-xs ml-2 ${theme === 'light' ? 'text-gray-500' : 'text-premium-light/50'}`}>{comment.date}</span>
-            </div>
-          </div>
-          
-          <p className={`${theme === 'light' ? 'text-gray-800' : 'text-premium-light/90'}`}>
-            {comment.content}
-          </p>
-          
-          {showControls && (
-            <div className="flex items-center mt-3 space-x-4">
-              <button
-                onClick={handleLike}
-                className={`flex items-center gap-1 text-xs ${
-                  comment.userLiked 
-                    ? 'text-red-500' 
-                    : `${theme === 'light' ? 'text-gray-600 hover:text-black' : 'text-premium-light/70 hover:text-white'}`
-                }`}
-              >
-                <Heart size={14} className={comment.userLiked ? 'fill-red-500' : ''} />
-                <span>{comment.likes}</span>
-              </button>
-              
-              {onReply && (
-                <button
-                  onClick={() => setReplyOpen(!replyOpen)}
-                  className={`flex items-center gap-1 text-xs ${theme === 'light' ? 'text-gray-600 hover:text-black' : 'text-premium-light/70 hover:text-white'}`}
-                >
-                  <MessageSquare size={14} />
-                  <span>Odpowiedz</span>
-                </button>
-              )}
+      </div>
+      <div className="flex-1">
+        <div className="flex items-center">
+          <p className="font-medium text-sm">{author.name}</p>
+          {hasVerificationBadge && (
+            <div className="ml-1 bg-blue-500 text-white rounded-full p-0.5" title={`Zweryfikowany ${author.role}`}>
+              <Check className="h-3 w-3" />
             </div>
           )}
-          
-          {replyOpen && onReply && (
-            <div className="mt-4">
-              <CommentForm 
-                onSubmit={handleReplySubmit} 
-                placeholder="Napisz odpowiedź..."
-                buttonText="Odpowiedz"
-                isReply
-              />
-            </div>
-          )}
-          
-          {comment.replies && comment.replies.length > 0 && (
-            <div className="mt-4 ml-2 pl-4 border-l border-gray-200 dark:border-gray-800 space-y-6">
-              {comment.replies.map((reply) => (
-                <CommentItem 
-                  key={reply.id} 
-                  comment={reply} 
-                  onLike={onLike} 
-                  showControls={showControls}
-                />
-              ))}
-            </div>
-          )}
+          <span className="text-xs text-slate-500 ml-2">{formattedDate}</span>
         </div>
+        <p className="text-sm mt-1">{content}</p>
+        {onReport && currentUserId !== authorId && (
+          <button 
+            onClick={() => onReport(id)} 
+            className="text-xs text-slate-500 mt-2 flex items-center hover:text-slate-700 hover:underline"
+          >
+            <Flag className="h-3 w-3 mr-1" /> Zgłoś
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,167 +1,108 @@
 
 import React, { useEffect, useState } from 'react';
-import CommentList from './CommentList';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ChatBubble } from 'lucide-react';
+import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import CommentHeader from './CommentHeader';
-import { useTheme } from '@/utils/themeContext';
-import { supabase } from '@/utils/supabaseClient';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { addCommentNotification } from '@/utils/notificationHelpers';
 
-export interface Comment {
+interface Comment {
   id: string;
-  author: string;
-  authorId?: string;
-  authorImage?: string;
-  date: string;
   content: string;
-  likes: number;
-  userLiked: boolean;
-  replies?: Comment[];
+  createdAt: string;
+  userId?: string;
+  userName?: string;
+  userAvatar?: string;
+  userRole?: string;
 }
 
 interface CommentSectionProps {
   postId: string;
-  comments?: Comment[];
-  showControls?: boolean;
+  postTitle: string;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({
-  postId,
-  comments: initialComments,
-  showControls = true
-}) => {
-  const { theme } = useTheme();
+const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [comments, setComments] = useState<Comment[]>(initialComments || []);
-  const [loading, setLoading] = useState(true);
 
-  // Pobierz komentarze z Supabase
-  const fetchComments = async () => {
-    try {
+  useEffect(() => {
+    const fetchComments = async () => {
       setLoading(true);
-      
-      // Pobierz komentarze dla posta
-      const { data: commentsData, error } = await supabase
-        .from('blog_comments')
-        .select(`
-          id,
-          content,
-          created_at,
-          user_id
-        `)
-        .eq('post_id', postId)
-        .order('created_at', { ascending: true });
+      try {
+        // Fetch comments with user information
+        const { data, error } = await supabase
+          .from('blog_comments')
+          .select(`
+            id, 
+            content, 
+            created_at, 
+            user_id,
+            profiles:user_id (name, lastName, profilePicture, role)
+          `)
+          .eq('post_id', postId)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching comments:', error);
-        return;
-      }
-
-      // Pobierz polubienia komentarzy dla zalogowanego użytkownika
-      let userLikes: Record<string, boolean> = {};
-      if (user) {
-        const { data: likesData } = await supabase
-          .from('blog_likes')
-          .select('id, post_id')
-          .eq('user_id', user.id);
-
-        if (likesData) {
-          userLikes = likesData.reduce((acc, like) => {
-            if (like.post_id) {
-              acc[like.post_id] = true;
-            }
-            return acc;
-          }, {} as Record<string, boolean>);
+        if (error) {
+          console.error('Error fetching comments:', error);
+          setError('Nie udało się pobrać komentarzy');
+          setLoading(false);
+          return;
         }
-      }
 
-      // Pobierz liczbę polubień dla każdego komentarza
-      const commentLikeCounts: Record<string, number> = {};
-      for (const comment of commentsData || []) {
-        const { count } = await supabase
-          .from('blog_likes')
-          .select('id', { count: 'exact', head: true })
-          .eq('post_id', comment.id);
-        
-        commentLikeCounts[comment.id] = count || 0;
-      }
-
-      // Pobierz dane użytkowników, którzy napisali komentarze
-      const userProfiles: Record<string, { name: string, profilePicture: string }> = {};
-      
-      for (const comment of commentsData || []) {
-        if (comment.user_id && !userProfiles[comment.user_id]) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('name, profilePicture')
-            .eq('id', comment.user_id)
-            .single();
-          
-          if (profile) {
-            userProfiles[comment.user_id] = {
-              name: profile.name || 'Użytkownik anonimowy',
-              profilePicture: profile.profilePicture || null
-            };
-          }
-        }
-      }
-
-      // Przekształć dane z Supabase na format używany przez nasz komponent
-      const formattedComments: Comment[] = (commentsData || []).map(comment => {
-        const userData = comment.user_id ? userProfiles[comment.user_id] : null;
-        
-        return {
+        // Transform the data to match our Comment interface
+        const transformedComments: Comment[] = data.map(comment => ({
           id: comment.id,
-          authorId: comment.user_id,
-          author: userData?.name || 'Użytkownik anonimowy',
-          authorImage: userData?.profilePicture || null,
           content: comment.content,
-          date: new Date(comment.created_at).toLocaleDateString('pl-PL'),
-          likes: commentLikeCounts[comment.id] || 0,
-          userLiked: !!userLikes[comment.id],
-          replies: []
-        };
-      });
+          createdAt: comment.created_at,
+          userId: comment.user_id,
+          userName: comment.profiles ? 
+            `${comment.profiles.name || ''} ${comment.profiles.lastName || ''}`.trim() : 
+            'Użytkownik',
+          userAvatar: comment.profiles?.profilePicture || '',
+          userRole: comment.profiles?.role || ''
+        }));
 
-      setComments(formattedComments);
-    } catch (error) {
-      console.error('Error in fetchComments:', error);
-    } finally {
-      setLoading(false);
+        setComments(transformedComments);
+      } catch (err) {
+        console.error('Error in fetchComments:', err);
+        setError('Wystąpił problem podczas pobierania komentarzy');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (postId) {
+      fetchComments();
     }
-  };
+  }, [postId]);
 
-  // Dodaj nowy komentarz
-  const handleAddComment = async (content: string): Promise<boolean> => {
+  const handleAddComment = async (content: string) => {
     if (!user) {
       toast({
-        title: 'Błąd',
-        description: 'Musisz być zalogowany, aby dodawać komentarze',
-        variant: 'destructive'
+        title: 'Musisz być zalogowany',
+        description: 'Zaloguj się aby dodać komentarz',
       });
-      return false;
+      navigate('/login');
+      return;
     }
 
     try {
-      // Pobierz tytuł posta dla powiadomienia
-      const { data: postData } = await supabase
-        .from('blog_posts')
-        .select('title')
-        .eq('id', postId)
-        .single();
-
-      // Dodaj komentarz do bazy danych
-      const { data: commentData, error } = await supabase
+      // Insert comment into database
+      const { data, error } = await supabase
         .from('blog_comments')
-        .insert({
-          post_id: postId,
-          user_id: user.id,
-          content
-        })
-        .select('id, created_at')
+        .insert([
+          { content, post_id: postId, user_id: user.id }
+        ])
+        .select()
         .single();
 
       if (error) {
@@ -169,193 +110,110 @@ const CommentSection: React.FC<CommentSectionProps> = ({
         toast({
           title: 'Błąd',
           description: 'Nie udało się dodać komentarza',
-          variant: 'destructive'
+          variant: 'destructive',
         });
-        return false;
+        return;
       }
 
-      // Dodaj powiadomienie o nowym komentarzu
-      if (postData) {
-        await addCommentNotification(
-          postId,
-          postData.title,
-          user.name || 'Użytkownik',
-          user.id
-        );
-      }
+      // Get user information
+      const { data: userData } = await supabase
+        .from('profiles')
+        .select('name, lastName, profilePicture, role')
+        .eq('id', user.id)
+        .single();
 
-      // Dodaj nowy komentarz do lokalnego stanu
-      const newComment: Comment = {
-        id: commentData.id,
-        author: user.name || 'Użytkownik',
-        authorId: user.id,
-        authorImage: user.profilePicture || undefined,
-        content,
-        date: new Date(commentData.created_at).toLocaleDateString('pl-PL'),
-        likes: 0,
-        userLiked: false
+      // Add the new comment to state
+      const newComment = {
+        id: data.id,
+        content: data.content,
+        createdAt: data.created_at,
+        userId: user.id,
+        userName: userData ? 
+          `${userData.name || ''} ${userData.lastName || ''}`.trim() : 
+          user.email?.split('@')[0] || 'Użytkownik',
+        userAvatar: userData?.profilePicture || '',
+        userRole: userData?.role || ''
       };
 
-      setComments(prevComments => [...prevComments, newComment]);
-      
+      setComments(prevComments => [newComment, ...prevComments]);
+
+      // Send notification
+      await addCommentNotification(
+        postId, 
+        postTitle, 
+        userData ? `${userData.name || ''} ${userData.lastName || ''}`.trim() : 
+        user.email?.split('@')[0] || 'Użytkownik',
+        user.id
+      );
+
       toast({
-        title: 'Sukces',
-        description: 'Komentarz został dodany',
+        title: 'Komentarz dodany',
+        description: 'Twój komentarz został pomyślnie dodany',
       });
-      
-      return true;
-    } catch (error) {
-      console.error('Error in handleAddComment:', error);
+    } catch (err) {
+      console.error('Error in handleAddComment:', err);
       toast({
         title: 'Błąd',
-        description: 'Nie udało się dodać komentarza',
-        variant: 'destructive'
+        description: 'Wystąpił problem podczas dodawania komentarza',
+        variant: 'destructive',
       });
-      return false;
     }
   };
 
-  // Dodaj like do komentarza
-  const handleLikeComment = async (commentId: string) => {
-    if (!user) {
-      toast({
-        title: 'Błąd',
-        description: 'Musisz być zalogowany, aby polubić komentarz',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    try {
-      const comment = comments.find(c => c.id === commentId);
-      
-      if (!comment) return;
-
-      if (comment.userLiked) {
-        // Usuń polubienie
-        const { error } = await supabase
-          .from('blog_likes')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('post_id', commentId);
-
-        if (error) {
-          console.error('Error removing like:', error);
-          toast({
-            title: 'Błąd',
-            description: 'Nie udało się usunąć polubienia',
-            variant: 'destructive'
-          });
-          return;
-        }
-
-        // Aktualizuj lokalny stan
-        setComments(prevComments => 
-          prevComments.map(c => 
-            c.id === commentId 
-              ? { ...c, likes: c.likes - 1, userLiked: false }
-              : c
-          )
-        );
-      } else {
-        // Dodaj polubienie
-        const { error } = await supabase
-          .from('blog_likes')
-          .insert({
-            user_id: user.id,
-            post_id: commentId
-          });
-
-        if (error) {
-          console.error('Error adding like:', error);
-          toast({
-            title: 'Błąd',
-            description: 'Nie udało się dodać polubienia',
-            variant: 'destructive'
-          });
-          return;
-        }
-
-        // Aktualizuj lokalny stan
-        setComments(prevComments => 
-          prevComments.map(c => 
-            c.id === commentId 
-              ? { ...c, likes: c.likes + 1, userLiked: true }
-              : c
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error in handleLikeComment:', error);
-    }
+  const handleReportComment = (commentId: string) => {
+    console.log(`Reporting comment with ID: ${commentId}`);
+    toast({
+      title: 'Komentarz zgłoszony',
+      description: 'Dziękujemy za zgłoszenie. Sprawdzimy ten komentarz.',
+    });
   };
-
-  // Dodaj odpowiedź do komentarza
-  const handleReplyComment = async (commentId: string, content: string): Promise<boolean> => {
-    if (!user) {
-      toast({
-        title: 'Błąd',
-        description: 'Musisz być zalogowany, aby odpowiedzieć na komentarz',
-        variant: 'destructive'
-      });
-      return false;
-    }
-
-    try {
-      // W przyszłości można zaimplementować strukturę odpowiedzi,
-      // na razie dodajemy jako zwykły komentarz
-      return handleAddComment(content);
-    } catch (error) {
-      console.error('Error in handleReplyComment:', error);
-      return false;
-    }
-  };
-
-  // Pobierz komentarze przy montowaniu komponentu
-  useEffect(() => {
-    fetchComments();
-    
-    // Utwórz subskrypcję na zmiany komentarzy
-    const channel = supabase
-      .channel('comment-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
-          schema: 'public',
-          table: 'blog_comments',
-          filter: `post_id=eq.${postId}`
-        },
-        () => {
-          fetchComments();
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [postId]);
 
   return (
-    <div className={`w-full max-w-4xl mx-auto mb-16 ${theme === 'light' ? 'text-black' : 'text-white'}`}>
-      <CommentHeader commentCount={comments.length} />
+    <div className="py-6">
+      <CommentHeader count={comments.length} />
       
-      {showControls && user && (
-        <CommentForm onSubmit={handleAddComment} />
-      )}
+      <CommentForm onSubmit={handleAddComment} />
       
       {loading ? (
-        <div className="text-center py-8">
-          <p className="text-premium-light/70">Ładowanie komentarzy...</p>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-black"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-8 text-red-500">
+          {error}
+        </div>
+      ) : comments.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <ChatBubble className="mx-auto h-12 w-12 text-gray-300" />
+          <p className="mt-2">Bądź pierwszym, który skomentuje ten artykuł</p>
         </div>
       ) : (
-        <CommentList 
-          comments={comments} 
-          onLikeComment={handleLikeComment} 
-          onReplyComment={handleReplyComment}
-          showControls={showControls}
-        />
+        <div className="space-y-1 divide-y">
+          {comments.map(comment => (
+            <CommentItem
+              key={comment.id}
+              id={comment.id}
+              author={{
+                name: comment.userName || 'Użytkownik',
+                profilePicture: comment.userAvatar,
+                role: comment.userRole
+              }}
+              content={comment.content}
+              createdAt={comment.createdAt}
+              onReport={handleReportComment}
+              currentUserId={user?.id}
+              authorId={comment.userId}
+            />
+          ))}
+        </div>
+      )}
+      
+      {!loading && comments.length > 0 && (
+        <div className="flex justify-center mt-8">
+          <Button variant="outline" className="hover:bg-white hover:text-black">
+            Załaduj więcej
+          </Button>
+        </div>
       )}
     </div>
   );

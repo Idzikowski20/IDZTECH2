@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/utils/supabaseClient';
 import { useAuth } from '@/utils/AuthProvider';
@@ -58,26 +57,24 @@ export const useSupabaseNotifications = () => {
       setError(null);
       console.log("Fetching notifications...");
       
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('notifications')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching notifications:', error);
-        setError(`Nie udało się pobrać powiadomień: ${error.message}`);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się pobrać powiadomień",
-          variant: "destructive"
-        });
+      if (fetchError) {
+        console.error('Error fetching notifications:', fetchError);
+        setError(`Nie udało się pobrać powiadomień: ${fetchError.message}`);
+        setLoading(false);
         return;
       }
 
-      if (!data) {
-        console.log("No notifications data returned");
+      // If we have no data, set an empty array and return
+      if (!data || data.length === 0) {
+        console.log("No notifications found");
         setNotifications([]);
         setUnreadCount(0);
+        setLoading(false);
         return;
       }
       
@@ -135,7 +132,7 @@ export const useSupabaseNotifications = () => {
   }, [user, toast]);
 
   // Add a new notification
-  const addNotification = async (notification: Omit<Notification, 'id' | 'createdAt' | 'status'> & {status?: NotificationStatus}) => {
+  const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'createdAt' | 'status'> & {status?: NotificationStatus}) => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -163,10 +160,10 @@ export const useSupabaseNotifications = () => {
     } catch (error) {
       console.error('Error in addNotification:', error);
     }
-  };
+  }, [fetchNotifications, toast]);
 
   // Mark a notification as read
-  const markAsRead = async (id: string) => {
+  const markAsRead = useCallback(async (id: string) => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -187,10 +184,10 @@ export const useSupabaseNotifications = () => {
     } catch (error) {
       console.error('Error in markAsRead:', error);
     }
-  };
+  }, [fetchNotifications, toast]);
 
   // Mark all notifications as read
-  const markAllAsRead = async () => {
+  const markAllAsRead = useCallback(async () => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -211,10 +208,10 @@ export const useSupabaseNotifications = () => {
     } catch (error) {
       console.error('Error in markAllAsRead:', error);
     }
-  };
+  }, [fetchNotifications, toast]);
 
   // Update notification status
-  const updateNotificationStatus = async (id: string, status: NotificationStatus, comment?: string) => {
+  const updateNotificationStatus = useCallback(async (id: string, status: NotificationStatus, comment?: string) => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -248,13 +245,13 @@ export const useSupabaseNotifications = () => {
           ? 'Twoja prośba została zaakceptowana'
           : 'Twoja prośba została odrzucona';
           
-        await addNotification({
+        await supabase.from('notifications').insert({
           type: responseType,
           title: responseTitle,
           message: responseMessage,
-          fromUserId: notificationToUpdate.fromUserId,
-          targetId: notificationToUpdate.targetId,
-          targetType: notificationToUpdate.targetType,
+          user_id: notificationToUpdate.fromUserId,
+          target_id: notificationToUpdate.targetId,
+          target_type: notificationToUpdate.targetType,
         });
       }
 
@@ -262,10 +259,10 @@ export const useSupabaseNotifications = () => {
     } catch (error) {
       console.error('Error in updateNotificationStatus:', error);
     }
-  };
+  }, [fetchNotifications, notifications, toast]);
 
   // Delete a notification
-  const deleteNotification = async (id: string) => {
+  const deleteNotification = useCallback(async (id: string) => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -286,7 +283,7 @@ export const useSupabaseNotifications = () => {
     } catch (error) {
       console.error('Error in deleteNotification:', error);
     }
-  };
+  }, [fetchNotifications, toast]);
 
   // Listen for real-time updates to notifications
   useEffect(() => {
@@ -322,11 +319,150 @@ export const useSupabaseNotifications = () => {
     unreadCount,
     loading,
     error,
-    addNotification,
-    markAsRead,
-    markAllAsRead,
-    updateNotificationStatus,
-    deleteNotification,
+    addNotification: useCallback(async (notification: Omit<Notification, 'id' | 'createdAt' | 'status'> & {status?: NotificationStatus}) => {
+      try {
+        const { error } = await supabase
+          .from('notifications')
+          .insert({
+            type: notification.type,
+            title: notification.title,
+            message: notification.message,
+            is_read: notification.status === 'read',
+            user_id: notification.fromUserId,
+            target_id: notification.targetId ? notification.targetId : null,
+            target_type: notification.targetType ? notification.targetType : null,
+          });
+  
+        if (error) {
+          console.error('Error adding notification:', error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się dodać powiadomienia",
+            variant: "destructive"
+          });
+          return;
+        }
+  
+        fetchNotifications(); // Refresh notifications
+      } catch (error) {
+        console.error('Error in addNotification:', error);
+      }
+    }, [fetchNotifications, toast]),
+    markAsRead: useCallback(async (id: string) => {
+      try {
+        const { error } = await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', id);
+  
+        if (error) {
+          console.error('Error marking notification as read:', error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się oznaczyć powiadomienia jako przeczytane",
+            variant: "destructive"
+          });
+          return;
+        }
+  
+        fetchNotifications(); // Refresh notifications
+      } catch (error) {
+        console.error('Error in markAsRead:', error);
+      }
+    }, [fetchNotifications, toast]),
+    markAllAsRead: useCallback(async () => {
+      try {
+        const { error } = await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('is_read', false);
+  
+        if (error) {
+          console.error('Error marking all notifications as read:', error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się oznaczyć wszystkich powiadomień jako przeczytane",
+            variant: "destructive"
+          });
+          return;
+        }
+  
+        fetchNotifications(); // Refresh notifications
+      } catch (error) {
+        console.error('Error in markAllAsRead:', error);
+      }
+    }, [fetchNotifications, toast]),
+    updateNotificationStatus: useCallback(async (id: string, status: NotificationStatus, comment?: string) => {
+      try {
+        const { error } = await supabase
+          .from('notifications')
+          .update({ 
+            is_read: status === 'read'
+          })
+          .eq('id', id);
+  
+        if (error) {
+          console.error('Error updating notification status:', error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się zaktualizować statusu powiadomienia",
+            variant: "destructive"
+          });
+          return;
+        }
+  
+        // If we change a status to approved or rejected, create a new notification for the user
+        const notificationToUpdate = notifications.find(n => n.id === id);
+        if (notificationToUpdate && 
+            (status === 'approved' || status === 'rejected') && 
+            notificationToUpdate.fromUserId) {
+            
+          const responseType = status === 'approved' ? 'approval_accepted' as NotificationType : 'approval_rejected' as NotificationType;
+          const responseTitle = status === 'approved' 
+            ? 'Prośba zaakceptowana' 
+            : 'Prośba odrzucona';
+          
+          const responseMessage = status === 'approved'
+            ? 'Twoja prośba została zaakceptowana'
+            : 'Twoja prośba została odrzucona';
+            
+          await supabase.from('notifications').insert({
+            type: responseType,
+            title: responseTitle,
+            message: responseMessage,
+            user_id: notificationToUpdate.fromUserId,
+            target_id: notificationToUpdate.targetId,
+            target_type: notificationToUpdate.targetType,
+          });
+        }
+  
+        fetchNotifications(); // Refresh notifications
+      } catch (error) {
+        console.error('Error in updateNotificationStatus:', error);
+      }
+    }, [fetchNotifications, notifications, toast]),
+    deleteNotification: useCallback(async (id: string) => {
+      try {
+        const { error } = await supabase
+          .from('notifications')
+          .delete()
+          .eq('id', id);
+  
+        if (error) {
+          console.error('Error deleting notification:', error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się usunąć powiadomienia",
+            variant: "destructive"
+          });
+          return;
+        }
+  
+        fetchNotifications(); // Refresh notifications
+      } catch (error) {
+        console.error('Error in deleteNotification:', error);
+      }
+    }, [fetchNotifications, toast]),
     fetchNotifications
   };
 };
