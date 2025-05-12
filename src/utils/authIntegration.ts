@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -197,11 +196,16 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session && session.user.id === userId) {
+      // Get the user email first
+      const { data: userData } = await supabase.auth.getUser();
+      const email = userData?.user?.email || '';
+      
       // Update Supabase profile
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
+          email: email, // Add required email field
           ...userData
         });
       
