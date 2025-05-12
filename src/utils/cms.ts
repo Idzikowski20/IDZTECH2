@@ -23,6 +23,32 @@ export interface CMSPage {
   updated_at: string;
 }
 
+// Funkcja do włączenia RLS na tabelach CMS
+export const enableRLSOnCMSTables = async (): Promise<{success: boolean; message: string}> => {
+  try {
+    // Włącz RLS na tabeli cms_content
+    const { error: contentError } = await supabase.rpc('enable_rls_on_cms_content');
+    
+    if (contentError) {
+      console.error('Błąd przy włączaniu RLS dla cms_content:', contentError);
+      return { success: false, message: `Błąd dla cms_content: ${contentError.message}` };
+    }
+    
+    // Włącz RLS na tabeli cms_pages
+    const { error: pagesError } = await supabase.rpc('enable_rls_on_cms_pages');
+    
+    if (pagesError) {
+      console.error('Błąd przy włączaniu RLS dla cms_pages:', pagesError);
+      return { success: false, message: `Błąd dla cms_pages: ${pagesError.message}` };
+    }
+    
+    return { success: true, message: 'RLS zostało pomyślnie włączone dla tabel CMS' };
+  } catch (error: any) {
+    console.error('Błąd podczas włączania RLS:', error);
+    return { success: false, message: `Wystąpił błąd: ${error.message}` };
+  }
+};
+
 // Functions to get CMS content
 export const getCMSContent = async (pageId: string, sectionId: string): Promise<CMSContent | null> => {
   try {

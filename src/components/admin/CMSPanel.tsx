@@ -6,9 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { getCMSPages, updateCMSContent, isUserAdmin, CMSPage, CMSContent, getCMSContent } from '@/utils/cms';
+import { 
+  getCMSPages, 
+  updateCMSContent, 
+  isUserAdmin, 
+  CMSPage, 
+  CMSContent, 
+  getCMSContent, 
+  enableRLSOnCMSTables 
+} from '@/utils/cms';
 import { toast } from 'sonner';
-import { Loader2, Save, Eye, Edit, FileText } from 'lucide-react';
+import { Loader2, Save, Eye, Edit, FileText, ShieldCheck } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
 
 const CMSPanel: React.FC = () => {
@@ -22,6 +30,7 @@ const CMSPanel: React.FC = () => {
   const [selectedSection, setSelectedSection] = useState('hero');
   const [content, setContent] = useState('');
   const [contentType, setContentType] = useState<'text' | 'html'>('html');
+  const [enablingRLS, setEnablingRLS] = useState(false);
   
   const sections = [
     { id: 'hero', name: 'Hero Section' },
@@ -102,6 +111,24 @@ const CMSPanel: React.FC = () => {
     }
   };
   
+  const handleEnableRLS = async () => {
+    setEnablingRLS(true);
+    
+    try {
+      const result = await enableRLSOnCMSTables();
+      
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error: any) {
+      toast.error(`Błąd: ${error.message}`);
+    } finally {
+      setEnablingRLS(false);
+    }
+  };
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[40vh]">
@@ -122,7 +149,27 @@ const CMSPanel: React.FC = () => {
   
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">IDZ.TECH CMS Panel</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">IDZ.TECH CMS Panel</h1>
+        
+        <Button 
+          onClick={handleEnableRLS} 
+          disabled={enablingRLS}
+          className="bg-premium-gradient"
+        >
+          {enablingRLS ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Włączanie zabezpieczeń...
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="mr-2 h-4 w-4" />
+              Włącz zabezpieczenia RLS
+            </>
+          )}
+        </Button>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-1">

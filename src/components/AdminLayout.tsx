@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Settings, User } from 'lucide-react';
+import { Home, LogOut, Settings, User, FileText } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -152,6 +152,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                         {unreadCount}
                       </span>
                     )}
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/cms" 
+                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/cms' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Zarządzanie CMS
                   </Link>
                 </li>
                 <li className="mb-2">
