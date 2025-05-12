@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger
 } from '@/components/ui/navigation-menu';
@@ -222,3 +222,14 @@ const DesktopNavigation = () => {
 };
 
 export default DesktopNavigation;
+
+// TypeScript interface for the NavigationMenuLink component
+// This is needed because we're using the NavigationMenuLink in this file
+interface NavigationMenuLinkProps {
+  asChild?: boolean;
+  children: React.ReactNode;
+}
+
+const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ asChild, children }) => {
+  return <>{children}</>;
+};

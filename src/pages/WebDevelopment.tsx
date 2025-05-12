@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle, Phone, Check, ChevronRight } from 'lucide-react';
+import { ArrowRight, CheckCircle, Phone, Check, ChevronRight, Search, Globe, Users, TrendingUp, UserCheck, ShieldCheck, BarChart3, Clock, Target, Database, ScrollText, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { useTheme } from '@/utils/themeContext';
@@ -88,53 +88,193 @@ const WebDevelopment = () => {
     }
   ];
 
-  // Data for the pricing plans
-  const pricingPlans = [
+  // Data for the benefits section
+  const websiteBenefits = [
     {
-      name: "Basic",
-      price: "od 1 999 zł",
-      description: "Idealne rozwiązanie dla małych firm i przedsiębiorców rozpoczynających działalność online.",
-      features: [
-        "Responsywna strona www",
-        "Do 5 podstron",
-        "Podstawowe SEO",
-        "Formularz kontaktowy",
-        "Integracja z mediami społecznościowymi"
-      ],
-      recommended: false,
-      ctaText: "Wybieram pakiet Basic"
+      icon: <Globe className="h-[3rem] w-[3rem] text-premium-blue" />,
+      title: "Zwiększony zasięg",
+      description: "Zwiększa zasięg Twojego biznesu do nowych klientów."
     },
     {
-      name: "Premium",
-      price: "od 4 499 zł",
-      description: "Kompleksowe rozwiązanie dla firm, które chcą wyróżnić się w internecie.",
-      features: [
-        "Wszystko z pakietu Basic",
-        "Do 15 podstron",
-        "Zaawansowane SEO",
-        "Blog z systemem komentarzy",
-        "Panel administracyjny CMS",
-        "Szkolenie z obsługi systemu",
-        "Google Analytics"
-      ],
-      recommended: true,
-      ctaText: "Wybieram pakiet Premium"
+      icon: <Users className="h-[3rem] w-[3rem] text-premium-blue" />,
+      title: "Budowanie relacji",
+      description: "Buduje trwałe relacje z Twoimi klientami."
     },
     {
-      name: "Enterprise",
-      price: "od 8 999 zł",
-      description: "Dedykowane rozwiązania dla dużych firm i korporacji z zaawansowanymi potrzebami.",
-      features: [
-        "Wszystko z pakietu Premium",
-        "Nieograniczona liczba podstron",
-        "Dedykowany projekt UX/UI",
-        "Zaawansowane funkcjonalności",
-        "Integracje z systemami zewnętrznymi",
-        "Migracja danych",
-        "6 miesięcy wsparcia technicznego"
-      ],
-      recommended: false,
-      ctaText: "Wybieram pakiet Enterprise"
+      icon: <Search className="h-[3rem] w-[3rem] text-premium-blue" />,
+      title: "Analiza użytkowników",
+      description: "Daje Ci możliwość analizy zachowań użytkowników."
+    },
+    {
+      icon: <TrendingUp className="h-[3rem] w-[3rem] text-premium-blue" />,
+      title: "Pozyskiwanie leadów",
+      description: "Pozyskuje dla Ciebie wartościowe leady, aby rozwijać Twój biznes."
+    },
+    {
+      icon: <Sparkles className="h-[3rem] w-[3rem] text-premium-blue" />,
+      title: "Przewaga konkurencyjna",
+      description: "Zapewnia Ci przewagę konkurencyjną na rynku."
+    }
+  ];
+
+  // Data for professional website section
+  const professionalWebsiteFeatures = [
+    {
+      icon: <CheckCircle className="h-6 w-6 text-premium-blue" />,
+      title: "Pierwsze wrażenie",
+      description: "Tworzy pozytywne pierwsze wrażenie jako cyfrowa wizytówka dostępna 24/7."
+    },
+    {
+      icon: <UserCheck className="h-6 w-6 text-premium-blue" />,
+      title: "Profesjonalny wizerunek",
+      description: "Buduje profesjonalny wizerunek marki, który wyróżnia Cię na tle konkurencji."
+    },
+    {
+      icon: <ScrollText className="h-6 w-6 text-premium-blue" />,
+      title: "Jasna komunikacja",
+      description: "Przekazuje jasno i strategicznie Twoją ofertę, wartości oraz unikalne korzyści."
+    },
+    {
+      icon: <Target className="h-6 w-6 text-premium-blue" />,
+      title: "Prezentacja portfolio",
+      description: "Prezentuje portfolio i case studies jako konkretne dowody Twojego doświadczenia."
+    },
+    {
+      icon: <Users className="h-6 w-6 text-premium-blue" />,
+      title: "Opinie klientów",
+      description: "Zawiera opinie zadowolonych klientów, które budują zaufanie społeczne."
+    },
+    {
+      icon: <Database className="h-6 w-6 text-premium-blue" />,
+      title: "Treści eksperckie",
+      description: "Dostarcza aktualne treści eksperckie, potwierdzające Twoją wiedzę branżową."
+    },
+    {
+      icon: <Sparkles className="h-6 w-6 text-premium-blue" />,
+      title: "Spójność wizualna",
+      description: "Zapewnia spójność wizualną zgodną z identyfikacją marki."
+    },
+    {
+      icon: <Phone className="h-6 w-6 text-premium-blue" />,
+      title: "Przejrzysty kontakt",
+      description: "Oferuje przejrzysty kontakt – pokazuje dostępność i transparentność."
+    },
+    {
+      icon: <ShieldCheck className="h-6 w-6 text-premium-blue" />,
+      title: "Zgodność z prawem",
+      description: "Potwierdza legalność działania poprzez politykę prywatności i regulaminy."
+    }
+  ];
+
+  // Data for Website Type section
+  const websiteTypes = [
+    {
+      icon: "📄",
+      title: "Landing Page",
+      description: "Strona o uproszczonej strukturze, skupiona na jednej ofercie, idealna dla kampanii marketingowych."
+    },
+    {
+      icon: "📝",
+      title: "Blog firmowy",
+      description: "Zwiększa organiczną widoczność w wyszukiwarkach, buduje ekspercki wizerunek marki."
+    },
+    {
+      icon: "🏢",
+      title: "Strony firmowe",
+      description: "Strona firmowa prezentuje ofertę, wyróżniki na tle konkurencji oraz możliwości zakupu."
+    },
+    {
+      icon: "📅",
+      title: "One page",
+      description: "Zawiera wszystkie informacje na jednej, przewijanej stronie bez dodatkowych podstron."
+    },
+    {
+      icon: "📚",
+      title: "Multipage",
+      description: "Rozbudowana witryna z wieloma podstronami, idealna dla firm z szeroką ofertą."
+    }
+  ];
+
+  // Data for the business growth section
+  const businessGrowthFeatures = [
+    {
+      icon: <ShieldCheck className="h-12 w-12 text-premium-blue" />,
+      title: "Wiarygodność marki",
+      description: "Budowanie zaufania i rozpoznawalności marki."
+    },
+    {
+      icon: <Globe className="h-12 w-12 text-premium-blue" />,
+      title: "Zwiększony zasięg",
+      description: "Rozszerzanie publiczności i dotarcie do potencjalnych klientów."
+    },
+    {
+      icon: <BarChart3 className="h-12 w-12 text-premium-blue" />,
+      title: "Usprawniona ścieżka zakupowa",
+      description: "Ułatwienie procesu zakupu dla wygody klienta."
+    },
+    {
+      icon: <Users className="h-12 w-12 text-premium-blue" />,
+      title: "Generowanie leadów",
+      description: "Przyciąganie wartościowych potencjalnych klientów do wzrostu."
+    },
+    {
+      icon: <Clock className="h-12 w-12 text-premium-blue" />,
+      title: "Dostępność 24/7",
+      description: "Zapewnienie całodobowej dostępności i wsparcia."
+    },
+    {
+      icon: <Target className="h-12 w-12 text-premium-blue" />,
+      title: "Precyzyjne targetowanie",
+      description: "Stosowanie działań reklamowych dla określonych odbiorców."
+    },
+    {
+      icon: <ScrollText className="h-12 w-12 text-premium-blue" />,
+      title: "Przejrzyste informacje",
+      description: "Dostarczanie przejrzystych informacji o produktach i usługach."
+    },
+    {
+      icon: <Database className="h-12 w-12 text-premium-blue" />,
+      title: "Zbieranie danych",
+      description: "Gromadzenie cennych informacji analitycznych dla usprawnień."
+    }
+  ];
+
+  // Data for the steps to create website section
+  const websiteCreationSteps = [
+    {
+      number: "1",
+      title: "Analiza branży",
+      description: "Przeprowadzamy dogłębną analizę branży i konkurencji, aby zidentyfikować kluczowe elementy."
+    },
+    {
+      number: "2",
+      title: "Planowanie treści",
+      description: "Tworzymy szczegółowy plan treści z nagłówkami i podtytułami dostosowany do potrzeb SEO."
+    },
+    {
+      number: "3",
+      title: "Struktura linków",
+      description: "Planujemy nawigację, menu i linkowanie wewnętrzne dla optymalnej struktury strony."
+    },
+    {
+      number: "4",
+      title: "Projekt wizualny",
+      description: "Opracowujemy unikalny design dopasowany do Twojej marki i celów biznesowych."
+    },
+    {
+      number: "5",
+      title: "Tworzenie treści",
+      description: "Tworzymy angażujące i zoptymalizowane pod SEO treści, które odpowiadają na potrzeby użytkowników."
+    },
+    {
+      number: "6",
+      title: "Optymalizacja SEO",
+      description: "Wdrażamy zaawansowane techniki SEO, aby zwiększyć widoczność w wyszukiwarkach."
+    },
+    {
+      number: "7",
+      title: "Uruchomienie strony",
+      description: "Przenosimy gotową stronę na serwer produkcyjny i przeprowadzamy finalne testy."
     }
   ];
 
@@ -159,6 +299,87 @@ const WebDevelopment = () => {
     {
       question: "Czy pomagacie w pozycjonowaniu strony?",
       answer: "Tak, każda nasza strona jest zoptymalizowana pod kątem wyszukiwarek (SEO) już na etapie projektowania i kodowania. Dodatkowo oferujemy zaawansowane usługi pozycjonowania i content marketingu, które pomagają osiągnąć wysokie pozycje w wynikach wyszukiwania Google."
+    }
+  ];
+
+  // Data for the industry types section
+  const industryTypes = [
+    {
+      icon: "🏢",
+      name: "Nieruchomości",
+      description: "Strony dla deweloperów",
+    },
+    {
+      icon: "🍽️",
+      name: "Gastronomia",
+      description: "Strony dla restauracji",
+    },
+    {
+      icon: "🏫",
+      name: "Szkolnictwo",
+      description: "Strony dla szkół i przedszkoli",
+    },
+    {
+      icon: "⚖️",
+      name: "Prawo",
+      description: "Strony dla prawników i adwokatów",
+    },
+    {
+      icon: "✈️",
+      name: "Turystyka",
+      description: "Strony dla hoteli i biur podróży",
+    },
+    {
+      icon: "🎨",
+      name: "Sztuka",
+      description: "Strony dla fotografów i artystów",
+    },
+    {
+      icon: "🏥",
+      name: "Medycyna",
+      description: "Strony dla lekarzy",
+    },
+    {
+      icon: "💼",
+      name: "Firmy",
+      description: "Strony B2B",
+    },
+    {
+      icon: "🏛️",
+      name: "Architektura",
+      description: "Strony dla architektów",
+    }
+  ];
+
+  // Data for the locations section
+  const locations = [
+    { name: "Katowice", icon: "🏙️" },
+    { name: "Kraków", icon: "🏰" },
+    { name: "Białystok", icon: "🌆" },
+    { name: "Częstochowa", icon: "🌇" },
+    { name: "Dąbrowa Górnicza", icon: "🏭" },
+    { name: "Gdańsk", icon: "⚓" },
+    { name: "Gdynia", icon: "🌊" },
+    { name: "Gliwice", icon: "🌉" },
+    { name: "Krosno", icon: "🏘️" }
+  ];
+
+  // Data for the why technology matters section
+  const technologyImportance = [
+    {
+      icon: <BarChart3 className="h-12 w-12 text-premium-blue" />,
+      title: "Wydajność",
+      description: "Szybkość ładowania i działania strony internetowej."
+    },
+    {
+      icon: <ShieldCheck className="h-12 w-12 text-premium-blue" />,
+      title: "Bezpieczeństwo",
+      description: "Ochrona przed atakami i włamaniami."
+    },
+    {
+      icon: <TrendingUp className="h-12 w-12 text-premium-blue" />,
+      title: "Skalowalność",
+      description: "Możliwość rozbudowy wraz z rozwojem firmy."
     }
   ];
 
@@ -222,6 +443,49 @@ const WebDevelopment = () => {
                 className="w-full h-auto rounded-lg relative z-10"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* O czym się dowiesz sekcja */}
+      <section className="py-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-8">
+            <h2 className="text-2xl lg:text-3xl font-bold mb-8">O czym się dowiesz z tego artykułu</h2>
+            <ul className="space-y-3">
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Tworzenie stron WWW w IDZ.TECH</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Dlaczego nowoczesna strona internetowa to podstawa rozwoju Twojej działalności?</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Jakie rodzaje stron WWW oferujemy w IDZ.TECH?</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Jak przebiega tworzenie stron WWW w IDZ.TECH?</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Ile kosztuje stworzenie strony internetowej i od czego zależy cena?</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Co zyskujesz, tworząc stronę internetową z IDZ.TECH?</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Czy da się samemu zrobić stronę internetową dla biznesu?</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ChevronRight size={20} className="text-premium-purple" />
+                <span>Jak rozpocząć współpracę z IDZ.TECH przy tworzeniu strony WWW?</span>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
@@ -358,6 +622,35 @@ const WebDevelopment = () => {
           </div>
         </div>
       </section>
+
+      {/* Technology Importance Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Technologie</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Dlaczego dobór technologii ma znaczenie?
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Wybór odpowiednich technologii wpływa bezpośrednio na funkcjonalność, bezpieczeństwo i wydajność Twojej strony.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {technologyImportance.map((item, index) => (
+              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black/40 border border-white/10'} rounded-xl p-8 text-center`}>
+                <div className="flex justify-center mb-6">
+                  {item.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-4">{item.title}</h3>
+                <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       
       {/* Process Steps Section */}
       <section className="py-20 relative overflow-hidden bg-premium-dark/40">
@@ -379,61 +672,260 @@ const WebDevelopment = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Benefits of having a website section */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-premium-purple font-medium">Cennik</span>
+            <span className="text-premium-purple font-medium">Korzyści</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
-              Pakiety tworzenia stron www
+              Korzyści z własnej strony internetowej
             </h2>
             <p className="text-xl text-premium-light/70">
-              Wybierz pakiet dopasowany do potrzeb Twojego biznesu. Każdy projekt wyceniamy indywidualnie.
+              Posiadanie profesjonalnej strony WWW to inwestycja, która przynosi wymierne korzyści dla Twojego biznesu.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan, index) => (
-              <div 
-                key={index} 
-                className={`${theme === 'light' ? 'bg-white shadow-xl' : 'bg-premium-dark/60 border border-white/10'} rounded-xl p-8 relative ${plan.recommended ? 'md:-mt-4 md:mb-4' : ''}`}
-              >
-                {plan.recommended && (
-                  <div className="absolute -top-4 -right-4">
-                    <span className="bg-premium-gradient text-xs font-medium px-3 py-1 rounded-full text-white">Polecany</span>
-                  </div>
-                )}
-                <h3 className={`text-2xl font-bold mb-2 ${theme === 'light' ? 'text-black' : 'text-white'}`}>{plan.name}</h3>
-                <div className="flex items-baseline mb-5">
-                  <span className={`text-3xl font-bold ${theme === 'light' ? 'text-black' : 'text-white'}`}>{plan.price}</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {websiteBenefits.map((benefit, index) => (
+              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black border border-white/10'} rounded-xl p-8 text-center flex flex-col items-center hover:transform hover:scale-105 transition-transform duration-300`}>
+                <div className="mb-6">
+                  {benefit.icon}
                 </div>
-                <p className={`mb-6 ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>{plan.description}</p>
-                
-                <div className="space-y-3 mb-8">
-                  {plan.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="mt-1">
-                        <Check className="text-premium-purple" size={18} />
-                      </div>
-                      <span className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <Link to="/contact" className="block">
-                  <Button 
-                    className={`w-full ${plan.recommended 
-                      ? 'bg-premium-gradient hover:opacity-90 transition-opacity text-white' 
-                      : `${theme === 'light' ? 'bg-gray-100 text-gray-800 hover:bg-gray-200' : 'bg-white/10 text-white hover:bg-white/20'}`}`}
-                  >
-                    {plan.ctaText}
-                  </Button>
-                </Link>
+                <h3 className="text-xl font-bold mb-3">{benefit.title}</h3>
+                <p className={theme === 'light' ? 'text-gray-600' : 'text-gray-300'}>
+                  {benefit.description}
+                </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Professional Website Features Section */}
+      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Wiarygodność</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Co daje profesjonalna strona WWW?
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Dowiedz się, jak dobrze zaprojektowana strona internetowa zwiększa wiarygodność Twojej firmy w oczach klientów.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {professionalWebsiteFeatures.map((feature, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <div className="min-w-[40px] mt-1">
+                  {feature.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-1">{feature.title}</h3>
+                  <p className={theme === 'light' ? 'text-gray-600 text-sm' : 'text-gray-300 text-sm'}>
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Business Growth Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Rozwój biznesu</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Profesjonalna strona internetowa zapewnia wzrost sprzedaży!
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Odkryj, jak profesjonalna strona WWW przekłada się na konkretne wyniki biznesowe i wzrost sprzedaży.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {businessGrowthFeatures.map((feature, index) => (
+              <div key={index} className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black border border-white/10'} rounded-xl p-6 text-center`}>
+                <div className="flex justify-center mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-lg font-bold mb-2">{feature.title}</h3>
+                <p className={`${theme === 'light' ? 'text-gray-600' : 'text-gray-300'} text-sm`}>
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Website Types Section */}
+      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Rodzaje stron</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Rodzaje stron internetowych
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              W IDZ.TECH tworzymy różne typy stron dostosowane do indywidualnych potrzeb biznesowych.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-8">
+            {websiteTypes.map((type, index) => (
+              <div 
+                key={index} 
+                className={`${theme === 'light' ? 'bg-white shadow-lg' : 'bg-black border border-white/10'} rounded-xl p-6 text-center w-full md:w-[200px]`}
+              >
+                <div className="text-4xl mb-4">{type.icon}</div>
+                <h3 className="font-bold mb-3">{type.title}</h3>
+                <p className={`${theme === 'light' ? 'text-gray-600' : 'text-gray-300'} text-sm`}>
+                  {type.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Industry Types Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Branże</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Tworzenie stron internetowych dla różnych branż
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Tworzymy dedykowane strony WWW dla różnorodnych branż, dostosowane do ich specyficznych potrzeb.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-6 text-center mb-8`}>
+                <div className="text-3xl mb-2">🖥️</div>
+                <h3 className="font-bold text-lg">Tworzenie<br/>Stron<br/>Internetowych</h3>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 w-full">
+                {industryTypes.map((industry, index) => (
+                  <div 
+                    key={index} 
+                    className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-4 text-center flex flex-col items-center w-[150px]`}
+                  >
+                    <div className="text-2xl mb-2">{industry.icon}</div>
+                    <h3 className="font-bold text-sm mb-1">{industry.name}</h3>
+                    <p className="text-xs opacity-80">{industry.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Locations Section */}
+      <section className="py-20 relative overflow-hidden bg-premium-dark/40">
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Lokalizacje</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Tworzenie stron WWW w IDZ.TECH
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Świadczymy usługi tworzenia stron internetowych w całej Polsce.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-6 text-center mb-8`}>
+                <div className="text-3xl mb-2">🖥️</div>
+                <h3 className="font-bold text-lg">IDZ.TECH</h3>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 w-full">
+                {locations.map((location, index) => (
+                  <div 
+                    key={index} 
+                    className={`${theme === 'light' ? 'bg-black text-white' : 'bg-black border border-white/20 text-white'} rounded-xl p-4 text-center w-[130px]`}
+                  >
+                    <div className="text-2xl mb-2">{location.icon}</div>
+                    <h3 className="font-bold text-sm">{location.name}</h3>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Website Creation Steps Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Proces tworzenia</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Kroki do stworzenia strony internetowej
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Poznaj etapy tworzenia skutecznej strony internetowej, która będzie wspierać Twój biznes.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="relative">
+              {/* Steps display */}
+              <div className="hidden md:block h-3 bg-gradient-to-r from-premium-blue to-premium-purple absolute top-1/2 left-0 -translate-y-1/2 w-full rounded-full"></div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-7 gap-8 relative">
+                {websiteCreationSteps.map((step, index) => (
+                  <div key={index} className="flex flex-col items-center relative">
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center z-10 text-white font-bold text-lg ${theme === 'light' ? 'bg-premium-gradient' : 'bg-premium-gradient'}`}>
+                      {step.number}
+                    </div>
+                    
+                    <div className={`mt-6 p-4 rounded-xl text-center ${theme === 'light' ? 'bg-white shadow-lg' : 'bg-premium-dark/60 border border-white/10'}`}>
+                      <h3 className="font-bold mb-2">{step.title}</h3>
+                      <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
