@@ -14,8 +14,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
 const NotificationBell: React.FC = () => {
-  const { notifications, markAsRead, getUnreadCount } = useNotifications();
-  const unreadCount = getUnreadCount();
+  const { notifications, markAsRead, unreadCount } = useNotifications();
   const navigate = useNavigate();
 
   const handleNotificationClick = (id: string, targetId?: string, targetType?: string) => {
@@ -46,10 +45,8 @@ const NotificationBell: React.FC = () => {
       case 'approval_request':
         return <div className="flex-shrink-0 w-2 h-2 bg-amber-500 rounded-full mt-1"></div>;
       case 'comment_added':
-      case 'comment':
         return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
       case 'like_added':
-      case 'like':
         return <div className="flex-shrink-0 w-2 h-2 bg-purple-500 rounded-full mt-1"></div>;
       case 'post_created':
       case 'post_edited':
