@@ -7,13 +7,6 @@ interface ProfileInfoProps {
 }
 
 const ProfileInfo = ({ user }: ProfileInfoProps) => {
-  const getRoleDisplay = (role: string | undefined) => {
-    if (role === 'admin') return 'Administrator';
-    if (role === 'moderator') return 'Moderator';
-    if (role === 'blogger') return 'Bloger';
-    return 'Użytkownik';
-  };
-
   return (
     <>
       <div className="mt-6 pt-6 border-t border-premium-light/10">
