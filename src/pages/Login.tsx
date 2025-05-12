@@ -31,9 +31,8 @@ const Login = () => {
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
-  // Redirect if already authenticated - this runs on mount and when isAuthenticated changes
+  // Redirect if already authenticated
   useEffect(() => {
-    // Dodajemy sprawdzenie user, aby upewnić się że mamy kompletne dane użytkownika
     if (isAuthenticated && user) {
       console.log("User is authenticated in Login page, redirecting to:", from);
       navigate(from, { replace: true });
@@ -74,12 +73,8 @@ const Login = () => {
         description: "Witamy z powrotem!"
       });
       
-      // Ustawiamy opóźnienie na nawigację, żeby pozwolić na pełne załadowanie sesji
-      setTimeout(() => {
-        // Sprawdzamy czy nadal jesteśmy w komponencie (nie został odmontowany)
-        setIsLoading(false);
-        navigate(from, { replace: true });
-      }, 500);
+      // Don't navigate here - let the effect hook handle navigation
+      // based on auth state changes to prevent timing issues
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({

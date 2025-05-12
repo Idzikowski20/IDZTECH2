@@ -15,25 +15,25 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   const navigate = useNavigate();
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Dodajemy stan do kontrolowania przekierowań, aby zapobiec pętlom
+  // Add a state to control redirects to prevent loops
   useEffect(() => {
-    // Poczekamy krótko, aby dać czas na załadowanie stanu autoryzacji
+    // Short timeout to allow auth state to load
     const timer = setTimeout(() => {
       setIsInitialized(true);
-    }, 300);
+    }, 500); // Increased timeout to ensure auth state is fully loaded
     
     return () => clearTimeout(timer);
   }, []);
   
   useEffect(() => {
-    // Tylko na stronie logowania i tylko gdy już wiemy, że użytkownik jest zalogowany
+    // Only redirect from login page when we're initialized and have user data
     if (isAuthenticated && user && location.pathname === "/login" && isInitialized) {
       console.log("User is authenticated, redirecting to /admin");
       navigate("/admin", { replace: true });
     }
   }, [isAuthenticated, user, location.pathname, navigate, isInitialized]);
   
-  // Pokazujemy ekran ładowania, dopóki nie mamy pewności co do stanu autoryzacji
+  // Show loading screen until we're sure about auth state
   if (loading || !isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-premium-dark">
@@ -45,12 +45,12 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
     );
   }
   
-  // Przekierowanie do logowania, gdy użytkownik nie jest zalogowany
+  // Redirect to login if not authenticated
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // Użytkownik jest zalogowany
+  // User is authenticated
   return children;
 };
 

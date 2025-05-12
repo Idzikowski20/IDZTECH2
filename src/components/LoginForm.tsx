@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -44,28 +43,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       if (error) {
         console.error("Login error:", error);
         
-        // Check if we have a local user with this email
-        if (error.message === "Invalid login credentials") {
-          // Try local auth via authStore (will be handled there)
-          const success = await signIn(email, password);
-          
-          if (success) {
-            toast({
-              title: "Zalogowano pomyślnie",
-              description: "Witamy z powrotem!"
-            });
-            
-            if (onSuccess) {
-              onSuccess();
-            } else {
-              navigate('/admin');
-            }
-            
-            setIsLoading(false);
-            return;
-          }
-        }
-        
         toast({
           title: "Błąd logowania",
           description: error.message || "Nieprawidłowy email lub hasło",
@@ -83,8 +60,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       if (onSuccess) {
         onSuccess();
       } else {
-        // Force navigation directly instead of relying on auth state changes
-        navigate('/admin');
+        // Allow auth state to update before navigation
+        setTimeout(() => {
+          setIsLoading(false);
+          navigate('/admin');
+        }, 300);
       }
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
