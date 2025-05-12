@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,10 +18,6 @@ export interface Comment {
   userName?: string;
   userAvatar?: string;
   userRole?: string;
-}
-
-interface CommentHeaderProps {
-  count: number;
 }
 
 interface CommentSectionProps {
@@ -200,7 +195,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
 
   return (
     <div className="py-6">
-      <CommentHeader count={comments.length} />
+      <CommentHeader commentCount={comments.length} />
       
       <CommentForm onSubmit={handleAddComment} />
       
