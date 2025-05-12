@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
         {/* Mobile menu button - Now handled inside the MobileMenu component */}
       </div>
       
-      {/* Mobile menu with updated props */}
+      {/* Mobile menu with the correct props */}
       <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
     </header>
   );
