@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { KeyRound } from 'lucide-react';
+import { KeyRound, Loader2 } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
@@ -21,12 +21,23 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email) {
+      toast({
+        title: "Błąd",
+        description: "Proszę podać adres email",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       const { error } = await resetPassword(email);
       
       if (error) {
+        console.error("Reset password error:", error);
         toast({
           title: "Błąd",
           description: error.message || "Wystąpił błąd podczas wysyłania linku resetującego hasło",
@@ -39,7 +50,8 @@ const ForgotPassword = () => {
           description: "Sprawdź swoją skrzynkę e-mail i kliknij link resetujący hasło"
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Unexpected reset password error:", error);
       toast({
         title: "Błąd",
         description: "Wystąpił nieoczekiwany błąd",
@@ -61,7 +73,7 @@ const ForgotPassword = () => {
               <KeyRound className="text-white" size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6">Resetowanie hasła</h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-white">Resetowanie hasła</h1>
 
           {isSuccess ? (
             <div className="text-center space-y-4">
@@ -73,7 +85,7 @@ const ForgotPassword = () => {
               </p>
               <Button 
                 onClick={() => navigate('/login')} 
-                className="mt-4 bg-premium-gradient"
+                className="mt-4 bg-premium-gradient hover:bg-premium-purple hover:text-white"
               >
                 Powrót do logowania
               </Button>
@@ -81,7 +93,7 @@ const ForgotPassword = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-gray-200">Email</Label>
                 <Input 
                   id="email"
                   type="email"
@@ -94,14 +106,23 @@ const ForgotPassword = () => {
               </div>
               
               <div className="space-y-4">
-                <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
-                  {isLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
+                <Button 
+                  type="submit" 
+                  className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Wysyłanie...
+                    </span>
+                  ) : "Wyślij link resetujący"}
                 </Button>
                 
                 <Button 
                   type="button" 
                   variant="outline" 
-                  className="w-full" 
+                  className="w-full hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black" 
                   onClick={() => navigate('/login')}
                 >
                   Powrót do logowania

@@ -11,11 +11,14 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   
-  // Simple loading state
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-premium-dark">
-        <Loader2 className="h-12 w-12 animate-spin text-premium-purple" />
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-premium-purple mx-auto mb-4" />
+          <p className="text-gray-300">Ładowanie...</p>
+        </div>
       </div>
     );
   }

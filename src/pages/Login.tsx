@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,12 +32,13 @@ const Login = () => {
   const from = state?.from?.pathname || '/admin';
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate(from, { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
-  // Simple login handler
+  // Login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -71,7 +72,7 @@ const Login = () => {
         description: "Witamy z powrotem!"
       });
       
-      navigate(from, { replace: true });
+      // Navigation happens in useEffect when isAuthenticated changes
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({
@@ -86,7 +87,7 @@ const Login = () => {
   return (
     <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>
       <Navbar />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-[80vh] flex items-center justify-center pb-16 pt-24">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 min-h-[80vh] flex items-center justify-center py-32">
         <div className={`max-w-md w-full ${theme === 'light' ? "bg-white" : "bg-black"} p-6 md:p-8 rounded-xl border ${theme === 'light' ? "border-gray-200" : "border-gray-700"} shadow-lg`}>
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">

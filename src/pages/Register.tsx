@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { UserPlus, Loader2, Eye, EyeOff } from 'lucide-react';
@@ -12,10 +12,10 @@ import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import PageDotAnimation from '@/components/PageDotAnimation';
 import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 import { isPasswordCompromised, passwordSchema } from '@/utils/passwordValidation';
+import { useAuth } from '@/utils/AuthProvider';
 
 // Enhanced register schema with custom password validation
 const registerSchema = z.object({
@@ -24,14 +24,17 @@ const registerSchema = z.object({
   password: passwordSchema
 });
 
+type RegisterFormData = z.infer<typeof registerSchema>;
+
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isPassCompromised, setIsPassCompromised] = useState(false);
+  const { signUp } = useAuth();
 
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: '',
@@ -43,7 +46,8 @@ const Register = () => {
   // Check password against compromised list when it changes
   const password = form.watch('password');
   
-  useEffect(() => {
+  // Effect to check password security
+  React.useEffect(() => {
     const checkPassword = async () => {
       if (password && password.length >= 4) {
         const compromised = await isPasswordCompromised(password);
@@ -61,7 +65,7 @@ const Register = () => {
     checkPassword();
   }, [password, form]);
 
-  const onSubmit = async (values: z.infer<typeof registerSchema>) => {
+  const onSubmit = async (values: RegisterFormData) => {
     if (isPassCompromised) {
       toast({
         title: "Hasło zagrożone",
@@ -73,21 +77,15 @@ const Register = () => {
     
     setIsLoading(true);
     try {
-      // Register the user with Supabase
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            name: values.name,
-          },
-        }
+      // Register the user with Supabase through our Auth provider
+      const { error } = await signUp(values.email, values.password, {
+        name: values.name,
       });
       
       if (error) {
         toast({
           title: "Błąd rejestracji",
-          description: error.message,
+          description: error.message || "Wystąpił błąd podczas rejestracji",
           variant: "destructive"
         });
       } else {
@@ -119,7 +117,7 @@ const Register = () => {
               <UserPlus className="text-white" size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-center mb-6">Rejestracja</h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-white">Rejestracja</h1>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -177,9 +175,9 @@ const Register = () => {
                   </FormItem>
                 )} 
               />
-              <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white" disabled={isLoading}>
                 {isLoading ? (
-                  <span className="flex items-center">
+                  <span className="flex items-center justify-center">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Rejestracja...
                   </span>
@@ -191,7 +189,7 @@ const Register = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-premium-light/70">
               Masz już konto?{' '}
-              <Link to="/login" className="text-premium-purple hover:underline">
+              <Link to="/login" className="text-premium-purple hover:underline hover:text-white">
                 Zaloguj się
               </Link>
             </p>

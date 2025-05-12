@@ -39,7 +39,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
+      const { data, error } = await signIn(email, password);
       
       if (error) {
         console.error("Login error:", error);
@@ -130,7 +130,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className="text-premium-purple p-0 hover:text-white"
+            className="text-premium-purple p-0 hover:text-white dark:hover:text-white"
             onClick={() => navigate('/forgot-password')}
           >
             Nie pamiętasz hasła?
@@ -157,7 +157,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className="p-0 hover:text-white"
+            className="p-0 hover:text-white dark:hover:text-white"
             onClick={() => navigate('/register')}
           >
             Zarejestruj się
