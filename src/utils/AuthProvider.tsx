@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import type { User, Session } from "@supabase/supabase-js";
@@ -37,10 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { toast } = useToast();
+  const authInProgress = useRef(false);
   
   // Initialize auth state
   useEffect(() => {
     let isMounted = true;
+    const abortController = new AbortController();
     
     console.log("Setting up auth provider");
     
@@ -49,96 +51,157 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (event, currentSession) => {
         console.log("Auth state changed:", event);
         
-        if (!isMounted) return;
+        if (authInProgress.current || !isMounted) return;
+        authInProgress.current = true;
         
-        if (currentSession) {
-          console.log("Session exists in auth state change");
-          setSession(currentSession);
-          
-          // Fetch profile data
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentSession.user.id)
-            .single();
-          
-          setUser({
-            ...currentSession.user,
-            name: profileData?.name || currentSession.user.user_metadata?.name || null,
-            lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
-            profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
-            bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
-            jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
-          });
-          setIsAuthenticated(true);
-        } else {
-          console.log("No session in auth state change");
-          
-          // Check for local auth before clearing state
-          setTimeout(async () => {
-            try {
-              const localAuth = await integrateAuth();
-              
-              if (localAuth.user && localAuth.provider === 'local') {
-                setUser(localAuth.user as User & ExtendedUserProfile);
-                setIsAuthenticated(true);
-              } else {
-                setSession(null);
-                setUser(null);
-                setIsAuthenticated(false);
+        try {
+          if (currentSession) {
+            console.log("Session exists in auth state change");
+            setSession(currentSession);
+            
+            // Use setTimeout to avoid potential Supabase auth deadlock
+            setTimeout(async () => {
+              try {
+                if (abortController.signal.aborted || !isMounted) return;
+                
+                // Fetch profile data
+                const { data: profileData } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', currentSession.user.id)
+                  .single();
+                
+                if (isMounted) {
+                  setUser({
+                    ...currentSession.user,
+                    name: profileData?.name || currentSession.user.user_metadata?.name || null,
+                    lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
+                    profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
+                    bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
+                    jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
+                  });
+                  setIsAuthenticated(true);
+                }
+              } catch (error) {
+                console.error("Error processing auth state change:", error);
+              } finally {
+                if (isMounted) {
+                  setLoading(false);
+                  authInProgress.current = false;
+                }
               }
-              
-              if (isMounted) setLoading(false);
-            } catch (error) {
-              console.error("Error checking local auth:", error);
-              if (isMounted) {
-                setSession(null);
-                setUser(null);
-                setIsAuthenticated(false);
-                setLoading(false);
+            }, 0);
+          } else {
+            console.log("No session in auth state change");
+            
+            // Check for local auth before clearing state
+            setTimeout(async () => {
+              try {
+                if (abortController.signal.aborted || !isMounted) return;
+                
+                const localAuth = await integrateAuth();
+                
+                if (localAuth.user && localAuth.provider === 'local') {
+                  if (isMounted) {
+                    setUser(localAuth.user as User & ExtendedUserProfile);
+                    setIsAuthenticated(true);
+                  }
+                } else if (isMounted) {
+                  setSession(null);
+                  setUser(null);
+                  setIsAuthenticated(false);
+                }
+              } catch (error) {
+                console.error("Error checking local auth:", error);
+                if (isMounted) {
+                  setSession(null);
+                  setUser(null);
+                  setIsAuthenticated(false);
+                }
+              } finally {
+                if (isMounted) {
+                  setLoading(false);
+                  authInProgress.current = false;
+                }
               }
-            }
-          }, 0);
+            }, 0);
+          }
+        } catch (error) {
+          console.error("Error in auth state change handler:", error);
+          if (isMounted) {
+            setLoading(false);
+            authInProgress.current = false;
+          }
         }
       }
     );
     
     // THEN check for existing session
     const checkSession = async () => {
+      if (authInProgress.current || !isMounted) return;
+      authInProgress.current = true;
+      
       try {
         console.log("Checking for existing session");
         
-        const authResult = await integrateAuth();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (authResult.user && isMounted) {
-          console.log("Found auth session with provider:", authResult.provider);
+        if (session?.user && isMounted) {
+          console.log("Found existing session:", session.user.id);
+          setSession(session);
           
-          if (authResult.provider === 'supabase') {
-            setSession(authResult.session);
-          }
+          // Fetch profile data
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
           
-          setUser(authResult.user as User & ExtendedUserProfile);
+          setUser({
+            ...session.user,
+            name: profileData?.name || session.user.user_metadata?.name || null,
+            lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
+            profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
+            bio: profileData?.bio || session.user.user_metadata?.bio || null,
+            jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null
+          });
           setIsAuthenticated(true);
         } else {
           console.log("No existing session found");
+          
+          // Check local auth
+          const localAuth = await integrateAuth();
+          
+          if (localAuth.user && localAuth.provider === 'local' && isMounted) {
+            console.log("Found local auth session");
+            setUser(localAuth.user as User & ExtendedUserProfile);
+            setIsAuthenticated(true);
+          } else if (isMounted) {
+            setUser(null);
+            setIsAuthenticated(false);
+          }
         }
-        
-        if (isMounted) setLoading(false);
       } catch (error) {
         console.error("Error checking session:", error);
-        if (isMounted) setLoading(false);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          authInProgress.current = false;
+        }
       }
     };
     
     // Add a slight delay to ensure proper initialization
     setTimeout(() => {
-      if (!isMounted) return;
+      if (abortController.signal.aborted || !isMounted) return;
       checkSession();
     }, 100);
     
     return () => {
       isMounted = false;
+      abortController.abort();
       subscription.unsubscribe();
+      authInProgress.current = false;
     };
   }, []);
   

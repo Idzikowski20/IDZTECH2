@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   const { signIn } = useAuth();
   const { toast } = useToast();
   const { theme } = useTheme();
+  const redirected = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,12 +61,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       
       if (onSuccess) {
         onSuccess();
-      } else {
+      } else if (!redirected.current) {
+        // Prevent multiple redirects
+        redirected.current = true;
         // Allow auth state to update before navigation
         setTimeout(() => {
           setIsLoading(false);
           navigate('/admin');
-        }, 300);
+        }, 500);
       }
     } catch (error: any) {
       console.error("Unexpected error during login:", error);

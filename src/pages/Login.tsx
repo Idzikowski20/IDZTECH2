@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,14 +27,17 @@ const Login = () => {
   const { toast } = useToast();
   const { signIn, isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
+  const redirected = useRef(false);
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated && user) {
+    // Prevent redirect loop with ref
+    if (isAuthenticated && user && !redirected.current) {
       console.log("User is authenticated in Login page, redirecting to:", from);
+      redirected.current = true;
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, from, user]);
@@ -73,8 +76,8 @@ const Login = () => {
         description: "Witamy z powrotem!"
       });
       
-      // Don't navigate here - let the effect hook handle navigation
-      // based on auth state changes to prevent timing issues
+      // We don't need to navigate here
+      // Authentication state change will trigger the useEffect above
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({
