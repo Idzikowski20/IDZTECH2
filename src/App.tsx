@@ -64,127 +64,125 @@ const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          
-          {/* Visual Editor Route */}
-          <Route 
-            path="/visual-editor" 
-            element={
-              <RequireAuth>
-                <VisualCMSEditor />
-              </RequireAuth>
-            } 
-          />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        
+        {/* Visual Editor Route */}
+        <Route 
+          path="/visual-editor" 
+          element={
+            <RequireAuth>
+              <VisualCMSEditor />
+            </RequireAuth>
+          } 
+        />
 
-          {/* Admin Routes */}
-          <Route 
-            path="/admin" 
-            element={
-              <RequireAuth>
-                <Admin />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/admin/stats" 
-            element={
-              <RequireAuth>
-                <AdminStats />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/admin/users" 
-            element={
-              <RequireAuth>
-                <AdminUsers />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/admin/cms" 
-            element={
-              <RequireAuth>
-                <AdminCMS />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/admin/notifications" 
-            element={
-              <RequireAuth>
-                <AdminNotifications />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/admin/settings" 
-            element={
-              <RequireAuth>
-                <AdminSettings />
-              </RequireAuth>
-            } 
-          />
-          
-          {/* User Routes */}
-          <Route 
-            path="/profile" 
-            element={
-              <RequireAuth>
-                <Profile />
-              </RequireAuth>
-            } 
-          />
-          
-          {/* Content Routes */}
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/post/:id" element={<BlogPost />} />
-          <Route 
-            path="/blog/editor" 
-            element={
-              <RequireAuth>
-                <BlogPostEditor />
-              </RequireAuth>
-            } 
-          />
-          <Route 
-            path="/blog/editor/:id" 
-            element={
-              <RequireAuth>
-                <BlogPostEditor />
-              </RequireAuth>
-            } 
-          />
-          
-          {/* Service Routes */}
-          <Route path="/uslugi/seo" element={<Seo />} />
-          <Route path="/uslugi/seo/audyt-seo" element={<SeoAudit />} />
-          <Route path="/uslugi/seo/optymalizacja" element={<SeoOptimization />} />
-          <Route path="/uslugi/seo/copywriting" element={<SeoCopywriting />} />
-          <Route path="/uslugi/seo/lokalne" element={<LocalSeo />} />
-          <Route path="/uslugi/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
-          <Route path="/uslugi/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
-          <Route path="/uslugi/audyt-google-ads" element={<GoogleAdsAudit />} />
-          <Route path="/uslugi/e-commerce" element={<ECommerce />} />
-          <Route path="/uslugi/tworzenie-stron" element={<WebDevelopment />} />
-          <Route path="/uslugi/plan-tresci" element={<ContentPlan />} />
-          
-          {/* Static Pages */}
-          <Route path="/o-nas" element={<AboutUs />} />
-          <Route path="/projekty" element={<Projects />} />
-          <Route path="/kontakt" element={<ContactPage />} />
-          <Route path="/404" element={<Error404 />} />
-          <Route path="/" element={<Index />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster />
-        <ScrollToTop />
-      </ThemeProvider>
+        {/* Admin Routes */}
+        <Route 
+          path="/admin" 
+          element={
+            <RequireAuth>
+              <Admin />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/stats" 
+          element={
+            <RequireAuth>
+              <AdminStats />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/users" 
+          element={
+            <RequireAuth>
+              <AdminUsers />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/cms" 
+          element={
+            <RequireAuth>
+              <AdminCMS />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/notifications" 
+          element={
+            <RequireAuth>
+              <AdminNotifications />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/admin/settings" 
+          element={
+            <RequireAuth>
+              <AdminSettings />
+            </RequireAuth>
+          } 
+        />
+        
+        {/* User Routes */}
+        <Route 
+          path="/profile" 
+          element={
+            <RequireAuth>
+              <Profile />
+            </RequireAuth>
+          } 
+        />
+        
+        {/* Content Routes */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/post/:id" element={<BlogPost />} />
+        <Route 
+          path="/blog/editor" 
+          element={
+            <RequireAuth>
+              <BlogPostEditor />
+            </RequireAuth>
+          } 
+        />
+        <Route 
+          path="/blog/editor/:id" 
+          element={
+            <RequireAuth>
+              <BlogPostEditor />
+            </RequireAuth>
+          } 
+        />
+        
+        {/* Service Routes */}
+        <Route path="/uslugi/seo" element={<Seo />} />
+        <Route path="/uslugi/seo/audyt-seo" element={<SeoAudit />} />
+        <Route path="/uslugi/seo/optymalizacja" element={<SeoOptimization />} />
+        <Route path="/uslugi/seo/copywriting" element={<SeoCopywriting />} />
+        <Route path="/uslugi/seo/lokalne" element={<LocalSeo />} />
+        <Route path="/uslugi/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
+        <Route path="/uslugi/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
+        <Route path="/uslugi/audyt-google-ads" element={<GoogleAdsAudit />} />
+        <Route path="/uslugi/e-commerce" element={<ECommerce />} />
+        <Route path="/uslugi/tworzenie-stron" element={<WebDevelopment />} />
+        <Route path="/uslugi/plan-tresci" element={<ContentPlan />} />
+        
+        {/* Static Pages */}
+        <Route path="/o-nas" element={<AboutUs />} />
+        <Route path="/projekty" element={<Projects />} />
+        <Route path="/kontakt" element={<ContactPage />} />
+        <Route path="/404" element={<Error404 />} />
+        <Route path="/" element={<Index />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
+      <ScrollToTop />
     </BrowserRouter>
   );
 };

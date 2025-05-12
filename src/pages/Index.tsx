@@ -1,6 +1,6 @@
 
 import React, { useEffect, lazy, Suspense } from "react";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar/Navbar"; // Updating the import path to match the structure
 import LightEffects from "@/components/LightEffects";
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
 

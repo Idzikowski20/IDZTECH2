@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import { Card } from '@/components/ui/card';
@@ -13,6 +12,20 @@ type UserRole = 'admin' | 'moderator' | 'blogger' | 'user';
 
 interface AdminUser extends User {
   role: UserRole;
+  lastName: string; // Making lastName required to match User type
+  bio: string;
+  jobTitle: string;
+  createdAt: string;
+  lastLogin: string | null;
+  stats: {
+    views: number;
+    posts: number;
+    comments: number;
+    likes: number;
+    pointsTotal: number;
+    pointsThisMonth: number;
+    lastUpdated: string;
+  }
 }
 
 const Admin = () => {
@@ -46,7 +59,7 @@ const Admin = () => {
             name: data.name || '',
             role: (data.role as UserRole) || 'user',
             profilePicture: data.profilePicture,
-            lastName: data.lastName || '',
+            lastName: data.lastName || '', // Ensure lastName is always a string
             bio: data.bio || '',
             jobTitle: data.jobTitle || '',
             createdAt: data.created_at,
