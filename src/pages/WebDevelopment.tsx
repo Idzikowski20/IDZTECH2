@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -656,4 +657,27 @@ const WebDevelopment = () => {
       {/* Process Steps Section - Already using vertical layout through HoverableSteps component */}
       <section className="py-20 relative overflow-hidden bg-premium-dark/40">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-9
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-premium-purple font-medium">Proces</span>
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">
+              Jak tworzymy strony WWW?
+            </h2>
+            <p className="text-xl text-premium-light/70">
+              Poznaj nasz sprawdzony proces tworzenia stron internetowych, który gwarantuje najwyższą jakość i satysfakcję klientów.
+            </p>
+          </div>
+          
+          <HoverableSteps steps={steps} />
+        </div>
+      </section>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+};
+
+export default WebDevelopment;
