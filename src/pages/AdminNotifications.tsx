@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/utils/AuthProvider';
-import { useSupabaseNotifications, NotificationType, NotificationStatus } from '@/hooks/useSupabaseNotifications';
 import { 
   Card, 
   CardContent, 
@@ -36,6 +36,39 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { supabase } from '@/integrations/supabase/client';
+
+// Notification types and interfaces
+export type NotificationType = 
+  | 'post_created' 
+  | 'post_edited' 
+  | 'post_deleted' 
+  | 'user_edited'
+  | 'approval_request'
+  | 'approval_accepted'
+  | 'approval_rejected'
+  | 'comment_added'
+  | 'like_added'
+  | 'info'
+  | 'error'
+  | 'success'
+  | 'warning';
+
+export type NotificationStatus = 'pending' | 'approved' | 'rejected' | 'unread' | 'read';
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  createdAt: string;
+  status: NotificationStatus;
+  fromUserId?: string;
+  fromUserName?: string;
+  targetId?: string;
+  targetType?: string;
+  comment?: string;
+}
 
 const NotificationIcon = ({ type }: { type: string }) => {
   switch (type) {
@@ -87,98 +120,283 @@ const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => 
 const AdminNotifications = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { 
-    notifications, 
-    markAsRead, 
-    updateNotificationStatus, 
-    deleteNotification, 
-    markAllAsRead,
-    loading: notificationsLoading,
-    error: notificationsError,
-    fetchNotifications
-  } = useSupabaseNotifications();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  console.log("AdminNotifications render - notifications:", notifications);
-  console.log("AdminNotifications render - user:", user);
-  console.log("AdminNotifications render - error:", notificationsError);
-  
-  // Set loaded state after initial render - with delay to ensure notifications are loaded
-  useEffect(() => {
-    console.log("AdminNotifications component mounted");
-    
-    // Add a delay to ensure notifications state is fully loaded
-    const timer = setTimeout(() => {
-      console.log("Setting isLoaded to true");
-      setIsLoaded(true);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (isLoaded && !user) {
-      console.log("No user found, redirecting to login");
-      navigate('/login');
+  // Fetch notifications from Supabase
+  const fetchNotifications = useCallback(async () => {
+    if (!user) {
+      setNotifications([]);
+      setUnreadCount(0);
+      setLoading(false);
+      return;
     }
-  }, [user, navigate, isLoaded]);
 
-  const handleNotificationClick = (notification: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log("Fetching notifications...");
+      
+      const { data, error: fetchError } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) {
+        console.error('Error fetching notifications:', fetchError);
+        setError(`Nie udało się pobrać powiadomień: ${fetchError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        console.log("No notifications found");
+        setNotifications([]);
+        setUnreadCount(0);
+        setLoading(false);
+        return;
+      }
+      
+      console.log("Raw notifications data:", data);
+
+      // Transform the Supabase data to match our Notification interface
+      const transformedNotifications: Notification[] = await Promise.all(data.map(async notification => {
+        // Try to get user name if we have user_id
+        let fromUserName = '';
+        if (notification.user_id) {
+          try {
+            const { data: userData } = await supabase
+              .from('profiles')
+              .select('name, lastName')
+              .eq('id', notification.user_id)
+              .single();
+            
+            if (userData) {
+              fromUserName = userData.name || '';
+              if (userData.lastName) {
+                fromUserName += ` ${userData.lastName}`;
+              }
+            }
+          } catch (e) {
+            console.error('Error fetching user data:', e);
+          }
+        }
+
+        return {
+          id: notification.id,
+          type: notification.type as NotificationType || 'info',
+          title: notification.title,
+          message: notification.message,
+          createdAt: notification.created_at,
+          status: notification.is_read ? 'read' as NotificationStatus : 'unread' as NotificationStatus,
+          fromUserId: notification.user_id,
+          targetId: notification.target_id || '',
+          targetType: notification.target_type || '',
+          fromUserName: fromUserName || 'Użytkownik',
+        };
+      }));
+      
+      console.log("Transformed notifications:", transformedNotifications);
+      setNotifications(transformedNotifications);
+      
+      // Count unread notifications
+      const unread = transformedNotifications.filter(n => n.status === 'unread').length;
+      setUnreadCount(unread);
+    } catch (error) {
+      console.error('Error in fetchNotifications:', error);
+      setError('Wystąpił nieoczekiwany błąd podczas pobierania powiadomień');
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  // Load notifications on component mount
+  useEffect(() => {
+    fetchNotifications();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('notifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'notifications'
+        },
+        () => {
+          console.log("Received notification change event");
+          fetchNotifications();
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchNotifications]);
+
+  // Mark notification as read
+  const markAsRead = async (id: string) => {
+    try {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', id);
+      
+      fetchNotifications();
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się oznaczyć powiadomienia jako przeczytane",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('is_read', false);
+      
+      fetchNotifications();
+      toast({
+        title: 'Oznaczono jako przeczytane',
+        description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
+      });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się oznaczyć wszystkich powiadomień jako przeczytane",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handle notification click
+  const handleNotificationClick = (notification: Notification) => {
     if (notification.status === 'unread') {
       markAsRead(notification.id);
     }
   };
 
-  const handleApprove = (notification: any) => {
-    updateNotificationStatus(notification.id, 'approved');
-    toast({
-      title: 'Zatwierdzono',
-      description: 'Prośba została zatwierdzona',
-    });
+  // Approve notification
+  const handleApprove = async (notification: Notification) => {
+    try {
+      // Update notification status
+      await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notification.id);
+      
+      // Create response notification for user
+      if (notification.fromUserId) {
+        await supabase.from('notifications').insert({
+          type: 'approval_accepted',
+          title: 'Prośba zaakceptowana',
+          message: 'Twoja prośba została zaakceptowana',
+          user_id: notification.fromUserId,
+          target_id: notification.targetId,
+          target_type: notification.targetType,
+        });
+      }
+      
+      fetchNotifications();
+      toast({
+        title: 'Zatwierdzono',
+        description: 'Prośba została zatwierdzona',
+      });
+    } catch (error) {
+      console.error('Error approving notification:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zatwierdzić prośby",
+        variant: "destructive"
+      });
+    }
   };
 
-  const openRejectDialog = (notification: any) => {
+  // Open reject dialog
+  const openRejectDialog = (notification: Notification) => {
     setSelectedNotification(notification);
     setRejectionComment('');
     setOpenDialog(true);
   };
 
-  const handleReject = () => {
+  // Reject notification
+  const handleReject = async () => {
     if (selectedNotification) {
-      updateNotificationStatus(
-        selectedNotification.id,
-        'rejected',
-        rejectionComment || 'Brak komentarza'
-      );
-      setOpenDialog(false);
+      try {
+        // Update notification status
+        await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', selectedNotification.id);
+        
+        // Create response notification for user
+        if (selectedNotification.fromUserId) {
+          await supabase.from('notifications').insert({
+            type: 'approval_rejected',
+            title: 'Prośba odrzucona',
+            message: rejectionComment || 'Twoja prośba została odrzucona',
+            user_id: selectedNotification.fromUserId,
+            target_id: selectedNotification.targetId,
+            target_type: selectedNotification.targetType,
+          });
+        }
+        
+        setOpenDialog(false);
+        fetchNotifications();
+        toast({
+          title: 'Odrzucono',
+          description: 'Prośba została odrzucona',
+        });
+      } catch (error) {
+        console.error('Error rejecting notification:', error);
+        toast({
+          title: "Błąd",
+          description: "Nie udało się odrzucić prośby",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  // Delete notification
+  const handleDelete = async (notification: Notification) => {
+    try {
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notification.id);
+      
+      fetchNotifications();
       toast({
-        title: 'Odrzucono',
-        description: 'Prośba została odrzucona',
+        title: 'Usunięto',
+        description: 'Powiadomienie zostało usunięte',
+      });
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się usunąć powiadomienia",
+        variant: "destructive"
       });
     }
   };
 
-  const handleDelete = (notification: any) => {
-    deleteNotification(notification.id);
-    toast({
-      title: 'Usunięto',
-      description: 'Powiadomienie zostało usunięte',
-    });
-  };
-
-  const handleMarkAllAsRead = () => {
-    markAllAsRead();
-    toast({
-      title: 'Oznaczono jako przeczytane',
-      description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
-    });
-  };
-  
+  // Retry fetching notifications
   const handleRetryFetch = () => {
     fetchNotifications();
     toast({
@@ -187,8 +405,8 @@ const AdminNotifications = () => {
     });
   };
 
-  // If not loaded yet or notifications are still loading, show loading state
-  if (!isLoaded || notificationsLoading) {
+  // If notifications are still loading, show loading state
+  if (loading) {
     return (
       <AdminLayout>
         <div className="p-6">
@@ -199,10 +417,8 @@ const AdminNotifications = () => {
     );
   }
   
-  // If we're loaded but user is not authenticated, redirect handled by useEffect
-
   // If there's an error loading notifications
-  if (notificationsError) {
+  if (error) {
     return (
       <AdminLayout>
         <div className="p-6">
@@ -211,7 +427,7 @@ const AdminNotifications = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Błąd</AlertTitle>
             <AlertDescription>
-              Nie udało się pobrać powiadomień.
+              {error}
               <div className="mt-2">
                 <Button 
                   variant="outline" 
@@ -249,7 +465,7 @@ const AdminNotifications = () => {
             </Button>
             <Button 
               variant="outline" 
-              onClick={handleMarkAllAsRead}
+              onClick={markAllAsRead}
               className="hover:bg-white hover:text-black"
             >
               Oznacz wszystkie jako przeczytane
@@ -303,7 +519,7 @@ const AdminNotifications = () => {
                     )}
                   </CardContent>
                   <CardFooter className="flex justify-end gap-2">
-                    {notification.status === 'pending' && (
+                    {notification.type === 'approval_request' && notification.status === 'unread' && (
                       <>
                         <Button 
                           variant="outline" 
@@ -340,7 +556,7 @@ const AdminNotifications = () => {
           </TabsContent>
 
           <TabsContent value="pending" className="space-y-4">
-            {notifications.filter(n => n.status === 'pending').length === 0 ? (
+            {notifications.filter(n => n.type === 'approval_request' && n.status === 'unread').length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
                   Brak oczekujących powiadomień
@@ -348,7 +564,7 @@ const AdminNotifications = () => {
               </Card>
             ) : (
               notifications
-                .filter(n => n.status === 'pending')
+                .filter(n => n.type === 'approval_request' && n.status === 'unread')
                 .map(notification => (
                   <Card 
                     key={notification.id}
@@ -446,7 +662,7 @@ const AdminNotifications = () => {
           </TabsContent>
 
           <TabsContent value="processed" className="space-y-4">
-            {notifications.filter(n => n.status === 'approved' || n.status === 'rejected').length === 0 ? (
+            {notifications.filter(n => n.status === 'read').length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
                   Brak przetworzonych powiadomień
@@ -454,11 +670,12 @@ const AdminNotifications = () => {
               </Card>
             ) : (
               notifications
-                .filter(n => n.status === 'approved' || n.status === 'rejected')
+                .filter(n => n.status === 'read')
                 .map(notification => (
                   <Card 
                     key={notification.id}
-                    className={notification.status === 'approved' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'}
+                    className={notification.type === 'approval_accepted' ? 'border-l-4 border-l-green-500' : 
+                              notification.type === 'approval_rejected' ? 'border-l-4 border-l-red-500' : ''}
                   >
                     <CardHeader className="pb-2">
                       <div className="flex justify-between">

@@ -2,7 +2,7 @@
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/utils/AuthProvider";
 import { Loader2, ShieldAlert } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -18,82 +18,83 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [accessDenied, setAccessDenied] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const redirected = useRef(false);
-  
-  console.log("RequireAuth render:", { 
-    user, 
-    loading, 
-    path: location.pathname, 
-    requiredRole,
-    pathname: location.pathname,
-    userRole
-  });
+  const [roleLoading, setRoleLoading] = useState(true);
   
   // Fetch user role from Supabase
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!user?.id) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) {
-          console.error("Error fetching user role:", error);
-          return;
-        }
-        
-        if (data && data.role) {
-          setUserRole(data.role);
-        }
-      } catch (err) {
-        console.error("Error in fetchUserRole:", err);
-      }
-    };
+  const fetchUserRole = useCallback(async () => {
+    if (!user?.id) return;
     
+    try {
+      setRoleLoading(true);
+      console.log("Fetching role for user:", user.id);
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+        
+      if (error) {
+        console.error("Error fetching user role:", error);
+        return;
+      }
+      
+      if (data && data.role) {
+        console.log("User role fetched:", data.role);
+        setUserRole(data.role);
+      }
+    } catch (err) {
+      console.error("Error in fetchUserRole:", err);
+    } finally {
+      setRoleLoading(false);
+    }
+  }, [user]);
+  
+  // Fetch user role when user changes
+  useEffect(() => {
     if (user) {
       fetchUserRole();
     }
-  }, [user]);
+  }, [user, fetchUserRole]);
   
   // Initialize auth check with a short timer to ensure auth state is loaded
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialized(true);
       console.log("Auth initialized, user:", user);
-      
-      // Check for role-based access if a role is required
-      if (user && requiredRole && userRole) {
-        // Check if the user has the required role or if they are an admin or administrator
-        const hasRequiredRole = 
-          userRole === requiredRole || 
-          userRole === 'admin' || 
-          userRole === 'administrator';
-          
-        if (!hasRequiredRole) {
-          console.log("Access denied, required role:", requiredRole, "user role:", userRole);
-          setAccessDenied(true);
-        }
-      }
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [user, requiredRole, userRole]);
+  }, [user]);
+  
+  // Check for role-based access once role is loaded
+  useEffect(() => {
+    if (user && requiredRole && userRole && !roleLoading) {
+      // Check if the user has the required role or if they are an admin or administrator
+      const hasRequiredRole = 
+        userRole === requiredRole || 
+        userRole === 'admin' || 
+        userRole === 'administrator';
+        
+      if (!hasRequiredRole) {
+        console.log("Access denied, required role:", requiredRole, "user role:", userRole);
+        setAccessDenied(true);
+      } else {
+        setAccessDenied(false);
+      }
+    }
+  }, [user, requiredRole, userRole, roleLoading]);
   
   // Handle redirect to admin if already authenticated and on login page
   useEffect(() => {
-    if (user && location.pathname === "/login" && isInitialized && !redirected.current) {
+    if (user && location.pathname === "/login" && isInitialized) {
       console.log("User is authenticated on login page, redirecting to /admin");
-      redirected.current = true;
       navigate("/admin", { replace: true });
     }
   }, [user, location.pathname, navigate, isInitialized]);
   
   // Show loading screen until we're sure about auth state
-  if (loading || !isInitialized) {
+  if (loading || !isInitialized || (user && roleLoading && requiredRole)) {
     return (
       <div className="flex items-center justify-center h-screen bg-premium-dark">
         <div className="text-center">
