@@ -13,7 +13,7 @@ const MobileMenuFooter: React.FC<MobileMenuFooterProps> = ({ onClose }) => {
   
   return (
     <Link to="/contact" className="mt-6" onClick={onClose}>
-      <Button className={`w-full ${theme === 'light' ? 'bg-black text-white hover:bg-black/80 hover:text-white' : 'bg-black text-white hover:bg-black/80 hover:text-white'}`}>
+      <Button className="w-full bg-gradient-to-r from-blue-500 to-pink-500 hover:from-blue-600 hover:to-pink-600 text-white hover:text-white">
         Umów spotkanie
       </Button>
     </Link>

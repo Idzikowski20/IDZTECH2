@@ -28,13 +28,19 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [handleScroll]);
+
+  // Fix for issue with menu toggling
+  const toggleMenu = (value: boolean) => {
+    console.log("Menu toggled:", value);
+    setIsMenuOpen(value);
+  };
   
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${
       isScrolled 
         ? theme === 'light'
-          ? 'py-3 backdrop-blur-md bg-white/80 shadow-lg'
-          : 'py-3 backdrop-blur-md bg-premium-dark/80 shadow-lg'
+          ? 'py-3 backdrop-blur-md bg-white/90 shadow-lg'
+          : 'py-3 backdrop-blur-md bg-premium-dark/90 shadow-lg'
         : 'py-5'
     }`}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
@@ -48,7 +54,7 @@ const Navbar = () => {
           <DesktopControls />
           
           {/* Mobile Menu Button */}
-          <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+          <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={toggleMenu} />
         </div>
       </div>
     </nav>

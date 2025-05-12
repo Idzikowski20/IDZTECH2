@@ -83,6 +83,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           variant="ghost" 
           size="icon" 
           className={`md:hidden ${theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-gray-800 hover:text-white'}`}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <Menu className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">Menu</span>
@@ -92,7 +93,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         <div className="px-6 py-8 flex flex-col h-full">
           <MobileMenuHeader onClose={handleNavigation} />
 
-          <ScrollArea className="flex-1 overflow-hidden pr-2">
+          <ScrollArea className="flex-1 overflow-y-auto pr-2">
             <nav className="flex flex-col space-y-2">
               <MobileNavigationItem 
                 to="/" 

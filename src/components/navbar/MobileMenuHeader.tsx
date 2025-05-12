@@ -27,7 +27,7 @@ const MobileMenuHeader: React.FC<MobileMenuHeaderProps> = ({ onClose }) => {
             toggleDarkMode();
             trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
           }} 
-          className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-gray-800 hover:text-white'}`}
+          className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-200 hover:text-black' : 'hover:bg-gray-700 hover:text-white'}`}
         >
           {theme === "light" ? <Moon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
           <span className="sr-only">Toggle theme</span>
@@ -37,7 +37,7 @@ const MobileMenuHeader: React.FC<MobileMenuHeaderProps> = ({ onClose }) => {
           <Button 
             variant="ghost" 
             size="icon" 
-            className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-gray-800 hover:text-white'}`}
+            className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-200 hover:text-black' : 'hover:bg-gray-700 hover:text-white'}`}
           >
             <LogIn className="h-[1.2rem] w-[1.2rem]" />
             <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
