@@ -367,4 +367,4 @@ export const useAuth = create<AuthStore>()(
 );
 
 // Export the User type for other components to use
-export { User } from './authTypes';
+export type { User } from './authTypes';
