@@ -25,10 +25,13 @@ const NotificationBell: React.FC = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'success':
+      case 'approval_accepted':
         return <div className="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-1"></div>;
       case 'error':
+      case 'approval_rejected':
         return <div className="flex-shrink-0 w-2 h-2 bg-red-500 rounded-full mt-1"></div>;
       case 'warning':
+      case 'approval_request':
         return <div className="flex-shrink-0 w-2 h-2 bg-amber-500 rounded-full mt-1"></div>;
       default:
         return <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1"></div>;
@@ -36,15 +39,20 @@ const NotificationBell: React.FC = () => {
   };
 
   const formatNotificationDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-    
-    if (diffInHours < 24) {
-      return formatDistanceToNow(date, { addSuffix: true, locale: pl });
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
+      
+      if (diffInHours < 24) {
+        return formatDistanceToNow(date, { addSuffix: true, locale: pl });
+      }
+      
+      return format(date, 'dd.MM.yyyy, HH:mm', { locale: pl });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Data nieznana";
     }
-    
-    return format(date, 'dd.MM.yyyy, HH:mm', { locale: pl });
   };
 
   return (

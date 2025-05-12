@@ -11,7 +11,11 @@ export type NotificationType =
   | 'approval_accepted'
   | 'approval_rejected'
   | 'comment_added'
-  | 'like_added';
+  | 'like_added'
+  | 'info'
+  | 'error'
+  | 'success'
+  | 'warning';
 
 export type NotificationStatus = 'pending' | 'approved' | 'rejected' | 'unread' | 'read';
 
@@ -187,6 +191,51 @@ export const notifyPostCreated = (userId: string, userName: string, postId: stri
     type: 'post_created',
     title: 'Nowy post został utworzony',
     message: `Użytkownik ${userName} utworzył nowy post "${postTitle}"`,
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post',
+  });
+};
+
+// For backward compatibility with the other notification file
+export type CommentNotificationType = 'comment' | 'like' | 'info' | 'error' | 'success' | 'warning';
+
+export interface LegacyNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: CommentNotificationType;
+  timestamp: Date;
+  read: boolean;
+  data?: {
+    postId?: string;
+    postTitle?: string;
+    commentId?: string;
+    userId?: string;
+    userName?: string;
+  };
+}
+
+// Helper for adding a comment notification
+export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
+  return useNotifications.getState().addNotification({
+    type: 'comment_added',
+    title: 'Nowy komentarz',
+    message: `${userName} dodał komentarz do "${postTitle}"`,
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post',
+  });
+};
+
+// Helper for adding a like notification
+export const addLikeNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
+  return useNotifications.getState().addNotification({
+    type: 'like_added',
+    title: 'Nowe polubienie',
+    message: `${userName} polubił "${postTitle}"`,
     fromUserId: userId,
     fromUserName: userName,
     targetId: postId,

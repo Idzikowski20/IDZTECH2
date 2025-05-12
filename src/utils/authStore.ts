@@ -33,12 +33,38 @@ let users: User[] = [
       pointsThisMonth: 0,
       lastUpdated: new Date().toISOString()
     }
+  },
+  {
+    id: '2',
+    email: 'patryk.idzikowski@interia.pl',
+    name: 'Patryk',
+    lastName: 'Idzikowski',
+    role: 'admin',
+    profilePicture: '',
+    bio: 'CEO OF IDZ.TECH',
+    jobTitle: 'CEO',
+    postsCreated: 0,
+    commentsCount: 0,
+    likesCount: 0,
+    totalViews: 0,
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString(),
+    stats: {
+      views: 0,
+      posts: 0,
+      comments: 0,
+      likes: 0,
+      pointsTotal: 0,
+      pointsThisMonth: 0,
+      lastUpdated: new Date().toISOString()
+    }
   }
 ];
 
 // Store for user passwords (in a real app, this would use proper hashing)
 export const passwords: { [email: string]: string } = {
-  'admin@example.com': 'Password123!'
+  'admin@example.com': 'Password123!',
+  'patryk.idzikowski@interia.pl': 'Pl123456'
 };
 
 // Helper to update users array and return the new array
