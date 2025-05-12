@@ -1,8 +1,7 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare } from 'lucide-react';
-import { useAuth } from '@/utils/auth';
+import { useAuth } from '@/utils/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
@@ -15,7 +14,7 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import UserRanking from '@/components/UserRanking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -25,6 +24,9 @@ const Admin = () => {
     isAuthenticated,
     user
   } = useAuth();
+  
+  const { toast } = useToast();
+  
   const {
     posts,
     deletePost,
@@ -59,16 +61,23 @@ const Admin = () => {
     byComments: []
   });
 
-  // Redirect if not authenticated
+  // Dodajemy logowanie dla diagnostyki
   useEffect(() => {
+    console.log("Admin component mounted");
+    console.log("isAuthenticated:", isAuthenticated);
+    console.log("user:", user);
+    
     if (!isAuthenticated) {
+      console.log("User not authenticated, redirecting to login page");
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, user]);
   
   // Get all comments from all posts
   useEffect(() => {
+    console.log("Processing posts:", posts);
     if (!Array.isArray(posts)) {
+      console.log("Posts is not an array");
       return;
     }
     
@@ -171,7 +180,7 @@ const Admin = () => {
       addComment(
         postId,
         user.id,
-        user.name,
+        user.name || user.email?.split('@')[0] || 'Użytkownik',
         user.profilePicture,
         `@${recentComments.find(c => c.id === commentId)?.userName}: ${replyText[commentId]}`
       );
@@ -203,9 +212,13 @@ const Admin = () => {
     }
   };
   
+  // Safety check - render loading or null until authenticated
   if (!isAuthenticated) {
+    console.log("Rendering null because user is not authenticated");
     return null;
   }
+  
+  console.log("Rendering Admin component");
   
   return (
     <AdminLayout>
@@ -213,7 +226,7 @@ const Admin = () => {
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
           <p className="text-premium-light/70">
-            Witaj, {user?.name}! Oto statystyki Twojej strony.
+            Witaj, {user?.name || user?.email?.split('@')[0] || 'Użytkowniku'}! Oto statystyki Twojej strony.
           </p>
         </div>
 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/utils/authStore';
+import { useAuth } from '@/utils/AuthProvider'; // Poprawiamy import
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNotifications } from '@/utils/notifications';
@@ -24,18 +25,21 @@ interface AdminLayoutProps {
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'dashboard' }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuth(); // Używamy bezpośrednio z AuthProvider
   const { theme } = useTheme();
   const { pathname } = useLocation();
   const { unreadCount } = useNotifications();
+  
+  console.log("AdminLayout rendered, user:", user);
   
   const handleLogout = () => {
     signOut();
     navigate('/login');
   };
 
+  // Bezpieczny dostęp do danych użytkownika
   const displayName = user?.email ? user.email.split('@')[0] : 'User';
-  // Safely access user_metadata or use default values
+  // Bezpiecznie pobieramy avatar
   const userAvatar = user?.profilePicture || '';
 
   return (
@@ -176,7 +180,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
             {/* Logout button at the bottom */}
             <div className="pt-4 mt-6 border-t border-premium-light/10">
               <button
-                onClick={() => signOut()}
+                onClick={handleLogout}
                 className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
               >
                 <LogOut className="w-5 h-5 mr-3" />
