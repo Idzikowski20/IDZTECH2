@@ -32,8 +32,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
   const { toast } = useToast();
-  // Using a valid test Formspree endpoint (verified working)
-  const [formspreeState, sendToFormspree] = useFormspree("mknrkjoz");
+  // Updated to use the new Formspree endpoint from the image
+  const [formspreeState, sendToFormspree] = useFormspree("mrbqyaee");
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
