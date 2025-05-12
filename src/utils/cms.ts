@@ -1,140 +1,210 @@
 
-import { supabase } from './supabaseClient';
+import { supabase } from "@/integrations/supabase/client";
 
-// Types for CMS content
+// Define proper types for CMS data
 export interface CMSContent {
-  id: string;
-  page_id: string;
-  section_id: string;
-  content_type: 'text' | 'html' | 'image' | 'video';
+  id?: string;
+  title: string;
   content: string;
-  created_at: string;
-  updated_at: string;
+  page_slug: string;
+  section_id: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CMSPage {
-  id: string;
-  title: string;
+  id?: string;
   slug: string;
-  meta_description: string;
-  meta_keywords: string;
-  status: 'published' | 'draft';
-  created_at: string;
-  updated_at: string;
+  title: string;
+  description?: string;
+  is_published?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
-// Functions to get CMS content
-export const getCMSContent = async (pageId: string, sectionId: string): Promise<CMSContent | null> => {
-  try {
-    const { data, error } = await supabase
-      .from('cms_content')
-      .select('*')
-      .eq('page_id', pageId)
-      .eq('section_id', sectionId)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching CMS content:', error);
-      return null;
-    }
-    
-    return data as CMSContent;
-  } catch (error) {
-    console.error('Error in getCMSContent:', error);
-    return null;
-  }
-};
+// Function to fetch all CMS content
+export async function getAllContent() {
+  const { data, error } = await supabase
+    .from("cms_content")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-// Function to get all pages
-export const getCMSPages = async (): Promise<CMSPage[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('cms_pages')
-      .select('*')
-      .order('updated_at', { ascending: false });
-    
-    if (error) {
-      console.error('Error fetching CMS pages:', error);
-      return [];
-    }
-    
-    return data as CMSPage[];
-  } catch (error) {
-    console.error('Error in getCMSPages:', error);
-    return [];
+  if (error) {
+    console.error("Error fetching CMS content:", error);
+    throw error;
   }
-};
 
-// Function to update CMS content (for admins/moderators)
-export const updateCMSContent = async (
-  content: Partial<CMSContent> & { page_id: string, section_id: string }
-): Promise<boolean> => {
-  try {
-    // Check if content exists
-    const { data: existingContent } = await supabase
-      .from('cms_content')
-      .select('id')
-      .eq('page_id', content.page_id)
-      .eq('section_id', content.section_id)
-      .single();
-    
-    let result;
-    
-    if (existingContent) {
-      // Update existing content
-      result = await supabase
-        .from('cms_content')
-        .update({
-          content: content.content,
-          content_type: content.content_type,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingContent.id);
-    } else {
-      // Insert new content
-      result = await supabase
-        .from('cms_content')
-        .insert({
-          page_id: content.page_id,
-          section_id: content.section_id,
-          content: content.content || '',
-          content_type: content.content_type || 'text',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-    }
-    
-    if (result.error) {
-      console.error('Error updating CMS content:', result.error);
-      return false;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Error in updateCMSContent:', error);
-    return false;
-  }
-};
+  return data as CMSContent[];
+}
 
-// Function to check if user is admin/moderator
-export const isUserAdmin = async (userId: string): Promise<boolean> => {
-  if (!userId) return false;
-  
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .in('role', ['admin', 'moderator'])
-      .single();
-    
-    if (error || !data) {
-      return false;
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Error checking user roles:', error);
-    return false;
+// Get content by page slug
+export async function getContentByPage(pageSlug: string) {
+  const { data, error } = await supabase
+    .from("cms_content")
+    .select("*")
+    .eq("page_slug", pageSlug);
+
+  if (error) {
+    console.error(`Error fetching content for page ${pageSlug}:`, error);
+    throw error;
   }
-};
+
+  return data as CMSContent[];
+}
+
+// Get specific content by ID
+export async function getContentById(id: string) {
+  const { data, error } = await supabase
+    .from("cms_content")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(`Error fetching content with ID ${id}:`, error);
+    throw error;
+  }
+
+  return data as CMSContent;
+}
+
+// Save or update CMS content
+export async function saveContent(content: CMSContent) {
+  let operation;
+
+  if (content.id) {
+    // Update existing content
+    operation = supabase
+      .from("cms_content")
+      .update({
+        title: content.title,
+        content: content.content,
+        page_slug: content.page_slug,
+        section_id: content.section_id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", content.id);
+  } else {
+    // Insert new content
+    operation = supabase.from("cms_content").insert([
+      {
+        title: content.title,
+        content: content.content,
+        page_slug: content.page_slug,
+        section_id: content.section_id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ]);
+  }
+
+  const { data, error } = await operation;
+
+  if (error) {
+    console.error("Error saving CMS content:", error);
+    throw error;
+  }
+
+  return data;
+}
+
+// Delete CMS content
+export async function deleteContent(id: string) {
+  const { data, error } = await supabase
+    .from("cms_content")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(`Error deleting content with ID ${id}:`, error);
+    throw error;
+  }
+
+  return data;
+}
+
+// Get all pages
+export async function getAllPages() {
+  const { data, error } = await supabase
+    .from("cms_pages")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching CMS pages:", error);
+    throw error;
+  }
+
+  return data as CMSPage[];
+}
+
+// Get page by slug
+export async function getPageBySlug(slug: string) {
+  const { data, error } = await supabase
+    .from("cms_pages")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which we might expect
+    console.error(`Error fetching page with slug ${slug}:`, error);
+    throw error;
+  }
+
+  return data as CMSPage | null;
+}
+
+// Save or update CMS page
+export async function savePage(page: CMSPage) {
+  let operation;
+
+  if (page.id) {
+    // Update existing page
+    operation = supabase
+      .from("cms_pages")
+      .update({
+        title: page.title,
+        slug: page.slug,
+        description: page.description,
+        is_published: page.is_published,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", page.id);
+  } else {
+    // Insert new page
+    operation = supabase.from("cms_pages").insert([
+      {
+        title: page.title,
+        slug: page.slug,
+        description: page.description,
+        is_published: page.is_published !== undefined ? page.is_published : true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ]);
+  }
+
+  const { data, error } = await operation;
+
+  if (error) {
+    console.error("Error saving CMS page:", error);
+    throw error;
+  }
+
+  return data;
+}
+
+// Delete CMS page
+export async function deletePage(id: string) {
+  const { data, error } = await supabase
+    .from("cms_pages")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(`Error deleting page with ID ${id}:`, error);
+    throw error;
+  }
+
+  return data;
+}
