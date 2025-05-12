@@ -17,7 +17,7 @@ const DesktopNavigation = () => {
   const location = useLocation();
   
   const linkClass = cn(
-    "transition-transform duration-300 hover:scale-110 px-4 py-2 rounded-md relative",
+    "transition-colors duration-300 px-4 py-2 rounded-md relative",
     "after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue",
     theme === 'light' ? 'text-black hover:text-black' : 'text-white hover:text-white'
   );
@@ -41,7 +41,7 @@ const DesktopNavigation = () => {
           
           <NavigationMenuItem>
             <NavigationMenuTrigger 
-              className={`transition-transform duration-300 hover:scale-110 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue ${theme === 'light' ? 'text-black hover:bg-transparent hover:text-black' : 'text-white hover:bg-transparent hover:text-white'}`}
+              className={`transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:bg-premium-blue ${theme === 'light' ? 'text-black hover:bg-transparent hover:text-black' : 'text-white hover:bg-transparent hover:text-white'}`}
             >
               Usługi
             </NavigationMenuTrigger>
