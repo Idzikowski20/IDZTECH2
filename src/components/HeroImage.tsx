@@ -7,7 +7,7 @@ const HeroImage = () => {
   useEffect(() => {
     // Preload image
     const img = new Image();
-    img.src = "src/components/images/hero.gif";
+    img.src = "components/images/hero.gif";
     img.onload = () => setIsLoaded(true);
     
     return () => {
@@ -21,7 +21,7 @@ const HeroImage = () => {
         <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
       )}
       <img 
-        src="src/components/images/hero.gif" 
+        src="components/images/hero.gif" 
         alt="Tworzenie Stron Internetowych" 
         className={`w-full h-full object-contain ${isLoaded ? 'animate-float' : 'opacity-0'}`}
         loading="lazy"
