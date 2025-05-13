@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
   build: {
     // Optimize build size
@@ -30,12 +31,12 @@ export default defineConfig(({ mode }) => ({
         drop_debugger: true,
       }
     },
-    // Split chunks for better caching
+    // Split chunks for better caching, but don't chunk ui components as a directory
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@/components/ui']
+          vendor: ['react', 'react-dom', 'react-router-dom']
+          // Removed the problematic ui chunk that was referencing the directory
         }
       }
     },
