@@ -3,8 +3,18 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '@/utils/themeContext';
 
 const LightEffects: React.FC = () => {
-  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  
+  // Safely use the theme context with a fallback
+  let theme;
+  try {
+    const themeContext = useTheme();
+    theme = themeContext.theme;
+  } catch (error) {
+    // Fallback to dark theme if context is not available
+    theme = 'dark';
+    console.warn('ThemeContext not available for LightEffects, using dark theme as fallback');
+  }
 
   useEffect(() => {
     setMounted(true);
