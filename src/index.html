@@ -41,7 +41,6 @@
         align-items: center;
         background-color: var(--background);
         z-index: 9999;
-        transition: opacity 0.5s ease;
       }
 
       @keyframes spin {
@@ -60,7 +59,7 @@
       }
     </style>
 
-    <!-- CSS projektu -->
+    <!-- Poprawiona ścieżka do CSS -->
     <link rel="stylesheet" href="/index.css" />
 
     <!-- Preconnecty -->
@@ -71,56 +70,31 @@
 
     <!-- Usercentrics -->
     <script src="https://web.cmp.usercentrics.eu/modules/autoblocker.js"></script>
-    <script
-      id="usercentrics-cmp"
-      src="https://web.cmp.usercentrics.eu/ui/loader.js"
-      data-settings-id="EhcLcx48nZnCDw"
-      async
-    ></script>
+    <script id="usercentrics-cmp" src="https://web.cmp.usercentrics.eu/ui/loader.js" data-settings-id="EhcLcx48nZnCDw" async></script>
 
     <!-- Meta dane -->
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <title>IDZ.TECH - Tworzymy najlepsze strony internetowe</title>
-    <meta
-      name="description"
-      content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO."
-    />
+    <meta name="description" content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta name="author" content="IDZ.TECH" />
 
     <!-- OpenGraph i Twitter -->
-    <meta
-      property="og:title"
-      content="IDZ.TECH - Tworzymy najlepsze strony internetowe"
-    />
-    <meta
-      property="og:description"
-      content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO."
-    />
+    <meta property="og:title" content="IDZ.TECH - Tworzymy najlepsze strony internetowe" />
+    <meta property="og:description" content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:image"
-      content="https://lovable.dev/opengraph-image-p98pqg.png"
-    />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
-    <meta
-      name="twitter:image"
-      content="https://lovable.dev/opengraph-image-p98pqg.png"
-    />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
   </head>
 
   <body>
     <div id="root"></div>
-
-    <!-- Ekran ładowania -->
     <div class="loading-container" id="loading-screen">
       <div class="loading-spinner"></div>
     </div>
@@ -129,15 +103,17 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      window.addEventListener("load", function () {
-        const loadingScreen = document.getElementById("loading-screen");
-        if (loadingScreen) {
-          loadingScreen.style.opacity = "0";
-          loadingScreen.style.transition = "opacity 0.5s ease";
-          setTimeout(function () {
-            loadingScreen.remove();
-          }, 500);
-        }
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          const loadingScreen = document.getElementById('loading-screen');
+          if (loadingScreen) {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s';
+            setTimeout(function () {
+              loadingScreen.remove();
+            }, 500);
+          }
+        }, 300);
       });
     </script>
   </body>
