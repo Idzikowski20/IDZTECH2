@@ -73,7 +73,7 @@ const Hero = () => {
           <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <div className="relative">
               <img 
-                src="/lovable-uploads/af7b17cd-510f-468f-a8b1-5b0c5be88c9f.png" 
+                src="src/components/images/hero.gif" 
                 alt="Tworzenie Stron Internetowych" 
                 className="w-full h-full object-contain animate-float"
               />
