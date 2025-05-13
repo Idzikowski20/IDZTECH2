@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from "@/components/ui/toaster";
 
 import './App.css';
 import Navbar from './components/Navbar';
@@ -65,7 +64,7 @@ function App() {
           </Routes>
           <Footer />
         </Router>
-        <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+        <Toaster />
       </SanityAuthProvider>
     </>
   );

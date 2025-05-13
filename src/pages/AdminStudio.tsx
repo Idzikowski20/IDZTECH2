@@ -1,10 +1,14 @@
 
 import React from 'react';
-import { NextStudio } from 'next-sanity/studio';
+import { Studio } from 'sanity';
 import config from '../sanity.config';
 
 const AdminStudio = () => {
-  return <NextStudio config={config} />;
+  return (
+    <div className="h-screen">
+      <Studio config={config} />
+    </div>
+  );
 };
 
 export default AdminStudio;

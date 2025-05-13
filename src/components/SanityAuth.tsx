@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSanityAuth } from '@/utils/SanityAuthProvider';
@@ -5,7 +6,6 @@ import { loginWithSanity, registerUser } from '@/utils/authSanity';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Z_INDEX_OFFSET } from 'sanity';
 
 type AuthMode = 'login' | 'register';
 
