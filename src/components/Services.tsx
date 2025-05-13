@@ -80,7 +80,7 @@ const Services = () => {
               >
                 <Button 
                   variant="ghost" 
-                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-premium-purple hover:bg-transparent' : 'text-premium-light hover:text-premium-purple hover:bg-transparent'}`}
+                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-black hover:bg-white' : 'text-premium-light hover:text-black hover:bg-white'}`}
                 >
                   <span className="flex items-center">
                     Dowiedz się więcej

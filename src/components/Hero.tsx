@@ -74,11 +74,7 @@ const Hero = () => {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Szybkie strony</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Najlepsza wydajność</span>
+                <span>Szybka wydajność</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
@@ -86,7 +82,7 @@ const Hero = () => {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Optymalizacja pod SEO</span>
+                <span>Wysokie SEO</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
@@ -100,11 +96,15 @@ const Hero = () => {
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
                 <span>Strona nawet do 3 dni</span>
               </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>CMS</span>
+              </div>
             </div>
           </div>
           
-          {/* Hero image on the right - adjusted width ratio and container height */}
-          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0 h-[600px] flex items-center justify-center" 
+          {/* Hero image on the right - adjusted height */}
+          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0 h-[500px] md:h-[480px] flex items-center justify-center" 
                style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <HeroImage />
           </div>
