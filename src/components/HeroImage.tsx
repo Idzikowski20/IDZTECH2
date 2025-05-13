@@ -17,12 +17,17 @@ const HeroImage = () => {
         </div>
       )}
       <div 
-        className={`w-full h-full max-h-[450px] transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        className={`w-full h-full transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        style={{ minHeight: '300px', height: '100%' }}
       >
         <Spline 
           scene="https://prod.spline.design/lrZX-sT7To1QdbSz/scene.splinecode" 
           onLoad={handleSplineLoad}
-          style={{ width: '100%', height: '100%' }}
+          style={{ 
+            width: '100%', 
+            height: '100%',
+            maxHeight: '500px'
+          }}
         />
       </div>
     </div>
