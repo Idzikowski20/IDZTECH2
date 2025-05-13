@@ -48,7 +48,10 @@ const DesktopControls: React.FC<DesktopControlsProps> = ({ scrolled }) => {
       
       <Link to="/contact">
         <Button 
-          className={`${theme === 'light' ? 'bg-black text-white hover:bg-black hover:text-white' : 'bg-black text-white hover:bg-white hover:text-black'} transition-colors duration-300`}
+          className={`${theme === 'light' 
+            ? 'bg-black text-white hover:bg-black hover:text-white' 
+            : 'bg-white text-black hover:bg-white hover:text-black'} 
+            transition-transform duration-300 hover:scale-110`}
         >
           Umów spotkanie
         </Button>

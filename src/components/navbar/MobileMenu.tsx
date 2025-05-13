@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -80,7 +81,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen, scro
                   toggleDarkMode();
                   trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
                 }} 
-                className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-white' : 'hover:bg-white/10 hover:text-black'}`}
+                className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
               >
                 {theme === "light" ? 
                   <Moon className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} /> : 
@@ -97,7 +98,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen, scro
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-white' : 'hover:bg-white/10 hover:text-black'}`}
+                  className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
                 >
                   <LogIn className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
                   <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
@@ -215,7 +216,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen, scro
             // Ensure scrolling is restored
             document.body.style.overflow = '';
           }}>
-            <Button className={`w-full ${theme === 'light' ? 'bg-black' : 'bg-black'} ${theme === 'light' ? 'text-white' : 'text-white'} hover:bg-black hover:text-white`}>
+            <Button className={`w-full transition-transform duration-300 hover:scale-110 ${theme === 'light' ? 'bg-black text-white' : 'bg-white text-black'}`}>
               Umów spotkanie
             </Button>
           </Link>
