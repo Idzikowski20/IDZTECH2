@@ -1,144 +1,39 @@
+
 <!DOCTYPE html>
 <html lang="pl">
   <head>
-    <!-- Ustawienia kolorów i wyglądu -->
-    <style>
-      :root {
-        --background: #ffffff;
-        --foreground: #000000;
-        --primary: #8a4bff;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --background: #121212;
-          --foreground: #ffffff;
-        }
-      }
-
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, sans-serif;
-        background-color: var(--background);
-        color: var(--foreground);
-      }
-
-      #root {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .loading-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: var(--background);
-        z-index: 9999;
-        transition: opacity 0.5s ease;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(138, 75, 255, 0.2);
-        border-radius: 50%;
-        border-top-color: var(--primary);
-        animation: spin 1s linear infinite;
-      }
-    </style>
-
-    <!-- CSS projektu -->
-    <link rel="stylesheet" href="/index.css" />
-
-    <!-- Preconnecty -->
+    <!-- Preconnect to required origins -->
     <link rel="preconnect" href="https://supabase.co" crossorigin>
     <link rel="preconnect" href="https://web.cmp.usercentrics.eu" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Usercentrics -->
+    
+    <!-- Load critical resources first -->
     <script src="https://web.cmp.usercentrics.eu/modules/autoblocker.js"></script>
-    <script
-      id="usercentrics-cmp"
-      src="https://web.cmp.usercentrics.eu/ui/loader.js"
-      data-settings-id="EhcLcx48nZnCDw"
-      async
-    ></script>
-
-    <!-- Meta dane -->
+    <script id="usercentrics-cmp" src="https://web.cmp.usercentrics.eu/ui/loader.js" data-settings-id="EhcLcx48nZnCDw" async></script>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <title>IDZ.TECH - Tworzymy najlepsze strony internetowe</title>
-    <meta
-      name="description"
-      content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO."
-    />
+    <meta name="description" content="Tworzymy najlepsze strony internetowe,aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta name="author" content="IDZ.TECH" />
 
-    <!-- OpenGraph i Twitter -->
-    <meta
-      property="og:title"
-      content="IDZ.TECH - Tworzymy najlepsze strony internetowe"
-    />
-    <meta
-      property="og:description"
-      content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO."
-    />
+    <meta property="og:title" content="IDZ.TECH - Tworzymy najlepsze strony internetowe" />
+    <meta property="og:description" content="Tworzymy najlepsze strony internetowe,aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:image"
-      content="https://lovable.dev/opengraph-image-p98pqg.png"
-    />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
-    <meta
-      name="twitter:image"
-      content="https://lovable.dev/opengraph-image-p98pqg.png"
-    />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
   </head>
 
   <body>
     <div id="root"></div>
-
-    <!-- Ekran ładowania -->
-    <div class="loading-container" id="loading-screen">
-      <div class="loading-spinner"></div>
-    </div>
-
-    <!-- Skrypty -->
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      window.addEventListener("load", function () {
-        const loadingScreen = document.getElementById("loading-screen");
-        if (loadingScreen) {
-          loadingScreen.style.opacity = "0";
-          loadingScreen.style.transition = "opacity 0.5s ease";
-          setTimeout(function () {
-            loadingScreen.remove();
-          }, 500);
-        }
-      });
-    </script>
   </body>
 </html>

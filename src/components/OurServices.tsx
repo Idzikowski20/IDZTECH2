@@ -74,7 +74,7 @@ const OurServices = () => {
             <div 
               key={index}
               className={`${theme === 'light' ? 'bg-white shadow-md border border-gray-100' : 'bg-premium-dark/40'} 
-                rounded-xl p-6 flex flex-col transition-all duration-300`}
+                rounded-xl p-6 flex flex-col transition-all duration-300 hover:scale-105`}
             >
               <div className="mb-4 flex justify-start">
                 {service.icon}
@@ -85,7 +85,7 @@ const OurServices = () => {
               </p>
               <Link 
                 to={service.link} 
-                className="inline-flex items-center text-premium-purple hover:text-black dark:hover:text-white dark:hover:bg-premium-light/5"
+                className="inline-flex items-center text-premium-purple hover:text-white hover:bg-premium-light/5"
               >
                 <span>Dowiedz się więcej</span>
                 <ArrowRight className="ml-2 h-4 w-4" />

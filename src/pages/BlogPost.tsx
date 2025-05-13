@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
@@ -142,6 +141,7 @@ const BlogPost = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
             <div className="flex items-center mb-4">
+              {/* Używamy avatara z profilem z Supabase */}
               <Avatar className="h-10 w-10 border">
                 <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
                 <AvatarFallback className="bg-premium-gradient text-white">
@@ -176,11 +176,7 @@ const BlogPost = () => {
       <section className="pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
-            {/* Enhanced HTML rendering with proper styling */}
-            <div 
-              dangerouslySetInnerHTML={{ __html: post.content }} 
-              className="blog-content"
-            />
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
           
           <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
