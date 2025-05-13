@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
+import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search, Home, Shield, Loader2 } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
@@ -45,6 +46,7 @@ const Admin = () => {
     deleteComment
   } = useBlogStore();
   
+  const [loading, setLoading] = useState(false);
   const [analytics, setAnalytics] = useState({
     totalVisits: 0,
     uniqueVisitors: 0,

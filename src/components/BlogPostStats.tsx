@@ -1,11 +1,10 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+  DialogTitle
 } from "@/components/ui/dialog";
 import { 
   BarChart,
@@ -16,22 +15,87 @@ import {
   User,
   Clock
 } from "lucide-react";
-import { BlogPost } from '@/utils/blog';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 
 interface BlogPostStatsProps {
-  post: BlogPost;
+  post?: any;
+  postId?: string; 
+  postTitle?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const BlogPostStats: React.FC<BlogPostStatsProps> = ({ post }) => {
+const BlogPostStats: React.FC<BlogPostStatsProps> = ({ post, postId, postTitle, isOpen, onClose }) => {
+  const [postData, setPostData] = useState<any>(post);
+  const [open, setOpen] = useState(isOpen || false);
+
+  // Fetch post data if postId is provided but no post object
+  useEffect(() => {
+    async function fetchPostData() {
+      if (postId && !post) {
+        try {
+          const { data, error } = await supabase
+            .from('blog_posts')
+            .select('*')
+            .eq('id', postId)
+            .single();
+            
+          if (error) throw error;
+          if (data) setPostData(data);
+        } catch (error) {
+          console.error('Error fetching post data:', error);
+        }
+      }
+    }
+    
+    fetchPostData();
+  }, [postId, post]);
+
+  useEffect(() => {
+    setOpen(isOpen || false);
+  }, [isOpen]);
+  
+  const handleOpenChange = (newOpenState: boolean) => {
+    setOpen(newOpenState);
+    if (!newOpenState && onClose) {
+      onClose();
+    }
+  };
+  
+  // If we don't have post data yet, show loading or return null
+  if (!postData && !post) {
+    if (open) {
+      return (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Loading post statistics...</DialogTitle>
+            </DialogHeader>
+            <div className="flex justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-premium-purple"></div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
+    }
+    return null;
+  }
+  
+  const displayPost = postData || post;
+  const title = displayPost?.title || postTitle || 'Post';
+  
   // Calculate stats
-  const commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
-  const likesCount = Array.isArray(post.likes) ? post.likes.length : 0;
-  const viewsPerDay = post.views / (Math.max(1, Math.ceil((new Date().getTime() - new Date(post.date).getTime()) / (1000 * 60 * 60 * 24))));
-  const engagementRate = post.views > 0 ? ((commentCount + likesCount) / post.views) * 100 : 0;
+  const commentCount = Array.isArray(displayPost?.comments) ? displayPost.comments.length : 0;
+  const likesCount = Array.isArray(displayPost?.likes) ? displayPost.likes.length : 0;
+  const views = displayPost?.views || 0;
+  const dateStr = displayPost?.created_at || displayPost?.date || new Date().toISOString();
+  const postDate = new Date(dateStr);
+  const viewsPerDay = views / (Math.max(1, Math.ceil((new Date().getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24))));
+  const engagementRate = views > 0 ? ((commentCount + likesCount) / views) * 100 : 0;
   
   // Format creation date
-  const formattedDate = new Date(post.date).toLocaleDateString('pl-PL', {
+  const formattedDate = postDate.toLocaleDateString('pl-PL', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -40,22 +104,27 @@ const BlogPostStats: React.FC<BlogPostStatsProps> = ({ post }) => {
   });
 
   // Calculate days since publication
-  const daysSincePublication = Math.ceil((new Date().getTime() - new Date(post.date).getTime()) / (1000 * 60 * 60 * 24));
+  const daysSincePublication = Math.ceil((new Date().getTime() - postDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  // If this is a button trigger version, return dialog with button trigger
+  if (!isOpen && !open) {
+    return (
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={() => setOpen(true)} 
+        className="bg-transparent text-blue-400 hover:text-white hover:bg-blue-500 transition-colors border-none"
+      >
+        <BarChart className="h-4 w-4" />
+      </Button>
+    );
+  }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="bg-transparent text-blue-400 hover:text-white hover:bg-blue-500 transition-colors border-none"
-        >
-          <BarChart className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-xl mb-4">Statystyki postu: {post.title}</DialogTitle>
+          <DialogTitle className="text-xl mb-4">Statystyki postu: {title}</DialogTitle>
         </DialogHeader>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -65,7 +134,7 @@ const BlogPostStats: React.FC<BlogPostStatsProps> = ({ post }) => {
             </div>
             <div>
               <p className="text-sm text-gray-400">Wyświetlenia</p>
-              <p className="text-xl font-semibold">{post.views}</p>
+              <p className="text-xl font-semibold">{views}</p>
             </div>
           </div>
           
@@ -135,13 +204,13 @@ const BlogPostStats: React.FC<BlogPostStatsProps> = ({ post }) => {
           <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 mt-4">
             <h4 className="text-sm font-medium mb-3">Statystyki kategorii</h4>
             <div className="space-y-2">
-              {post.categories && post.categories.map((category, index) => (
+              {displayPost?.categories && displayPost.categories.map((category: string, index: number) => (
                 <div key={index} className="flex justify-between">
                   <span>{category}</span>
                   <span className="text-gray-400">#{index + 1}</span>
                 </div>
               ))}
-              {(!post.categories || post.categories.length === 0) && (
+              {(!displayPost?.categories || displayPost.categories.length === 0) && (
                 <p className="text-gray-400 italic">Brak kategorii</p>
               )}
             </div>

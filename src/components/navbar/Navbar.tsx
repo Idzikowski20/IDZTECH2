@@ -1,158 +1,138 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X, Bell, User, LogOut, Settings, Lock } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
-import { useTheme } from '@/utils/themeContext';
-import MobileMenu from './MobileMenu';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Brand from './Brand';
 import DesktopNavigation from './DesktopNavigation';
 import DesktopControls from './DesktopControls';
-import Brand from './Brand';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useNotifications } from '@/utils/notifications';
+import MobileMenu from './MobileMenu';
 import NotificationBell from '../NotificationBell';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
+import { useSupabaseNotifications } from '@/hooks/useSupabaseNotifications';
 
 const Navbar = () => {
-  const { user, signOut } = useAuth();
-  const { theme } = useTheme();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const { unreadCount } = useNotifications();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const location = useLocation();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+  const { notificationCount } = useSupabaseNotifications();
 
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  useEffect(() => {
-    // Close mobile menu when route changes
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  const handleLogout = () => {
-    signOut();
-    navigate('/login');
+  // Function to handle sign out
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  // Determine if we're on the admin page to show a different navbar style
-  const isAdminPage = location.pathname.startsWith('/admin');
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
   
-  // Safely access user data
-  const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
-  const fullName = user?.lastName ? `${displayName} ${user.lastName}` : displayName;
-  const userRole = user?.role || 'user';
-  const userAvatar = user?.profilePicture || '';
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.name) return 'U';
+    return user.name.charAt(0).toUpperCase();
+  };
 
-  // Admin navbar has a different style
-  if (isAdminPage) {
-    return (
-      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
-        {/* Light effects */}
-        <div className="absolute top-3 left-10 w-16 h-16 bg-premium-purple/40 rounded-full blur-[40px] animate-pulse-slow"></div>
-        <div className="absolute top-2 right-20 w-16 h-16 bg-premium-blue/40 rounded-full blur-[40px] animate-pulse-slow delay-150"></div>
-        
-        <div className="flex items-center relative z-10">
-          <div className="flex items-center">
-            <Link to="/">
-              <Button 
-                variant="ghost" 
-                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
-              >
-                <span className="flex items-center">
-                  <span className="text-lg font-bold">IDZ.TECH</span>
-                </span>
-                <span>Wróć na stronę główną</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4 relative z-10">
-          <NotificationBell />
+  // Function to determine if the current route is admin
+  const isAdminRoute = () => {
+    return location.pathname.startsWith('/admin');
+  };
 
-          <div className="flex items-center ml-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
-                    {userAvatar ? (
-                      <AvatarImage src={userAvatar} alt={fullName} />
-                    ) : (
-                      <AvatarFallback className="bg-premium-gradient text-white">
-                        {fullName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span>{fullName}</span>
-                    <span className="text-xs text-muted-foreground">{userRole}</span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Ustawienia</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleLogout}
-                  className="text-white bg-red-500 hover:bg-red-600 focus:text-white hover:text-white"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Wyloguj</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  // Regular navbar for non-admin pages
   return (
-    <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? (theme === 'dark' 
-            ? 'bg-slate-900/90 shadow-lg' 
-            : 'bg-white/90 shadow-lg')
-        : (theme === 'dark' 
-            ? 'bg-transparent' 
-            : 'bg-white/90')
-    }`}>
+    <nav className="bg-slate-950 text-white border-b border-slate-800 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <Brand />
-          <DesktopNavigation />
-          <DesktopControls />
-          <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+        <div className="relative flex items-center justify-between h-16">
+          {/* Mobile menu button */}
+          <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              {isMenuOpen ? (
+                <X className="h-6 w-6 text-white" />
+              ) : (
+                <Menu className="h-6 w-6 text-white" />
+              )}
+              <span className="sr-only">Menu</span>
+            </Button>
+          </div>
+
+          {/* Logo/Brand */}
+          <div className="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
+            <div className="flex-shrink-0 flex items-center">
+              <Brand />
+            </div>
+            <div className="hidden sm:block sm:ml-6">
+              {/* Desktop Navigation */}
+              <DesktopNavigation />
+            </div>
+          </div>
+
+          {/* Right side controls - desktop */}
+          <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <div className="hidden sm:block">
+              <DesktopControls />
+            </div>
+
+            {/* Notification Bell */}
+            <div className="ml-3">
+              <NotificationBell count={notificationCount} />
+            </div>
+
+            {/* Profile dropdown */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="ml-3 hover:bg-white hover:text-black relative rounded-full overflow-hidden"
+                  >
+                    <Avatar>
+                      <AvatarImage src={user.profilePicture || undefined} alt={user.name || 'User avatar'} />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-4 py-3">
+                    <p className="text-sm font-medium">{user.name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex cursor-pointer w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      Profil
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="flex cursor-pointer w-full">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Admin panel
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Wyloguj
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="sm" asChild className="ml-3 bg-premium-gradient hover:bg-white hover:text-black">
+                <Link to="/login">
+                  <Lock className="mr-2 h-4 w-4" />
+                  Login
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
     </nav>
   );
 };
