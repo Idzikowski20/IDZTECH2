@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
 import Brand from './Brand';
@@ -98,10 +98,34 @@ const Navbar: React.FC = () => {
   const { theme } = useTheme();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   
   // Get meta data for current page or use default if not defined
   const currentPath = location.pathname;
   const meta = metaConfig[currentPath] || defaultMeta;
+  
+  // Add scroll event listener to detect when user scrolls
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrolled]);
+
+  // Determine the header background based on scroll state and theme
+  const headerBackground = 
+    theme === 'light'
+      ? scrolled
+        ? 'bg-white/80 backdrop-blur-lg'
+        : 'bg-transparent'
+      : 'bg-black dark:bg-black backdrop-blur-lg';
   
   return (
     <>
@@ -120,7 +144,7 @@ const Navbar: React.FC = () => {
         <meta name="twitter:description" content={meta.description} />
       </Helmet>
       
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black dark:bg-black backdrop-blur-lg">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBackground}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <Brand />

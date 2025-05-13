@@ -43,6 +43,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
 
   // Determine text color based on theme
   const textColor = theme === 'light' ? 'text-black' : 'text-white';
+  const iconColor = theme === 'light' ? 'text-black' : 'text-white';
+  const menuBackgroundColor = theme === 'light' ? 'bg-white/80' : 'bg-black/80';
 
   return (
     <Drawer open={isMenuOpen} onOpenChange={handleMenuOpen}>
@@ -52,11 +54,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           size="icon" 
           className={`md:hidden ${textColor} hover:bg-transparent`}
         >
-          <Menu className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+          <Menu className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
           <span className="sr-only">Menu</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
+      <DrawerContent className={`h-[85vh] neo-blur ${menuBackgroundColor} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
         <div className="px-6 py-8 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
             <h2 className={`text-xl font-bold ${textColor}`}>Menu</h2>
@@ -68,10 +70,10 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   toggleDarkMode();
                   trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
                 }} 
-                className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-white' : 'hover:bg-white/10 hover:text-black'}`}
               >
                 {theme === "light" ? 
-                  <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : 
+                  <Moon className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} /> : 
                   <Sun className="h-[1.2rem] w-[1.2rem] text-white" />
                 }
                 <span className="sr-only">Toggle theme</span>
@@ -85,9 +87,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                  className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-white' : 'hover:bg-white/10 hover:text-black'}`}
                 >
-                  <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+                  <LogIn className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
                   <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
                 </Button>
               </Link>
