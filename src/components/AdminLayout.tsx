@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, LogOut, Settings, User } from 'lucide-react';
@@ -16,8 +16,6 @@ import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useNotifications } from '@/utils/notifications';
 import NotificationBell from './NotificationBell';
-import AdminMobileMenu from './AdminMobileMenu';
-import { useMediaQuery } from '@/hooks/use-device';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -26,22 +24,13 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'dashboard' }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
   const { pathname } = useLocation();
   const { unreadCount } = useNotifications();
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
   
-  useEffect(() => {
-    // On mobile, sidebar should be closed by default
-    if (!isDesktop) {
-      setIsSidebarOpen(false);
-    } else {
-      setIsSidebarOpen(true);
-    }
-  }, [isDesktop]);
+  console.log("AdminLayout rendered, user:", user);
   
   const handleLogout = () => {
     signOut();
@@ -73,14 +62,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                 className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
               >
                 <Home size={18} />
-                <span className="hidden md:inline">Wróć na stronę główną</span>
+                Wróć na stronę główną
               </Button>
             </Link>
           </div>
         </div>
         
         <div className="flex items-center space-x-4 relative z-10">
-          <div className="hidden md:flex items-center">
+          <div className="flex items-center">
             <span className="font-mono">IDZ.TECH</span>
           </div>
 
@@ -128,104 +117,98 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          
-          <div className="lg:hidden">
-            <AdminMobileMenu isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
-          </div>
         </div>
       </header>
 
       <div className="flex">
-        {/* Sidebar - only visible on desktop */}
-        {isDesktop && (
-          <aside
-            className={`${
-              isSidebarOpen ? "w-64" : "w-16"
-            } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
-          >
-            <nav className="p-4 space-y-2">
-              <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
-              <nav>
-                <ul>
-                  <li className="mb-2">
-                    <Link 
-                      to="/admin" 
-                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                    >
-                      Dashboard
-                    </Link>
-                  </li>
-                  <li className="mb-2">
-                    <Link 
-                      to="/admin/stats" 
-                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                    >
-                      Statystyki
-                    </Link>
-                  </li>
-                  <li className="mb-2">
-                    <Link 
-                      to="/profile" 
-                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                    >
-                      Profil
-                    </Link>
-                  </li>
-                  <li className="mb-2">
-                    <Link 
-                      to="/admin/notifications" 
-                      className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                    >
-                      Powiadomienia
-                      {unreadCount > 0 && (
-                        <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </Link>
-                  </li>
-                  <li className="mb-2">
-                    <Link 
-                      to="/admin/users" 
-                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                    >
-                      Użytkownicy
-                    </Link>
-                  </li>
-                  <li className="mb-2">
-                    <Link 
-                      to="/admin/settings" 
-                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                    >
-                      Ustawienia
-                    </Link>
-                  </li>
-                </ul>
-              </nav>
-              
-              {/* Logout button at the bottom */}
-              <div className="pt-4 mt-6 border-t border-premium-light/10">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
-                >
-                  <LogOut className="w-5 h-5 mr-3" />
-                  {isSidebarOpen && <span>Wyloguj</span>}
-                  {!isSidebarOpen && (
-                    <span className="absolute left-full ml-2 p-2 bg-premium-dark/90 text-premium-light rounded whitespace-nowrap border border-premium-light/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                      Wyloguj
-                    </span>
-                  )}
-                </button>
-              </div>
+        {/* Sidebar */}
+        <aside
+          className={`${
+            isSidebarOpen ? "w-64" : "w-16"
+          } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
+        >
+          <nav className="p-4 space-y-2">
+            <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
+            <nav>
+              <ul>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/stats" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Statystyki
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/profile" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Profil
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/notifications" 
+                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Powiadomienia
+                    {unreadCount > 0 && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/users" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Użytkownicy
+                  </Link>
+                </li>
+                <li className="mb-2">
+                  <Link 
+                    to="/admin/settings" 
+                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                  >
+                    Ustawienia
+                  </Link>
+                </li>
+              </ul>
             </nav>
-          </aside>
-        )}
+            
+            {/* Logout button at the bottom */}
+            <div className="pt-4 mt-6 border-t border-premium-light/10">
+              <button
+                onClick={handleLogout}
+                className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
+              >
+                <LogOut className="w-5 h-5 mr-3" />
+                {isSidebarOpen && <span>Wyloguj</span>}
+                {!isSidebarOpen && (
+                  <span className="absolute left-full ml-2 p-2 bg-premium-dark/90 text-premium-light rounded whitespace-nowrap border border-premium-light/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Wyloguj
+                  </span>
+                )}
+              </button>
+            </div>
+          </nav>
+        </aside>
         
         {/* Main content */}
         <div
           className={`flex-1 transition-all duration-300 ease-in-out ${
-            isDesktop && isSidebarOpen ? "ml-64" : isDesktop ? "ml-16" : "ml-0"
+            isSidebarOpen ? "ml-64" : "ml-16"
           }`}
         >
           {children}

@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
-import { useIsMobile } from '@/hooks/use-device';
+import { useDeviceDetection } from '@/hooks/use-device';
 
 // Since we don't have the original file, I'll create a basic Services component with shadow effects
 const Services = () => {
   const { theme } = useTheme();
-  const isMobile = useIsMobile();
+  const { isMobile } = useDeviceDetection();
   
   const services = [
     {
@@ -80,7 +80,7 @@ const Services = () => {
               >
                 <Button 
                   variant="ghost" 
-                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-white hover:bg-black' : 'text-premium-light hover:text-black hover:bg-white'}`}
+                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-premium-purple hover:bg-transparent' : 'text-premium-light hover:text-premium-purple hover:bg-transparent'}`}
                 >
                   <span className="flex items-center">
                     Dowiedz się więcej

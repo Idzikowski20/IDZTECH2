@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
@@ -113,27 +112,30 @@ const BlogPost = () => {
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
               
-              {/* Show stats for all users now */}
-              <span className="mx-2">•</span>
-              <span>{post.categories.join(', ')}</span>
-              
-              <span className="mx-2">•</span>
-              <div className="flex items-center">
-                <Eye size={14} className="mr-1" />
-                <span>{post.views} wyświetleń</span>
-              </div>
-              
-              <span className="mx-2">•</span>
-              <div className="flex items-center">
-                <MessageCircle size={14} className="mr-1" />
-                <span>{commentsCount} komentarzy</span>
-              </div>
-              
-              <span className="mx-2">•</span>
-              <div className="flex items-center">
-                <Heart size={14} className="mr-1" />
-                <span>{likesCount} polubień</span>
-              </div>
+              {isUserLoggedIn && (
+                <>
+                  <span className="mx-2">•</span>
+                  <span>{post.categories.join(', ')}</span>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Eye size={14} className="mr-1" />
+                    <span>{post.views} wyświetleń</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <MessageCircle size={14} className="mr-1" />
+                    <span>{commentsCount} komentarzy</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Heart size={14} className="mr-1" />
+                    <span>{likesCount} polubień</span>
+                  </div>
+                </>
+              )}
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
@@ -190,12 +192,22 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {/* Comments section - now shown for all users */}
-          <div className="max-w-3xl mx-auto">
-            <CommentSection postId={post.id} postTitle={post.title} />
-          </div>
+          {/* Comments section - only show when logged in */}
+          {isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto">
+              <CommentSection postId={post.id} />
+            </div>
+          )}
           
-          {/* Remove login prompt for comments as we now allow guest comments */}
+          {!isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
+              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
+              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
+              <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
+                Zaloguj się
+              </Button>
+            </div>
+          )}
         </div>
       </section>
       
