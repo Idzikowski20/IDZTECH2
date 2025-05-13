@@ -1,4 +1,3 @@
-
 // Mobile touch optimization
 export const optimizeForMobile = () => {
   // Touch optimization
@@ -218,7 +217,7 @@ export const applyMobileOptimizations = () => {
   optimizeJavaScript();
   
   // Add momentum scrolling for iOS - using type assertion to fix the TypeScript error
-  (document.documentElement.style as any).webkitOverflowScrolling = 'touch';
+  (document.documentElement as HTMLElement).style.webkitOverflowScrolling = 'touch';
   
   // Register performance marks for analysis
   if ('performance' in window && 'mark' in window.performance) {
