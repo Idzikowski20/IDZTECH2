@@ -25,7 +25,7 @@ const Hero = () => {
   }, []);
   
   return (
-    <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative">
+    <section id="hero" className="pt-24 pb-32 md:pt-32 md:pb-44 relative overflow-hidden">
       {/* Reduced quantity and opacity of light effects for better performance */}
       {isVisible && (
         <>
@@ -74,7 +74,11 @@ const Hero = () => {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Szybka wydajność</span>
+                <span>Szybkie strony</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Najlepsza wydajność</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
@@ -82,7 +86,7 @@ const Hero = () => {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Wysokie SEO</span>
+                <span>Optymalizacja pod SEO</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
@@ -96,15 +100,11 @@ const Hero = () => {
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
                 <span>Strona nawet do 3 dni</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>CMS</span>
-              </div>
             </div>
           </div>
           
-          {/* Hero image on the right - adjusted height and container with overflow hidden */}
-          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0 h-[500px] flex items-center justify-center" 
+          {/* Hero image on the right - adjusted width ratio and container height */}
+          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0 h-[600px] flex items-center justify-center" 
                style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <HeroImage />
           </div>
