@@ -65,22 +65,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (abortController.signal.aborted || !isMounted) return;
                 
                 // Fetch profile data
-                const { data: profileData } = await supabase
-                  .from('profiles')
-                  .select('*')
-                  .eq('id', currentSession.user.id)
-                  .single();
-                
-                if (isMounted) {
-                  setUser({
-                    ...currentSession.user,
-                    name: profileData?.name || currentSession.user.user_metadata?.name || null,
-                    lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
-                    profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
-                    bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
-                    jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
-                  });
-                  setIsAuthenticated(true);
+                try {
+                  const { data: profileData } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', currentSession.user.id)
+                    .single();
+                  
+                  if (isMounted) {
+                    setUser({
+                      ...currentSession.user,
+                      name: profileData?.name || currentSession.user.user_metadata?.name || null,
+                      lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
+                      profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
+                      bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
+                      jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
+                    });
+                    setIsAuthenticated(true);
+                  }
+                } catch (profileError) {
+                  console.error("Error fetching profile data:", profileError);
+                  // Still set the user even if profile fetch fails
+                  if (isMounted) {
+                    setUser(currentSession.user);
+                    setIsAuthenticated(true);
+                  }
                 }
               } catch (error) {
                 console.error("Error processing auth state change:", error);
