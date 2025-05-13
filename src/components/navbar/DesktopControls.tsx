@@ -37,7 +37,7 @@ const DesktopControls: React.FC<DesktopControlsProps> = ({ scrolled }) => {
           toggleDarkMode();
           trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
         }} 
-        className={`transition-colors duration-300 ${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-white' : 'hover:bg-white/10 hover:text-black'}`}
+        className={`transition-colors duration-300 ${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
       >
         {theme === "light" ? 
           <Moon className={`h-[1.2rem] w-[1.2rem] ${iconColor} transition-colors duration-300`} /> : 
@@ -58,7 +58,7 @@ const DesktopControls: React.FC<DesktopControlsProps> = ({ scrolled }) => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`transition-colors duration-300 ${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-white' : 'hover:bg-white/10 hover:text-black'}`}
+          className={`transition-colors duration-300 ${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
         >
           <LogIn className={`h-[1.2rem] w-[1.2rem] ${iconColor} transition-colors duration-300`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>

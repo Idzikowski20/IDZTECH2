@@ -13,6 +13,7 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const isTransparent = location.pathname === '/' && !scrolled;
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,10 +57,10 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16 md:h-20">
-          <Brand isTransparent={isTransparent} />
+          <Brand scrolled={scrolled} />
           <DesktopNavigation />
-          <DesktopControls />
-          <MobileMenu isTransparent={isTransparent} />
+          <DesktopControls scrolled={scrolled} />
+          <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} scrolled={scrolled} />
         </div>
       </div>
     </nav>
