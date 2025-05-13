@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/utils/AuthProvider';
 import { useBlogStore, BlogComment, CommentReply } from '@/utils/blog';
@@ -14,14 +15,12 @@ import { Label } from '@/components/ui/label';
 import { Trash2, MessageCircle, CornerDownRight } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
 import { useNotifications } from '@/utils/notifications';
-import { v4 as uuidv4 } from 'uuid';
 
 interface CommentSectionProps {
   postId: string;
-  postTitle: string; // Added postTitle prop
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [comment, setComment] = useState('');
   const [replyContent, setReplyContent] = useState('');
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
@@ -131,18 +130,16 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
       return;
     }
     
-    // Generate a valid UUID for targetId instead of using the string postId
-    // This ensures compatibility with Supabase's UUID requirements
-    const targetUuid = uuidv4();
+    const post = useBlogStore.getState().posts.find(p => p.id === postId);
     
-    // Send notification to admin for approval using addNotification
+    // Send notification to admin for approval using addNotification instead of sendApprovalRequest
     addNotification({
       type: 'approval_request',
       title: 'Prośba o dodanie komentarza',
-      message: `Gość "${guestName}" chce dodać komentarz do postu "${postTitle}": "${comment}"`,
+      message: `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}"`,
       fromUserId: 'guest',
       fromUserName: guestName,
-      targetId: targetUuid, // Use the generated UUID instead of postId
+      targetId: postId,
       targetType: 'comment'
     });
     

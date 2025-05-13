@@ -32,8 +32,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
   const { toast } = useToast();
-  // Updated to use the new Formspree endpoint from the image
-  const [formspreeState, sendToFormspree] = useFormspree("mrbqyaee");
+  // Replace with your valid Formspree form ID
+  const [formspreeState, sendToFormspree] = useFormspree("xvqggdkp"); 
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -49,31 +49,26 @@ const ContactForm = () => {
 
   const onSubmit = async (data: FormValues) => {
     try {
+      // Log form submission
       console.log("Wysyłanie formularza do:", data.email);
       console.log("Dane formularza:", data);
       
       // Send form to Formspree
       await sendToFormspree(data);
       
-      // Check for errors from formspree response
-      if (formspreeState.errors && Object.keys(formspreeState.errors).length > 0) {
-        console.error("Błędy formspree:", formspreeState.errors);
-        
-        // Get the first error message or use default
-        const errorMessage = Object.values(formspreeState.errors)[0] || "Błąd wysyłania formularza";
-        throw new Error(errorMessage);
+      // Check for errors
+      if (formspreeState.errors) {
+        throw new Error("Błąd wysyłania formularza");
       }
       
-      // Only show toast notification on success, not the in-form alert
-      if (formspreeState.succeeded) {
-        toast({
-          title: "Wiadomość wysłana",
-          description: "Dziękujemy za kontakt. Odezwiemy się wkrótce.",
-          variant: "default",
-        });
-        
-        form.reset();
-      }
+      // Show success message
+      toast({
+        title: "Wiadomość wysłana",
+        description: "Dziękujemy za kontakt. Odezwiemy się wkrótce.",
+        variant: "default",
+      });
+      
+      form.reset();
     } catch (error) {
       console.error("Błąd wysyłania formularza:", error);
       toast({
@@ -86,6 +81,16 @@ const ContactForm = () => {
 
   return (
     <Form {...form}>
+      {formspreeState.errors && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Błąd wysyłania formularza</AlertTitle>
+          <AlertDescription>
+            {formspreeState.errors && "Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie."}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -97,7 +102,7 @@ const ContactForm = () => {
                 <FormControl>
                   <Input
                     placeholder="Jan Kowalski"
-                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -115,7 +120,7 @@ const ContactForm = () => {
                 <FormControl>
                   <Input
                     placeholder="Nazwa firmy"
-                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -136,7 +141,7 @@ const ContactForm = () => {
                   <Input
                     type="email"
                     placeholder="jan@example.com"
-                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -155,7 +160,7 @@ const ContactForm = () => {
                   <Input
                     type="tel"
                     placeholder="+48 123 456 789"
-                    className="bg-white border-gray-300 text-black hover:bg-black hover:text-white"
+                    className="bg-white border-gray-300 text-black"
                     {...field}
                   />
                 </FormControl>
@@ -173,7 +178,7 @@ const ContactForm = () => {
               <FormLabel>Usługa, którą jesteś zainteresowany</FormLabel>
               <FormControl>
                 <select
-                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20 hover:bg-black hover:text-white"
+                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-black focus:outline-none focus:border-premium-purple focus:ring-1 focus:ring-premium-purple/20"
                   {...field}
                 >
                   <option value="">Wybierz usługę</option>
@@ -200,7 +205,7 @@ const ContactForm = () => {
                 <Textarea
                   placeholder="Opisz swoje potrzeby..."
                   rows={5}
-                  className="bg-white border-gray-300 text-black resize-none hover:bg-black hover:text-white"
+                  className="bg-white border-gray-300 text-black resize-none"
                   {...field}
                 />
               </FormControl>
@@ -217,6 +222,10 @@ const ContactForm = () => {
           <Send size={16} className="mr-2" />
           {form.formState.isSubmitting || formspreeState.submitting ? "Wysyłanie..." : "Wyślij wiadomość"}
         </Button>
+        
+        <p className="text-xs text-center text-premium-light/70 mt-4">
+          {formspreeState.succeeded ? "Wiadomość została wysłana!" : ""}
+        </p>
       </form>
     </Form>
   );

@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
-import { useIsMobile } from '@/hooks/use-device';
+import { useDeviceDetection } from '@/hooks/use-device';
 
 // Since we don't have the original file, I'll create a basic Services component with shadow effects
 const Services = () => {
   const { theme } = useTheme();
-  const isMobile = useIsMobile();
+  const { isMobile } = useDeviceDetection();
   
   const services = [
     {
@@ -61,7 +61,6 @@ const Services = () => {
               className={`
                 ${theme === 'light' ? 'bg-premium-dark/60 border border-white/10' : 'bg-premium-dark/60 border border-white/10'} 
                 rounded-xl p-6 transition-all duration-300 h-full flex flex-col shadow-lg ${theme === 'light' ? 'shadow-gray-300/50' : 'shadow-premium-purple/10'}
-                hover:scale-110
               `}
               style={{ 
                 WebkitTapHighlightColor: 'transparent',
@@ -80,7 +79,7 @@ const Services = () => {
               >
                 <Button 
                   variant="ghost" 
-                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-white hover:bg-black' : 'text-premium-light hover:text-black hover:bg-white'}`}
+                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-black hover:bg-white' : 'text-premium-light hover:text-black hover:bg-white'}`}
                 >
                   <span className="flex items-center">
                     Dowiedz się więcej
