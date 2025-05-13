@@ -19,16 +19,14 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
     return location.pathname === path;
   };
   
-  const linkClass = cn(
+  const linkClass = (active: boolean) => cn(
     "block w-full text-left px-4 py-2 my-1 rounded-md transition-colors",
-    theme === 'light' 
-      ? 'text-black hover:bg-gray-100' 
-      : 'text-white hover:bg-white/10'
+    {
+      "text-white hover:bg-white hover:text-black": theme === 'dark',
+      "text-black hover:bg-black hover:text-white": theme === 'light',
+      "bg-premium-gradient text-white": active
+    }
   );
-  
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
   
   return (
     <>
@@ -36,7 +34,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
       <button
         type="button"
         className="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white focus:outline-none"
-        onClick={toggleMenu}
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
         aria-expanded={isMenuOpen}
         aria-label={isMenuOpen ? "Zamknij menu" : "Otwórz menu"}
       >
@@ -66,85 +64,53 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
               <X className="h-6 w-6" aria-hidden="true" />
             </button>
             
-            <nav className="flex-1 overflow-y-auto" role="navigation" aria-label="Menu mobilne">
-              <div className="space-y-2">
+            <nav className="flex-1 overflow-y-auto">
+              <div className="space-y-2 py-4">
                 <Link 
                   to="/" 
-                  className={`${linkClass} ${isActive('/') ? 'font-bold' : ''}`}
+                  className={linkClass(isActive('/'))}
                   onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/') ? 'page' : undefined}
                 >
-                  Start
+                  Strona główna
                 </Link>
                 
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" collapsible className="border-none">
                   <AccordionItem value="services" className="border-none">
-                    <AccordionTrigger 
-                      className={`${linkClass} flex justify-between items-center`}
-                      aria-label="Usługi - rozwiń menu"
-                    >
+                    <AccordionTrigger className={cn(
+                      "px-4 py-2 my-1 rounded-md transition-colors",
+                      "text-white hover:bg-white/10"
+                    )}>
                       Usługi
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="pl-4 space-y-1">
-                        <p className="font-medium mt-2 mb-1 px-4">Strony www</p>
                         <Link 
                           to="/tworzenie-stron-www" 
-                          className={`${linkClass} ${isActive('/tworzenie-stron-www') ? 'font-bold' : ''}`}
+                          className={linkClass(isActive('/tworzenie-stron-www'))}
                           onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/tworzenie-stron-www') ? 'page' : undefined}
                         >
-                          Tworzenie stron www
+                          Strony internetowe
                         </Link>
                         <Link 
                           to="/sklepy-internetowe" 
-                          className={`${linkClass} ${isActive('/sklepy-internetowe') ? 'font-bold' : ''}`}
+                          className={linkClass(isActive('/sklepy-internetowe'))}
                           onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/sklepy-internetowe') ? 'page' : undefined}
                         >
                           Sklepy internetowe
                         </Link>
-                        
-                        <p className="font-medium mt-4 mb-1 px-4">Pozycjonowanie (SEO)</p>
                         <Link 
                           to="/pozycjonowanie-stron" 
-                          className={`${linkClass} ${isActive('/pozycjonowanie-stron') ? 'font-bold' : ''}`}
+                          className={linkClass(isActive('/pozycjonowanie-stron'))}
                           onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/pozycjonowanie-stron') ? 'page' : undefined}
                         >
-                          Pozycjonowanie stron
+                          Pozycjonowanie
                         </Link>
                         <Link 
-                          to="/pozycjonowanie-lokalne" 
-                          className={`${linkClass} ${isActive('/pozycjonowanie-lokalne') ? 'font-bold' : ''}`}
+                          to="/kampanie-google-ads" 
+                          className={linkClass(isActive('/kampanie-google-ads'))}
                           onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/pozycjonowanie-lokalne') ? 'page' : undefined}
                         >
-                          Pozycjonowanie lokalne
-                        </Link>
-                        <Link 
-                          to="/audyt-seo" 
-                          className={`${linkClass} ${isActive('/audyt-seo') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/audyt-seo') ? 'page' : undefined}
-                        >
-                          Audyt SEO
-                        </Link>
-                        <Link 
-                          to="/optymalizacja-seo" 
-                          className={`${linkClass} ${isActive('/optymalizacja-seo') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/optymalizacja-seo') ? 'page' : undefined}
-                        >
-                          Optymalizacja SEO
-                        </Link>
-                        <Link 
-                          to="/copywriting-seo" 
-                          className={`${linkClass} ${isActive('/copywriting-seo') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/copywriting-seo') ? 'page' : undefined}
-                        >
-                          Copywriting SEO
+                          Google Ads
                         </Link>
                       </div>
                     </AccordionContent>
@@ -153,36 +119,32 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 
                 <Link 
                   to="/projects" 
-                  className={`${linkClass} ${isActive('/projects') ? 'font-bold' : ''}`}
+                  className={linkClass(isActive('/projects'))}
                   onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/projects') ? 'page' : undefined}
                 >
                   Portfolio
                 </Link>
                 
                 <Link 
-                  to="/about" 
-                  className={`${linkClass} ${isActive('/about') ? 'font-bold' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/about') ? 'page' : undefined}
-                >
-                  O nas
-                </Link>
-                
-                <Link 
                   to="/blog" 
-                  className={`${linkClass} ${isActive('/blog') ? 'font-bold' : ''}`}
+                  className={linkClass(isActive('/blog'))}
                   onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/blog') ? 'page' : undefined}
                 >
                   Blog
                 </Link>
                 
                 <Link 
-                  to="/contact" 
-                  className={`${linkClass} ${isActive('/contact') ? 'font-bold' : ''}`}
+                  to="/about" 
+                  className={linkClass(isActive('/about'))}
                   onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/contact') ? 'page' : undefined}
+                >
+                  O nas
+                </Link>
+                
+                <Link 
+                  to="/contact" 
+                  className={linkClass(isActive('/contact'))}
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   Kontakt
                 </Link>
