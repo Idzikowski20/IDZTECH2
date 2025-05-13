@@ -38,3 +38,12 @@ export function useIsTablet(): boolean {
 export function useIsMobile(): boolean {
   return useMediaQuery('(max-width: 639px)');
 }
+
+// Add this function for backwards compatibility with any code using this hook name
+export function useDeviceDetection() {
+  const isMobile = useIsMobile();
+  const isTablet = useIsTablet();
+  const isDesktop = useIsDesktop();
+  
+  return { isMobile, isTablet, isDesktop };
+}

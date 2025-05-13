@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -536,7 +535,7 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
       )}
       
       <div className="flex justify-end pt-4">
-        <Button type="submit" disabled={isLoading || (!isAdmin && userId)}>
+        <Button type="submit" disabled={isLoading || (!isAdmin && userId !== undefined)}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
