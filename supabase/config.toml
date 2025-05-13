@@ -3,4 +3,3 @@ project_id = "apeestymqcpmpdnmccmd"
 
 [functions.send-notification]
 verify_jwt = false
-

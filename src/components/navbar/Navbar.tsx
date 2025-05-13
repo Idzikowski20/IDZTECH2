@@ -136,7 +136,15 @@ const Navbar = () => {
 
   // Regular navbar for non-admin pages
   return (
-    <nav className={`fixed w-full top-0 z-50 transition-all duration-300 bg-opacity-90 backdrop-blur-sm ${isScrolled ? (theme === 'dark' ? 'bg-slate-900/90 shadow-lg' : 'bg-white/90 shadow-lg') : (theme === 'dark' ? 'bg-transparent' : 'bg-white bg-opacity-70')}`}>
+    <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${
+      isScrolled 
+        ? (theme === 'dark' 
+            ? 'bg-slate-900/90 shadow-lg' 
+            : 'bg-white/90 shadow-lg')
+        : (theme === 'dark' 
+            ? 'bg-transparent' 
+            : 'bg-white/90')
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <Brand />

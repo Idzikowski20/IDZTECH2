@@ -1,208 +1,151 @@
 
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ChartBar, ChartLine, Eye, ThumbsUp, MessageSquare } from 'lucide-react';
 import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  LineChart,
-  Line
-} from 'recharts';
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { 
+  BarChart,
+  Eye, 
+  MessageSquare, 
+  Heart, 
+  Calendar, 
+  User,
+  Clock
+} from "lucide-react";
+import { BlogPost } from '@/utils/blog';
+import { Button } from './ui/button';
 
 interface BlogPostStatsProps {
-  postId: string;
-  postTitle: string;
-  isOpen: boolean;
-  onClose: () => void;
+  post: BlogPost;
 }
 
-const mockData = [
-  { date: '01/05', views: 4, likes: 1, comments: 0 },
-  { date: '02/05', views: 7, likes: 2, comments: 1 },
-  { date: '03/05', views: 5, likes: 0, comments: 0 },
-  { date: '04/05', views: 12, likes: 3, comments: 2 },
-  { date: '05/05', views: 15, likes: 4, comments: 1 },
-  { date: '06/05', views: 8, likes: 1, comments: 0 },
-  { date: '07/05', views: 10, likes: 2, comments: 1 },
-];
+const BlogPostStats: React.FC<BlogPostStatsProps> = ({ post }) => {
+  // Calculate stats
+  const commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
+  const likesCount = Array.isArray(post.likes) ? post.likes.length : 0;
+  const viewsPerDay = post.views / (Math.max(1, Math.ceil((new Date().getTime() - new Date(post.date).getTime()) / (1000 * 60 * 60 * 24))));
+  const engagementRate = post.views > 0 ? ((commentCount + likesCount) / post.views) * 100 : 0;
+  
+  // Format creation date
+  const formattedDate = new Date(post.date).toLocaleDateString('pl-PL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
-const BlogPostStats = ({ postId, postTitle, isOpen, onClose }: BlogPostStatsProps) => {
-  const [activeTab, setActiveTab] = React.useState<'overview' | 'views' | 'engagement'>('overview');
-  
-  // In a real implementation, we would fetch these stats from the database
-  const totalViews = 61;
-  const totalLikes = 13;
-  const totalComments = 5;
-  
-  const fetchPostStats = async (postId: string) => {
-    // This would be replaced with a real API call to fetch stats from Supabase
-    console.log('Fetching stats for post:', postId);
-    // For now, we'll use mock data
-  };
-  
-  React.useEffect(() => {
-    if (isOpen) {
-      fetchPostStats(postId);
-    }
-  }, [isOpen, postId]);
+  // Calculate days since publication
+  const daysSincePublication = Math.ceil((new Date().getTime() - new Date(post.date).getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] bg-slate-900 text-white">
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-transparent text-blue-400 hover:text-white hover:bg-blue-500 transition-colors border-none"
+        >
+          <BarChart className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Statystyki postu</DialogTitle>
-          <DialogDescription>
-            {postTitle}
-          </DialogDescription>
+          <DialogTitle className="text-xl mb-4">Statystyki postu: {post.title}</DialogTitle>
         </DialogHeader>
         
-        <div className="flex justify-center space-x-2 mb-6">
-          <Button 
-            variant={activeTab === 'overview' ? "default" : "outline"}
-            onClick={() => setActiveTab('overview')}
-            className={`${activeTab === 'overview' ? 'bg-premium-gradient text-white' : 'hover:bg-white hover:text-black'}`}
-          >
-            <ChartBar className="mr-2 h-4 w-4" /> 
-            Przegląd
-          </Button>
-          <Button 
-            variant={activeTab === 'views' ? "default" : "outline"}
-            onClick={() => setActiveTab('views')}
-            className={`${activeTab === 'views' ? 'bg-premium-gradient text-white' : 'hover:bg-white hover:text-black'}`}
-          >
-            <Eye className="mr-2 h-4 w-4" /> 
-            Wyświetlenia
-          </Button>
-          <Button 
-            variant={activeTab === 'engagement' ? "default" : "outline"}
-            onClick={() => setActiveTab('engagement')}
-            className={`${activeTab === 'engagement' ? 'bg-premium-gradient text-white' : 'hover:bg-white hover:text-black'}`}
-          >
-            <ThumbsUp className="mr-2 h-4 w-4" /> 
-            Zaangażowanie
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 flex items-center">
+            <div className="p-3 bg-blue-500/20 rounded-full mr-3">
+              <Eye className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Wyświetlenia</p>
+              <p className="text-xl font-semibold">{post.views}</p>
+            </div>
+          </div>
+          
+          <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 flex items-center">
+            <div className="p-3 bg-green-500/20 rounded-full mr-3">
+              <MessageSquare className="h-5 w-5 text-green-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Komentarze</p>
+              <p className="text-xl font-semibold">{commentCount}</p>
+            </div>
+          </div>
+          
+          <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 flex items-center">
+            <div className="p-3 bg-red-500/20 rounded-full mr-3">
+              <Heart className="h-5 w-5 text-red-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Polubienia</p>
+              <p className="text-xl font-semibold">{likesCount}</p>
+            </div>
+          </div>
+          
+          <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 flex items-center">
+            <div className="p-3 bg-amber-500/20 rounded-full mr-3">
+              <Calendar className="h-5 w-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-400">Data publikacji</p>
+              <p className="text-sm font-semibold">{formattedDate}</p>
+            </div>
+          </div>
         </div>
         
-        <div className="mt-4">
-          {activeTab === 'overview' && (
-            <>
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-slate-800 p-4 rounded-lg">
-                  <div className="flex items-center text-gray-400 text-sm mb-2">
-                    <Eye className="mr-2 h-4 w-4" /> Wyświetlenia
-                  </div>
-                  <div className="text-2xl font-bold">{totalViews}</div>
-                </div>
-                <div className="bg-slate-800 p-4 rounded-lg">
-                  <div className="flex items-center text-gray-400 text-sm mb-2">
-                    <ThumbsUp className="mr-2 h-4 w-4" /> Polubienia
-                  </div>
-                  <div className="text-2xl font-bold">{totalLikes}</div>
-                </div>
-                <div className="bg-slate-800 p-4 rounded-lg">
-                  <div className="flex items-center text-gray-400 text-sm mb-2">
-                    <MessageSquare className="mr-2 h-4 w-4" /> Komentarze
-                  </div>
-                  <div className="text-2xl font-bold">{totalComments}</div>
-                </div>
-              </div>
-              
-              <div className="bg-slate-800 p-4 rounded-lg">
-                <h3 className="font-semibold mb-4">Aktywność w ostatnich 7 dniach</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={mockData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                    <XAxis dataKey="date" stroke="#888" />
-                    <YAxis stroke="#888" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '0.5rem' }} 
-                      itemStyle={{ color: '#fff' }}
-                    />
-                    <Legend />
-                    <Bar dataKey="views" fill="#3b82f6" name="Wyświetlenia" />
-                    <Bar dataKey="likes" fill="#ec4899" name="Polubienia" />
-                    <Bar dataKey="comments" fill="#10b981" name="Komentarze" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </>
-          )}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Analiza szczegółowa</h3>
           
-          {activeTab === 'views' && (
-            <div className="bg-slate-800 p-4 rounded-lg">
-              <h3 className="font-semibold mb-4">Wyświetlenia w czasie</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={mockData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                  <XAxis dataKey="date" stroke="#888" />
-                  <YAxis stroke="#888" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '0.5rem' }} 
-                    itemStyle={{ color: '#fff' }}
-                  />
-                  <Legend />
-                  <Line type="monotone" dataKey="views" stroke="#3b82f6" activeDot={{ r: 8 }} />
-                </LineChart>
-              </ResponsiveContainer>
-              <div className="mt-4 text-sm text-gray-400">
-                Średnio {(totalViews / 7).toFixed(1)} wyświetleń dziennie
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Clock className="h-4 w-4 mr-2 text-blue-400" />
+                <h4 className="text-sm font-medium">Czas od publikacji</h4>
+              </div>
+              <p className="text-2xl font-bold">{daysSincePublication} dni</p>
+            </div>
+            
+            <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Eye className="h-4 w-4 mr-2 text-green-400" />
+                <h4 className="text-sm font-medium">Średnio wyświetlenia / dzień</h4>
+              </div>
+              <p className="text-2xl font-bold">{viewsPerDay.toFixed(1)}</p>
+            </div>
+            
+            <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 md:col-span-2">
+              <div className="flex items-center mb-2">
+                <User className="h-4 w-4 mr-2 text-purple-400" />
+                <h4 className="text-sm font-medium">Współczynnik zaangażowania</h4>
+              </div>
+              <div className="flex items-center">
+                <p className="text-2xl font-bold">{engagementRate.toFixed(2)}%</p>
+                <p className="text-xs text-gray-400 ml-2">(komentarze + polubienia) / wyświetlenia</p>
               </div>
             </div>
-          )}
-          
-          {activeTab === 'engagement' && (
-            <div className="bg-slate-800 p-4 rounded-lg">
-              <h3 className="font-semibold mb-4">Zaangażowanie użytkowników</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="text-sm text-gray-400 mb-2">Polubienia w czasie</h4>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={mockData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="date" stroke="#888" />
-                      <YAxis stroke="#888" />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '0.5rem' }} 
-                        itemStyle={{ color: '#fff' }}
-                      />
-                      <Line type="monotone" dataKey="likes" stroke="#ec4899" activeDot={{ r: 8 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
+          </div>
+
+          <div className="bg-premium-dark/40 border border-premium-light/10 rounded-lg p-4 mt-4">
+            <h4 className="text-sm font-medium mb-3">Statystyki kategorii</h4>
+            <div className="space-y-2">
+              {post.categories && post.categories.map((category, index) => (
+                <div key={index} className="flex justify-between">
+                  <span>{category}</span>
+                  <span className="text-gray-400">#{index + 1}</span>
                 </div>
-                <div>
-                  <h4 className="text-sm text-gray-400 mb-2">Komentarze w czasie</h4>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={mockData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                      <XAxis dataKey="date" stroke="#888" />
-                      <YAxis stroke="#888" />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '0.5rem' }} 
-                        itemStyle={{ color: '#fff' }}
-                      />
-                      <Line type="monotone" dataKey="comments" stroke="#10b981" activeDot={{ r: 8 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-              <div className="mt-4 text-sm text-gray-400">
-                Współczynnik zaangażowania: {((totalLikes + totalComments) / totalViews * 100).toFixed(1)}%
-              </div>
+              ))}
+              {(!post.categories || post.categories.length === 0) && (
+                <p className="text-gray-400 italic">Brak kategorii</p>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

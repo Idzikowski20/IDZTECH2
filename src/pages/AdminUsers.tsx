@@ -89,7 +89,7 @@ const AdminUsers = () => {
   };
   
   // Check if user has admin or administrator role
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'administrator';
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.email === 'patryk.idzikowski@interia.pl';
   
   if (loading) {
     return (
@@ -138,23 +138,25 @@ const AdminUsers = () => {
       <div className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Zarządzaj użytkownikami</h1>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>Dodaj użytkownika</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
-              </DialogHeader>
-              <UserForm onSuccess={(newUser) => {
-                setUsers([...users, newUser]);
-                toast({
-                  title: "Sukces",
-                  description: "Użytkownik został dodany",
-                });
-              }} />
-            </DialogContent>
-          </Dialog>
+          {isAdmin && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>Dodaj użytkownika</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
+                </DialogHeader>
+                <UserForm onSuccess={(newUser) => {
+                  setUsers([...users, newUser]);
+                  toast({
+                    title: "Sukces",
+                    description: "Użytkownik został dodany",
+                  });
+                }} />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         
         <div className="bg-transparent rounded-lg shadow overflow-hidden">
@@ -224,39 +226,43 @@ const AdminUsers = () => {
                       <UserRound className="h-4 w-4 mr-1" />
                       Profil
                     </Button>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="bg-transparent text-white hover:bg-white hover:text-black border-none">
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edytuj
+                    {isAdmin && (
+                      <>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="bg-transparent text-white hover:bg-white hover:text-black border-none">
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edytuj
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edytuj użytkownika</DialogTitle>
+                            </DialogHeader>
+                            <UserForm 
+                              userId={user.id} 
+                              user={user} 
+                              onSuccess={(updatedUser) => {
+                                setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+                                toast({
+                                  title: "Sukces",
+                                  description: "Użytkownik został zaktualizowany",
+                                });
+                              }} 
+                            />
+                          </DialogContent>
+                        </Dialog>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Usuń
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edytuj użytkownika</DialogTitle>
-                        </DialogHeader>
-                        <UserForm 
-                          userId={user.id} 
-                          user={user} 
-                          onSuccess={(updatedUser) => {
-                            setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-                            toast({
-                              title: "Sukces",
-                              description: "Użytkownik został zaktualizowany",
-                            });
-                          }} 
-                        />
-                      </DialogContent>
-                    </Dialog>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Usuń
-                    </Button>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
