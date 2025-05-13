@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react';
 
 const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-
+  
   useEffect(() => {
-    // Preload image
+    // Preload image with proper path
     const img = new Image();
-    img.src = "components/images/hero.gif";
+    img.src = "/hero-image.png"; // Using a more reliable path
     img.onload = () => setIsLoaded(true);
     
     return () => {
@@ -21,7 +21,7 @@ const HeroImage = () => {
         <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
       )}
       <img 
-        src="components/images/hero.gif" 
+        src="/lovable-uploads/9bffe6a8-4473-494f-86da-66a5f005a323.png" 
         alt="Tworzenie Stron Internetowych" 
         className={`w-full h-full object-contain ${isLoaded ? 'animate-float' : 'opacity-0'}`}
         loading="lazy"
