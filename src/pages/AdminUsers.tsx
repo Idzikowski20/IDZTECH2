@@ -40,7 +40,7 @@ const AdminUsers = () => {
         console.log("Fetched users:", supabaseUsers);
         
         // Filter out the admin@idztech.pl user as requested
-        const filteredUsers = supabaseUsers.filter(user => user.email !== 'admin@idztech.pl');
+        const filteredUsers = supabaseUsers.filter(user => user?.email !== 'admin@idztech.pl');
         
         setUsers(filteredUsers);
       } catch (error) {
@@ -61,7 +61,7 @@ const AdminUsers = () => {
   const handleDelete = async (userId: string) => {
     if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        const success = await deleteUser(userId);
+        const success = await deleteUser();
         
         if (success) {
           setUsers(users.filter(user => user.id !== userId));

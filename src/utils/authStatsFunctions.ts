@@ -1,9 +1,8 @@
 
 // Functions related to user statistics
-import { User } from './authTypes';
+import { User, users } from './authTypes';
 import { useBlogStore } from './blog';
-import { users } from './authUtils';
-import { calculatePoints } from './authUtils';
+import { calculatePoints } from './authTypes';
 
 export const refreshUserStats = (): void => {
   // Get blog posts from store to calculate real statistics
@@ -80,10 +79,6 @@ export const refreshUserStats = (): void => {
     const pointsTotal = calculatePoints(viewsCount, postsCount, commentsCount, likesCount);
     
     // Update user stats
-    user.postsCreated = postsCount;
-    user.totalViews = viewsCount;
-    user.commentsCount = commentsCount;
-    user.likesCount = likesCount;
     user.stats = {
       views: viewsCount,
       posts: postsCount,
@@ -98,14 +93,14 @@ export const refreshUserStats = (): void => {
 
 export const getTopUser = async (): Promise<User | undefined> => {
   if (users.length === 0) return undefined;
-  return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal)[0];
+  return [...users].sort((a, b) => (b.stats?.pointsTotal || 0) - (a.stats?.pointsTotal || 0))[0];
 };
 
 export const getTopUserOfMonth = async (): Promise<User | undefined> => {
   if (users.length === 0) return undefined;
-  return [...users].sort((a, b) => b.stats.pointsThisMonth - a.stats.pointsThisMonth)[0];
+  return [...users].sort((a, b) => (b.stats?.pointsThisMonth || 0) - (a.stats?.pointsThisMonth || 0))[0];
 };
 
 export const getUserRanking = async (): Promise<User[]> => {
-  return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal);
+  return [...users].sort((a, b) => (b.stats?.pointsTotal || 0) - (a.stats?.pointsTotal || 0));
 };

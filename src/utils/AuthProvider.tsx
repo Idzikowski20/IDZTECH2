@@ -1,19 +1,8 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { User } from './authTypes';
 
 // Basic types for auth functionality
-interface User {
-  id: string;
-  email?: string;
-  name?: string;
-  lastName?: string;
-  role?: string;
-  user_metadata?: {
-    name?: string;
-    avatar_url?: string;
-  };
-}
-
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
