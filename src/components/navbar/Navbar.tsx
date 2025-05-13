@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
 import Brand from './Brand';
@@ -97,6 +97,7 @@ const defaultMeta = {
 const Navbar: React.FC = () => {
   const { theme } = useTheme();
   const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   // Get meta data for current page or use default if not defined
   const currentPath = location.pathname;
@@ -129,7 +130,7 @@ const Navbar: React.FC = () => {
               <DesktopControls />
             </div>
             
-            <MobileMenu />
+            <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
           </div>
         </div>
       </header>
