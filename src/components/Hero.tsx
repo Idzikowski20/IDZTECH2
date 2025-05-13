@@ -35,9 +35,9 @@ const Hero = () => {
       )}
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
           {/* Hero content on the left */}
-          <div className="w-full lg:w-1/2">            
+          <div className="w-full lg:w-5/12">            
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-aeonik animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.2s'}}
@@ -87,8 +87,8 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Hero image on the right - directly rendered instead of lazy loaded */}
-          <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" 
+          {/* Hero image on the right - increased size by adjusting width ratio */}
+          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0" 
                style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <HeroImage />
           </div>
