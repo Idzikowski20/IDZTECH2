@@ -16,17 +16,13 @@ const DesktopNavigation = () => {
   const location = useLocation();
   
   const linkClass = cn(
-    "transition-colors duration-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-purple",
+    "transition-colors duration-300 px-4 py-2 rounded-md",
     theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-white/10 hover:text-white'
   );
   
   const isActive = (path: string) => {
     return location.pathname === path;
   };
-  
-  const activeClass = cn(
-    theme === 'light' ? 'bg-gray-100 text-black' : 'bg-white/10 text-white'
-  );
   
   return (
     <div className="hidden lg:flex items-center gap-1">
@@ -35,8 +31,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/" 
-              className={`${linkClass} ${isActive('/') ? activeClass : ''}`}
-              aria-current={isActive('/') ? 'page' : undefined}
+              className={`${linkClass} ${isActive('/') ? 'font-bold' : ''}`}
             >
               Start
             </Link>
@@ -44,8 +39,7 @@ const DesktopNavigation = () => {
           
           <NavigationMenuItem>
             <NavigationMenuTrigger 
-              className={`transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-purple ${theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-white/10 hover:text-white'}`}
-              aria-label="Menu usług"
+              className={`transition-colors duration-300 ${theme === 'light' ? 'text-black hover:bg-gray-100 hover:text-black' : 'text-white hover:bg-white/10 hover:text-white'}`}
             >
               Usługi
             </NavigationMenuTrigger>
@@ -59,7 +53,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/tworzenie-stron-www" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/tworzenie-stron-www') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/tworzenie-stron-www') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Tworzenie stron www
@@ -75,7 +68,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/sklepy-internetowe" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/sklepy-internetowe') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/sklepy-internetowe') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Tworzenie sklepów internetowych
@@ -97,7 +89,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/pozycjonowanie-stron" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/pozycjonowanie-stron') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/pozycjonowanie-stron') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Pozycjonowanie stron internetowych
@@ -113,7 +104,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/pozycjonowanie-lokalne" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/pozycjonowanie-lokalne') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/pozycjonowanie-lokalne') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Pozycjonowanie lokalne
@@ -129,7 +119,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/audyt-seo" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/audyt-seo') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/audyt-seo') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Audyt SEO
@@ -145,7 +134,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/optymalizacja-seo" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/optymalizacja-seo') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/optymalizacja-seo') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Optymalizacja SEO
@@ -161,7 +149,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/copywriting-seo" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/copywriting-seo') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/copywriting-seo') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Copywriting SEO
@@ -177,7 +164,6 @@ const DesktopNavigation = () => {
                         <Link 
                           to="/content-plan" 
                           className={`block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors ${theme === 'light' ? 'hover:bg-gray-100 text-black' : 'hover:bg-white/10 text-white'} ${isActive('/content-plan') ? theme === 'light' ? 'bg-gray-100' : 'bg-white/20' : ''}`}
-                          aria-current={isActive('/content-plan') ? 'page' : undefined}
                         >
                           <div className={`text-sm font-medium leading-none ${theme === 'light' ? 'text-black' : 'text-white'}`}>
                             Content Plan
@@ -197,8 +183,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/projects" 
-              className={`${linkClass} ${isActive('/projects') ? activeClass : ''}`}
-              aria-current={isActive('/projects') ? 'page' : undefined}
+              className={`${linkClass} ${isActive('/projects') ? 'font-bold' : ''}`}
             >
               Portfolio
             </Link>
@@ -207,8 +192,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/about" 
-              className={`${linkClass} ${isActive('/about') ? activeClass : ''}`}
-              aria-current={isActive('/about') ? 'page' : undefined}
+              className={`${linkClass} ${isActive('/about') ? 'font-bold' : ''}`}
             >
               O nas
             </Link>
@@ -217,8 +201,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/blog" 
-              className={`${linkClass} ${isActive('/blog') ? activeClass : ''}`}
-              aria-current={isActive('/blog') ? 'page' : undefined}
+              className={`${linkClass} ${isActive('/blog') ? 'font-bold' : ''}`}
             >
               Blog
             </Link>
@@ -227,8 +210,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/contact" 
-              className={`${linkClass} ${isActive('/contact') ? activeClass : ''}`}
-              aria-current={isActive('/contact') ? 'page' : undefined}
+              className={`${linkClass} ${isActive('/contact') ? 'font-bold' : ''}`}
             >
               Kontakt
             </Link>

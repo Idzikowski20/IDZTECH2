@@ -1,204 +1,133 @@
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Eye, Edit, Trash2, Plus, Search, BarChart } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import BlogPostStats from '@/components/BlogPostStats';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  summary?: string;
-  content: string;
-  created_at?: string;
-  views?: number;
-  author_id?: string;
-  featured_image?: string;
-}
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import { Button } from '@/components/ui/button';
+import { useBlogStore } from '@/utils/blog';
+import { Skeleton } from '@/components/ui/skeleton';
+
+// Helper function to strip HTML tags for excerpts
+const stripHtml = (html: string) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || "";
+};
 
 const Blog = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [statsOpen, setStatsOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const { posts, loading, fetchPosts } = useBlogStore();
 
+  // Fetch posts on component mount
   useEffect(() => {
     fetchPosts();
+  }, [fetchPosts]);
+
+  // Ensure scroll to top on page load
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   }, []);
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPosts(data || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się pobrać postów",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Czy na pewno chcesz usunąć ten post?')) {
-      try {
-        const { error } = await supabase
-          .from('blog_posts')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        
-        setPosts(posts.filter(post => post.id !== id));
-        toast({
-          title: "Sukces",
-          description: "Post został usunięty",
-        });
-      } catch (error) {
-        console.error('Error deleting post:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się usunąć postu",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleViewStats = (post: BlogPost) => {
-    setSelectedPost(post);
-    setStatsOpen(true);
-  };
-
-  const filteredPosts = posts.filter(post => 
-    post.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pl-PL');
-  };
-
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Blog</h1>
-        <div className="flex space-x-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Wyszukaj po tytule..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Button onClick={() => navigate('/admin/blog/new')} className="flex items-center">
-            <Plus className="mr-2 h-4 w-4" /> Dodaj nowy post
-          </Button>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto bg-transparent rounded-lg shadow">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-900">
-            <tr>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Tytuł</th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data</th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Wyświetlenia</th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Akcje</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-700">
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="py-4 px-4 text-center">
-                  <div className="flex justify-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-premium-purple"></div>
-                  </div>
-                </td>
-              </tr>
-            ) : filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
-                <tr key={post.id} className="hover:bg-gray-800">
-                  <td className="py-4 px-4 text-sm text-white">{post.title}</td>
-                  <td className="py-4 px-4 text-sm text-gray-400">{formatDate(post.created_at)}</td>
-                  <td className="py-4 px-4 text-sm text-gray-400">{post.views || 0}</td>
-                  <td className="py-4 px-4 text-sm">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewStats(post)}
-                        className="hover:bg-white hover:text-black"
-                      >
-                        <BarChart className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/blog/${post.slug}`)}
-                        className="hover:bg-white hover:text-black"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/admin/blog/edit/${post.id}`)}
-                        className="hover:bg-white hover:text-black"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(post.id)}
-                        className="text-red-500 hover:bg-red-500 hover:text-white"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="py-4 px-4 text-center text-gray-400">
-                  Nie znaleziono postów
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div className="min-h-screen bg-premium-dark">
+      <Navbar />
       
-      {selectedPost && (
-        <BlogPostStats 
-          postId={selectedPost.id} 
-          postTitle={selectedPost.title} 
-          isOpen={statsOpen} 
-          onClose={() => setStatsOpen(false)}
-        />
-      )}
+      {/* Hero section */}
+      <section className="pt-32 pb-16 relative">
+        {/* Light effects */}
+        <div className="absolute top-40 left-20 w-24 h-24 bg-premium-purple/60 rounded-full blur-[50px] animate-pulse-slow"></div>
+        <div className="absolute top-20 right-20 w-32 h-32 bg-premium-blue/60 rounded-full blur-[60px] animate-pulse-slow delay-150"></div>
+        <div className="absolute bottom-40 left-1/2 w-28 h-28 bg-premium-pink/60 rounded-full blur-[55px] animate-pulse-slow delay-300"></div>
+        
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">Blog SEO</h1>
+            <p className="text-xl text-premium-light/70 mb-8">
+              Najnowsze informacje, porady i trendy z świata SEO i tworzenia stron internetowych
+            </p>
+          </div>
+        </div>
+      </section>
+      
+      {/* Blog posts grid */}
+      <section className="pb-24">
+        <div className="container mx-auto px-4">
+          {loading ? (
+            // Loading skeleton
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((item) => (
+                <div 
+                  key={item} 
+                  className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden"
+                >
+                  <div className="relative h-52">
+                    <Skeleton className="w-full h-full" />
+                  </div>
+                  <div className="p-6">
+                    <Skeleton className="h-4 w-24 mb-3" />
+                    <Skeleton className="h-6 w-full mb-3" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-3/4 mb-4" />
+                    <Skeleton className="h-8 w-32" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post) => (
+                <div 
+                  key={post.id} 
+                  className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"
+                >
+                  <Link to={`/blog/${post.slug}`}>
+                    <div className="relative h-52 overflow-hidden">
+                      <img 
+                        src={post.featuredImage} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                  </Link>
+                  
+                  <div className="p-6">
+                    <div className="flex items-center text-sm text-premium-light/60 mb-3">
+                      <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+                      <span className="mx-2">•</span>
+                      <span>{post.categories[0]}</span>
+                    </div>
+                    
+                    <Link to={`/blog/${post.slug}`}>
+                      <h3 className="text-xl font-bold mb-3 hover:text-premium-purple transition-colors">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    
+                    <p className="text-premium-light/70 mb-4 line-clamp-3">
+                      {/* Safely display excerpt by stripping HTML tags */}
+                      {stripHtml(post.excerpt)}
+                    </p>
+                    
+                    <Link to={`/blog/${post.slug}`}>
+                      <Button 
+                        variant="ghost" 
+                        className="p-0 hover:bg-transparent text-premium-purple hover:text-premium-purple/80"
+                      >
+                        Czytaj więcej <ArrowRight size={16} className="ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+      
+      <Footer />
     </div>
   );
 };

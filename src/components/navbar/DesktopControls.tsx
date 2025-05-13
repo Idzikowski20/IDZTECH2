@@ -36,20 +36,17 @@ const DesktopControls = () => {
           trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
         }} 
         className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-        aria-label={`Przełącz na tryb ${theme === "light" ? "ciemny" : "jasny"}`}
-        title={`Przełącz na tryb ${theme === "light" ? "ciemny" : "jasny"}`}
       >
         {theme === "light" ? 
           <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : 
           <Sun className="h-[1.2rem] w-[1.2rem] text-white" />
         }
-        <span className="sr-only">Przełącz motyw</span>
+        <span className="sr-only">Toggle theme</span>
       </Button>
       
       <Link to="/contact">
         <Button 
           className="bg-black text-white hover:bg-black hover:text-white transition-colors"
-          aria-label="Umów spotkanie"
         >
           Umów spotkanie
         </Button>
@@ -58,13 +55,7 @@ const DesktopControls = () => {
       {isAuthenticated ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full h-8 w-8 p-0"
-              aria-label="Menu użytkownika"
-              title={`Menu użytkownika: ${user?.name || 'Użytkownik'}`}
-            >
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 p-0">
               <Avatar className="h-8 w-8">
                 {user?.profilePicture ? (
                   <AvatarImage src={user.profilePicture} alt={user?.name || 'User'} />
@@ -111,8 +102,6 @@ const DesktopControls = () => {
             variant="ghost" 
             size="icon" 
             className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-            aria-label="Zaloguj się"
-            title="Zaloguj się"
           >
             <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
             <span className="sr-only">Zaloguj</span>

@@ -26,17 +26,8 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     path: location.pathname, 
     requiredRole,
     pathname: location.pathname,
-    userRole,
-    email: user?.email
+    userRole
   });
-  
-  // Special case for patryk.idzikowski@interia.pl - always granted admin role
-  useEffect(() => {
-    if (user && user.email === "patryk.idzikowski@interia.pl") {
-      console.log("Setting admin role for patryk.idzikowski@interia.pl");
-      setUserRole("admin");
-    }
-  }, [user]);
   
   // Fetch user role from Supabase
   useEffect(() => {
@@ -44,8 +35,6 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       if (!user?.id) return;
       
       try {
-        console.log("Fetching role for user:", user.id, user.email);
-        
         const { data, error } = await supabase
           .from('profiles')
           .select('role')
@@ -58,7 +47,6 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
         }
         
         if (data && data.role) {
-          console.log("Retrieved role:", data.role);
           setUserRole(data.role);
         }
       } catch (err) {
@@ -79,11 +67,6 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       
       // Check for role-based access if a role is required
       if (user && requiredRole && userRole) {
-        // Special case for users page - everyone can view, but only admins can edit
-        if (location.pathname === '/admin/users') {
-          return;
-        }
-        
         // Check if the user has the required role or if they are an admin or administrator
         const hasRequiredRole = 
           userRole === requiredRole || 
@@ -98,7 +81,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [user, requiredRole, userRole, location.pathname]);
+  }, [user, requiredRole, userRole]);
   
   // Handle redirect to admin if already authenticated and on login page
   useEffect(() => {
@@ -142,13 +125,13 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
           <div className="flex flex-wrap justify-center gap-3">
             <Button 
               onClick={() => navigate("/admin")} 
-              className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
+              className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-black hover:text-white"
             >
               Powrót do panelu
             </Button>
             <Button 
               onClick={() => navigate("/")} 
-              className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
+              className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-black hover:text-white"
             >
               Strona główna
             </Button>

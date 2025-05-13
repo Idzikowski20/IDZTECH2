@@ -6,27 +6,6 @@ import { HelmetProvider } from 'react-helmet-async';
 // Import App dynamically for better JS loading performance
 const loadApp = async () => {
   try {
-    // Check if highlight.js is loaded before proceeding
-    if (!window.hljs) {
-      console.warn('highlight.js not detected, waiting...');
-      // Try to wait for it
-      await new Promise(resolve => {
-        const checkInterval = setInterval(() => {
-          if (window.hljs) {
-            clearInterval(checkInterval);
-            resolve(true);
-          }
-        }, 100);
-        
-        // Don't wait forever
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          console.error('highlight.js failed to load, continuing anyway');
-          resolve(false);
-        }, 5000);
-      });
-    }
-    
     // Delay import for better First Contentful Paint
     const { default: App } = await import('./App');
     

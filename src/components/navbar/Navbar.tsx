@@ -1,151 +1,140 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/utils/AuthProvider';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
-import MobileMenu from './MobileMenu';
-import DesktopNavigation from './DesktopNavigation';
-import DesktopControls from './DesktopControls';
 import Brand from './Brand';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useNotifications } from '@/utils/notifications';
-import NotificationBell from '../NotificationBell';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
+import DesktopNavigation from './DesktopNavigation';
+import MobileMenu from './MobileMenu';
+import DesktopControls from './DesktopControls';
+import { Helmet } from 'react-helmet-async';
 
-const Navbar = () => {
-  const { user, signOut } = useAuth();
+// Meta data configuration for all pages
+const metaConfig: Record<string, { title: string; description: string; keywords: string }> = {
+  '/': {
+    title: 'IDZ.TECH - Profesjonalne Tworzenie Stron WWW i Aplikacji Webowych',
+    description: 'Tworzymy nowoczesne strony internetowe, aplikacje webowe i sklepy online. Oferujemy kompleksowe usługi SEO, które zwiększą widoczność Twojego biznesu w internecie.',
+    keywords: 'tworzenie stron www, strony internetowe, aplikacje webowe, SEO, pozycjonowanie'
+  },
+  '/about': {
+    title: 'O nas | IDZ.TECH - Zespół Profesjonalistów Web Development',
+    description: 'Poznaj zespół IDZ.TECH - specjalistów od tworzenia stron internetowych, SEO i marketingu cyfrowego z wieloletnim doświadczeniem.',
+    keywords: 'IDZ.TECH zespół, specjaliści web development, agencja interaktywna, projektowanie stron'
+  },
+  '/contact': {
+    title: 'Kontakt | IDZ.TECH - Zamów Darmową Konsultację',
+    description: 'Skontaktuj się z IDZ.TECH i zamów darmową konsultację. Porozmawiajmy o Twoim projekcie internetowym i możliwościach współpracy.',
+    keywords: 'kontakt IDZ.TECH, darmowa konsultacja, wycena strony www, agencja interaktywna kontakt'
+  },
+  '/projects': {
+    title: 'Realizacje | IDZ.TECH - Nasze Portfolio Stron WWW i Aplikacji',
+    description: 'Zobacz nasze portfolio i przekonaj się, jak pomagamy firmom budować swoją obecność online poprzez nowoczesne strony internetowe i aplikacje.',
+    keywords: 'portfolio stron www, realizacje web development, case study, projekty stron internetowych'
+  },
+  '/tworzenie-stron-www': {
+    title: 'Tworzenie Stron Internetowych | IDZ.TECH - Profesjonalne Strony WWW',
+    description: 'Tworzymy responsywne, szybkie i przyjazne dla użytkownika strony internetowe, które pomogą Ci osiągnąć cele biznesowe.',
+    keywords: 'tworzenie stron www, strony internetowe, projektowanie stron, responsywne strony'
+  },
+  '/pozycjonowanie-stron': {
+    title: 'Pozycjonowanie Stron | IDZ.TECH - Skuteczne SEO',
+    description: 'Oferujemy profesjonalne usługi pozycjonowania stron internetowych, które zwiększą widoczność Twojej witryny w wyszukiwarkach.',
+    keywords: 'pozycjonowanie stron, SEO, optymalizacja, widoczność w Google'
+  },
+  '/audyt-seo': {
+    title: 'Audyt SEO | IDZ.TECH - Kompleksowa Analiza Twojej Strony',
+    description: 'Przeprowadzimy szczegółowy audyt SEO Twojej strony, który wskaże słabe punkty i pozwoli na skuteczną optymalizację.',
+    keywords: 'audyt SEO, analiza strony, optymalizacja SEO, raport SEO'
+  },
+  '/copywriting-seo': {
+    title: 'Copywriting SEO | IDZ.TECH - Treści Przyjazne Wyszukiwarkom',
+    description: 'Tworzymy unikalne i angażujące treści, które podobają się zarówno użytkownikom, jak i wyszukiwarkom internetowym.',
+    keywords: 'copywriting SEO, pisanie tekstów, content marketing, treści na stronę'
+  },
+  '/optymalizacja-seo': {
+    title: 'Optymalizacja SEO | IDZ.TECH - Techniczne SEO dla Twojej Strony',
+    description: 'Kompleksowa optymalizacja techniczna Twojej strony internetowej pod kątem wyszukiwarek, która poprawi jej ranking i wydajność.',
+    keywords: 'optymalizacja SEO, techniczne SEO, szybkość strony, mobile friendly'
+  },
+  '/pozycjonowanie-lokalne': {
+    title: 'Pozycjonowanie Lokalne | IDZ.TECH - SEO dla Firm Lokalnych',
+    description: 'Specjalistyczne pozycjonowanie dla firm lokalnych, które pomoże Ci dotrzeć do klientów w Twojej okolicy.',
+    keywords: 'pozycjonowanie lokalne, local SEO, Google Maps, wizytówka Google'
+  },
+  '/sklepy-internetowe': {
+    title: 'Sklepy Internetowe | IDZ.TECH - Profesjonalne E-commerce',
+    description: 'Tworzymy funkcjonalne i estetyczne sklepy internetowe, które zwiększają sprzedaż i zapewniają doskonałe doświadczenie zakupowe.',
+    keywords: 'sklep internetowy, e-commerce, woocommerce, PrestaShop, sprzedaż online'
+  },
+  '/audyt-google-ads': {
+    title: 'Audyt Google Ads | IDZ.TECH - Analiza Kampanii Reklamowych',
+    description: 'Profesjonalny audyt Twoich kampanii Google Ads, który pomoże zoptymalizować wydatki i zwiększyć ich efektywność.',
+    keywords: 'audyt Google Ads, analiza kampanii, optymalizacja reklam, ROI'
+  },
+  '/kampanie-google-ads': {
+    title: 'Kampanie Google Ads | IDZ.TECH - Skuteczne Reklamy',
+    description: 'Prowadzimy skuteczne kampanie Google Ads, które generują ruch i konwersje dla Twojego biznesu.',
+    keywords: 'kampanie Google Ads, reklama Google, PPC, reklama w wyszukiwarce'
+  },
+  '/kampanie-meta-ads': {
+    title: 'Kampanie Meta Ads | IDZ.TECH - Reklamy na Facebooku i Instagramie',
+    description: 'Tworzymy i zarządzamy skutecznymi kampaniami reklamowymi na platformach Meta, docierając do Twojej grupy docelowej.',
+    keywords: 'reklamy Facebook, Meta Ads, Instagram Ads, social media marketing'
+  },
+  '/blog': {
+    title: 'Blog | IDZ.TECH - Wiedza o Web Development i SEO',
+    description: 'Praktyczne porady, tutoriale i aktualności ze świata tworzenia stron internetowych, SEO i marketingu cyfrowego.',
+    keywords: 'blog o stronach www, porady SEO, web development blog, marketing cyfrowy'
+  }
+};
+
+// Default meta for pages not explicitly defined
+const defaultMeta = {
+  title: 'IDZ.TECH - Profesjonalne Usługi Web Development i SEO',
+  description: 'Kompleksowe usługi związane z tworzeniem stron internetowych, pozycjonowaniem i marketingiem cyfrowym dla firm każdej wielkości.',
+  keywords: 'strony www, SEO, pozycjonowanie, web development, marketing cyfrowy'
+};
+
+const Navbar: React.FC = () => {
   const { theme } = useTheme();
-  const navigate = useNavigate();
   const location = useLocation();
-  const [isScrolled, setIsScrolled] = useState(false);
-  const { unreadCount } = useNotifications();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location.pathname]);
-
-  const handleLogout = () => {
-    signOut();
-    navigate('/login');
-  };
-
-  // Determine if we're on the admin page to show a different navbar style
-  const isAdminPage = location.pathname.startsWith('/admin');
   
-  // Safely access user data
-  const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
-  const fullName = user?.lastName ? `${displayName} ${user.lastName}` : displayName;
-  const userRole = user?.role || 'user';
-  const userAvatar = user?.profilePicture || '';
-
-  // Admin navbar has a different style
-  if (isAdminPage) {
-    return (
-      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
-        {/* Light effects */}
-        <div className="absolute top-3 left-10 w-16 h-16 bg-premium-purple/40 rounded-full blur-[40px] animate-pulse-slow"></div>
-        <div className="absolute top-2 right-20 w-16 h-16 bg-premium-blue/40 rounded-full blur-[40px] animate-pulse-slow delay-150"></div>
-        
-        <div className="flex items-center relative z-10">
-          <div className="flex items-center">
-            <Link to="/">
-              <Button 
-                variant="ghost" 
-                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
-              >
-                <span className="flex items-center">
-                  <span className="text-lg font-bold">IDZ.TECH</span>
-                </span>
-                <span>Wróć na stronę główną</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4 relative z-10">
-          <NotificationBell />
-
-          <div className="flex items-center ml-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
-                    {userAvatar ? (
-                      <AvatarImage src={userAvatar} alt={fullName} />
-                    ) : (
-                      <AvatarFallback className="bg-premium-gradient text-white">
-                        {fullName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span>{fullName}</span>
-                    <span className="text-xs text-muted-foreground">{userRole}</span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Ustawienia</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleLogout}
-                  className="text-white bg-red-500 hover:bg-red-600 focus:text-white hover:text-white"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Wyloguj</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+  // Get meta data for current page or use default if not defined
+  const currentPath = location.pathname;
+  const meta = metaConfig[currentPath] || defaultMeta;
+  
+  return (
+    <>
+      <Helmet>
+        <title>{meta.title}</title>
+        <meta name="description" content={meta.description} />
+        <meta name="keywords" content={meta.keywords} />
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={meta.title} />
+        <meta property="og:description" content={meta.description} />
+        <meta property="og:url" content={`https://www.idz.tech${currentPath}`} />
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={meta.title} />
+        <meta name="twitter:description" content={meta.description} />
+      </Helmet>
+      
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black dark:bg-black backdrop-blur-lg">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between py-4">
+            <Brand />
+            
+            <div className="hidden md:flex md:items-center md:justify-center md:flex-1">
+              <DesktopNavigation />
+            </div>
+            
+            <DesktopControls />
+            <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
           </div>
         </div>
       </header>
-    );
-  }
-
-  // Regular navbar for non-admin pages
-  return (
-    <nav className={`fixed w-full top-0 z-50 transition-all duration-300 bg-opacity-90 backdrop-blur-sm ${isScrolled ? (theme === 'dark' ? 'bg-slate-900/90 shadow-lg' : 'bg-white/90 shadow-lg') : (theme === 'dark' ? 'bg-transparent' : 'bg-white bg-opacity-70')}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <Brand />
-          <DesktopNavigation />
-          <DesktopControls />
-          <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
-        </div>
-      </div>
-    </nav>
+    </>
   );
 };
 
