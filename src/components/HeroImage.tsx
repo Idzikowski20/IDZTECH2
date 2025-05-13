@@ -22,14 +22,14 @@ const HeroImage = () => {
         <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
       )}
       <div 
-        className={`w-full h-full max-h-[500px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
+        className={`w-full h-full max-h-[1000px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
         style={{ display: isLoaded ? 'block' : 'none' }}
       >
         <DotLottieReact
           src="https://lottie.host/f0718c9c-401a-471f-bc37-7576f640256b/kjND9P7piN.lottie"
           loop
           autoplay
-          className="w-full h-full"
+          className="w-full h-full scale-[2.0]"
         />
       </div>
     </div>

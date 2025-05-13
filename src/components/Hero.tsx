@@ -37,7 +37,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
           {/* Hero content on the left */}
-          <div className="w-full lg:w-5/12">            
+          <div className="w-full lg:w-4/12">            
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-aeonik animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.2s'}}
@@ -88,7 +88,7 @@ const Hero = () => {
           </div>
           
           {/* Hero image on the right - increased size by adjusting width ratio */}
-          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0" 
+          <div className="w-full lg:w-8/12 mt-10 lg:mt-0 animate-fade-in opacity-0 h-[800px] flex items-center justify-center" 
                style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
             <HeroImage />
           </div>
