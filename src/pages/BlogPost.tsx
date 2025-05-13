@@ -1,160 +1,219 @@
 
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, Eye, Tag } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
-import { Skeleton } from '@/components/ui/skeleton';
-import LikeButton from '@/components/LikeButton';
+import { useAuth } from '@/utils/AuthProvider';
 import CommentSection from '@/components/CommentSection';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import LikeButton from '@/components/LikeButton';
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from '@/utils/themeContext';
+import { supabase } from '@/utils/supabaseClient';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { getPostBySlug, incrementView } = useBlogStore();
-  const [post, setPost] = useState(slug ? getPostBySlug(slug) : undefined);
-  const [loading, setLoading] = useState(!post);
-
+  const { user } = useAuth();
+  const viewCountUpdated = useRef(false);
+  const isMobile = useIsMobile();
+  const { theme } = useTheme();
+  const [authorProfile, setAuthorProfile] = useState<any>(null);
+  
+  const post = slug ? getPostBySlug(slug) : undefined;
+  
   useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0);
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     
-    // Set post from slug
-    if (slug) {
-      const currentPost = getPostBySlug(slug);
-      setPost(currentPost);
-      setLoading(!currentPost);
-      
-      // Increment view count
-      if (currentPost) {
-        incrementView(currentPost.id);
-      }
+    // Increment view count only once per component mount
+    if (post?.id && !viewCountUpdated.current) {
+      incrementView(post.id);
+      viewCountUpdated.current = true;
     }
-  }, [slug, getPostBySlug, incrementView]);
+  }, [post?.id, incrementView]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-premium-dark">
-        <Navbar />
-        
-        <div className="container mx-auto px-4 pt-32 pb-16">
-          <div className="max-w-3xl mx-auto">
-            <Skeleton className="h-10 w-2/3 mb-4" />
-            <Skeleton className="h-6 w-1/2 mb-8" />
+  // Fetch author profile from Supabase if we have an author ID
+  useEffect(() => {
+    const fetchAuthorProfile = async () => {
+      // Use post.author instead of post.authorId since that's what's available in the BlogPost type
+      if (post?.author) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('name', post.author) // Using name instead of ID
+            .single();
             
-            <Skeleton className="h-[400px] w-full mb-8 rounded-lg" />
-            
-            <div className="space-y-4 mb-8">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-            </div>
-          </div>
-        </div>
-        
-        <Footer />
-      </div>
-    );
-  }
-
+          if (!error && data) {
+            setAuthorProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching author profile:', error);
+        }
+      }
+    };
+    
+    fetchAuthorProfile();
+  }, [post?.author]);
+  
   if (!post) {
     return (
       <div className="min-h-screen bg-premium-dark">
         <Navbar />
-        
-        <div className="container mx-auto px-4 pt-32 pb-16 text-center">
-          <h1 className="text-3xl font-bold mb-4">Post nie został znaleziony</h1>
-          <p className="mb-8 text-premium-light/70">Przepraszamy, ale post o podanym adresie nie istnieje.</p>
-          
-          <Link to="/blog">
-            <Button>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Wróć do bloga
-            </Button>
-          </Link>
+        <div className="container mx-auto px-4 pt-40 pb-24 text-center">
+          <h1 className="text-3xl font-bold mb-6">Post nie został znaleziony</h1>
+          <p className="mb-8 text-premium-light/70">Przepraszamy, ale szukany post nie istnieje.</p>
+          <Button onClick={() => navigate('/blog')} className="bg-premium-gradient">
+            Wróć do bloga
+          </Button>
         </div>
-        
         <Footer />
       </div>
     );
   }
+
+  // Używamy danych autora z profilu lub z posta jako fallback
+  const authorDisplayName = authorProfile?.name || post.author || "IDZ.TECH";
+  const authorInitial = authorDisplayName.charAt(0);
+  const authorProfilePicture = authorProfile?.profilePicture || null;
+
+  // Safely access post properties with fallbacks for undefined values
+  const commentsCount = post.comments ? post.comments.length : 0;
+  const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
+
+  // Check if user is admin, moderator or blogger (has special permissions)
+  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
+  const isUserLoggedIn = !!user;
 
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
-      <article className="container mx-auto px-4 pt-32 pb-16">
+      {/* Hero section */}
+      <section className="pt-32 pb-10">
+        <div className="container mx-auto px-4">
+          <Link to="/blog">
+            <Button variant="ghost" className={`mb-6 hover:bg-premium-light/5 hover:text-white ${theme === 'light' ? 'text-black hover:text-white' : ''}`}>
+              <ArrowLeft size={18} className="mr-2" /> Wróć do bloga
+            </Button>
+          </Link>
+          
+          <div className="max-w-3xl mx-auto">
+            <div className="flex flex-wrap items-center text-sm text-premium-light/60 mb-4 gap-2">
+              <div className="flex items-center">
+                <Clock size={14} className="mr-1" />
+                <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+              </div>
+              
+              {isUserLoggedIn && (
+                <>
+                  <span className="mx-2">•</span>
+                  <span>{post.categories.join(', ')}</span>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Eye size={14} className="mr-1" />
+                    <span>{post.views} wyświetleń</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <MessageCircle size={14} className="mr-1" />
+                    <span>{commentsCount} komentarzy</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Heart size={14} className="mr-1" />
+                    <span>{likesCount} polubień</span>
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
+            
+            <div className="flex items-center mb-4">
+              <Avatar className="h-10 w-10 border">
+                <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
+                <AvatarFallback className="bg-premium-gradient text-white">
+                  {authorInitial}
+                </AvatarFallback>
+              </Avatar>
+              <div className="ml-3">
+                <div className="font-medium">{authorDisplayName}</div>
+                <div className="text-sm text-premium-light/60">
+                  {authorProfile?.jobTitle || "Autor"}
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <LikeButton postId={post.id} />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Featured Image */}
+      <div className="container mx-auto px-4 mb-10">
         <div className="max-w-3xl mx-auto">
-          {/* Back button */}
-          <div className="mb-8">
-            <Link to="/blog">
-              <Button variant="ghost" className="text-premium-light/70 hover:bg-black hover:text-white">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Wróć do listy artykułów
-              </Button>
-            </Link>
+          <div className="rounded-xl overflow-hidden">
+            <img src={post.featuredImage} alt={post.title} className="w-full h-auto" />
+          </div>
+        </div>
+      </div>
+      
+      {/* Post Content */}
+      <section className="pb-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
+            {/* Enhanced HTML rendering with proper styling */}
+            <div 
+              dangerouslySetInnerHTML={{ __html: post.content }} 
+              className="blog-content"
+            />
           </div>
           
-          {/* Post header */}
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
-          
-          {/* Post meta */}
-          <div className="flex flex-wrap gap-4 mb-8 text-sm text-premium-light/60">
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-2" />
-              {new Date(post.date).toLocaleDateString('pl-PL')}
-            </div>
-            <div className="flex items-center">
-              <Eye className="h-4 w-4 mr-2" />
-              {post.views} wyświetleń
-            </div>
-            <div className="flex items-center">
-              <Tag className="h-4 w-4 mr-2" />
-              {post.categories.join(', ')}
-            </div>
-          </div>
-          
-          {/* Featured image */}
-          <div className="mb-8 rounded-lg overflow-hidden">
-            <AspectRatio ratio={16/9}>
-              <img 
-                src={post.featuredImage} 
-                alt={post.title} 
-                className="w-full h-full object-cover"
-              />
-            </AspectRatio>
-          </div>
-          
-          {/* Post content */}
-          <div 
-            className="prose prose-invert max-w-none mb-8"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
-          
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
-              {post.tags.map((tag, index) => (
-                <span 
+          <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
+            <div className="flex flex-wrap gap-2">
+              {post.tags && post.tags.map((tag, index) => (
+                <span
                   key={index}
-                  className="bg-premium-dark/70 border border-premium-light/20 px-3 py-1 rounded-full text-sm"
+                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
                 >
                   #{tag}
                 </span>
               ))}
             </div>
+          </div>
+
+          {/* Comments section - only show when logged in */}
+          {isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto">
+              <CommentSection postId={post.id} />
+            </div>
           )}
           
-          {/* Like button */}
-          <div className="mb-8">
-            <LikeButton postId={post.id} />
-          </div>
-          
-          {/* Comments section */}
-          <CommentSection postId={post.id} postTitle={post.title} />
+          {!isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
+              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
+              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
+              <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
+                Zaloguj się
+              </Button>
+            </div>
+          )}
         </div>
-      </article>
+      </section>
       
       <Footer />
     </div>

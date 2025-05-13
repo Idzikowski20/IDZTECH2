@@ -1,9 +1,9 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useNotifications } from './notifications';
 import { NotificationType } from './notifications';
 import { supabase } from './supabaseClient';
-import { notifyPostCreated, notifyPostDeleted, notifyPostEdited } from './notifications';
 
 export interface CommentReply {
   id: string;
@@ -391,7 +391,7 @@ export const useBlogStore = create<BlogStore>()(
           set((state) => ({
             posts: state.posts.map((post) => 
               post.id === id ? { ...post, views: newViews } : post
-            ))
+            )
           }));
         } catch (error) {
           console.error("Error incrementing view:", error);
@@ -500,7 +500,7 @@ export const useBlogStore = create<BlogStore>()(
               post.id === postId 
                 ? { ...post, comments: post.comments && post.comments.filter(comment => comment.id !== commentId) } 
                 : post
-            ))
+            )
           }));
         } catch (error) {
           console.error("Error deleting comment:", error);
@@ -637,7 +637,7 @@ export const useBlogStore = create<BlogStore>()(
               p.id === postId 
                 ? { ...p, likes: updatedLikes } 
                 : p
-            ))
+            )
           }));
         } catch (error) {
           console.error("Error toggling like:", error);
@@ -690,7 +690,7 @@ export const useBlogStore = create<BlogStore>()(
                   guestLikes: post.guestLikes.filter(like => like.id !== guestId) 
                 } 
               : post
-          ))
+          )
         }));
       },
       
@@ -783,3 +783,4 @@ export const useBlogStore = create<BlogStore>()(
 setTimeout(() => {
   useBlogStore.getState().fetchPosts();
 }, 0);
+

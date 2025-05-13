@@ -1,7 +1,6 @@
 
 User-agent: *
 Allow: /
-Allow: /sitemap.xml
 
 # Disallow admin routes
 Disallow: /admin
@@ -13,4 +12,4 @@ Disallow: /reset-password
 Disallow: /profile
 
 # Sitemap
-Sitemap: https://idztech.pl/sitemap.xml
+Sitemap: https://idz.tech/sitemap.xml

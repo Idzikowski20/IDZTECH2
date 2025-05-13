@@ -48,7 +48,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   return (
     <div className="flex gap-3 py-4">
       <div className="flex-shrink-0">
-        <Avatar className="h-10 w-10 border">
+        <Avatar className="h-10 w-10">
           {author.profilePicture ? (
             <AvatarImage src={author.profilePicture} alt={author.name} />
           ) : (

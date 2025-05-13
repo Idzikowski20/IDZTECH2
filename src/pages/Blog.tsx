@@ -31,11 +31,6 @@ const Blog = () => {
     });
   }, []);
 
-  // Sort posts by date (newest first)
-  const sortedPosts = [...posts].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -83,7 +78,7 @@ const Blog = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {sortedPosts.map((post) => (
+              {posts.map((post) => (
                 <div 
                   key={post.id} 
                   className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"
@@ -119,7 +114,7 @@ const Blog = () => {
                     <Link to={`/blog/${post.slug}`}>
                       <Button 
                         variant="ghost" 
-                        className="p-0 hover:bg-transparent text-premium-purple hover:bg-black hover:text-white"
+                        className="p-0 hover:bg-transparent text-premium-purple hover:text-premium-purple/80"
                       >
                         Czytaj więcej <ArrowRight size={16} className="ml-2" />
                       </Button>

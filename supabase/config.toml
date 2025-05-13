@@ -3,14 +3,3 @@ project_id = "apeestymqcpmpdnmccmd"
 
 [functions.send-notification]
 verify_jwt = true
-
-[realtime.enabled]
-true
-
-[[realtime.tables]]
-name = "notifications"
-events = ["insert", "update", "delete"]
-
-[[realtime.tables]]
-name = "blog_comments"
-events = ["insert", "update", "delete"]
