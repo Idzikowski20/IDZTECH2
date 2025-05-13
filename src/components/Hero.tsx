@@ -69,7 +69,7 @@ const Hero = () => {
             </div>
             
             <div
-              className="flex flex-col md:flex-row gap-4 md:gap-8 justify-start text-sm text-premium-light/70 animate-fade-in opacity-0"
+              className="flex flex-wrap gap-4 justify-start text-sm text-premium-light/70 animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.5s'}}
             >
               <div className="flex items-center gap-2">
@@ -83,6 +83,22 @@ const Hero = () => {
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
                 <span>Nowoczesne technologie</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Optymalizacja pod SEO</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Konkurencyjne ceny</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Bezpieczeństwo strony</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Strona nawet do 3 dni</span>
               </div>
             </div>
           </div>
