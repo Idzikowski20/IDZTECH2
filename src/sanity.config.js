@@ -4,7 +4,7 @@ import { deskTool } from 'sanity/desk';
 import { visionTool } from '@sanity/vision';
 import schema from './schemas/sanity/schema';
 
-export default defineConfig({
+export const createConfig = () => defineConfig({
   name: 'default',
   title: 'IDZ.Tech CMS',
 
@@ -22,3 +22,5 @@ export default defineConfig({
     types: schema,
   },
 });
+
+export default createConfig();

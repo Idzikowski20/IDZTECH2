@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster";
 
@@ -21,8 +21,10 @@ import { SanityAuthProvider } from './utils/SanityAuthProvider';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
-import AdminStudio from './pages/AdminStudio';
 import AdminStats from './pages/AdminStats';
+
+// Lazy load the AdminStudio to prevent it from affecting the main bundle
+const AdminStudio = React.lazy(() => import('./pages/AdminStudio'));
 
 function App() {
   const [showToast, setShowToast] = useState(false);
@@ -59,7 +61,11 @@ function App() {
             <Route path="/auth" element={<SanityAuth />} />
             <Route path="/admin" element={<AdminLayout><Admin /></AdminLayout>} />
             <Route path="/admin/stats" element={<AdminLayout><AdminStats /></AdminLayout>} />
-            <Route path="/admin/studio/*" element={<AdminStudio />} />
+            <Route path="/admin/studio/*" element={
+              <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading Sanity Studio...</div>}>
+                <AdminStudio />
+              </Suspense>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Footer />
