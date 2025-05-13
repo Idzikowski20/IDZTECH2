@@ -31,13 +31,12 @@ export default defineConfig(({ mode }) => ({
         drop_debugger: true,
       }
     },
-    // Split chunks for better caching
+    // Split chunks for better caching, but don't chunk ui components as a directory
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom']
+          // Removed the problematic ui chunk that was referencing the directory
         }
       }
     },

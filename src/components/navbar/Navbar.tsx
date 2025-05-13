@@ -1,61 +1,72 @@
 
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '@/utils/themeContext';
 import Brand from './Brand';
-import MobileMenu from './MobileMenu';
 import DesktopNavigation from './DesktopNavigation';
 import DesktopControls from './DesktopControls';
+import MobileMenu from './MobileMenu';
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
+  const { theme } = useTheme();
   
-  // Handle scroll effect for navbar
+  // Optimize scroll handler with useCallback to prevent unnecessary re-renders
+  const handleScroll = useCallback(() => {
+    setIsScrolled(window.scrollY > 50);
+  }, []);
+  
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
+    // Add scroll event listener
+    window.addEventListener('scroll', handleScroll);
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Initial check for page that might be loaded scrolled down
+    handleScroll();
     
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
-  
-  // Close menu when changing routes
+  }, [handleScroll]);
+
+  // Handle body scroll when mobile menu is open/closed
   useEffect(() => {
-    setIsMenuOpen(false);
-  }, [location]);
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Immediate restore of scrolling to prevent UI issues
+      document.body.style.overflow = '';
+    }
+    
+    // Always clean up by restoring scrolling when component unmounts
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
   
   return (
-    <header 
-      className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${
-        isScrolled ? 'bg-premium-dark/90 backdrop-blur-lg py-2' : 'bg-transparent py-4'
-      }`}
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
-          {/* Brand/Logo */}
-          <Brand />
-          
-          {/* Desktop Navigation - hidden on mobile */}
-          <DesktopNavigation />
-          
-          {/* Desktop Controls - hidden on mobile */}
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      isScrolled 
+        ? theme === 'light'
+          ? 'py-3 backdrop-blur-md bg-white/80 shadow-lg'
+          : 'py-3 backdrop-blur-md bg-premium-dark/80 shadow-lg'
+        : 'py-5'
+    }`}>
+      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+        <Brand />
+        
+        {/* Desktop Navigation */}
+        <DesktopNavigation />
+
+        <div className="flex items-center space-x-4">
+          {/* Desktop-only buttons */}
           <DesktopControls />
           
-          {/* Mobile Menu - hidden on desktop */}
+          {/* Mobile Menu Button */}
           <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
         </div>
       </div>
-    </header>
+    </nav>
   );
 };
 

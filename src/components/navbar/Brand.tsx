@@ -1,21 +1,10 @@
 
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@/utils/themeContext';
 
 const Brand = () => {
-  const { theme } = useTheme();
-  
   return (
-    <Link 
-      to="/" 
-      className="flex items-center"
-      aria-label="IDZ.TECH - strona główna"
-    >
-      <span 
-        className={`text-lg font-semibold tracking-tight ${theme === 'light' ? 'text-black' : 'text-white'}`}
-        aria-hidden="true"
-      >
+    <Link to="/" className="flex items-center text-white font-bold text-xl">
+      <span className="flex items-center">
         IDZ.TECH
       </span>
     </Link>

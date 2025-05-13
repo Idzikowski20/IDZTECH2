@@ -1,28 +1,34 @@
 
 import { useState, useEffect } from 'react';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  
+
   useEffect(() => {
-    // Set loaded state to true immediately to avoid quality degradation
-    setIsLoaded(true);
+    // Preload image
+    const img = new Image();
+    img.src = "components/images/hero.gif";
+    img.onload = () => setIsLoaded(true);
+    
+    return () => {
+      img.onload = null;
+    };
   }, []);
 
   return (
-    <div className="relative w-full h-full">
-      <div 
-        className={`w-full h-full max-h-[450px] ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-      >
-        <DotLottieReact
-          src="https://lottie.host/f0718c9c-401a-471f-bc37-7576f640256b/kjND9P7piN.lottie"
-          loop
-          autoplay
-          speed={0.5}
-          className="w-full h-full scale-[1.1] overflow-visible"
-        />
-      </div>
+    <div className="relative">
+      {!isLoaded && (
+        <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
+      )}
+      <img 
+        src="components/images/hero.gif" 
+        alt="Tworzenie Stron Internetowych" 
+        className={`w-full h-full object-contain ${isLoaded ? 'animate-float' : 'opacity-0'}`}
+        loading="lazy"
+        width="600"
+        height="400"
+        style={{ display: isLoaded ? 'block' : 'none' }}
+      />
     </div>
   );
 };

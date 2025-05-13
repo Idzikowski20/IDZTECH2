@@ -1,7 +1,6 @@
 
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import { HelmetProvider } from 'react-helmet-async';
 
 // Import App dynamically for better JS loading performance
 const loadApp = async () => {
@@ -12,12 +11,8 @@ const loadApp = async () => {
     // Hydrate only when DOM is ready
     const root = createRoot(document.getElementById("root")!);
     
-    // Remove loading message and render app with Helmet for meta tags
-    root.render(
-      <HelmetProvider>
-        <App />
-      </HelmetProvider>
-    );
+    // Remove loading message and render app
+    root.render(<App />);
     
     // Register performance metrics
     if ('performance' in window && 'measure' in window.performance) {
