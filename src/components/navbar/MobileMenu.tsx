@@ -22,8 +22,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
   const linkClass = cn(
     "block w-full text-left px-4 py-2 my-1 rounded-md transition-colors",
     theme === 'light' 
-      ? 'text-black hover:bg-gray-100' 
-      : 'text-white hover:bg-white/10'
+      ? 'text-black hover:bg-gray-100 hover:text-black' 
+      : 'text-white hover:bg-white/10 hover:text-white'
   );
   
   const toggleMenu = () => {
@@ -35,7 +35,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
       {/* Mobile menu button */}
       <button
         type="button"
-        className="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white focus:outline-none"
+        className={`lg:hidden inline-flex items-center justify-center p-2 rounded-md focus:outline-none ${
+          theme === 'light' ? 'text-black hover:bg-gray-200' : 'text-white hover:bg-white/10'
+        }`}
         onClick={toggleMenu}
         aria-expanded={isMenuOpen}
         aria-label={isMenuOpen ? "Zamknij menu" : "Otwórz menu"}
@@ -51,7 +53,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
       {/* Mobile menu panel */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 z-50 lg:hidden bg-black"
+          className={`fixed inset-0 z-50 lg:hidden ${theme === 'light' ? 'bg-white' : 'bg-black'}`}
           role="dialog"
           aria-modal="true"
           aria-label="Menu mobilne"
@@ -59,7 +61,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <div className="flex flex-col h-full p-4 pt-20">
             <button
               type="button"
-              className="absolute top-4 right-4 p-2 rounded-md text-white"
+              className={`absolute top-4 right-4 p-2 rounded-md ${
+                theme === 'light' ? 'text-black hover:bg-gray-200' : 'text-white hover:bg-white/10'
+              }`}
               onClick={() => setIsMenuOpen(false)}
               aria-label="Zamknij menu"
             >
@@ -87,7 +91,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="pl-4 space-y-1">
-                        <p className="font-medium mt-2 mb-1 px-4">Strony www</p>
+                        <p className={`font-medium mt-2 mb-1 px-4 ${theme === 'light' ? 'text-black' : 'text-white'}`}>Strony www</p>
                         <Link 
                           to="/tworzenie-stron-www" 
                           className={`${linkClass} ${isActive('/tworzenie-stron-www') ? 'font-bold' : ''}`}
@@ -105,7 +109,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                           Sklepy internetowe
                         </Link>
                         
-                        <p className="font-medium mt-4 mb-1 px-4">Pozycjonowanie (SEO)</p>
+                        <p className={`font-medium mt-4 mb-1 px-4 ${theme === 'light' ? 'text-black' : 'text-white'}`}>Pozycjonowanie (SEO)</p>
                         <Link 
                           to="/pozycjonowanie-stron" 
                           className={`${linkClass} ${isActive('/pozycjonowanie-stron') ? 'font-bold' : ''}`}

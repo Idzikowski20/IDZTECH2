@@ -30,6 +30,14 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     email: user?.email
   });
   
+  // Special case for patryk.idzikowski@interia.pl - always granted admin role
+  useEffect(() => {
+    if (user && user.email === "patryk.idzikowski@interia.pl") {
+      console.log("Setting admin role for patryk.idzikowski@interia.pl");
+      setUserRole("admin");
+    }
+  }, [user]);
+  
   // Fetch user role from Supabase
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -63,14 +71,6 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     }
   }, [user]);
   
-  // Special case for admin users
-  useEffect(() => {
-    if (user && user.email === "patryk.idzikowski@interia.pl") {
-      console.log("Setting admin role for patryk.idzikowski@interia.pl");
-      setUserRole("admin");
-    }
-  }, [user]);
-  
   // Initialize auth check with a short timer to ensure auth state is loaded
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -79,6 +79,11 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       
       // Check for role-based access if a role is required
       if (user && requiredRole && userRole) {
+        // Special case for users page - everyone can view, but only admins can edit
+        if (location.pathname === '/admin/users') {
+          return;
+        }
+        
         // Check if the user has the required role or if they are an admin or administrator
         const hasRequiredRole = 
           userRole === requiredRole || 
@@ -93,7 +98,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [user, requiredRole, userRole]);
+  }, [user, requiredRole, userRole, location.pathname]);
   
   // Handle redirect to admin if already authenticated and on login page
   useEffect(() => {
