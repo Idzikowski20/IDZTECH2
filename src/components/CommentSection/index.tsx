@@ -9,7 +9,10 @@ import CommentHeader from './CommentHeader';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { addCommentNotification } from '@/utils/notifications';
+import { notifyCommentAdded } from '@/utils/notifications';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export interface Comment {
   id: string;
@@ -19,6 +22,7 @@ export interface Comment {
   userName?: string;
   userAvatar?: string;
   userRole?: string;
+  status?: string;
 }
 
 interface CommentSectionProps {
@@ -30,6 +34,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [showGuestDialog, setShowGuestDialog] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestComment, setGuestComment] = useState('');
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -46,9 +53,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
             content, 
             created_at, 
             user_id,
+            status,
             profiles:user_id (name, lastName, profilePicture, role)
           `)
           .eq('post_id', postId)
+          .eq('status', 'approved') // Only approved comments
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -78,7 +87,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
             userId: comment.user_id,
             userName: fullName,
             userAvatar: comment.profiles ? (comment.profiles as any).profilePicture || '' : '',
-            userRole: comment.profiles ? (comment.profiles as any).role || '' : ''
+            userRole: comment.profiles ? (comment.profiles as any).role || '' : '',
+            status: comment.status
           };
         });
 
@@ -98,11 +108,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
 
   const handleAddComment = async (content: string) => {
     if (!user) {
-      toast({
-        title: 'Musisz być zalogowany',
-        description: 'Zaloguj się aby dodać komentarz',
-      });
-      navigate('/login');
+      // Save the comment for the guest dialog
+      setGuestComment(content);
+      setShowGuestDialog(true);
       return false;
     }
 
@@ -111,7 +119,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
       const { data, error } = await supabase
         .from('blog_comments')
         .insert([
-          { content, post_id: postId, user_id: user.id }
+          { 
+            content, 
+            post_id: postId, 
+            user_id: user.id,
+            status: 'approved' // Automatically approve for logged in users
+          }
         ])
         .select()
         .single();
@@ -156,16 +169,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         userId: user.id,
         userName: fullName,
         userAvatar: userData?.profilePicture || '',
-        userRole: userData?.role || ''
+        userRole: userData?.role || '',
+        status: 'approved'
       };
 
       setComments(prevComments => [newComment, ...prevComments]);
 
       // Send notification
-      await addCommentNotification(
+      await notifyCommentAdded(
         postId, 
         postTitle, 
         fullName,
+        content,
+        data.id,
+        'approved',
         user.id
       );
 
@@ -183,6 +200,70 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         variant: 'destructive',
       });
       return false;
+    }
+  };
+
+  const handleGuestCommentSubmit = async () => {
+    if (!guestName.trim()) {
+      toast({
+        title: 'Wymagane imię',
+        description: 'Proszę podać swoje imię',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      // Insert pending comment
+      const { data, error } = await supabase
+        .from('blog_comments')
+        .insert([
+          { 
+            content: guestComment, 
+            post_id: postId,
+            status: 'pending',
+            guest_name: guestName
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding guest comment:', error);
+        toast({
+          title: 'Błąd',
+          description: 'Nie udało się dodać komentarza',
+          variant: 'destructive',
+        });
+        setShowGuestDialog(false);
+        return;
+      }
+
+      // Send notification for approval
+      await notifyCommentAdded(
+        postId,
+        postTitle,
+        guestName,
+        guestComment,
+        data.id,
+        'pending'
+      );
+
+      setShowGuestDialog(false);
+      setGuestComment('');
+      setGuestName('');
+      
+      toast({
+        title: 'Komentarz wysłany',
+        description: 'Twój komentarz został wysłany do zatwierdzenia przez administratora',
+      });
+    } catch (err) {
+      console.error('Error in handleGuestCommentSubmit:', err);
+      toast({
+        title: 'Błąd',
+        description: 'Wystąpił problem podczas dodawania komentarza',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -241,6 +322,44 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
           </Button>
         </div>
       )}
+
+      {/* Guest comment dialog */}
+      <Dialog open={showGuestDialog} onOpenChange={setShowGuestDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Dodaj komentarz jako gość</DialogTitle>
+            <DialogDescription>
+              Podaj swoje imię, aby dodać komentarz. Twój komentarz zostanie wysłany do zatwierdzenia przez administratora.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Twoje imię</Label>
+              <Input 
+                id="name" 
+                placeholder="Jan Kowalski" 
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowGuestDialog(false)}
+                className="hover:bg-black hover:text-white"
+              >
+                Anuluj
+              </Button>
+              <Button 
+                onClick={handleGuestCommentSubmit}
+                className="hover:bg-black hover:text-white"
+              >
+                Wyślij komentarz
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -12,7 +12,7 @@ import CommentSection from '@/components/CommentSection';
 import LikeButton from '@/components/LikeButton';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from '@/utils/themeContext';
-import { supabase } from '@/utils/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const BlogPost = () => {
@@ -82,6 +82,8 @@ const BlogPost = () => {
 
   // Używamy danych autora z profilu lub z posta jako fallback
   const authorDisplayName = authorProfile?.name || post.author || "IDZ.TECH";
+  const authorLastName = authorProfile?.lastName || "";
+  const authorFullName = authorLastName ? `${authorDisplayName} ${authorLastName}` : authorDisplayName;
   const authorInitial = authorDisplayName.charAt(0);
   const authorProfilePicture = authorProfile?.profilePicture || null;
 
@@ -143,13 +145,13 @@ const BlogPost = () => {
             
             <div className="flex items-center mb-4">
               <Avatar className="h-10 w-10 border">
-                <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
+                <AvatarImage src={authorProfilePicture || ''} alt={authorFullName} />
                 <AvatarFallback className="bg-premium-gradient text-white">
                   {authorInitial}
                 </AvatarFallback>
               </Avatar>
               <div className="ml-3">
-                <div className="font-medium">{authorDisplayName}</div>
+                <div className="font-medium">{authorFullName}</div>
                 <div className="text-sm text-premium-light/60">
                   {authorProfile?.jobTitle || "Autor"}
                 </div>
@@ -196,17 +198,15 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {/* Comments section - only show when logged in */}
-          {isUserLoggedIn && (
-            <div className="max-w-3xl mx-auto">
-              <CommentSection postId={post.id} />
-            </div>
-          )}
+          {/* Comments section - allow for all but with different flows */}
+          <div className="max-w-3xl mx-auto">
+            <CommentSection postId={post.id} postTitle={post.title} />
+          </div>
           
           {!isUserLoggedIn && (
             <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
-              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
-              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
+              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć wszystkie statystyki</h3>
+              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, zaloguj się na swoje konto.</p>
               <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
                 Zaloguj się
               </Button>

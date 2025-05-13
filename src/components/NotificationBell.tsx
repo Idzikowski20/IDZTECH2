@@ -3,46 +3,88 @@ import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useNotifications } from "@/utils/notifications";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  created_at: string;
+  is_read: boolean;
+  user_id?: string;
+  target_id?: string;
+  target_type?: string;
+}
 
 const NotificationBell = () => {
   const navigate = useNavigate();
-  const { unreadCount, fetchNotifications } = useNotifications();
   const { toast } = useToast();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
-  // Check connection status on mount
-  useEffect(() => {
-    checkConnection();
-  }, []);
-
-  const checkConnection = async () => {
+  // Fetch notifications
+  const fetchNotifications = async () => {
     try {
-      // Test connection by fetching a simple record
-      const { error: connectionError } = await supabase
-        .from('notifications')
-        .select('count(*)', { count: 'exact', head: true });
+      setLoading(true);
+      setError(null);
       
-      if (connectionError) {
-        console.error("Connection error:", connectionError);
-        setError("Nie udało się połączyć z bazą powiadomień");
+      const { data, error: fetchError } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (fetchError) {
+        console.error("Error fetching notifications:", fetchError);
+        setError("Nie udało się pobrać powiadomień");
+        setLoading(false);
+        return;
       }
+
+      setNotifications(data || []);
+      setUnreadCount((data || []).filter(n => !n.is_read).length);
     } catch (err) {
-      console.error("Error checking connection:", err);
+      console.error("Error fetching notifications:", err);
       setError("Problem z połączeniem sieciowym");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Set up realtime subscription for notifications
+  useEffect(() => {
+    fetchNotifications();
+
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('notifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications'
+        },
+        () => {
+          fetchNotifications();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const handleClick = () => {
     if (error) {
-      // If there's an error, retry fetching notifications
       handleRetry();
     } else {
-      // Otherwise navigate to notifications page
       navigate("/admin/notifications");
     }
   };
@@ -56,7 +98,6 @@ const NotificationBell = () => {
         title: "Odświeżono",
         description: "Powiadomienia zostały pomyślnie odświeżone",
       });
-      setRetrying(false);
     } catch (err) {
       console.error("Failed to refresh notifications:", err);
       setError("Nie udało się odświeżyć powiadomień");
@@ -65,6 +106,7 @@ const NotificationBell = () => {
         description: "Nie udało się odświeżyć powiadomień",
         variant: "destructive",
       });
+    } finally {
       setRetrying(false);
     }
   };
@@ -76,6 +118,8 @@ const NotificationBell = () => {
         size="icon"
         className="relative"
         onClick={handleClick}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
       >
         {loading || retrying ? (
           <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -95,24 +139,24 @@ const NotificationBell = () => {
         )}
       </Button>
       
-      {error && (
+      {(showTooltip || error) && (
         <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          {error === "Problem z połączeniem sieciowym" ? 
-            "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
-            error}
-          <button 
-            onClick={handleRetry}
-            className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"
-            disabled={retrying}
-          >
-            {retrying ? "Odświeżanie..." : "Odśwież"}
-          </button>
-        </div>
-      )}
-      
-      {!error && !loading && unreadCount === 0 && (
-        <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          Brak nowych powiadomień
+          {error ? (
+            <>
+              {error === "Problem z połączeniem sieciowym" ? 
+                "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
+                error}
+              <button 
+                onClick={handleRetry}
+                className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"
+                disabled={retrying}
+              >
+                {retrying ? "Odświeżanie..." : "Odśwież"}
+              </button>
+            </>
+          ) : (
+            unreadCount === 0 ? "Brak nowych powiadomień" : `Masz ${unreadCount} ${unreadCount === 1 ? 'nowe powiadomienie' : 'nowych powiadomień'}`
+          )}
         </div>
       )}
     </div>
