@@ -1,22 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Edit, Trash2, Plus, Search, BarChart } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import BlogPostStats from '@/components/BlogPostStats';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface BlogPost {
   id: string;
@@ -28,6 +19,8 @@ interface BlogPost {
   views?: number;
   author_id?: string;
   featured_image?: string;
+  categories?: string[];
+  tags?: string[];
 }
 
 const Blog = () => {
@@ -36,8 +29,6 @@ const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [statsOpen, setStatsOpen] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,37 +59,6 @@ const Blog = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Czy na pewno chcesz usunąć ten post?')) {
-      try {
-        const { error } = await supabase
-          .from('blog_posts')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-        
-        setPosts(posts.filter(post => post.id !== id));
-        toast({
-          title: "Sukces",
-          description: "Post został usunięty",
-        });
-      } catch (error) {
-        console.error('Error deleting post:', error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się usunąć postu",
-          variant: "destructive",
-        });
-      }
-    }
-  };
-
-  const handleViewStats = (post: BlogPost) => {
-    setSelectedPost(post);
-    setStatsOpen(true);
-  };
-
   const filteredPosts = posts.filter(post => 
     post.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -109,124 +69,85 @@ const Blog = () => {
     return date.toLocaleDateString('pl-PL');
   };
 
+  const getCategory = (post: BlogPost) => {
+    if (post.categories && post.categories.length > 0) {
+      return post.categories[0];
+    }
+    return 'SEO';
+  };
+
   return (
-    <div className="container mx-auto py-8 px-4 min-h-screen bg-black">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Blog</h1>
-        <div className="flex space-x-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+    <div className="min-h-screen bg-black">
+      <div className="container mx-auto py-16 px-4">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold mb-4">Blog SEO</h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Najnowsze informacje, porady i trendy z świata SEO i tworzenia stron internetowych
+          </p>
+          
+          {/* Search Bar */}
+          <div className="relative max-w-xl mx-auto mt-8">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
-              placeholder="Wyszukaj po tytule..."
-              className="pl-10"
+              className="bg-transparent border-gray-700 pl-10 py-6 rounded-md w-full"
+              placeholder="Szukaj artykułów..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button onClick={() => navigate('/admin/new-post')} className="bg-purple-600 hover:bg-purple-700 text-white">
-            <Plus className="mr-2 h-4 w-4" /> Dodaj nowy post
-          </Button>
         </div>
-      </div>
 
-      <div className="overflow-x-auto rounded-lg">
-        <Table className="w-full border-collapse">
-          <TableHeader className="bg-gray-900">
-            <TableRow>
-              <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">TYTUŁ</TableHead>
-              <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">DATA</TableHead>
-              <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">WYŚWIETLENIA</TableHead>
-              <TableHead className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">AKCJE</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="divide-y divide-gray-700">
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={4} className="py-4 px-4 text-center">
-                  <div className="flex justify-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-premium-purple"></div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 text-red-400">
+            <p className="text-xl font-semibold">Błąd</p>
+            <p>{error}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPosts.map((post) => (
+              <Card 
+                key={post.id} 
+                className="bg-transparent border border-gray-800 hover:border-gray-600 transition overflow-hidden"
+                onClick={() => navigate(`/blog/${post.slug}`)}
+              >
+                <AspectRatio ratio={16/9} className="bg-gray-800">
+                  {post.featured_image && (
+                    <img
+                      src={post.featured_image}
+                      alt={post.title}
+                      className="object-cover w-full h-full"
+                    />
+                  )}
+                </AspectRatio>
+                <CardContent className="p-6">
+                  <div className="flex items-center mb-4 text-sm">
+                    <span className="text-gray-400">{formatDate(post.created_at)}</span>
+                    <span className="mx-2 text-gray-600">•</span>
+                    <span className="text-gray-400">{getCategory(post)}</span>
                   </div>
-                </TableCell>
-              </TableRow>
-            ) : error ? (
-              <TableRow>
-                <TableCell colSpan={4} className="py-4 px-4 text-center bg-red-800/30">
-                  <div className="text-red-400 font-semibold">
-                    Błąd
-                    <p className="text-sm font-normal mt-1">{error}</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : filteredPosts.length > 0 ? (
-              filteredPosts.map((post) => (
-                <TableRow key={post.id} className="hover:bg-gray-800">
-                  <TableCell className="py-4 px-4 text-sm text-white">{post.title}</TableCell>
-                  <TableCell className="py-4 px-4 text-sm text-gray-400">{formatDate(post.created_at)}</TableCell>
-                  <TableCell className="py-4 px-4 text-sm text-gray-400">{post.views || 0}</TableCell>
-                  <TableCell className="py-4 px-4 text-sm">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewStats(post)}
-                        className="hover:bg-white hover:text-black"
-                      >
-                        <BarChart className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/blog/${post.slug}`)}
-                        className="hover:bg-white hover:text-black"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/admin/edit-post/${post.id}`)}
-                        className="hover:bg-white hover:text-black"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(post.id)}
-                        className="text-red-500 hover:bg-red-500 hover:text-white"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="py-4 px-4 text-center text-gray-400">
-                  Nie znaleziono postów
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                  <h2 className="text-xl font-bold mb-3 hover:text-gray-300 transition">
+                    {post.title}
+                  </h2>
+                  <p className="text-gray-400 line-clamp-3">
+                    {post.summary || post.content.substring(0, 120)}...
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+        
+        {filteredPosts.length === 0 && !loading && !error && (
+          <div className="text-center py-12 text-gray-400">
+            <p className="text-xl">Nie znaleziono postów</p>
+          </div>
+        )}
       </div>
-      
-      {error && (
-        <div className="mt-6 p-4 bg-red-900/30 border border-red-800 rounded-lg">
-          <h3 className="font-semibold text-red-400">Błąd</h3>
-          <p className="text-red-300 mt-1">Nie udało się pobrać postów</p>
-        </div>
-      )}
-      
-      {selectedPost && (
-        <BlogPostStats 
-          postId={selectedPost.id} 
-          postTitle={selectedPost.title} 
-          isOpen={statsOpen} 
-          onClose={() => setStatsOpen(false)}
-        />
-      )}
     </div>
   );
 };
