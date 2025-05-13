@@ -8,6 +8,12 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogStore } from '@/utils/blog';
 
+// Helper function to strip HTML tags for excerpts
+const stripHtml = (html: string) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || "";
+};
+
 const Blog = () => {
   const { posts } = useBlogStore();
 
@@ -73,7 +79,8 @@ const Blog = () => {
                   </Link>
                   
                   <p className="text-premium-light/70 mb-4 line-clamp-3">
-                    {post.excerpt}
+                    {/* Safely display excerpt by stripping HTML tags */}
+                    {stripHtml(post.excerpt)}
                   </p>
                   
                   <Link to={`/blog/${post.slug}`}>
