@@ -391,7 +391,7 @@ export const useBlogStore = create<BlogStore>()(
           set((state) => ({
             posts: state.posts.map((post) => 
               post.id === id ? { ...post, views: newViews } : post
-            )
+            ))
           }));
         } catch (error) {
           console.error("Error incrementing view:", error);
