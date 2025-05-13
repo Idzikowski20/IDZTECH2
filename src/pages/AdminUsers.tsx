@@ -61,7 +61,7 @@ const AdminUsers = () => {
   const handleDelete = async (userId: string) => {
     if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        const success = await deleteUser();
+        const success = await deleteUser(userId);
         
         if (success) {
           setUsers(users.filter(user => user.id !== userId));

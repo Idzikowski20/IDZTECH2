@@ -137,7 +137,8 @@ export const addUser = async (userData: Partial<User>, password: string): Promis
         undefined,
       jobTitle: result.jobTitle,
       created_at: result.created_at,
-      last_sign_in: result.last_sign_in,
+      // Use optional chaining for properties that might not exist
+      last_sign_in: result.last_sign_in || null,
       stats: result.stats
     };
   } catch (error) {
