@@ -14,4 +14,3 @@ Disallow: /profile
 
 # Sitemap
 Sitemap: https://idztech.pl/sitemap.xml
-

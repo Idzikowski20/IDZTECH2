@@ -14,7 +14,6 @@ import {
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useNotifications } from '@/utils/notifications';
 import NotificationBell from './NotificationBell';
 
 interface AdminLayoutProps {
@@ -28,7 +27,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   const { user, signOut } = useAuth();
   const { theme } = useTheme();
   const { pathname } = useLocation();
-  const { unreadCount } = useNotifications();
   
   console.log("AdminLayout rendered, user:", user);
   
@@ -158,14 +156,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                 <li className="mb-2">
                   <Link 
                     to="/admin/notifications" 
-                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    className="flex items-center px-4 py-2 rounded-md transition-colors text-premium-light/70 hover:bg-white hover:text-black"
                   >
                     Powiadomienia
-                    {unreadCount > 0 && (
-                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {unreadCount}
-                      </span>
-                    )}
                   </Link>
                 </li>
                 <li className="mb-2">
