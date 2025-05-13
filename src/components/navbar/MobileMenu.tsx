@@ -1,194 +1,173 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogIn, Moon, Sun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useTheme } from '@/utils/themeContext';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
-interface MobileMenuProps {
-  isMenuOpen: boolean;
-  setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) => {
-  const { theme } = useTheme();
+const MobileMenu: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { theme, toggleDarkMode } = useTheme();
   const location = useLocation();
-  
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-  
-  const linkClass = cn(
-    "block w-full text-left px-4 py-2 my-1 rounded-md transition-colors",
-    theme === 'light' 
-      ? 'text-black hover:bg-gray-100 hover:text-black' 
-      : 'text-white hover:bg-white/10 hover:text-white'
-  );
+  const navigate = useNavigate();
   
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setIsOpen(!isOpen);
+    // When opening menu, prevent scrolling
+    if (!isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
   };
-  
+
+  const closeMenu = () => {
+    setIsOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    closeMenu();
+  };
+
   return (
     <>
-      {/* Mobile menu button */}
-      <button
-        type="button"
-        className={`lg:hidden inline-flex items-center justify-center p-2 rounded-md focus:outline-none ${
-          theme === 'light' ? 'text-black hover:bg-gray-200' : 'text-white hover:bg-white/10'
-        }`}
-        onClick={toggleMenu}
-        aria-expanded={isMenuOpen}
-        aria-label={isMenuOpen ? "Zamknij menu" : "Otwórz menu"}
-      >
-        <span className="sr-only">{isMenuOpen ? "Zamknij menu" : "Otwórz menu"}</span>
-        {isMenuOpen ? (
-          <X className="h-6 w-6" aria-hidden="true" />
-        ) : (
-          <Menu className="h-6 w-6" aria-hidden="true" />
-        )}
-      </button>
-      
-      {/* Mobile menu panel */}
-      {isMenuOpen && (
-        <div 
-          className={`fixed inset-0 z-50 lg:hidden ${theme === 'light' ? 'bg-white' : 'bg-black'}`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu mobilne"
+      <div className="flex lg:hidden">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleMenu}
+          className={`hover:bg-transparent ${theme === 'dark' ? 'hover:text-white' : 'hover:text-black'}`}
         >
-          <div className="flex flex-col h-full p-4 pt-20">
-            <button
-              type="button"
-              className={`absolute top-4 right-4 p-2 rounded-md ${
-                theme === 'light' ? 'text-black hover:bg-gray-200' : 'text-white hover:bg-white/10'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-              aria-label="Zamknij menu"
-            >
-              <X className="h-6 w-6" aria-hidden="true" />
-            </button>
+          <Menu size={24} className={theme === 'dark' ? 'text-white' : 'text-black'} />
+        </Button>
+      </div>
+      
+      {isOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm" 
+            onClick={closeMenu}
+          />
+          
+          {/* Menu content */}
+          <div 
+            className={`fixed right-0 top-0 bottom-0 w-[75%] max-w-sm ${
+              theme === 'dark' ? 'bg-gray-900' : 'bg-white'
+            } p-6 overflow-y-auto`}
+          >
+            <div className="flex items-center justify-between mb-8">
+              <h2 className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Menu</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeMenu}
+                className="hover:bg-transparent"
+              >
+                <X size={24} className={theme === 'dark' ? 'text-white' : 'text-black'} />
+              </Button>
+            </div>
             
-            <nav className="flex-1 overflow-y-auto" role="navigation" aria-label="Menu mobilne">
+            <nav className="space-y-6">
               <div className="space-y-2">
                 <Link 
                   to="/" 
-                  className={`${linkClass} ${isActive('/') ? 'font-bold' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/') ? 'page' : undefined}
+                  onClick={closeMenu}
+                  className={`block py-2 ${location.pathname === '/' 
+                    ? theme === 'dark' ? 'text-white font-bold' : 'text-black font-bold' 
+                    : theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                  }`}
                 >
-                  Start
-                </Link>
-                
-                <Accordion type="single" collapsible className="w-full">
-                  <AccordionItem value="services" className="border-none">
-                    <AccordionTrigger 
-                      className={`${linkClass} flex justify-between items-center`}
-                      aria-label="Usługi - rozwiń menu"
-                    >
-                      Usługi
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="pl-4 space-y-1">
-                        <p className={`font-medium mt-2 mb-1 px-4 ${theme === 'light' ? 'text-black' : 'text-white'}`}>Strony www</p>
-                        <Link 
-                          to="/tworzenie-stron-www" 
-                          className={`${linkClass} ${isActive('/tworzenie-stron-www') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/tworzenie-stron-www') ? 'page' : undefined}
-                        >
-                          Tworzenie stron www
-                        </Link>
-                        <Link 
-                          to="/sklepy-internetowe" 
-                          className={`${linkClass} ${isActive('/sklepy-internetowe') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/sklepy-internetowe') ? 'page' : undefined}
-                        >
-                          Sklepy internetowe
-                        </Link>
-                        
-                        <p className={`font-medium mt-4 mb-1 px-4 ${theme === 'light' ? 'text-black' : 'text-white'}`}>Pozycjonowanie (SEO)</p>
-                        <Link 
-                          to="/pozycjonowanie-stron" 
-                          className={`${linkClass} ${isActive('/pozycjonowanie-stron') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/pozycjonowanie-stron') ? 'page' : undefined}
-                        >
-                          Pozycjonowanie stron
-                        </Link>
-                        <Link 
-                          to="/pozycjonowanie-lokalne" 
-                          className={`${linkClass} ${isActive('/pozycjonowanie-lokalne') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/pozycjonowanie-lokalne') ? 'page' : undefined}
-                        >
-                          Pozycjonowanie lokalne
-                        </Link>
-                        <Link 
-                          to="/audyt-seo" 
-                          className={`${linkClass} ${isActive('/audyt-seo') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/audyt-seo') ? 'page' : undefined}
-                        >
-                          Audyt SEO
-                        </Link>
-                        <Link 
-                          to="/optymalizacja-seo" 
-                          className={`${linkClass} ${isActive('/optymalizacja-seo') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/optymalizacja-seo') ? 'page' : undefined}
-                        >
-                          Optymalizacja SEO
-                        </Link>
-                        <Link 
-                          to="/copywriting-seo" 
-                          className={`${linkClass} ${isActive('/copywriting-seo') ? 'font-bold' : ''}`}
-                          onClick={() => setIsMenuOpen(false)}
-                          aria-current={isActive('/copywriting-seo') ? 'page' : undefined}
-                        >
-                          Copywriting SEO
-                        </Link>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-                
-                <Link 
-                  to="/projects" 
-                  className={`${linkClass} ${isActive('/projects') ? 'font-bold' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/projects') ? 'page' : undefined}
-                >
-                  Portfolio
+                  Strona główna
                 </Link>
                 
                 <Link 
                   to="/about" 
-                  className={`${linkClass} ${isActive('/about') ? 'font-bold' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/about') ? 'page' : undefined}
+                  onClick={closeMenu}
+                  className={`block py-2 ${location.pathname === '/about' 
+                    ? theme === 'dark' ? 'text-white font-bold' : 'text-black font-bold' 
+                    : theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                  }`}
                 >
                   O nas
                 </Link>
                 
-                <Link 
-                  to="/blog" 
-                  className={`${linkClass} ${isActive('/blog') ? 'font-bold' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/blog') ? 'page' : undefined}
-                >
-                  Blog
-                </Link>
+                <div className="relative">
+                  <button
+                    className={`flex items-center justify-between w-full py-2 ${
+                      theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                    }`}
+                    onClick={() => handleNavigation('/projects')}
+                  >
+                    <span>Projekty</span>
+                  </button>
+                </div>
+                
+                <div className="relative">
+                  <button
+                    className={`flex items-center justify-between w-full py-2 ${
+                      theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                    }`}
+                    onClick={() => handleNavigation('/blog')}
+                  >
+                    <span>Blog</span>
+                  </button>
+                </div>
                 
                 <Link 
                   to="/contact" 
-                  className={`${linkClass} ${isActive('/contact') ? 'font-bold' : ''}`}
-                  onClick={() => setIsMenuOpen(false)}
-                  aria-current={isActive('/contact') ? 'page' : undefined}
+                  onClick={closeMenu}
+                  className={`block py-2 ${location.pathname === '/contact' 
+                    ? theme === 'dark' ? 'text-white font-bold' : 'text-black font-bold' 
+                    : theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                  }`}
                 >
                   Kontakt
+                </Link>
+              </div>
+              
+              <div className="space-y-4 pt-4 border-t border-gray-700">
+                <button 
+                  onClick={() => {
+                    toggleDarkMode();
+                    closeMenu();
+                  }}
+                  className={`flex items-center gap-2 py-2 w-full ${
+                    theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                  }`}
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun size={20} /> Tryb jasny
+                    </>
+                  ) : (
+                    <>
+                      <Moon size={20} /> Tryb ciemny
+                    </>
+                  )}
+                </button>
+                
+                <Link
+                  to="/login"
+                  onClick={closeMenu}
+                  className={`flex items-center gap-2 py-2 ${
+                    theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                  }`}
+                >
+                  <LogIn size={20} /> Zaloguj się
+                </Link>
+                
+                <Link
+                  to="/register"
+                  onClick={closeMenu}
+                  className={`flex items-center gap-2 py-2 ${
+                    theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                  }`}
+                >
+                  <User size={20} /> Zarejestruj się
                 </Link>
               </div>
             </nav>
