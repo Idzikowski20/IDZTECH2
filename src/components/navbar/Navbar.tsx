@@ -1,69 +1,141 @@
 
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu } from 'lucide-react';
 import Brand from './Brand';
 import DesktopNavigation from './DesktopNavigation';
-import DesktopControls from './DesktopControls';
 import MobileMenu from './MobileMenu';
+import DesktopControls from './DesktopControls';
+import { Button } from '../ui/button';
+import { cn } from '@/lib/utils';
 import { useTheme } from '@/utils/themeContext';
 
-const Navbar: React.FC = () => {
-  const { theme } = useTheme();
-  const location = useLocation();
-  const [scrolled, setScrolled] = useState(false);
-  const isTransparent = location.pathname === '/' && !scrolled;
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
+interface NavigationItem {
+  id: string;
+  label: string;
+  href: string;
+  children?: NavigationItem[];
+}
+
+const navigationItems: NavigationItem[] = [
+  {
+    id: 'home',
+    label: 'Strona główna',
+    href: '/',
+  },
+  {
+    id: 'services',
+    label: 'Usługi',
+    href: '/services',
+    children: [
+      {
+        id: 'seo',
+        label: 'SEO',
+        href: '/seo',
+      },
+      {
+        id: 'web-development',
+        label: 'Tworzenie Stron',
+        href: '/web-development',
+      },
+      {
+        id: 'content',
+        label: 'Copywriting',
+        href: '/seo-copywriting',
+      },
+      {
+        id: 'audit',
+        label: 'Audyt SEO',
+        href: '/seo-audit',
+      },
+    ],
+  },
+  {
+    id: 'contact',
+    label: 'Kontakt',
+    href: '/contact',
+  },
+  {
+    id: 'blog',
+    label: 'Blog',
+    href: '/blog',
+  },
+  {
+    id: 'about',
+    label: 'O nas',
+    href: '/about',
+  },
+];
+
+const Navbar = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => {
-      const offset = window.scrollY;
-      setScrolled(offset > 10);
+      setIsScrolled(window.scrollY > 10);
     };
 
-    // Check if page is fully loaded
-    if (document.readyState === 'complete') {
-      setIsPageLoaded(true);
-    } else {
-      window.addEventListener('load', () => setIsPageLoaded(true));
-    }
-
     window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('load', () => setIsPageLoaded(true));
     };
   }, []);
 
+  // Close mobile menu when changing routes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? `backdrop-blur-md ${
-              theme === 'light'
-                ? 'bg-white/80 text-black'
-                : 'bg-premium-dark/80 text-white'
-            }`
-          : `${
-              isTransparent
-                ? 'bg-transparent'
-                : `${
-                    theme === 'light'
-                      ? 'bg-white text-black'
-                      : 'bg-premium-dark text-white'
-                  }`
-            }`
-      } ${!isPageLoaded ? 'opacity-0' : 'opacity-100'}`}
+    <header
+      className={cn(
+        'fixed w-full top-0 z-50 transition-all duration-300',
+        isScrolled
+          ? 'bg-black/90 backdrop-blur-md border-b border-premium-light/10 py-2'
+          : 'bg-transparent py-4'
+      )}
     >
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16 md:h-20">
-          <Brand scrolled={scrolled} />
-          <DesktopNavigation />
-          <DesktopControls scrolled={scrolled} />
-          <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} scrolled={scrolled} />
-        </div>
-      </div>
-    </nav>
+      <nav className="container mx-auto px-4 flex items-center justify-between">
+        <Brand />
+
+        {/* Desktop Navigation */}
+        <DesktopNavigation navigationItems={navigationItems} />
+
+        {/* Controls (Login/Register buttons, notification bell) */}
+        <DesktopControls />
+
+        {/* Meeting Button with correct hover styles */}
+        <Link to="/contact" className="hidden md:block">
+          <Button 
+            className={`dark:bg-white dark:text-black hover:scale-110 transition-transform`}
+          >
+            Umów spotkanie
+          </Button>
+        </Link>
+
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="lg:hidden text-premium-light hover:bg-black hover:text-white"
+          onClick={() => setIsMenuOpen(true)}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        {/* Mobile Menu */}
+        <MobileMenu
+          navigationItems={navigationItems}
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+        />
+      </nav>
+    </header>
   );
 };
 

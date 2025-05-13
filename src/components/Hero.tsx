@@ -23,7 +23,7 @@ const Hero = () => {
   }, []);
   
   return (
-    <section id="hero" className="pt-20 pb-16 md:pt-28 md:pb-32 relative overflow-hidden">
+    <section id="hero" className={`pt-24 md:pt-32 pb-16 md:pb-32 relative overflow-hidden ${isMobile ? 'mt-8' : ''}`}>
       {/* Reduced quantity and opacity of light effects for better performance */}
       {showContent && (
         <>
@@ -52,47 +52,43 @@ const Hero = () => {
               className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-3 md:gap-4 mb-6 md:mb-10 transition-opacity duration-500 ${showContent ? 'opacity-100 delay-200' : 'opacity-0'} ${isMobile ? 'w-full' : ''}`}
             >
               <Link to="/contact" className={isMobile ? 'w-full' : ''}>
-                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full">
+                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black w-full">
                   Skontaktuj się
                 </Button>
               </Link>
               <Link to="/projects" className={isMobile ? 'w-full' : ''}>
-                <Button size="lg" variant="outline" className="hover:bg-black hover:text-white w-full">
+                <Button size="lg" variant="outline" className="hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black w-full">
                   Zobacz projekty
                 </Button>
               </Link>
             </div>
             
             <div
-              className={`flex flex-wrap gap-3 md:gap-4 justify-start text-sm text-premium-light/70 transition-opacity duration-500 ${showContent ? 'opacity-100 delay-300' : 'opacity-0'}`}
+              className={`grid grid-cols-2 gap-3 md:gap-4 transition-opacity duration-500 ${showContent ? 'opacity-100 delay-300' : 'opacity-0'}`}
             >
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>Szybka wydajność</span>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="text-premium-purple h-4 w-4 mt-1" />
+                <span className="text-sm">Szybka wydajność</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>Nowoczesne technologie</span>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="text-premium-purple h-4 w-4 mt-1" />
+                <span className="text-sm">Wysokie SEO</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>Wysokie SEO</span>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="text-premium-purple h-4 w-4 mt-1" />
+                <span className="text-sm">Nowoczesne technologie</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>Konkurencyjne ceny</span>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="text-premium-purple h-4 w-4 mt-1" />
+                <span className="text-sm">Konkurencyjne ceny</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>Bezpieczeństwo strony</span>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="text-premium-purple h-4 w-4 mt-1" />
+                <span className="text-sm">Bezpieczeństwo strony</span>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>Strona nawet do 3 dni</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-4 w-4" />
-                <span>CMS</span>
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="text-premium-purple h-4 w-4 mt-1" />
+                <span className="text-sm">CMS</span>
               </div>
             </div>
           </div>

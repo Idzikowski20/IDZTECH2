@@ -1,9 +1,11 @@
 
 import { useState, useEffect } from 'react';
 import Spline from '@splinetool/react-spline';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const HeroImage = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
   
   const handleSplineLoad = () => {
     setIsLoading(false);
@@ -21,7 +23,7 @@ const HeroImage = () => {
         style={{ minHeight: '300px', height: '100%' }}
       >
         <Spline 
-          scene="https://prod.spline.design/lrZX-sT7To1QdbSz/scene.splinecode" 
+          scene={isMobile ? "https://prod.spline.design/ZDFIdMHx6E5pLNRL/scene.splinecode" : "https://prod.spline.design/lrZX-sT7To1QdbSz/scene.splinecode"}
           onLoad={handleSplineLoad}
           style={{ 
             width: '100%', 
