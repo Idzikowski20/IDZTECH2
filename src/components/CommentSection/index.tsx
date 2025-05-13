@@ -1,205 +1,157 @@
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/utils/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { useNotifications } from '@/utils/notifications';
-import { Button } from '@/components/ui/button';
-import CommentForm from './CommentForm';
-import CommentList from './CommentList';
-import CommentHeader from './CommentHeader';
-import { CommentSectionProps } from '../CommentSection';
-import { toast } from 'sonner';
+import React, { useEffect, useState } from "react";
+import { supabase } from "@/utils/supabaseClient";
+import { useAuth } from "@/utils/AuthProvider";
+import CommentHeader from "./CommentHeader";
+import CommentList from "./CommentList";
+import CommentForm from "./CommentForm";
+import { Skeleton } from "../ui/skeleton";
 
-interface Comment {
+export interface Comment {
   id: string;
   content: string;
   created_at: string;
-  user_id: string | null;
-  author: string;
-  avatar: string | null;
-  status: string;
-  isGuest: boolean;
+  user_id?: string;
+  guest_name?: string;
+  profiles?: {
+    name?: string;
+    lastName?: string;
+    profilePicture?: string;
+    email?: string;
+    role?: string;
+  };
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) => {
-  const { user } = useAuth();
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [guestName, setGuestName] = useState('');
-  const [guestComment, setGuestComment] = useState('');
+export interface CommentSectionProps {
+  postId: string;
+  postTitle?: string;
+}
 
-  // Fetch comments whenever postId changes
+const CommentSection = ({ postId, postTitle }: CommentSectionProps) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { isAuthenticated, user } = useAuth();
+
+  // Fetch comments for this post
   useEffect(() => {
-    fetchComments();
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("blog_comments")
+          .select(`
+            id, 
+            content, 
+            created_at, 
+            user_id,
+            guest_name,
+            status,
+            profiles (
+              name, 
+              lastName, 
+              profilePicture,
+              email,
+              role
+            )
+          `)
+          .eq("post_id", postId)
+          .eq("status", "approved")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching comments:", error);
+          return;
+        }
+
+        setComments(data || []);
+      } catch (error) {
+        console.error("Error loading comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (postId) {
+      fetchComments();
+    }
   }, [postId]);
 
-  const fetchComments = async () => {
-    setIsLoading(true);
+  // Handle submitting a new comment
+  const handleSubmitComment = async (content: string, guestName?: string) => {
     try {
-      // Query comments for this post
+      // Prepare comment data
+      const commentData = {
+        post_id: postId,
+        content,
+        status: "approved", // Auto-approve comments for now
+      };
+      
+      // Add user_id if authenticated, or guest_name if provided
+      if (isAuthenticated && user) {
+        Object.assign(commentData, { user_id: user.id });
+      } else if (guestName) {
+        Object.assign(commentData, { guest_name: guestName });
+      }
+
       const { data, error } = await supabase
-        .from('blog_comments')
+        .from("blog_comments")
+        .insert(commentData)
         .select(`
           id, 
           content, 
           created_at, 
-          user_id, 
+          user_id,
           guest_name,
           status,
-          profiles:user_id (
-            name,
-            lastName,
-            profilePicture
+          profiles (
+            name, 
+            lastName, 
+            profilePicture,
+            email,
+            role
           )
         `)
-        .eq('post_id', postId)
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      // Transform data to fit our Comment interface
-      const transformedComments: Comment[] = data.map(comment => {
-        let fullName = 'Użytkownik';
-        let avatar = null;
-        let isGuest = false;
-
-        if (comment.profiles) {
-          const profile = comment.profiles as any;
-          if (profile.name) {
-            fullName = profile.name;
-            if (profile.lastName) {
-              fullName += ` ${profile.lastName}`;
-            }
-          }
-          avatar = profile.profilePicture || null;
-        } else if (comment.guest_name) {
-          fullName = comment.guest_name;
-          isGuest = true;
-        }
-        
-        return {
-          id: comment.id,
-          content: comment.content,
-          created_at: comment.created_at,
-          user_id: comment.user_id,
-          author: fullName,
-          avatar: avatar,
-          status: comment.status || 'approved',
-          isGuest
-        };
-      });
-      
-      setComments(transformedComments);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-      toast.error('Nie udało się załadować komentarzy.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle adding new comment
-  const handleAddComment = async (content: string) => {
-    if (!content.trim()) {
-      toast.error('Komentarz nie może być pusty');
-      return;
-    }
-    
-    try {
-      // Build comment data based on user authentication state
-      let commentData: any = {
-        post_id: postId,
-        content,
-        status: 'approved' // Default status
-      };
-      
-      if (user) {
-        commentData.user_id = user.id;
-      } else {
-        // For guest comments
-        if (!guestName.trim()) {
-          toast.error('Podaj swoje imię');
-          return;
-        }
-        commentData.guest_name = guestName;
-      }
-      
-      // Insert comment into database
-      const { data, error } = await supabase
-        .from('blog_comments')
-        .insert(commentData)
-        .select()
         .single();
-        
-      if (error) throw error;
-      
-      // Add notification about the new comment
-      useNotifications.getState().addNotification({
-        title: 'Nowy komentarz',
-        message: `${user ? user.name : guestName} dodał komentarz do "${postTitle || 'postu'}"`,
-        type: 'comment_added',
-        status: 'unread',
-        fromUserId: user ? user.id : 'guest',
-        fromUserName: user ? user.name : guestName,
-        targetId: postId,
-        targetType: 'post'
-      });
-      
-      // Refresh comments list
-      fetchComments();
-      
-      // Reset form
-      setGuestComment('');
-      
-      toast.success('Komentarz dodany pomyślnie');
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      toast.error('Nie udało się dodać komentarza.');
-    }
-  };
 
-  // Handle deleting a comment
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      const { error } = await supabase
-        .from('blog_comments')
-        .delete()
-        .eq('id', commentId);
-        
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
+
+      // Add the new comment to the list
+      setComments((prev) => [data, ...prev]);
       
-      fetchComments();
-      toast.success('Komentarz usunięty');
+      return true;
     } catch (error) {
-      console.error('Error deleting comment:', error);
-      toast.error('Nie udało się usunąć komentarza.');
+      console.error("Error adding comment:", error);
+      return false;
     }
   };
-  
-  // Check if user has admin rights
-  const isAdmin = user && (user.role === 'admin' || user.role === 'moderator');
 
   return (
-    <div className="mt-12 pt-8 border-t border-premium-light/10">
+    <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6 mb-8">
       <CommentHeader commentsCount={comments.length} />
       
-      <CommentForm 
-        onSubmit={user ? handleAddComment : undefined}
-        guestName={guestName}
-        setGuestName={setGuestName}
-        guestComment={guestComment}
-        setGuestComment={setGuestComment}
-        onGuestSubmit={handleAddComment}
-        user={user}
+      <CommentForm
+        onSubmit={handleSubmitComment}
+        isAuthenticated={isAuthenticated}
       />
       
-      <CommentList 
-        comments={comments} 
-        isAdmin={isAdmin}
-        currentUserId={user?.id}
-        onDeleteComment={handleDeleteComment}
-        isLoading={isLoading}
-      />
+      {loading ? (
+        <div className="space-y-6 mt-8">
+          {[1, 2].map((item) => (
+            <div key={item} className="flex gap-4">
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-4 w-32 mb-2" />
+                <Skeleton className="h-3 w-24 mb-4" />
+                <Skeleton className="h-16 w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <CommentList comments={comments} postTitle={postTitle} />
+      )}
     </div>
   );
 };

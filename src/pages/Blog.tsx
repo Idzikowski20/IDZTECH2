@@ -119,7 +119,7 @@ const Blog = () => {
                     <Link to={`/blog/${post.slug}`}>
                       <Button 
                         variant="ghost" 
-                        className="p-0 hover:bg-transparent text-premium-purple hover:text-premium-purple/80"
+                        className="p-0 hover:bg-transparent text-premium-purple hover:bg-black hover:text-white"
                       >
                         Czytaj więcej <ArrowRight size={16} className="ml-2" />
                       </Button>
