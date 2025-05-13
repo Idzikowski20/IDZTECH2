@@ -29,8 +29,11 @@
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
+    <!-- Load highlight.js before any ReactQuill initialization -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.0/styles/monokai-sublime.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.0/highlight.min.js"></script>
     <script>
-      // Declare hljs globally for Quill
+      // Ensure hljs is globally available
       window.hljs = window.hljs || null;
     </script>
   </head>

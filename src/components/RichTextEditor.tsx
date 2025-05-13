@@ -1,9 +1,10 @@
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/monokai-sublime.css'; // Choose a style that fits your theme
+// Don't import highlight.js directly since we're loading it from CDN
+// import hljs from 'highlight.js';
+// import 'highlight.js/styles/monokai-sublime.css'; // Choose a style that fits your theme
 
 interface RichTextEditorProps {
   value: string;
@@ -12,27 +13,30 @@ interface RichTextEditorProps {
   rows?: number;
 }
 
-// Make highlight.js available globally for Quill
-if (typeof window !== 'undefined') {
-  window.hljs = hljs;
-}
-
 const RichTextEditor = ({
   value,
   onChange,
   placeholder = 'Wpisz treść...',
   rows = 10
 }: RichTextEditorProps) => {
+  const [editorReady, setEditorReady] = useState(false);
   
-  // Ensure hljs is available globally before Quill initialization
+  // Check if highlight.js is available before initializing Quill
   useEffect(() => {
-    // Make sure highlight.js is available globally
-    if (window.hljs !== hljs) {
-      window.hljs = hljs;
-    }
+    // Wait for highlight.js to be available
+    const checkHljsInterval = setInterval(() => {
+      if (window.hljs) {
+        setEditorReady(true);
+        clearInterval(checkHljsInterval);
+        console.log('highlight.js is loaded and available');
+      }
+    }, 100);
+    
+    // Clean up interval
+    return () => clearInterval(checkHljsInterval);
   }, []);
   
-  // Quill modules configuration - all available features
+  // Quill modules configuration
   const modules = useMemo(() => ({
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -74,17 +78,23 @@ const RichTextEditor = ({
 
   return (
     <div className="rich-text-editor border border-premium-light/10 rounded-md overflow-hidden">
-      <ReactQuill
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        modules={modules}
-        formats={formats}
-        style={{ height: `${Math.max(minHeight, 200)}px`, backgroundColor: '#0f172a' }}
-        className="bg-slate-950 text-white"
-        preserveWhitespace={true}
-      />
+      {editorReady ? (
+        <ReactQuill
+          theme="snow"
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          modules={modules}
+          formats={formats}
+          style={{ height: `${Math.max(minHeight, 200)}px`, backgroundColor: '#0f172a' }}
+          className="bg-slate-950 text-white"
+          preserveWhitespace={true}
+        />
+      ) : (
+        <div className="flex items-center justify-center p-8 bg-slate-950" style={{ height: `${Math.max(minHeight, 200)}px` }}>
+          <div className="animate-spin h-8 w-8 border-4 border-premium-light/20 border-t-premium-light rounded-full"></div>
+        </div>
+      )}
       <div className="bg-slate-900 p-2 border-t border-premium-light/10">
         <div className="text-sm text-premium-light/60">
           Edytor HTML - wspiera znaczniki formatowania tekstu i kod HTML
