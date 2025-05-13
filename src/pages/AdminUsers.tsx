@@ -40,7 +40,7 @@ const AdminUsers = () => {
         console.log("Fetched users:", supabaseUsers);
         
         // Filter out the admin@idztech.pl user as requested
-        const filteredUsers = supabaseUsers.filter(user => user?.email !== 'admin@idztech.pl');
+        const filteredUsers = supabaseUsers.filter(user => user.email !== 'admin@idztech.pl');
         
         setUsers(filteredUsers);
       } catch (error) {

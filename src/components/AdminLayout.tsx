@@ -1,9 +1,8 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useSanityAuth } from '@/utils/SanityAuthProvider';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Home, LogOut, Settings, User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,101 +10,227 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ModeToggle } from '@/components/ModeToggle';
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from '@/utils/AuthProvider';
+import { useTheme } from '@/utils/themeContext';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useNotifications } from '@/utils/notifications';
+import NotificationBell from './NotificationBell';
 import AdminMobileMenu from './AdminMobileMenu';
+import { useMediaQuery } from '@/hooks/use-device';
 
-const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const location = useLocation();
+interface AdminLayoutProps {
+  children: React.ReactNode;
+  activeNavItem?: string;
+}
+
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'dashboard' }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, logout } = useSanityAuth();
-
-  const isActive = (path: string) => {
-    return location.pathname.startsWith(path);
+  const { user, signOut } = useAuth();
+  const { theme } = useTheme();
+  const { pathname } = useLocation();
+  const { unreadCount } = useNotifications();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  
+  useEffect(() => {
+    // On mobile, sidebar should be closed by default
+    if (!isDesktop) {
+      setIsSidebarOpen(false);
+    } else {
+      setIsSidebarOpen(true);
+    }
+  }, [isDesktop]);
+  
+  const handleLogout = () => {
+    signOut();
+    navigate('/login');
   };
 
+  // Bezpieczny dostęp do danych użytkownika
+  const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
+  // Get full name if lastName exists
+  const fullName = user?.lastName ? `${displayName} ${user.lastName}` : displayName;
+  // Get user role for display
+  const userRole = user?.role || 'user';
+  
+  // Bezpiecznie pobieramy avatar
+  const userAvatar = user?.profilePicture || '';
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
-      <div className="flex justify-between items-center p-4 md:hidden bg-premium-dark border-b border-premium-light/10">
-        <Link to="/" className="flex items-center">
-          <img src="/idztech-logo.svg" alt="IDZ.Tech Logo" className="h-8 mr-2" />
-          <span className="font-bold text-xl">IDZ.Tech</span>
-        </Link>
-        <AdminMobileMenu />
-      </div>
-      <div className="hidden md:flex w-64 flex-shrink-0 flex-col bg-premium-dark border-r border-premium-light/10">
-        <div className="flex-1 flex flex-col overflow-y-auto">
-          <div className="p-4">
-            <Link to="/" className="flex items-center">
-              <img src="/idztech-logo.svg" alt="IDZ.Tech Logo" className="h-8 mr-2" />
-              <span className="font-bold text-xl">IDZ.Tech</span>
+    <div className="min-h-screen bg-premium-dark">
+      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
+        {/* Light effects */}
+        <div className="absolute top-3 left-10 w-16 h-16 bg-premium-purple/40 rounded-full blur-[40px] animate-pulse-slow"></div>
+        <div className="absolute top-2 right-20 w-16 h-16 bg-premium-blue/40 rounded-full blur-[40px] animate-pulse-slow delay-150"></div>
+        
+        <div className="flex items-center relative z-10">
+          <div className="flex items-center">
+            <Link to="/">
+              <Button 
+                variant="ghost" 
+                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
+              >
+                <Home size={18} />
+                <span className="hidden md:inline">Wróć na stronę główną</span>
+              </Button>
             </Link>
           </div>
-          <nav className="mt-5 flex-1 px-2 space-y-1">
-            <Link
-              to="/admin"
-              className={`${isActive('/admin') ? 'bg-premium-purple/20 text-white' : 'text-gray-300 hover:bg-premium-purple/10 hover:text-white'} group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-            >
-              <svg className="mr-3 flex-shrink-0 h-6 w-6 text-gray-400 group-hover:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h12a1 1 0 001-1v-10M4 7h16" />
-              </svg>
-              Dashboard
-            </Link>
-            <Link
-              to="/admin/users"
-              className={`${isActive('/admin/users') ? 'bg-premium-purple/20 text-white' : 'text-gray-300 hover:bg-premium-purple/10 hover:text-white'} group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 01-9-5.197m3 5.197H12" />
-              </svg>
-              Użytkownicy
-            </Link>
-            <Link
-              to="/admin/studio"
-              className={`${isActive('/admin/studio') ? 'bg-premium-purple/20 text-white' : 'text-gray-300 hover:bg-premium-purple/10 hover:text-white'} group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="mr-3 flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-              Sanity Studio
-            </Link>
-          </nav>
         </div>
-        <div className="p-4 border-t border-premium-light/10">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative flex h-8 w-full items-center justify-between rounded-md px-2 text-sm font-medium">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.profilePicture || 'https://github.com/shadcn.png'} alt={user?.name || 'Avatar'} />
-                    <AvatarFallback>{user?.name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+        
+        <div className="flex items-center space-x-4 relative z-10">
+          <div className="hidden md:flex items-center">
+            <span className="font-mono">IDZ.TECH</span>
+          </div>
+
+          <NotificationBell />
+
+          <div className="flex items-center ml-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    {userAvatar ? (
+                      <AvatarImage src={userAvatar} alt={fullName} />
+                    ) : (
+                      <AvatarFallback className="bg-premium-gradient text-white">
+                        {fullName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    )}
                   </Avatar>
-                  {user?.name}
-                </div>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="h-4 w-4 opacity-50"
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span>{fullName}</span>
+                    <span className="text-xs text-muted-foreground">{userRole}</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Ustawienia</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="text-white bg-red-500 hover:bg-red-600 focus:text-white hover:text-white"
                 >
-                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                </svg>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" forceMount className="w-56">
-              <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/profile')}>Profil</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => logout()}>Wyloguj się</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <ModeToggle />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Wyloguj</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          <div className="lg:hidden">
+            <AdminMobileMenu isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar - only visible on desktop */}
+        {isDesktop && (
+          <aside
+            className={`${
+              isSidebarOpen ? "w-64" : "w-16"
+            } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
+          >
+            <nav className="p-4 space-y-2">
+              <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
+              <nav>
+                <ul>
+                  <li className="mb-2">
+                    <Link 
+                      to="/admin" 
+                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    >
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li className="mb-2">
+                    <Link 
+                      to="/admin/stats" 
+                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    >
+                      Statystyki
+                    </Link>
+                  </li>
+                  <li className="mb-2">
+                    <Link 
+                      to="/profile" 
+                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    >
+                      Profil
+                    </Link>
+                  </li>
+                  <li className="mb-2">
+                    <Link 
+                      to="/admin/notifications" 
+                      className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    >
+                      Powiadomienia
+                      {unreadCount > 0 && (
+                        <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                  <li className="mb-2">
+                    <Link 
+                      to="/admin/users" 
+                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    >
+                      Użytkownicy
+                    </Link>
+                  </li>
+                  <li className="mb-2">
+                    <Link 
+                      to="/admin/settings" 
+                      className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+                    >
+                      Ustawienia
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+              
+              {/* Logout button at the bottom */}
+              <div className="pt-4 mt-6 border-t border-premium-light/10">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
+                >
+                  <LogOut className="w-5 h-5 mr-3" />
+                  {isSidebarOpen && <span>Wyloguj</span>}
+                  {!isSidebarOpen && (
+                    <span className="absolute left-full ml-2 p-2 bg-premium-dark/90 text-premium-light rounded whitespace-nowrap border border-premium-light/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Wyloguj
+                    </span>
+                  )}
+                </button>
+              </div>
+            </nav>
+          </aside>
+        )}
+        
+        {/* Main content */}
+        <div
+          className={`flex-1 transition-all duration-300 ease-in-out ${
+            isDesktop && isSidebarOpen ? "ml-64" : isDesktop ? "ml-16" : "ml-0"
+          }`}
+        >
+          {children}
         </div>
       </div>
-      <div className="flex-1">{children}</div>
     </div>
   );
 };

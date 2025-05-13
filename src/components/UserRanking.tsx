@@ -1,174 +1,118 @@
 
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '@/utils/authStore';
+import { User } from '@/utils/authTypes';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { fetchSanityData } from '@/lib/sanity';
-import { calculatePoints } from '@/utils/authTypes';
+import { Trophy, Award, Medal, Star } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useBlogStore } from '@/utils/blog';
 
 interface UserRankingProps {
-  showMonthly?: boolean;
   limit?: number;
+  showMonthly?: boolean;
+  className?: string;
 }
 
-interface RankedUser {
-  _id: string;
-  name: string;
-  profilePicture?: string;
-  stats: {
-    views: number;
-    posts: number;
-    comments: number;
-    likes: number;
-    pointsTotal: number;
-    pointsThisMonth: number;
-  };
-}
-
-const UserRanking: React.FC<UserRankingProps> = ({ showMonthly = false, limit = 5 }) => {
-  const [users, setUsers] = useState<RankedUser[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+const UserRanking: React.FC<UserRankingProps> = ({ 
+  limit = 5,
+  showMonthly = false,
+  className
+}) => {
+  const auth = useAuth();
+  const { posts } = useBlogStore();
+  const [users, setUsers] = useState<User[]>([]);
+  
+  // Force refresh user stats when component mounts to ensure data is up-to-date
   useEffect(() => {
+    auth.refreshUserStats?.();
+    
+    // Fetch and handle users data
     const fetchUsers = async () => {
       try {
-        setIsLoading(true);
-        
-        // Tworzymy odpowiednie zapytanie do Sanity
-        // Sortujemy po punktach miesięcznych lub całkowitych w zależności od propsa showMonthly
-        const query = `*[_type == "user"] | order(${
-          showMonthly ? "stats.pointsThisMonth" : "stats.pointsTotal"
-        } desc)[0...${limit}]{
-          _id,
-          name,
-          profilePicture,
-          stats {
-            views,
-            posts,
-            comments,
-            likes,
-            pointsTotal,
-            pointsThisMonth
-          }
-        }`;
-        
-        const data = await fetchSanityData(query);
-        
-        if (data) {
-          // Jeśli mamy dane z Sanity, aktualizujemy stan
-          setUsers(data);
-        } else {
-          // Jeśli nie ma danych, można ustawić pusty array lub pokazać placeholder
-          setUsers([]);
-        }
-      } catch (err) {
-        console.error('Error fetching user ranking:', err);
-        setError('Nie udało się pobrać rankingu użytkowników');
-      } finally {
-        setIsLoading(false);
+        const usersList = await auth.getUserRanking();
+        setUsers(usersList);
+      } catch (error) {
+        console.error("Error fetching user ranking:", error);
+        setUsers([]);
       }
     };
-
+    
     fetchUsers();
-  }, [showMonthly, limit]);
-
-  // Funkcja do generowania kolorowego tła dla avatara na podstawie ID
-  const getAvatarColor = (id: string) => {
-    const colors = [
-      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 
-      'bg-amber-500', 'bg-pink-500', 'bg-indigo-500'
-    ];
-    
-    // Używamy sumy kodów znaków ID jako prostego hasha
-    const colorIndex = id
-      .split('')
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0) % colors.length;
-    
-    return colors[colorIndex];
-  };
-
-  if (isLoading) {
-    return (
-      <div className="p-4 bg-premium-dark/50 border border-premium-light/10 rounded-lg">
-        <h2 className="text-lg font-bold mb-3">Ranking użytkowników</h2>
-        <div className="animate-pulse space-y-3">
-          {[...Array(limit)].map((_, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="rounded-full bg-premium-light/10 h-10 w-10"></div>
-              <div className="flex-1">
-                <div className="h-4 bg-premium-light/10 rounded w-28"></div>
-                <div className="h-3 bg-premium-light/10 rounded w-20 mt-2"></div>
-              </div>
-              <div className="h-6 bg-premium-light/10 rounded w-12"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 bg-premium-dark/50 border border-premium-light/10 rounded-lg">
-        <h2 className="text-lg font-bold mb-3">Ranking użytkowników</h2>
-        <p className="text-premium-light/70">{error}</p>
-      </div>
-    );
-  }
-
-  if (users.length === 0) {
-    return (
-      <div className="p-4 bg-premium-dark/50 border border-premium-light/10 rounded-lg">
-        <h2 className="text-lg font-bold mb-3">Ranking użytkowników</h2>
-        <p className="text-premium-light/70">
-          Brak danych o użytkownikach. Ranking pojawi się, gdy użytkownicy zaczną być aktywni.
-        </p>
-      </div>
-    );
-  }
-
+  }, [auth.refreshUserStats, posts, auth.getUserRanking]);
+  
+  // Get displayed users based on limit
+  const displayUsers = users.slice(0, limit);
+  
   return (
-    <div className="p-4 bg-premium-dark/50 border border-premium-light/10 rounded-lg">
-      <h2 className="text-lg font-bold mb-3">
-        {showMonthly ? "Ranking miesięczny" : "Ranking wszech czasów"}
-      </h2>
+    <div className={cn("space-y-4", className)}>
+      <h3 className="text-lg font-bold flex items-center">
+        {showMonthly ? (
+          <>
+            <Award className="mr-2 text-amber-400" size={20} />
+            Ranking tego miesiąca
+          </>
+        ) : (
+          <>
+            <Trophy className="mr-2 text-amber-400" size={20} />
+            Ranking wszech czasów
+          </>
+        )}
+      </h3>
       
-      <div className="space-y-4">
-        {users.map((user, index) => {
-          const pointsToDisplay = showMonthly 
-            ? user.stats.pointsThisMonth 
-            : user.stats.pointsTotal;
-            
-          return (
-            <div 
-              key={user._id} 
-              className="flex items-center justify-between group hover:bg-premium-light/5 p-2 rounded-lg transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-premium-light/10 font-semibold">
-                  {index + 1}
-                </div>
-                
-                <Avatar className="h-10 w-10 border">
-                  <AvatarImage src={user.profilePicture} alt={user.name} />
-                  <AvatarFallback className={`${getAvatarColor(user._id)} text-white`}>
-                    {user.name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                
-                <div>
-                  <div className="font-medium group-hover:text-white">{user.name}</div>
-                  <div className="text-sm text-premium-light/70">
-                    {user.stats.posts} postów • {user.stats.comments} komentarzy
-                  </div>
-                </div>
+      <div className="space-y-3">
+        {displayUsers.map((user, index) => (
+          <div 
+            key={user.id}
+            className={cn(
+              "flex items-center justify-between p-3 rounded-lg transition-all",
+              "border border-premium-light/10 bg-premium-dark/50 hover:bg-white hover:text-black"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 flex justify-center">
+                {index === 0 ? (
+                  <Trophy className="text-amber-400" size={22} />
+                ) : index === 1 ? (
+                  <Medal className="text-gray-300" size={22} />
+                ) : index === 2 ? (
+                  <Medal className="text-amber-700" size={22} />
+                ) : (
+                  <span className="text-premium-light/70 text-lg font-semibold">{index + 1}</span>
+                )}
               </div>
               
-              <div className="bg-premium-gradient text-white px-3 py-1 rounded-full text-sm font-medium">
-                {pointsToDisplay} pkt
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.profilePicture} />
+                <AvatarFallback className="bg-premium-gradient">
+                  {user.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div>
+                <div className="font-medium">{user.name} {user.lastName}</div>
+                <div className="text-xs text-premium-light/60">
+                  Posty: {user.stats.posts} | Komentarze: {user.stats.comments}
+                </div>
               </div>
             </div>
-          );
-        })}
+            
+            <div className="text-right">
+              <div className="font-bold flex items-center justify-end gap-1">
+                <Star className="text-amber-400" size={16} />
+                {showMonthly ? user.stats.pointsThisMonth : user.stats.pointsTotal} pkt
+              </div>
+              <div className="text-xs text-premium-light/60">
+                {user.stats.views} wyświetleń
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {displayUsers.length === 0 && (
+          <div className="p-4 text-center text-premium-light/50">
+            Brak użytkowników do wyświetlenia w rankingu.
+          </div>
+        )}
       </div>
     </div>
   );

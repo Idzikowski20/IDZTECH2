@@ -1,78 +1,106 @@
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "./utils/AuthProvider";
 
-import './App.css';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import About from './pages/About';
-import Contact from './pages/Contact';
+// Pages
+import Index from './pages/Index';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import AboutUs from './pages/AboutUs';
+import ContactPage from './pages/ContactPage';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import AdminSettings from './pages/AdminSettings';
+import AdminStats from './pages/AdminStats';
+import AdminUsers from './pages/AdminUsers';
+import AdminNotifications from "./pages/AdminNotifications";
+import Projects from './pages/Projects';
+import ContentPlan from './pages/ContentPlan';
+
+// Service Pages
+import WebDevelopment from './pages/WebDevelopment';
+import Seo from './pages/Seo';
+import SeoAudit from './pages/SeoAudit';
+import SeoCopywriting from './pages/SeoCopywriting';
+import SeoOptimization from './pages/SeoOptimization';
+import LocalSeo from './pages/LocalSeo';
+import ECommerce from './pages/ECommerce';
+import GoogleAdsAudit from './pages/GoogleAdsAudit';
+import GoogleAdsCampaigns from './pages/GoogleAdsCampaigns';
+import MetaAdsCampaigns from './pages/MetaAdsCampaigns';
+
+// Blog
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
-import Services from './pages/Services';
-import Admin from './pages/Admin';
-import Login from './pages/Login';
-import SanityAuth from './components/SanityAuth';
-import AdminLayout from './components/AdminLayout';
-import NotFound from './pages/NotFound';
-import { SanityAuthProvider } from './utils/SanityAuthProvider';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { ToastAction } from '@/components/ui/toast';
-import AdminStats from './pages/AdminStats';
+import BlogPostEditor from './pages/BlogPostEditor';
 
-// Lazy load the AdminStudio to prevent it from affecting the main bundle
-const AdminStudio = React.lazy(() => import('./pages/AdminStudio'));
+// Components
+import RequireAuth from './components/RequireAuth';
+import ScrollToTop from './components/ScrollToTop';
+import DotAnimation from './components/DotAnimation';
 
 function App() {
-  const [showToast, setShowToast] = useState(false);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (showToast) {
-      toast({
-        title: 'Witaj!',
-        description: 'Ta strona jest wciąż w budowie. Dziękujemy za cierpliwość!',
-        action: (
-          <ToastAction altText="Zamknij" onClick={() => setShowToast(false)}>
-            Zamknij
-          </ToastAction>
-        ),
-      });
-      setShowToast(false);
-    }
-  }, [showToast, toast]);
-
   return (
-    <>
-      <SanityAuthProvider>
-        <Router>
-          <Navbar />
+    <Router>
+      <ThemeProvider>
+        <AuthProvider>
+          <ScrollToTop />
+          <DotAnimation />
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/o-nas" element={<About />} />
-            <Route path="/kontakt" element={<Contact />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            
+            {/* Portfolio/Projects page accessible without auth */}
+            <Route path="/projects" element={<Projects />} />
+
+            {/* Protected routes */}
+            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+            <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+            <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
+            <Route path="/admin/users" element={<RequireAuth requiredRole="admin"><AdminUsers /></RequireAuth>} />
+            <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
+            
+            {/* Blog post editor routes */}
+            <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            
+            <Route path="/content-plan" element={<RequireAuth><ContentPlan /></RequireAuth>} />
+
+            {/* Service pages */}
+            <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
+            <Route path="/pozycjonowanie-stron" element={<Seo />} />
+            <Route path="/audyt-seo" element={<SeoAudit />} />
+            <Route path="/copywriting-seo" element={<SeoCopywriting />} />
+            <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
+            <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
+            <Route path="/sklepy-internetowe" element={<ECommerce />} />
+            <Route path="/audyt-google-ads" element={<GoogleAdsAudit />} />
+            <Route path="/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
+            <Route path="/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
+
+            {/* Blog */}
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/uslugi" element={<Services />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth" element={<SanityAuth />} />
-            <Route path="/admin" element={<AdminLayout><Admin /></AdminLayout>} />
-            <Route path="/admin/stats" element={<AdminLayout><AdminStats /></AdminLayout>} />
-            <Route path="/admin/studio/*" element={
-              <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading Sanity Studio...</div>}>
-                <AdminStudio />
-              </Suspense>
-            } />
+
+            {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Footer />
-        </Router>
-        <Toaster />
-      </SanityAuthProvider>
-    </>
+          <Toaster />
+        </AuthProvider>
+      </ThemeProvider>
+    </Router>
   );
 }
 

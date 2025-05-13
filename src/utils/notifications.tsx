@@ -1,107 +1,261 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-// Define notification types
+export type NotificationType = 
+  | 'post_created' 
+  | 'post_edited' 
+  | 'post_deleted' 
+  | 'user_edited'
+  | 'approval_request'
+  | 'approval_accepted'
+  | 'approval_rejected'
+  | 'comment_added'
+  | 'like_added'
+  | 'info'
+  | 'error'
+  | 'success'
+  | 'warning';
+
+export type NotificationStatus = 'pending' | 'approved' | 'rejected' | 'unread' | 'read';
+
 export interface Notification {
   id: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'approval_request';
+  type: NotificationType;
   title: string;
   message: string;
-  read: boolean;
-  timestamp: string;
+  createdAt: string;
+  status: NotificationStatus;
   fromUserId?: string;
   fromUserName?: string;
-  targetId?: string;
-  targetType?: string;
+  targetId?: string; // ID of post, user, etc. that the notification is about
+  targetType?: string; // Type of target: "post", "user", etc.
+  comment?: string; // Admin feedback in case of rejection
 }
 
-interface NotificationsContextType {
+// Default notifications for testing
+const defaultNotifications: Notification[] = [
+  {
+    id: '1',
+    type: 'post_created',
+    title: 'Nowy wpis na blogu',
+    message: 'Nowy artykuł został opublikowany na blogu',
+    createdAt: new Date().toISOString(),
+    status: 'unread',
+    targetId: '1',
+    targetType: 'post',
+  },
+  {
+    id: '2',
+    type: 'comment_added',
+    title: 'Nowy komentarz',
+    message: 'Jan Kowalski dodał komentarz do Twojego artykułu',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    status: 'unread',
+    fromUserName: 'Jan Kowalski',
+    targetId: '1',
+    targetType: 'post',
+  },
+  {
+    id: '3',
+    type: 'approval_request',
+    title: 'Prośba o zatwierdzenie',
+    message: 'Nowa prośba o zatwierdzenie zawartości',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'pending',
+    fromUserName: 'Anna Nowak',
+    targetId: '2',
+    targetType: 'post',
+  }
+];
+
+interface NotificationStore {
   notifications: Notification[];
   unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void;
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'status'> & {status?: NotificationStatus}) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
-  clearNotification: (id: string) => void;
+  updateNotificationStatus: (id: string, status: NotificationStatus, comment?: string) => void;
+  getNotificationsForUser: (userId: string) => Notification[];
+  deleteNotification: (id: string) => void;
 }
 
-// Create the context
-const NotificationsContext = createContext<NotificationsContextType>({
-  notifications: [],
-  unreadCount: 0,
-  addNotification: () => {},
-  markAsRead: () => {},
-  markAllAsRead: () => {},
-  clearNotification: () => {},
-});
+export const useNotifications = create<NotificationStore>()(
+  persist(
+    (set, get) => ({
+      notifications: defaultNotifications,
+      unreadCount: defaultNotifications.filter(n => n.status === 'unread').length,
+      
+      addNotification: (notification) => set((state) => {
+        const newNotification: Notification = {
+          ...notification,
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString(),
+          status: notification.status || 'unread',
+        };
 
-// Provider component
-export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const unreadCount = notifications.filter(n => !n.read).length;
-  
-  // Load notifications from localStorage on mount
-  useEffect(() => {
-    const storedNotifications = localStorage.getItem('notifications');
-    if (storedNotifications) {
-      try {
-        setNotifications(JSON.parse(storedNotifications));
-      } catch (error) {
-        console.error('Failed to parse stored notifications:', error);
-      }
+        // Update unread count if the new notification is unread
+        const newUnreadCount = newNotification.status === 'unread' ? 
+          state.unreadCount + 1 : state.unreadCount;
+        
+        return {
+          notifications: [newNotification, ...state.notifications],
+          unreadCount: newUnreadCount
+        };
+      }),
+      
+      markAsRead: (id) => set((state) => {
+        const updatedNotifications = state.notifications.map(notification => 
+          notification.id === id && notification.status === 'unread'
+            ? { ...notification, status: 'read' as NotificationStatus }
+            : notification
+        );
+        
+        // Count notifications with unread status
+        const unreadCount = updatedNotifications.filter(n => n.status === 'unread').length;
+        
+        return { 
+          notifications: updatedNotifications,
+          unreadCount
+        };
+      }),
+
+      markAllAsRead: () => set((state) => {
+        const updatedNotifications = state.notifications.map(notification => 
+          notification.status === 'unread'
+            ? { ...notification, status: 'read' as NotificationStatus }
+            : notification
+        );
+        
+        return { 
+          notifications: updatedNotifications,
+          unreadCount: 0
+        };
+      }),
+      
+      updateNotificationStatus: (id, status, comment) => set((state) => {
+        const updatedNotifications = state.notifications.map(notification => 
+          notification.id === id
+            ? { ...notification, status, ...(comment ? { comment } : {}) }
+            : notification
+        );
+        
+        // Update unread count
+        const unreadCount = updatedNotifications.filter(n => n.status === 'unread').length;
+        
+        // If we change a status to approved or rejected, create a new notification for the user
+        const targetNotification = state.notifications.find(n => n.id === id);
+        if (targetNotification && 
+            (status === 'approved' || status === 'rejected') && 
+            targetNotification.fromUserId) {
+            
+          const responseType = status === 'approved' ? 'approval_accepted' as NotificationType : 'approval_rejected' as NotificationType;
+          const responseTitle = status === 'approved' 
+            ? 'Prośba zaakceptowana' 
+            : 'Prośba odrzucona';
+          
+          const responseMessage = status === 'approved'
+            ? 'Twoja prośba została zaakceptowana'
+            : 'Twoja prośba została odrzucona';
+            
+          const newNotification: Notification = {
+            id: Date.now().toString(),
+            type: responseType,
+            title: responseTitle,
+            message: responseMessage,
+            createdAt: new Date().toISOString(),
+            status: 'unread',
+            targetId: targetNotification.targetId,
+            targetType: targetNotification.targetType,
+            comment: comment,
+          };
+          
+          return {
+            notifications: [newNotification, ...updatedNotifications],
+            unreadCount: unreadCount + 1
+          };
+        }
+        
+        return { 
+          notifications: updatedNotifications,
+          unreadCount
+        };
+      }),
+
+      getNotificationsForUser: (userId) => {
+        const { notifications } = get();
+        return notifications.filter(n => 
+          (n.fromUserId === userId) || 
+          (!n.fromUserId && !n.fromUserName) // Notifications without specific recipient (system notifications)
+        );
+      },
+      
+      deleteNotification: (id) => set((state) => {
+        const notification = state.notifications.find(n => n.id === id);
+        const wasUnread = notification?.status === 'unread';
+        
+        const filteredNotifications = state.notifications.filter(n => n.id !== id);
+        
+        return { 
+          notifications: filteredNotifications,
+          unreadCount: wasUnread ? state.unreadCount - 1 : state.unreadCount
+        };
+      }),
+    }),
+    {
+      name: 'notification-storage',
     }
-  }, []);
+  )
+);
 
-  // Update localStorage when notifications change
-  useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-  }, [notifications]);
-
-  const addNotification = (notificationData: Omit<Notification, 'id' | 'read' | 'timestamp'>) => {
-    const newNotification: Notification = {
-      id: uuidv4(),
-      read: false,
-      timestamp: new Date().toISOString(),
-      ...notificationData
-    };
-    
-    setNotifications(prev => [newNotification, ...prev]);
-  };
-
-  const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id ? { ...notification, read: true } : notification
-      )
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
-
-  const clearNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
-  };
-
-  const value = {
-    notifications,
-    unreadCount,
-    addNotification,
-    markAsRead,
-    markAllAsRead,
-    clearNotification
-  };
-
-  return (
-    <NotificationsContext.Provider value={value}>
-      {children}
-    </NotificationsContext.Provider>
-  );
+// Helper functions that act as middleware for common notification types
+export const sendApprovalRequest = (fromUserId: string, fromUserName: string, targetId: string, targetType: string, title: string, message: string) => {
+  useNotifications.getState().addNotification({
+    type: 'approval_request',
+    title,
+    message,
+    fromUserId,
+    fromUserName,
+    targetId,
+    targetType,
+    status: 'pending'
+  });
 };
 
-export const useNotifications = () => {
-  return useContext(NotificationsContext);
+export const notifyPostCreated = (userId: string, userName: string, postId: string, postTitle: string) => {
+  useNotifications.getState().addNotification({
+    type: 'post_created',
+    title: 'Nowy post został utworzony',
+    message: `Użytkownik ${userName} utworzył nowy post "${postTitle}"`,
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post',
+  });
+};
+
+// Helper for adding a comment notification
+export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
+  return useNotifications.getState().addNotification({
+    type: 'comment_added',
+    title: 'Nowy komentarz',
+    message: `${userName} dodał komentarz do "${postTitle}"`,
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post',
+  });
+};
+
+// Helper for adding a like notification
+export const addLikeNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
+  return useNotifications.getState().addNotification({
+    type: 'like_added',
+    title: 'Nowe polubienie',
+    message: `${userName} polubił "${postTitle}"`,
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post',
+  });
 };

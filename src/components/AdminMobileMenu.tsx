@@ -2,16 +2,22 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, LogOut } from 'lucide-react';
+import { useAuth } from '@/utils/AuthProvider';
 import { useNavigate } from 'react-router-dom';
-import { useSanityAuth } from '@/utils/SanityAuthProvider';
+import { useNotifications } from '@/utils/notifications';
 
-const AdminMobileMenu: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const { logout } = useSanityAuth();
+interface AdminMobileMenuProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
+
+const AdminMobileMenu: React.FC<AdminMobileMenuProps> = ({ isOpen, setIsOpen }) => {
+  const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
   
   const handleLogout = () => {
-    logout();
+    signOut();
     navigate('/login');
     setIsOpen(false);
   };
@@ -63,11 +69,16 @@ const AdminMobileMenu: React.FC = () => {
                 Profil
               </Link>
               <Link 
-                to="/admin/studio" 
-                className="block px-4 py-3 rounded-md hover:bg-white hover:text-black transition-colors"
+                to="/admin/notifications" 
+                className="flex items-center px-4 py-3 rounded-md hover:bg-white hover:text-black transition-colors"
                 onClick={() => setIsOpen(false)}
               >
-                Sanity Studio
+                Powiadomienia
+                {unreadCount > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </Link>
               <Link 
                 to="/admin/users" 
