@@ -52,30 +52,24 @@ export type Database = {
         Row: {
           content: string
           created_at: string | null
-          guest_name: string | null
           id: string
           post_id: string | null
-          status: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           content: string
           created_at?: string | null
-          guest_name?: string | null
           id?: string
           post_id?: string | null
-          status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           content?: string
           created_at?: string | null
-          guest_name?: string | null
           id?: string
           post_id?: string | null
-          status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
