@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -22,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { ToastAction } from '@/components/ui/toast';
 import AdminStudio from './pages/AdminStudio';
+import AdminStats from './pages/AdminStats';
 
 function App() {
   const [showToast, setShowToast] = useState(false);
@@ -57,6 +59,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/auth" element={<SanityAuth />} />
             <Route path="/admin" element={<AdminLayout><Admin /></AdminLayout>} />
+            <Route path="/admin/stats" element={<AdminLayout><AdminStats /></AdminLayout>} />
             <Route path="/admin/studio/*" element={<AdminStudio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

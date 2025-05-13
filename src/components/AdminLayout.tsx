@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSanityAuth } from '@/utils/SanityAuthProvider';
@@ -94,7 +95,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <DropdownMenuContent align="end" forceMount className="w-56">
               <DropdownMenuLabel>Moje konto</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/profile')}>Profil</DropdownMenuMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/profile')}>Profil</DropdownMenuItem>
               <DropdownMenuItem onClick={() => logout()}>Wyloguj się</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
