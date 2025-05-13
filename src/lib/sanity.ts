@@ -58,3 +58,126 @@ export async function checkUserIsAdmin(userId: string): Promise<boolean> {
     return false;
   }
 }
+
+// Funkcja do pobierania treści strony z Sanity
+export async function fetchPageContent(slug: string) {
+  try {
+    const query = `*[_type == "page" && slug.current == $slug][0]{
+      title,
+      content,
+      sections,
+      seo
+    }`;
+    return await sanityClient.fetch(query, { slug });
+  } catch (error) {
+    console.error('Error fetching page content:', error);
+    return null;
+  }
+}
+
+// Funkcja do pobierania postów blogowych z Sanity
+export async function fetchBlogPosts(limit = 10, offset = 0) {
+  try {
+    const query = `*[_type == "blogPost"] | order(publishedAt desc) [$offset...$limit] {
+      _id,
+      title,
+      slug,
+      excerpt,
+      mainImage,
+      publishedAt,
+      author->{name, profilePicture},
+      categories,
+      tags,
+      views
+    }`;
+    
+    return await sanityClient.fetch(query, { limit: offset + limit, offset });
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
+  }
+}
+
+// Funkcja do pobierania pojedynczego posta blogowego z Sanity
+export async function fetchBlogPost(slug: string) {
+  try {
+    const query = `*[_type == "blogPost" && slug.current == $slug][0]{
+      _id,
+      title,
+      slug,
+      excerpt,
+      mainImage,
+      publishedAt,
+      author->{
+        _id,
+        name,
+        profilePicture,
+        jobTitle
+      },
+      categories,
+      tags,
+      content,
+      views,
+      likes,
+      comments
+    }`;
+    
+    return await sanityClient.fetch(query, { slug });
+  } catch (error) {
+    console.error('Error fetching blog post:', error);
+    return null;
+  }
+}
+
+// Funkcja do aktualizacji liczby wyświetleń posta
+export async function incrementPostViews(postId: string) {
+  try {
+    return await sanityClient
+      .patch(postId)
+      .setIfMissing({ views: 0 })
+      .inc({ views: 1 })
+      .commit();
+  } catch (error) {
+    console.error('Error incrementing post views:', error);
+    return null;
+  }
+}
+
+// Funkcja do dodawania polubienia do posta
+export async function addLikeToPost(postId: string, userId: string | null) {
+  try {
+    if (userId) {
+      // Dodawanie polubienia zalogowanego użytkownika
+      return await sanityClient
+        .patch(postId)
+        .setIfMissing({ likes: [] })
+        .append('likes', [{ _ref: userId, _type: 'reference' }])
+        .commit();
+    } else {
+      // Dodawanie polubienia anonimowego - przechowujemy tylko ID sesji
+      const guestId = `guest-${Date.now()}`;
+      return await sanityClient
+        .patch(postId)
+        .setIfMissing({ guestLikes: [] })
+        .append('guestLikes', [guestId])
+        .commit();
+    }
+  } catch (error) {
+    console.error('Error adding like to post:', error);
+    return null;
+  }
+}
+
+// Funkcja do dodawania komentarza do posta
+export async function addCommentToPost(postId: string, comment: any) {
+  try {
+    return await sanityClient
+      .patch(postId)
+      .setIfMissing({ comments: [] })
+      .append('comments', [comment])
+      .commit();
+  } catch (error) {
+    console.error('Error adding comment to post:', error);
+    return null;
+  }
+}
