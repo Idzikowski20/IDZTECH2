@@ -7,26 +7,9 @@ import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 
-interface DesktopControlsProps {
-  scrolled: boolean;
-}
-
-const DesktopControls: React.FC<DesktopControlsProps> = ({ scrolled }) => {
+const DesktopControls = () => {
   const { isAuthenticated } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
-  
-  // Determine text and icon colors based on theme and scroll state
-  const textColor = theme === 'light' 
-    ? scrolled 
-      ? 'text-black' 
-      : 'text-black' 
-    : 'text-white';
-    
-  const iconColor = theme === 'light' 
-    ? scrolled 
-      ? 'text-black' 
-      : 'text-black'  
-    : 'text-white';
   
   return (
     <div className="hidden md:flex items-center space-x-4">
@@ -37,21 +20,18 @@ const DesktopControls: React.FC<DesktopControlsProps> = ({ scrolled }) => {
           toggleDarkMode();
           trackEvent('toggle_theme', 'ui', `Theme toggled to ${theme === "light" ? "dark" : "light"}`);
         }} 
-        className={`transition-colors duration-300 ${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+        className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
       >
         {theme === "light" ? 
-          <Moon className={`h-[1.2rem] w-[1.2rem] ${iconColor} transition-colors duration-300`} /> : 
-          <Sun className="h-[1.2rem] w-[1.2rem] text-white transition-colors duration-300" />
+          <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : 
+          <Sun className="h-[1.2rem] w-[1.2rem] text-white" />
         }
         <span className="sr-only">Toggle theme</span>
       </Button>
       
-      <Link to="/contact">
+      <Link to="/contact" className="hidden md:block">
         <Button 
-          className={`${theme === 'light' 
-            ? 'bg-black text-white hover:bg-black hover:text-white' 
-            : 'bg-white text-black hover:bg-white hover:text-black'} 
-            transition-transform duration-300 hover:scale-110`}
+          className="bg-black text-white hover:bg-black hover:text-white transition-colors"
         >
           Umów spotkanie
         </Button>
@@ -61,9 +41,9 @@ const DesktopControls: React.FC<DesktopControlsProps> = ({ scrolled }) => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`transition-colors duration-300 ${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+          className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
         >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${iconColor} transition-colors duration-300`} />
+          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
           <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>

@@ -2,77 +2,6 @@
 <!DOCTYPE html>
 <html lang="pl">
   <head>
-    <!-- Critical inline styles to prevent FOUC -->
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, sans-serif;
-        visibility: hidden; /* Keep body hidden until CSS is loaded */
-      }
-      
-      #root {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      /* Loading spinner animation */
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      
-      .loading {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: #121212;
-        z-index: 9999;
-      }
-      
-      .spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid rgba(0,0,0,.1);
-        border-radius: 50%;
-        border-bottom-color: #6c5ce7;
-        animation: spin 1s linear infinite;
-      }
-      
-      @media (prefers-color-scheme: dark) {
-        .spinner {border-bottom-color: #a29bfe;}
-      }
-    </style>
-    
-    <!-- Preload CSS files but don't apply until onload -->
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('css-loaded');">
-    <noscript><link rel="stylesheet" href="/src/index.css"><style>body{visibility:visible;}</style></noscript>
-    
-    <!-- Make body visible again when all styles load -->
-    <script>
-      // Add a class to html when CSS is loaded
-      window.addEventListener('DOMContentLoaded', function() {
-        // Check if CSS is already loaded
-        if (document.styleSheets.length > 1) {
-          document.documentElement.classList.add('css-loaded');
-        }
-      });
-    </script>
-    
-    <!-- Meta tags for better SEO and performance -->
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-    
     <!-- Preconnect to required origins -->
     <link rel="preconnect" href="https://supabase.co" crossorigin>
     <link rel="preconnect" href="https://web.cmp.usercentrics.eu" crossorigin>
@@ -80,45 +9,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     <!-- Load critical resources first -->
-    <script src="https://web.cmp.usercentrics.eu/modules/autoblocker.js" defer></script>
+    <script src="https://web.cmp.usercentrics.eu/modules/autoblocker.js"></script>
     <script id="usercentrics-cmp" src="https://web.cmp.usercentrics.eu/ui/loader.js" data-settings-id="EhcLcx48nZnCDw" async></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IDZ.TECH - Tworzymy najlepsze strony internetowe</title>
+    <meta name="description" content="Tworzymy najlepsze strony internetowe,aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta name="author" content="IDZ.TECH" />
 
     <meta property="og:title" content="IDZ.TECH - Tworzymy najlepsze strony internetowe" />
-    <meta property="og:description" content="Tworzymy najlepsze strony internetowe, aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
+    <meta property="og:description" content="Tworzymy najlepsze strony internetowe,aplikacje webowe i sklepy internetowe oraz profesjonalne pozycjonowanie SEO." />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
 
   <body>
-    <div id="root">
-      <div class="loading" id="loading-screen">
-        <div class="spinner"></div>
-        <noscript>Ta strona wymaga JavaScript. Proszę włączyć obsługę JavaScript w przeglądarce.</noscript>
-      </div>
-    </div>
+    <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Show content once everything is loaded
-      window.addEventListener('load', function() {
-        document.getElementById('root').style.opacity = '1';
-        
-        // Fallback for visibility if the CSS loading fails
-        setTimeout(function() {
-          if (document.body.style.visibility === 'hidden') {
-            document.body.style.visibility = 'visible';
-          }
-        }, 1500);
-      });
-    </script>
   </body>
 </html>

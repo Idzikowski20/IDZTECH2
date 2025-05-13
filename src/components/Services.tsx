@@ -61,6 +61,7 @@ const Services = () => {
               className={`
                 ${theme === 'light' ? 'bg-premium-dark/60 border border-white/10' : 'bg-premium-dark/60 border border-white/10'} 
                 rounded-xl p-6 transition-all duration-300 h-full flex flex-col shadow-lg ${theme === 'light' ? 'shadow-gray-300/50' : 'shadow-premium-purple/10'}
+                hover:scale-110
               `}
               style={{ 
                 WebkitTapHighlightColor: 'transparent',
@@ -79,7 +80,7 @@ const Services = () => {
               >
                 <Button 
                   variant="ghost" 
-                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-black hover:bg-white' : 'text-premium-light hover:text-black hover:bg-white'}`}
+                  className={`p-0 ${theme === 'light' ? 'text-premium-light hover:text-premium-purple hover:bg-transparent' : 'text-premium-light hover:text-premium-purple hover:bg-transparent'}`}
                 >
                   <span className="flex items-center">
                     Dowiedz się więcej
