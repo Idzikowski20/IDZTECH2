@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
 import { ExtendedUserProfile } from '@/utils/AuthProvider';
 import { User, UserRole } from './authTypes';
+import { sanityClient } from '@/lib/sanity';
 
 // Check which authentication method is available and use it
 export const integrateAuth = async () => {
@@ -14,26 +15,23 @@ export const integrateAuth = async () => {
     if (session) {
       console.log('Using Supabase authentication');
       
-      // Get profile data if available
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+      // Get profile data from Sanity if available
+      const query = `*[_type == "user" && supabaseId == $userId][0]`;
+      const sanityUser = await sanityClient.fetch(query, { userId: session.user.id });
       
       return { 
         provider: 'supabase', 
         session,
         user: {
           ...session.user,
-          name: profileData?.name || session.user.user_metadata?.name || null,
-          lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
-          profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
-          bio: profileData?.bio || session.user.user_metadata?.bio || null,
-          jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null,
-          role: profileData?.role || session.user.user_metadata?.role || 'user',
+          name: sanityUser?.name || session.user.user_metadata?.name || null,
+          lastName: sanityUser?.lastName || session.user.user_metadata?.lastName || null,
+          profilePicture: sanityUser?.profilePicture || session.user.user_metadata?.profilePicture || null,
+          bio: sanityUser?.bio || session.user.user_metadata?.bio || null,
+          jobTitle: sanityUser?.jobTitle || session.user.user_metadata?.jobTitle || null,
+          role: sanityUser?.role || session.user.user_metadata?.role || 'user',
           // Needed for compatibility with local auth
-          createdAt: profileData?.created_at || session.user.created_at || new Date().toISOString()
+          createdAt: sanityUser?.createdAt || session.user.created_at || new Date().toISOString()
         }
       };
     } else {
@@ -42,17 +40,33 @@ export const integrateAuth = async () => {
       
       if (localUser) {
         console.log('Using local authentication');
+        
+        // Try to get Sanity data for this user
+        if (localUser.id) {
+          const query = `*[_type == "user" && _id == $userId][0]`;
+          const sanityUser = await sanityClient.fetch(query, { userId: localUser.id });
+          
+          if (sanityUser) {
+            return { 
+              provider: 'local', 
+              session: null,
+              user: {
+                ...localUser,
+                name: sanityUser.name || localUser.name || null,
+                lastName: sanityUser.lastName || localUser.lastName || null,
+                profilePicture: sanityUser.profilePicture || localUser.profilePicture || null,
+                bio: sanityUser.bio || localUser.bio || null,
+                jobTitle: sanityUser.jobTitle || localUser.jobTitle || null,
+                role: sanityUser.role || localUser.role || 'user'
+              }
+            };
+          }
+        }
+        
         return { 
           provider: 'local', 
           session: null,
-          user: {
-            ...localUser,
-            name: localUser.name || null,
-            lastName: localUser.lastName || null,
-            profilePicture: localUser.profilePicture || null,
-            bio: localUser.bio || null,
-            jobTitle: localUser.jobTitle || null
-          }
+          user: localUser
         };
       }
     }
@@ -64,160 +78,82 @@ export const integrateAuth = async () => {
   }
 };
 
-// Handle registration through both systems
-export const registerUser = async (email: string, name: string, password: string) => {
+// Create Sanity user from Supabase user
+export const createSanityUser = async (user: any) => {
   try {
-    // First try Supabase
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name }
-      }
-    });
+    // Check if user already exists
+    const query = `*[_type == "user" && supabaseId == $userId][0]`;
+    const existingUser = await sanityClient.fetch(query, { userId: user.id });
     
-    // If Supabase signup works, create a profile
-    if (data.user && !error) {
-      console.log('Registered user with Supabase');
-      
-      // Create profile
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: data.user.email,
-        name: name,
-        created_at: new Date().toISOString()
-      });
-      
-      if (profileError) {
-        console.error("Error creating profile:", profileError);
-      }
-      
-      return true;
-    }
-    
-    // If the error is because signups are disabled or other Supabase error, try local auth
-    if (error) {
-      console.log('Supabase signups error, using local auth:', error.message);
-      const success = await authStore.useAuth.getState().register(email, name, password);
-      
-      if (success) {
-        console.log('Registered user with local auth');
-        return true;
-      }
-    }
-    
-    // If we get here, registration failed
-    console.error("Registration failed");
-    return false;
-  } catch (error) {
-    console.error('Error during registration:', error);
-    return false;
-  }
-};
-
-// Handle login through both systems
-export const loginUser = async (email: string, password: string) => {
-  try {
-    console.log('Attempting login with:', email);
-    
-    // First try Supabase
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    
-    // If Supabase login works, return success
-    if (data.session && !error) {
-      console.log('Logged in with Supabase');
-      
-      // Check if profile exists, if not create it
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', data.user.id)
-        .single();
-      
-      if (!profileData) {
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: data.user.id,
-          email: data.user.email,
-          name: data.user.user_metadata?.name || email.split('@')[0],
-          created_at: new Date().toISOString()
-        });
-        
-        if (profileError) {
-          console.error("Error creating profile during login:", profileError);
-        }
-      }
-      
-      return { 
-        success: true, 
-        provider: 'supabase',
-        data,
-        error: null
+    if (!existingUser) {
+      // Create new user document
+      const newUser = {
+        _type: 'user',
+        supabaseId: user.id,
+        name: user.name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+        lastName: user.lastName || user.user_metadata?.lastName || '',
+        email: user.email,
+        role: user.role || user.user_metadata?.role || 'user',
+        profilePicture: user.profilePicture || user.user_metadata?.profilePicture || '',
+        bio: user.bio || user.user_metadata?.bio || '',
+        jobTitle: user.jobTitle || user.user_metadata?.jobTitle || '',
+        createdAt: new Date().toISOString()
       };
-    }
-    
-    // Try local auth if Supabase fails
-    if (!data.session || error) {
-      console.log('Supabase login failed, trying local auth');
-      const success = await authStore.useAuth.getState().login(email, password);
       
-      if (success) {
-        console.log('Logged in with local auth');
-        const user = await authStore.useAuth.getState().getCurrentUser();
-        
-        return { 
-          success: true, 
-          provider: 'local', 
-          data: { user },
-          error: null
-        };
-      }
+      return await sanityClient.create(newUser);
     }
     
-    // If we get here, login failed
-    console.log('Login failed for:', email);
-    return { 
-      success: false, 
-      provider: null, 
-      data: null, 
-      error: error || { message: 'Invalid credentials' } 
-    };
+    return existingUser;
   } catch (error) {
-    console.error('Error during login:', error);
-    return { 
-      success: false, 
-      provider: null,
-      data: null,
-      error 
-    };
+    console.error('Error creating Sanity user:', error);
+    return null;
   }
 };
 
-// Update user profile in the appropriate system
+// Update user profile in Sanity and/or Supabase
 export const updateUserProfile = async (userId: string, userData: Partial<ExtendedUserProfile>) => {
   try {
-    // First check if user exists in Supabase
+    // First try to update Sanity
+    const query = `*[_type == "user" && (supabaseId == $userId || _id == $userId)][0]`;
+    const sanityUser = await sanityClient.fetch(query, { userId });
+    
+    if (sanityUser) {
+      await sanityClient
+        .patch(sanityUser._id)
+        .set({
+          name: userData.name,
+          lastName: userData.lastName,
+          profilePicture: userData.profilePicture,
+          bio: userData.bio,
+          jobTitle: userData.jobTitle,
+          role: userData.role
+        })
+        .commit();
+    } else {
+      // If user doesn't exist in Sanity yet, create them
+      await createSanityUser({ id: userId, ...userData });
+    }
+    
+    // Also update Supabase profile for backward compatibility 
+    // during the transition period
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session && session.user.id === userId) {
-      // Get the user email first
-      const { data: userData } = await supabase.auth.getUser();
-      const email = userData?.user?.email || '';
+      // Get the user email
+      const { data: userData: supabaseUserData } = await supabase.auth.getUser();
+      const email = supabaseUserData?.user?.email || '';
       
       // Update Supabase profile
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: userId,
-          email: email, // Add required email field
+          email: email,
           ...userData
         });
       
       if (profileError) {
-        console.error("Error updating profile:", profileError);
-        return { success: false, error: profileError };
+        console.error("Error updating Supabase profile:", profileError);
       }
       
       // Also update user metadata
@@ -225,144 +161,237 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
         data: userData
       });
       
-      return { success: !error, error };
-    } else {
-      // Update local user
-      const success = await authStore.useAuth.getState().updateUser(userId, userData);
-      return { success, error: success ? null : new Error('Failed to update user') };
+      if (error) {
+        console.error("Error updating Supabase user metadata:", error);
+      }
     }
+    
+    return { success: true, error: null };
   } catch (error) {
     console.error('Error updating user profile:', error);
     return { success: false, error };
   }
 };
 
-// Fetch all users from Supabase
+// Fetch all users from Sanity
 export const fetchAllUsers = async () => {
   try {
-    console.log('Fetching all users from Supabase profiles');
+    console.log('Fetching all users from Sanity');
     
-    // Fetch all profiles from the profiles table
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('*');
+    // Fetch all users from Sanity
+    const query = `*[_type == "user"]`;
+    const sanityUsers = await sanityClient.fetch(query);
     
-    if (error) {
-      console.error('Error fetching profiles:', error);
+    return sanityUsers || [];
+  } catch (error) {
+    console.error('Error fetching users from Sanity:', error);
+    
+    // Fall back to Supabase if Sanity fails (during transition)
+    try {
+      console.log('Falling back to Supabase profiles');
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('*');
+      
+      if (error) {
+        console.error('Error fetching profiles from Supabase:', error);
+        return [];
+      }
+      
+      return profiles || [];
+    } catch (supabaseError) {
+      console.error('Error in Supabase fallback:', supabaseError);
       return [];
     }
-    
-    return profiles || [];
-  } catch (error) {
-    console.error('Error in fetchAllUsers:', error);
-    return [];
   }
 };
 
-// Add the missing functions for user management
-
-/**
- * Add a new user to the system
- */
-export const addUser = async (userData: any, password: string) => {
+// Update a user's role in Sanity
+export const updateUserRole = async (userId: string, role: UserRole): Promise<boolean> => {
   try {
-    console.log('Adding new user:', userData);
+    console.log('Updating role for user:', userId, 'to', role);
     
-    // Create user in Supabase
-    const { data: { user }, error } = await supabase.auth.signUp({
-      email: userData.email,
-      password: password,
-      options: {
-        data: {
-          name: userData.name,
-          lastName: userData.lastName,
-          role: userData.role
-        }
-      }
-    });
+    // First check if user exists in Sanity
+    const query = `*[_type == "user" && (supabaseId == $userId || _id == $userId)][0]`;
+    const sanityUser = await sanityClient.fetch(query, { userId });
     
-    if (error) {
-      console.error('Error creating user:', error);
-      return { success: false, error };
-    }
-    
-    // Create profile
-    if (user) {
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: user.id,
-        email: userData.email,
-        name: userData.name,
-        lastName: userData.lastName,
-        role: userData.role,
-        jobTitle: userData.jobTitle,
-        profilePicture: userData.profilePicture,
-        bio: userData.bio,
-        created_at: new Date().toISOString()
-      });
+    if (sanityUser) {
+      // Update role in Sanity
+      await sanityClient
+        .patch(sanityUser._id)
+        .set({ role })
+        .commit();
       
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        return { success: false, error: profileError };
+      // Also update in Supabase for backwards compatibility during transition
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role })
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('Error updating user role in Supabase:', error);
       }
+      
+      return true;
     }
     
-    return { success: true, id: user?.id };
+    return false;
+  } catch (error) {
+    console.error('Error updating user role:', error);
+    return false;
+  }
+};
+
+// Delete a user from Sanity
+export const deleteUser = async (userId: string): Promise<boolean> => {
+  try {
+    console.log('Deleting user:', userId);
+    
+    // First check if user exists in Sanity
+    const query = `*[_type == "user" && (supabaseId == $userId || _id == $userId)][0]`;
+    const sanityUser = await sanityClient.fetch(query, { userId });
+    
+    if (sanityUser) {
+      // Delete from Sanity
+      await sanityClient.delete(sanityUser._id);
+      
+      // Also delete from Supabase for backwards compatibility
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('Error deleting user profile from Supabase:', error);
+      }
+      
+      return true;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
+};
+
+// Add a new user to Sanity
+export const addUser = async (userData: any): Promise<{success: boolean, id?: string, error?: any}> => {
+  try {
+    console.log('Adding new user to Sanity:', userData);
+    
+    // Create user in Sanity
+    const newUser = {
+      _type: 'user',
+      name: userData.name,
+      lastName: userData.lastName,
+      email: userData.email,
+      role: userData.role || 'user',
+      jobTitle: userData.jobTitle || '',
+      profilePicture: userData.profilePicture || '',
+      bio: userData.bio || '',
+      createdAt: new Date().toISOString()
+    };
+    
+    const createdUser = await sanityClient.create(newUser);
+    
+    if (!createdUser) {
+      throw new Error('Failed to create user in Sanity');
+    }
+    
+    return { success: true, id: createdUser._id };
   } catch (error) {
     console.error('Error in addUser:', error);
     return { success: false, error };
   }
 };
 
-/**
- * Update a user's role
- */
-export const updateUserRole = async (userId: string, role: UserRole) => {
+// Ensure patryk.idzikowski has admin permissions
+export const ensureAdminPermissions = async () => {
   try {
-    console.log('Updating role for user:', userId, 'to', role);
+    // Search for patryk.idzikowski by email pattern
+    const query = `*[_type == "user" && email match "*patryk.idzikowski*"][0]`;
+    const user = await sanityClient.fetch(query);
     
-    // Update the profile with the new role
-    const { error } = await supabase
+    if (user) {
+      // Ensure user has admin role
+      if (user.role !== 'admin' && user.role !== 'administrator') {
+        await sanityClient
+          .patch(user._id)
+          .set({ role: 'admin' })
+          .commit();
+        
+        console.log('Updated patryk.idzikowski to admin role');
+      }
+    } else {
+      // Create the admin user if not found
+      const newAdmin = {
+        _type: 'user',
+        name: 'Patryk',
+        lastName: 'Idzikowski',
+        email: 'patryk.idzikowski@example.com', // Update with correct email
+        role: 'admin',
+        createdAt: new Date().toISOString()
+      };
+      
+      await sanityClient.create(newAdmin);
+      console.log('Created admin user for patryk.idzikowski');
+    }
+    
+    // Also ensure Supabase permissions are set correctly
+    const { data, error } = await supabase
       .from('profiles')
-      .update({ role })
-      .eq('id', userId);
+      .select('*')
+      .ilike('email', '%patryk.idzikowski%')
+      .single();
     
-    if (error) {
-      console.error('Error updating user role:', error);
-      return false;
+    if (data && data.role !== 'admin' && data.role !== 'administrator') {
+      await supabase
+        .from('profiles')
+        .update({ role: 'admin' })
+        .eq('id', data.id);
+      
+      console.log('Updated Supabase role for patryk.idzikowski');
     }
     
     return true;
   } catch (error) {
-    console.error('Error in updateUserRole:', error);
+    console.error('Error ensuring admin permissions:', error);
     return false;
   }
 };
 
-/**
- * Delete a user
- */
-export const deleteUser = async (userId: string) => {
+// Delete admin@idztech.pl user
+export const deleteAdminUser = async () => {
   try {
-    console.log('Deleting user:', userId);
+    // Check Sanity first
+    const query = `*[_type == "user" && email == "admin@idztech.pl"][0]`;
+    const sanityUser = await sanityClient.fetch(query);
     
-    // We can't directly delete users from auth.users with the client SDK
-    // But we can delete their profile, which is effectively the same for our purposes
-    const { error } = await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', userId);
-    
-    if (error) {
-      console.error('Error deleting user profile:', error);
-      return false;
+    if (sanityUser) {
+      await sanityClient.delete(sanityUser._id);
+      console.log('Deleted admin@idztech.pl from Sanity');
     }
     
-    // Note: In a production system, you would use supabase admin to delete the actual auth.users entry,
-    // or have a server-side function that handles this
+    // Also check Supabase
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', 'admin@idztech.pl')
+      .single();
+    
+    if (data) {
+      await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', data.id);
+      
+      console.log('Deleted admin@idztech.pl from Supabase');
+    }
     
     return true;
   } catch (error) {
-    console.error('Error in deleteUser:', error);
+    console.error('Error deleting admin@idztech.pl:', error);
     return false;
   }
 };
