@@ -120,16 +120,16 @@ const Navbar: React.FC = () => {
         <meta name="twitter:description" content={meta.description} />
       </Helmet>
       
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-premium-dark/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black dark:bg-black backdrop-blur-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             <Brand />
             
-            <div className="hidden md:flex md:items-center md:justify-end md:flex-1">
+            <div className="hidden md:flex md:items-center md:justify-center md:flex-1">
               <DesktopNavigation />
-              <DesktopControls />
             </div>
             
+            <DesktopControls />
             <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
           </div>
         </div>
