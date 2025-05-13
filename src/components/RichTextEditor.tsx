@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import hljs from 'highlight.js';
@@ -23,6 +23,15 @@ const RichTextEditor = ({
   placeholder = 'Wpisz treść...',
   rows = 10
 }: RichTextEditorProps) => {
+  
+  // Ensure hljs is available globally before Quill initialization
+  useEffect(() => {
+    // Make sure highlight.js is available globally
+    if (window.hljs !== hljs) {
+      window.hljs = hljs;
+    }
+  }, []);
+  
   // Quill modules configuration - all available features
   const modules = useMemo(() => ({
     toolbar: [
