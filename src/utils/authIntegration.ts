@@ -41,7 +41,7 @@ export const fetchUsers = async (): Promise<User[]> => {
         undefined,
       jobTitle: user.jobTitle,
       created_at: user.created_at,
-      last_sign_in: user.last_sign_in,
+      last_sign_in: user.last_sign_in || null,
       stats: user.stats
     }));
   } catch (error) {
@@ -74,7 +74,7 @@ export const updateUserRole = async (userId: string, role: string): Promise<User
         undefined,
       jobTitle: result.jobTitle,
       created_at: result.created_at,
-      last_sign_in: result.last_sign_in,
+      last_sign_in: result.last_sign_in || null,
       stats: result.stats
     };
   } catch (error) {
@@ -126,20 +126,23 @@ export const addUser = async (userData: Partial<User>, password: string): Promis
     });
     
     // Zwracamy utworzonego użytkownika w formacie naszego modelu
+    // Use type assertion to handle the returned Sanity document
+    const sanityUser = result as any;
+    
     return {
-      id: result._id,
-      name: result.name,
-      email: result.email,
-      role: result.role,
-      lastName: result.lastName,
-      profilePicture: result.profilePicture ? 
-        result.profilePicture.asset._ref.replace('image-', '').replace('-jpg', '.jpg') : 
+      id: sanityUser._id,
+      name: sanityUser.name,
+      email: sanityUser.email,
+      role: sanityUser.role,
+      lastName: sanityUser.lastName,
+      profilePicture: sanityUser.profilePicture ? 
+        sanityUser.profilePicture.asset._ref.replace('image-', '').replace('-jpg', '.jpg') : 
         undefined,
-      jobTitle: result.jobTitle,
-      created_at: result.created_at,
-      // Use optional chaining for properties that might not exist
-      last_sign_in: result.last_sign_in || null,
-      stats: result.stats
+      jobTitle: sanityUser.jobTitle,
+      created_at: sanityUser.created_at,
+      // Handle potentially missing last_sign_in property
+      last_sign_in: null, // New users won't have a last_sign_in value
+      stats: sanityUser.stats
     };
   } catch (error) {
     console.error("Error adding user to Sanity:", error);
