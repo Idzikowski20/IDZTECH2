@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -23,6 +24,10 @@ const DesktopNavigation = () => {
     return location.pathname === path;
   };
   
+  const activeClass = cn(
+    theme === 'light' ? 'bg-gray-100 text-black' : 'bg-white/10 text-white'
+  );
+  
   return (
     <div className="hidden lg:flex items-center gap-1">
       <NavigationMenu>
@@ -30,7 +35,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/" 
-              className={`${linkClass} ${isActive('/') ? 'font-bold' : ''}`}
+              className={`${linkClass} ${isActive('/') ? activeClass : ''}`}
               aria-current={isActive('/') ? 'page' : undefined}
             >
               Start
@@ -192,7 +197,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/projects" 
-              className={`${linkClass} ${isActive('/projects') ? 'font-bold' : ''}`}
+              className={`${linkClass} ${isActive('/projects') ? activeClass : ''}`}
               aria-current={isActive('/projects') ? 'page' : undefined}
             >
               Portfolio
@@ -202,7 +207,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/about" 
-              className={`${linkClass} ${isActive('/about') ? 'font-bold' : ''}`}
+              className={`${linkClass} ${isActive('/about') ? activeClass : ''}`}
               aria-current={isActive('/about') ? 'page' : undefined}
             >
               O nas
@@ -212,7 +217,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/blog" 
-              className={`${linkClass} ${isActive('/blog') ? 'font-bold' : ''}`}
+              className={`${linkClass} ${isActive('/blog') ? activeClass : ''}`}
               aria-current={isActive('/blog') ? 'page' : undefined}
             >
               Blog
@@ -222,7 +227,7 @@ const DesktopNavigation = () => {
           <NavigationMenuItem>
             <Link 
               to="/contact" 
-              className={`${linkClass} ${isActive('/contact') ? 'font-bold' : ''}`}
+              className={`${linkClass} ${isActive('/contact') ? activeClass : ''}`}
               aria-current={isActive('/contact') ? 'page' : undefined}
             >
               Kontakt

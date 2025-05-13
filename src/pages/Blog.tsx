@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Search, Filter } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useBlogStore } from '@/utils/blog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from '@/lib/utils';
 
 // Helper function to strip HTML tags for excerpts
@@ -22,7 +21,6 @@ const Blog = () => {
   const { posts, loading, fetchPosts } = useBlogStore();
   const [visiblePosts, setVisiblePosts] = useState<number>(3);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [filteredPosts, setFilteredPosts] = useState<any[]>([]);
 
   // Fetch posts on component mount
@@ -30,7 +28,7 @@ const Blog = () => {
     fetchPosts();
   }, [fetchPosts]);
 
-  // Filter posts based on search query and category
+  // Filter posts based on search query
   useEffect(() => {
     if (!posts) return;
     
@@ -46,28 +44,9 @@ const Blog = () => {
       );
     }
     
-    // Apply category filter if not set to 'all'
-    if (selectedCategory && selectedCategory !== 'all') {
-      results = results.filter(post => 
-        post.categories.includes(selectedCategory)
-      );
-    }
-    
     setFilteredPosts(results);
-  }, [posts, searchQuery, selectedCategory]);
+  }, [posts, searchQuery]);
 
-  // Get all unique categories from posts
-  const getAllCategories = () => {
-    if (!posts) return [];
-    const categoriesSet = new Set<string>();
-    posts.forEach(post => {
-      post.categories.forEach((category: string) => {
-        categoriesSet.add(category);
-      });
-    });
-    return Array.from(categoriesSet);
-  };
-  
   // Handle showing more posts
   const handleShowMore = () => {
     setVisiblePosts(prev => prev + 3);
@@ -81,7 +60,6 @@ const Blog = () => {
     });
   }, []);
 
-  const categories = getAllCategories();
   const visiblePostsList = filteredPosts.slice(0, visiblePosts);
   const hasMorePosts = visiblePosts < filteredPosts.length;
 
@@ -103,7 +81,7 @@ const Blog = () => {
               Najnowsze informacje, porady i trendy z świata SEO i tworzenia stron internetowych
             </p>
             
-            {/* Search and filters */}
+            {/* Search */}
             <div className="mt-8 space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-premium-light/50" size={18} />
@@ -115,30 +93,6 @@ const Blog = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   aria-label="Szukaj artykułów"
                 />
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Filter className="text-premium-light/50" size={18} />
-                <Select
-                  value={selectedCategory}
-                  onValueChange={(value) => setSelectedCategory(value)}
-                >
-                  <SelectTrigger className="w-full md:w-[250px] bg-premium-dark/50 border-premium-light/20 focus:border-premium-purple">
-                    <SelectValue placeholder="Wybierz kategorię" aria-label="Wybierz kategorię" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-premium-dark border-premium-light/20">
-                    <SelectItem value="all" className="hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black">Wszystkie kategorie</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem 
-                        key={category} 
-                        value={category}
-                        className="hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black"
-                      >
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </div>
@@ -174,7 +128,7 @@ const Blog = () => {
               <h2 className="text-xl font-medium">Nie znaleziono artykułów spełniających podane kryteria</h2>
               <p className="text-premium-light/70 mt-2">Spróbuj zmienić kryteria wyszukiwania</p>
               <Button 
-                onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                onClick={() => { setSearchQuery(''); }}
                 className="mt-4"
                 variant="outline"
               >
@@ -203,8 +157,12 @@ const Blog = () => {
                     <div className="p-6">
                       <div className="flex items-center text-sm text-premium-light/60 mb-3">
                         <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
-                        <span className="mx-2">•</span>
-                        <span>{post.categories[0]}</span>
+                        {post.categories && post.categories.length > 0 && (
+                          <>
+                            <span className="mx-2">•</span>
+                            <span>{post.categories[0]}</span>
+                          </>
+                        )}
                       </div>
                       
                       <Link to={`/blog/${post.slug}`}>
