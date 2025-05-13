@@ -2,12 +2,19 @@
 import React, { useMemo } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/monokai-sublime.css'; // Choose a style that fits your theme
 
 interface RichTextEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
+}
+
+// Make highlight.js available globally for Quill
+if (typeof window !== 'undefined') {
+  window.hljs = hljs;
 }
 
 const RichTextEditor = ({
