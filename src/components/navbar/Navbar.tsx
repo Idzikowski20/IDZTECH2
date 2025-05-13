@@ -16,8 +16,12 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Set as loaded immediately to prevent flashing
-    setIsPageLoaded(true);
+    // Only show navbar after document is fully loaded
+    if (document.readyState === 'complete') {
+      setIsPageLoaded(true);
+    } else {
+      window.addEventListener('load', () => setIsPageLoaded(true));
+    }
     
     const handleScroll = () => {
       const offset = window.scrollY;
@@ -27,6 +31,7 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('load', () => setIsPageLoaded(true));
     };
   }, []);
 
@@ -49,6 +54,7 @@ const Navbar: React.FC = () => {
                   }`
             }`
       } ${!isPageLoaded ? 'opacity-0' : 'opacity-100'}`}
+      aria-hidden={!isPageLoaded}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16 md:h-20">

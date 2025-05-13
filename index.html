@@ -8,13 +8,15 @@
         margin: 0;
         padding: 0;
         font-family: system-ui, -apple-system, sans-serif;
-        visibility: hidden; /* Hide content until CSS is loaded */
+        visibility: hidden; /* Keep body hidden until CSS is loaded */
       }
       
       #root {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
       
       /* Loading spinner animation */
@@ -27,6 +29,12 @@
         justify-content: center;
         align-items: center;
         height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #121212;
+        z-index: 9999;
       }
       
       .spinner {
@@ -43,9 +51,20 @@
       }
     </style>
     
-    <!-- Preload CSS files -->
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet';document.body.style.visibility='';">
+    <!-- Preload CSS files but don't apply until onload -->
+    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet';document.documentElement.classList.add('css-loaded');">
     <noscript><link rel="stylesheet" href="/src/index.css"><style>body{visibility:visible;}</style></noscript>
+    
+    <!-- Make body visible again when all styles load -->
+    <script>
+      // Add a class to html when CSS is loaded
+      window.addEventListener('DOMContentLoaded', function() {
+        // Check if CSS is already loaded
+        if (document.styleSheets.length > 1) {
+          document.documentElement.classList.add('css-loaded');
+        }
+      });
+    </script>
     
     <!-- Meta tags for better SEO and performance -->
     <meta charset="UTF-8" />
@@ -80,7 +99,7 @@
 
   <body>
     <div id="root">
-      <div class="loading">
+      <div class="loading" id="loading-screen">
         <div class="spinner"></div>
         <noscript>Ta strona wymaga JavaScript. Proszę włączyć obsługę JavaScript w przeglądarce.</noscript>
       </div>
@@ -88,5 +107,18 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Show content once everything is loaded
+      window.addEventListener('load', function() {
+        document.getElementById('root').style.opacity = '1';
+        
+        // Fallback for visibility if the CSS loading fails
+        setTimeout(function() {
+          if (document.body.style.visibility === 'hidden') {
+            document.body.style.visibility = 'visible';
+          }
+        }, 1500);
+      });
+    </script>
   </body>
 </html>

@@ -20,29 +20,61 @@ const loadApp = async () => {
         // Fix: Type cast the link element to HTMLLinkElement to access sheet, onload and onerror
         const linkElement = link as HTMLLinkElement;
         if (linkElement.sheet) {
+          console.log('CSS already loaded');
           resolve(true); // CSS already loaded
         } else {
-          linkElement.onload = () => resolve(true);
-          linkElement.onerror = () => resolve(false);
+          console.log('Waiting for CSS to load...');
+          linkElement.onload = () => {
+            console.log('CSS loaded successfully');
+            resolve(true);
+          };
+          linkElement.onerror = () => {
+            console.error('CSS failed to load');
+            resolve(false);
+          };
         }
       } else {
+        console.warn('CSS link not found');
         resolve(false);
       }
     });
 
+    // Wait for all critical resources to load before rendering
     await Promise.all([
       // Font loading promise
       document.fonts.ready,
       cssPromise,
       // Add a minimum delay to prevent flashes
-      new Promise(resolve => setTimeout(resolve, 100))
+      new Promise(resolve => setTimeout(resolve, 300))
     ]);
+    
+    // Only continue after document is fully interactive
+    if (document.readyState !== 'complete') {
+      await new Promise(resolve => {
+        const checkReady = () => {
+          if (document.readyState === 'complete') {
+            resolve(true);
+          } else {
+            setTimeout(checkReady, 100);
+          }
+        };
+        checkReady();
+      });
+    }
+    
+    console.log('All resources loaded, rendering app');
     
     // Delay import for better First Contentful Paint
     const { default: App } = await import('./App');
     
     // Hydrate only when DOM is ready
-    const root = createRoot(document.getElementById("root")!);
+    const rootElement = document.getElementById("root");
+    if (!rootElement) throw new Error("Root element not found");
+    
+    const root = createRoot(rootElement);
+    
+    // Make body visible before rendering to prevent FOUC
+    document.body.style.visibility = 'visible';
     
     // Render app with Helmet for meta tags
     root.render(
@@ -51,13 +83,19 @@ const loadApp = async () => {
       </HelmetProvider>
     );
     
-    // Make body visible if it isn't already
-    document.body.style.visibility = 'visible';
-    
     // Register performance metrics
     if ('performance' in window && 'measure' in window.performance) {
       window.performance.mark('app-rendered');
       window.performance.measure('app-startup', 'navigationStart', 'app-rendered');
+    }
+    
+    // Remove loading screen after rendering
+    const loadingScreen = document.getElementById('loading-screen');
+    if (loadingScreen) {
+      loadingScreen.style.opacity = '0';
+      setTimeout(() => {
+        loadingScreen.remove();
+      }, 500);
     }
   } catch (error) {
     console.error('Error loading application:', error);
