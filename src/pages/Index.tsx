@@ -3,10 +3,11 @@ import React, { useEffect, lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import LightEffects from "@/components/LightEffects";
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
+import OurServices from "@/components/OurServices"; // Using OurServices instead of Services
 
 // Lazy load non-critical components
 const Hero = lazy(() => import("@/components/Hero"));
-const Services = lazy(() => import("@/components/Services"));
+// Removed Services import since we're using OurServices now
 const WhyWorkWithUs = lazy(() => import("@/components/WhyWorkWithUs"));
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const FAQ = lazy(() => import("@/components/FAQ"));
@@ -76,7 +77,7 @@ const Index = () => {
       </Suspense>
       
       <Suspense fallback={<LoadingFallback />}>
-        <Services />
+        <OurServices />
       </Suspense>
       
       <Suspense fallback={<LoadingFallback />}>
