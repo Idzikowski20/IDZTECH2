@@ -1,36 +1,28 @@
 
 import { useState, useEffect } from 'react';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import Spline from '@splinetool/react-spline';
 
 const HeroImage = () => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    // Set loaded to true after a brief timeout for smoother transition
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 200);
-    
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  const handleSplineLoad = () => {
+    setIsLoading(false);
+  };
 
   return (
     <div className="relative w-full h-full">
-      {!isLoaded && (
-        <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
+      {isLoading && (
+        <div className="w-full h-80 md:h-[450px] bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple"></div>
+        </div>
       )}
       <div 
-        className={`w-full h-full max-h-[450px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
-        style={{ display: isLoaded ? 'block' : 'none' }}
+        className={`w-full h-full max-h-[450px] transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
       >
-        <DotLottieReact
-          src="https://lottie.host/f0718c9c-401a-471f-bc37-7576f640256b/kjND9P7piN.lottie"
-          loop
-          autoplay
-          speed={0.5}
-          className="w-full h-full scale-[1.1] overflow-visible"
+        <Spline 
+          scene="https://prod.spline.design/lrZX-sT7To1QdbSz/scene.splinecode" 
+          onLoad={handleSplineLoad}
+          style={{ width: '100%', height: '100%' }}
         />
       </div>
     </div>
