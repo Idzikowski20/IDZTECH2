@@ -17,11 +17,13 @@ const loadApp = async () => {
     const cssPromise = new Promise((resolve) => {
       const link = document.querySelector('link[rel="stylesheet"][href*="index.css"]');
       if (link) {
-        if (link.sheet) {
+        // Fix: Type cast the link element to HTMLLinkElement to access sheet, onload and onerror
+        const linkElement = link as HTMLLinkElement;
+        if (linkElement.sheet) {
           resolve(true); // CSS already loaded
         } else {
-          link.onload = () => resolve(true);
-          link.onerror = () => resolve(false);
+          linkElement.onload = () => resolve(true);
+          linkElement.onerror = () => resolve(false);
         }
       } else {
         resolve(false);
