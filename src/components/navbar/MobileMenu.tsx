@@ -9,12 +9,13 @@ import { trackEvent } from '@/utils/analytics';
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-interface MobileMenuProps {
+export interface MobileMenuProps {
   isMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
+  scrolled: boolean;
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) => {
+const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen, scrolled }) => {
   const { isAuthenticated } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
   const location = useLocation();
@@ -41,8 +42,20 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Determine text color based on theme
-  const textColor = theme === 'light' ? 'text-black' : 'text-white';
+  // Determine text and icon colors based on theme and scroll state
+  const textColor = theme === 'light' 
+    ? scrolled 
+      ? 'text-black' 
+      : 'text-black' 
+    : 'text-white';
+    
+  const iconColor = theme === 'light' 
+    ? scrolled 
+      ? 'text-black' 
+      : 'text-black' 
+    : 'text-white';
+    
+  const menuBackgroundColor = theme === 'light' ? 'bg-white/80' : 'bg-black/80';
 
   return (
     <Drawer open={isMenuOpen} onOpenChange={handleMenuOpen}>
@@ -50,13 +63,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`md:hidden ${textColor} hover:bg-transparent`}
+          className={`md:hidden ${textColor} transition-colors duration-300 hover:bg-transparent`}
         >
-          <Menu className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+          <Menu className={`h-[1.2rem] w-[1.2rem] ${iconColor} transition-colors duration-300`} />
           <span className="sr-only">Menu</span>
         </Button>
       </DrawerTrigger>
-      <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
+      <DrawerContent className={`h-[85vh] neo-blur ${menuBackgroundColor} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
         <div className="px-6 py-8 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
             <h2 className={`text-xl font-bold ${textColor}`}>Menu</h2>
@@ -71,7 +84,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                 className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
               >
                 {theme === "light" ? 
-                  <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : 
+                  <Moon className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} /> : 
                   <Sun className="h-[1.2rem] w-[1.2rem] text-white" />
                 }
                 <span className="sr-only">Toggle theme</span>
@@ -87,7 +100,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   size="icon" 
                   className={`${textColor} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
                 >
-                  <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+                  <LogIn className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
                   <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
                 </Button>
               </Link>
@@ -203,7 +216,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             // Ensure scrolling is restored
             document.body.style.overflow = '';
           }}>
-            <Button className={`w-full ${theme === 'light' ? 'bg-black' : 'bg-black'} ${theme === 'light' ? 'text-white' : 'text-white'} hover:bg-black hover:text-white`}>
+            <Button className={`w-full transition-transform duration-300 hover:scale-110 ${theme === 'light' ? 'bg-black text-white' : 'bg-white text-black'}`}>
               Umów spotkanie
             </Button>
           </Link>
