@@ -1,5 +1,5 @@
 
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 // Don't import highlight.js directly since we're loading it from CDN
@@ -20,21 +20,6 @@ const RichTextEditor = ({
   rows = 10
 }: RichTextEditorProps) => {
   const [editorReady, setEditorReady] = useState(false);
-  
-  // Check if highlight.js is available before initializing Quill
-  useEffect(() => {
-    // Wait for highlight.js to be available
-    const checkHljsInterval = setInterval(() => {
-      if (window.hljs) {
-        setEditorReady(true);
-        clearInterval(checkHljsInterval);
-        console.log('highlight.js is loaded and available');
-      }
-    }, 100);
-    
-    // Clean up interval
-    return () => clearInterval(checkHljsInterval);
-  }, []);
   
   // Quill modules configuration
   const modules = useMemo(() => ({
@@ -57,7 +42,8 @@ const RichTextEditor = ({
       // Allow pasting HTML content
       matchVisual: false
     },
-    syntax: true, // Enable syntax highlighting for code
+    // Disable syntax highlighting since we're having issues with highlight.js
+    syntax: false, 
   }), []);
 
   // Quill formats
@@ -75,6 +61,11 @@ const RichTextEditor = ({
   ];
 
   const minHeight = rows * 20; // Approximate height based on rows
+
+  // Initialize the editor right away since we're disabling syntax highlighting
+  React.useEffect(() => {
+    setEditorReady(true);
+  }, []);
 
   return (
     <div className="rich-text-editor border border-premium-light/10 rounded-md overflow-hidden">

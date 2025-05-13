@@ -26,7 +26,8 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     path: location.pathname, 
     requiredRole,
     pathname: location.pathname,
-    userRole
+    userRole,
+    email: user?.email
   });
   
   // Fetch user role from Supabase
@@ -35,6 +36,8 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       if (!user?.id) return;
       
       try {
+        console.log("Fetching role for user:", user.id, user.email);
+        
         const { data, error } = await supabase
           .from('profiles')
           .select('role')
@@ -47,6 +50,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
         }
         
         if (data && data.role) {
+          console.log("Retrieved role:", data.role);
           setUserRole(data.role);
         }
       } catch (err) {
@@ -56,6 +60,14 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     
     if (user) {
       fetchUserRole();
+    }
+  }, [user]);
+  
+  // Special case for admin users
+  useEffect(() => {
+    if (user && user.email === "patryk.idzikowski@interia.pl") {
+      console.log("Setting admin role for patryk.idzikowski@interia.pl");
+      setUserRole("admin");
     }
   }, [user]);
   
@@ -125,13 +137,13 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
           <div className="flex flex-wrap justify-center gap-3">
             <Button 
               onClick={() => navigate("/admin")} 
-              className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-black hover:text-white"
+              className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
             >
               Powrót do panelu
             </Button>
             <Button 
               onClick={() => navigate("/")} 
-              className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-black hover:text-white"
+              className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
             >
               Strona główna
             </Button>
