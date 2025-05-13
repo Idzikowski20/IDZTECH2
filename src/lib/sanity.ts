@@ -1,3 +1,4 @@
+
 import { createClient } from '@sanity/client';
 
 export const sanityClient = createClient({
@@ -5,7 +6,7 @@ export const sanityClient = createClient({
   dataset: 'production',
   apiVersion: '2023-05-03',
   useCdn: true,
-  token: 'skTF5r9c24CVENM4D5qnb749SwBFZfgxmWZ5A1SM3tNqkWx0ICkIoKeY935mW6JcY0RvMs1G0efCQ7OmsE47m2UvuHb5exbz6SY0Y82CGOPzTB1MhZ2xzDiZKPQScdIDPZb5YcFWQUn1bU9zVoZQ41U1GnJnqw2UK27A9KaeNKGRqMpFkDX', // Używamy tokena z załączonego obrazka
+  token: 'skTF5r9c24CVENM4D5qnb749SwBFZfgxmWZ5A1SM3tNqkWx0ICkIoKeY935mW6JcY0RvMs1G0efCQ7OmsE47m2UvuHb5exbz6SY0Y82CGOPzTB1MhZ2xzDiZKPQScdIDPZb5YcFWQUn1bU9zVoZQ41U1GnJnqw2UK27A9KaeNKGRqMpFkDX', // Using the token provided
 });
 
 export async function fetchSanityData(query: string, params = {}) {
