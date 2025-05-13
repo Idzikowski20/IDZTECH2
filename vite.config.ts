@@ -20,26 +20,5 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   },
-  build: {
-    // Optimize build size
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      }
-    },
-    // Split chunks for better caching
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        }
-      }
-    },
-  }
 }));

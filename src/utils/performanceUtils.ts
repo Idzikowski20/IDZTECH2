@@ -1,3 +1,4 @@
+
 // Mobile touch optimization
 export const optimizeForMobile = () => {
   // Touch optimization
@@ -117,7 +118,6 @@ export const optimizeJavaScript = () => {
 export const optimizeFonts = () => {
   // Add font-display: swap to all font face rules
   if ('FontFace' in window) {
-    // Create font-display: swap style
     const style = document.createElement('style');
     style.innerHTML = `
       @font-face {
@@ -126,23 +126,6 @@ export const optimizeFonts = () => {
     `;
     document.head.appendChild(style);
   }
-  
-  // Preload critical fonts if not already done
-  const preloadFont = (fontUrl: string) => {
-    if (!document.querySelector(`link[rel="preload"][href="${fontUrl}"]`)) {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.href = fontUrl;
-      link.as = 'font';
-      link.type = 'font/woff2';
-      link.crossOrigin = 'anonymous';
-      document.head.appendChild(link);
-    }
-  };
-  
-  // Add preload for critical fonts used above the fold
-  // Należy dostosować ścieżki do używanych fontów
-  // preloadFont('/fonts/main-font.woff2');
 };
 
 // Eliminate render-blocking resources
@@ -157,27 +140,6 @@ export const eliminateRenderBlocking = () => {
   const style = document.createElement('style');
   style.innerHTML = criticalCSS;
   document.head.appendChild(style);
-  
-  // Defer non-critical CSS
-  const deferCSS = (href: string) => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    link.media = 'print';
-    link.onload = () => {
-      link.media = 'all';
-    };
-    document.head.appendChild(link);
-  };
-  
-  // Znajdź i odłóż ładowanie nieistotnych arkuszy stylów
-  document.querySelectorAll('link[rel="stylesheet"]:not([critical])').forEach(css => {
-    const href = css.getAttribute('href');
-    if (href) {
-      css.remove();
-      deferCSS(href);
-    }
-  });
 };
 
 // Preconnect to origins
@@ -216,66 +178,8 @@ export const applyMobileOptimizations = () => {
   optimizeFonts();
   optimizeJavaScript();
   
-  // Add momentum scrolling for iOS - using both type assertion and fixing property access
-  const htmlElement = document.documentElement as HTMLElement;
-  // Use string indexing to avoid TypeScript property error
-  (htmlElement.style as any)['webkitOverflowScrolling'] = 'touch';
-  
-  // Register performance marks for analysis
-  if ('performance' in window && 'mark' in window.performance) {
-    window.performance.mark('optimizations-applied');
-  }
-  
-  // Activate Intersection Observer for lazy loading components
-  setupIntersectionObserver();
-};
-
-// Setup Intersection Observer for lazy-loading content
-const setupIntersectionObserver = () => {
-  if (!('IntersectionObserver' in window)) return;
-  
-  const options = {
-    rootMargin: '200px',
-    threshold: 0.1
-  };
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const element = entry.target;
-        
-        // Handle lazy images
-        if (element.tagName === 'IMG' && element.hasAttribute('data-src')) {
-          const src = element.getAttribute('data-src');
-          if (src) {
-            (element as HTMLImageElement).setAttribute('src', src);
-            element.removeAttribute('data-src');
-          }
-        }
-        
-        // Handle lazy background images
-        if (element.hasAttribute('data-bg')) {
-          const bg = element.getAttribute('data-bg');
-          if (bg) {
-            (element as HTMLElement).style.backgroundImage = `url(${bg})`;
-            element.removeAttribute('data-bg');
-          }
-        }
-        
-        // Handle lazy components
-        if (element.hasAttribute('data-lazy-component')) {
-          element.classList.add('visible');
-        }
-        
-        observer.unobserve(element);
-      }
-    });
-  }, options);
-  
-  // Observe all lazy-loaded elements
-  document.querySelectorAll('[data-src], [data-bg], [data-lazy-component]').forEach(el => {
-    observer.observe(el);
-  });
+  // Add momentum scrolling for iOS - using type assertion to fix the TypeScript error
+  (document.documentElement.style as any).webkitOverflowScrolling = 'touch';
 };
 
 // Code splitting helper
@@ -286,37 +190,4 @@ export const loadComponentWhenNeeded = async (componentImportFunction: () => Pro
     console.error('Error lazy loading component:', error);
     return null;
   }
-};
-
-// Measure and monitor FID (First Input Delay)
-export const monitorFirstInputDelay = () => {
-  const onFirstInputDelay = (callback: (delay: number) => void) => {
-    if (!('PerformanceObserver' in window)) return;
-    
-    try {
-      // Monitor first input
-      const observerFirstInput = new PerformanceObserver((entryList) => {
-        const entries = entryList.getEntries();
-        if (entries.length > 0) {
-          const firstInput = entries[0] as PerformanceEventTiming;
-          callback(firstInput.processingStart - firstInput.startTime);
-          observerFirstInput.disconnect();
-        }
-      });
-      
-      observerFirstInput.observe({ type: 'first-input', buffered: true });
-    } catch (e) {
-      console.error('Error setting up first input delay monitoring:', e);
-    }
-  };
-  
-  // Log FID
-  onFirstInputDelay((delay) => {
-    console.log(`First Input Delay: ${delay.toFixed(1)}ms`);
-    
-    // Send to analytics when delay is above threshold
-    if (delay > 100) {
-      // TODO: Send high FID metric to analytics
-    }
-  });
 };

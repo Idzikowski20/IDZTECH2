@@ -1,44 +1,26 @@
 
-import { useState, useEffect } from "react";
-import { Bell } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Bell, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useNotifications } from "@/utils/notifications";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useNotificationService } from "@/hooks/useNotificationService";
 
 const NotificationBell = () => {
   const navigate = useNavigate();
-  const { unreadCount, fetchNotifications } = useNotifications();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    unreadCount, 
+    loading, 
+    error, 
+    isOfflineMode,
+    fetchNotifications 
+  } = useNotificationService();
+  const [showTooltip, setShowTooltip] = useState(false);
   const [retrying, setRetrying] = useState(false);
 
-  // Check connection status on mount
-  useEffect(() => {
-    checkConnection();
-  }, []);
-
-  const checkConnection = async () => {
-    try {
-      // Test connection by fetching a simple record
-      const { error: connectionError } = await supabase
-        .from('notifications')
-        .select('count(*)', { count: 'exact', head: true });
-      
-      if (connectionError) {
-        console.error("Connection error:", connectionError);
-        setError("Nie udało się połączyć z bazą powiadomień");
-      }
-    } catch (err) {
-      console.error("Error checking connection:", err);
-      setError("Problem z połączeniem sieciowym");
-    }
-  };
-
   const handleClick = () => {
-    if (error) {
+    if (error || isOfflineMode) {
       // If there's an error, retry fetching notifications
       handleRetry();
     } else {
@@ -49,28 +31,34 @@ const NotificationBell = () => {
 
   const handleRetry = async () => {
     setRetrying(true);
-    setError(null);
     try {
       await fetchNotifications();
       toast({
         title: "Odświeżono",
         description: "Powiadomienia zostały pomyślnie odświeżone",
       });
-      setRetrying(false);
     } catch (err) {
       console.error("Failed to refresh notifications:", err);
-      setError("Nie udało się odświeżyć powiadomień");
       toast({
         title: "Błąd",
         description: "Nie udało się odświeżyć powiadomień",
         variant: "destructive",
       });
+    } finally {
       setRetrying(false);
     }
   };
 
+  // Handle tooltip display
+  const handleMouseEnter = () => setShowTooltip(true);
+  const handleMouseLeave = () => setShowTooltip(false);
+
   return (
-    <div>
+    <div 
+      className="relative" 
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <Button
         variant="ghost"
         size="icon"
@@ -81,9 +69,14 @@ const NotificationBell = () => {
           <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
         ) : (
           <>
-            <Bell className="h-5 w-5" />
-            {error ? (
-              <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+            {isOfflineMode ? (
+              <WifiOff className="h-5 w-5 text-amber-500" />
+            ) : (
+              <Bell className="h-5 w-5" />
+            )}
+            
+            {error || isOfflineMode ? (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-amber-500 rounded-full">
                 !
               </span>
             ) : unreadCount > 0 ? (
@@ -95,24 +88,44 @@ const NotificationBell = () => {
         )}
       </Button>
       
-      {error && (
-        <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          {error === "Problem z połączeniem sieciowym" ? 
-            "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
-            error}
-          <button 
-            onClick={handleRetry}
-            className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"
-            disabled={retrying}
-          >
-            {retrying ? "Odświeżanie..." : "Odśwież"}
-          </button>
-        </div>
-      )}
-      
-      {!error && !loading && unreadCount === 0 && (
-        <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          Brak nowych powiadomień
+      {showTooltip && (
+        <div className="absolute z-50 mt-2 right-0 bg-gray-800 text-white p-2 rounded shadow-lg text-xs max-w-xs">
+          {error ? (
+            <div>
+              {error}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRetry();
+                }}
+                className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"
+                disabled={retrying}
+              >
+                {retrying ? "Odświeżanie..." : "Odśwież"}
+              </button>
+            </div>
+          ) : isOfflineMode ? (
+            <div>
+              Tryb offline - niektóre funkcje są ograniczone
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRetry();
+                }}
+                className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"
+                disabled={retrying}
+              >
+                {retrying ? "Sprawdzanie..." : "Sprawdź połączenie"}
+              </button>
+            </div>
+          ) : !loading && unreadCount === 0 ? (
+            "Brak nowych powiadomień"
+          ) : !loading && unreadCount > 0 ? (
+            `Masz ${unreadCount} ${unreadCount === 1 ? 'nowe powiadomienie' : 
+              unreadCount < 5 ? 'nowe powiadomienia' : 'nowych powiadomień'}`
+          ) : (
+            "Ładowanie powiadomień..."
+          )}
         </div>
       )}
     </div>

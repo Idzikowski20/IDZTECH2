@@ -113,35 +113,33 @@ const BlogPost = () => {
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
               
-              {isUserLoggedIn && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span>{post.categories.join(', ')}</span>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Eye size={14} className="mr-1" />
-                    <span>{post.views} wyświetleń</span>
-                  </div>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <MessageCircle size={14} className="mr-1" />
-                    <span>{commentsCount} komentarzy</span>
-                  </div>
-                  
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Heart size={14} className="mr-1" />
-                    <span>{likesCount} polubień</span>
-                  </div>
-                </>
-              )}
+              {/* Show stats for all users now */}
+              <span className="mx-2">•</span>
+              <span>{post.categories.join(', ')}</span>
+              
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <Eye size={14} className="mr-1" />
+                <span>{post.views} wyświetleń</span>
+              </div>
+              
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <MessageCircle size={14} className="mr-1" />
+                <span>{commentsCount} komentarzy</span>
+              </div>
+              
+              <span className="mx-2">•</span>
+              <div className="flex items-center">
+                <Heart size={14} className="mr-1" />
+                <span>{likesCount} polubień</span>
+              </div>
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
             <div className="flex items-center mb-4">
+              {/* Używamy avatara z profilem z Supabase */}
               <Avatar className="h-10 w-10 border">
                 <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
                 <AvatarFallback className="bg-premium-gradient text-white">
@@ -176,11 +174,7 @@ const BlogPost = () => {
       <section className="pb-12">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
-            {/* Enhanced HTML rendering with proper styling */}
-            <div 
-              dangerouslySetInnerHTML={{ __html: post.content }} 
-              className="blog-content"
-            />
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
           
           <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
@@ -196,22 +190,12 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {/* Comments section - only show when logged in */}
-          {isUserLoggedIn && (
-            <div className="max-w-3xl mx-auto">
-              <CommentSection postId={post.id} />
-            </div>
-          )}
+          {/* Comments section - now shown for all users */}
+          <div className="max-w-3xl mx-auto">
+            <CommentSection postId={post.id} postTitle={post.title} />
+          </div>
           
-          {!isUserLoggedIn && (
-            <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
-              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
-              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
-              <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
-                Zaloguj się
-              </Button>
-            </div>
-          )}
+          {/* Remove login prompt for comments as we now allow guest comments */}
         </div>
       </section>
       

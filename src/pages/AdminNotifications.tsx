@@ -1,8 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
-import { useAuth } from '@/utils/AuthProvider';
-import { useSupabaseNotifications, NotificationType, NotificationStatus } from '@/hooks/useSupabaseNotifications';
 import { 
   Card, 
   CardContent, 
@@ -21,7 +19,9 @@ import {
   FileText,
   ThumbsUp,
   MessageSquare,
-  RefreshCw
+  RefreshCw,
+  Loader2,
+  WifiOff
 } from 'lucide-react';
 import {
   Dialog,
@@ -36,149 +36,64 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-const NotificationIcon = ({ type }: { type: string }) => {
-  switch (type) {
-    case 'post_created':
-      return <FileText className="h-5 w-5 text-blue-500" />;
-    case 'post_edited':
-      return <FileText className="h-5 w-5 text-amber-500" />;
-    case 'post_deleted':
-      return <FileText className="h-5 w-5 text-red-500" />;
-    case 'comment_added':
-    case 'comment':
-      return <MessageSquare className="h-5 w-5 text-green-500" />;
-    case 'like_added':
-    case 'like':
-      return <ThumbsUp className="h-5 w-5 text-blue-500" />;
-    case 'approval_request':
-      return <AlertCircle className="h-5 w-5 text-amber-500" />;
-    case 'approval_accepted':
-    case 'success':
-      return <Check className="h-5 w-5 text-green-500" />;
-    case 'approval_rejected':
-    case 'error':
-      return <X className="h-5 w-5 text-red-500" />;
-    case 'info':
-    case 'warning':
-      return <Info className="h-5 w-5 text-amber-500" />;
-    default:
-      return <Info className="h-5 w-5 text-gray-500" />;
-  }
-};
-
-const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => {
-  switch (status) {
-    case 'pending':
-      return <Badge variant="secondary">Oczekujące</Badge>;
-    case 'approved':
-      return <Badge variant="outline" className="bg-green-500 text-white hover:bg-green-600 hover:text-white">Zaakceptowane</Badge>;
-    case 'rejected':
-      return <Badge variant="destructive">Odrzucone</Badge>;
-    case 'unread':
-      return <Badge variant="outline">Nieprzeczytane</Badge>;
-    case 'read':
-      return <Badge variant="outline" className="bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-black">Przeczytane</Badge>;
-    default:
-      return null;
-  }
-};
+import { useNotificationService } from '@/hooks/useNotificationService';
+import { setNotificationService } from '@/utils/notificationHelpers';
 
 const AdminNotifications = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { 
-    notifications, 
-    markAsRead, 
-    updateNotificationStatus, 
-    deleteNotification, 
+  const { toast } = useToast();
+  const notificationService = useNotificationService();
+  
+  const {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    isOfflineMode,
+    markAsRead,
     markAllAsRead,
-    loading: notificationsLoading,
-    error: notificationsError,
-    fetchNotifications
-  } = useSupabaseNotifications();
+    deleteNotification,
+    fetchNotifications,
+    handleApprove,
+    handleReject,
+  } = notificationService;
+  
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
-  const { toast } = useToast();
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  console.log("AdminNotifications render - notifications:", notifications);
-  console.log("AdminNotifications render - user:", user);
-  console.log("AdminNotifications render - error:", notificationsError);
-  
-  // Set loaded state after initial render - with delay to ensure notifications are loaded
+  // Initialize the notification service for helpers
   useEffect(() => {
-    console.log("AdminNotifications component mounted");
-    
-    // Add a delay to ensure notifications state is fully loaded
-    const timer = setTimeout(() => {
-      console.log("Setting isLoaded to true");
-      setIsLoaded(true);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    setNotificationService(notificationService);
+  }, [notificationService]);
 
-  // Redirect if not authenticated
+  // Load notifications on component mount
   useEffect(() => {
-    if (isLoaded && !user) {
-      console.log("No user found, redirecting to login");
-      navigate('/login');
-    }
-  }, [user, navigate, isLoaded]);
+    fetchNotifications();
+  }, [fetchNotifications]);
 
+  // Handle notification click
   const handleNotificationClick = (notification: any) => {
     if (notification.status === 'unread') {
       markAsRead(notification.id);
     }
   };
 
-  const handleApprove = (notification: any) => {
-    updateNotificationStatus(notification.id, 'approved');
-    toast({
-      title: 'Zatwierdzono',
-      description: 'Prośba została zatwierdzona',
-    });
-  };
-
+  // Open reject dialog
   const openRejectDialog = (notification: any) => {
     setSelectedNotification(notification);
     setRejectionComment('');
     setOpenDialog(true);
   };
 
-  const handleReject = () => {
-    if (selectedNotification) {
-      updateNotificationStatus(
-        selectedNotification.id,
-        'rejected',
-        rejectionComment || 'Brak komentarza'
-      );
-      setOpenDialog(false);
-      toast({
-        title: 'Odrzucono',
-        description: 'Prośba została odrzucona',
-      });
-    }
+  // Submit rejection with comment
+  const submitRejection = async () => {
+    if (!selectedNotification) return;
+    
+    await handleReject(selectedNotification.id, rejectionComment);
+    setOpenDialog(false);
   };
 
-  const handleDelete = (notification: any) => {
-    deleteNotification(notification.id);
-    toast({
-      title: 'Usunięto',
-      description: 'Powiadomienie zostało usunięte',
-    });
-  };
-
-  const handleMarkAllAsRead = () => {
-    markAllAsRead();
-    toast({
-      title: 'Oznaczono jako przeczytane',
-      description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
-    });
-  };
-  
+  // Retry fetching notifications
   const handleRetryFetch = () => {
     fetchNotifications();
     toast({
@@ -187,22 +102,23 @@ const AdminNotifications = () => {
     });
   };
 
-  // If not loaded yet or notifications are still loading, show loading state
-  if (!isLoaded || notificationsLoading) {
+  // If notifications are still loading, show loading state
+  if (loading) {
     return (
       <AdminLayout>
         <div className="p-6">
           <h1 className="text-2xl font-bold">Powiadomienia</h1>
-          <div className="mt-4">Ładowanie powiadomień...</div>
+          <div className="mt-8 flex justify-center items-center">
+            <Loader2 className="h-8 w-8 animate-spin text-premium-purple mr-2" />
+            <span>Ładowanie powiadomień...</span>
+          </div>
         </div>
       </AdminLayout>
     );
   }
   
-  // If we're loaded but user is not authenticated, redirect handled by useEffect
-
-  // If there's an error loading notifications
-  if (notificationsError) {
+  // If there's an error loading notifications but we're not in offline mode
+  if (error && !isOfflineMode) {
     return (
       <AdminLayout>
         <div className="p-6">
@@ -211,7 +127,7 @@ const AdminNotifications = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Błąd</AlertTitle>
             <AlertDescription>
-              Nie udało się pobrać powiadomień.
+              {error}
               <div className="mt-2">
                 <Button 
                   variant="outline" 
@@ -230,13 +146,90 @@ const AdminNotifications = () => {
     );
   }
 
+  // Show offline mode indicator if we're in offline mode
+  const OfflineBanner = () => {
+    if (!isOfflineMode) return null;
+    
+    return (
+      <Alert className="mb-4 bg-amber-100 dark:bg-amber-900">
+        <WifiOff className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+        <AlertTitle>Tryb offline</AlertTitle>
+        <AlertDescription className="text-amber-700 dark:text-amber-300">
+          System działa w trybie offline. Niektóre funkcje mogą być niedostępne.
+          <div className="mt-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleRetryFetch}
+              className="flex items-center gap-2 text-amber-700 border-amber-700 hover:bg-amber-700 hover:text-white"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Sprawdź połączenie
+            </Button>
+          </div>
+        </AlertDescription>
+      </Alert>
+    );
+  };
+
+  const NotificationIcon = ({ type }: { type: string }) => {
+    switch (type) {
+      case 'post_created':
+        return <FileText className="h-5 w-5 text-blue-500" />;
+      case 'post_edited':
+        return <FileText className="h-5 w-5 text-amber-500" />;
+      case 'post_deleted':
+        return <FileText className="h-5 w-5 text-red-500" />;
+      case 'comment_added':
+      case 'comment':
+        return <MessageSquare className="h-5 w-5 text-green-500" />;
+      case 'like_added':
+      case 'like':
+        return <ThumbsUp className="h-5 w-5 text-blue-500" />;
+      case 'approval_request':
+        return <AlertCircle className="h-5 w-5 text-amber-500" />;
+      case 'approval_accepted':
+      case 'success':
+        return <Check className="h-5 w-5 text-green-500" />;
+      case 'approval_rejected':
+      case 'error':
+        return <X className="h-5 w-5 text-red-500" />;
+      case 'info':
+      case 'warning':
+        return <Info className="h-5 w-5 text-amber-500" />;
+      default:
+        return <Info className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const NotificationStatusBadge = ({ status }: { status: string }) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="secondary">Oczekujące</Badge>;
+      case 'approved':
+        return <Badge variant="outline" className="bg-green-500 text-white hover:bg-green-600 hover:text-white">Zaakceptowane</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">Odrzucone</Badge>;
+      case 'unread':
+        return <Badge variant="outline">Nieprzeczytane</Badge>;
+      case 'read':
+        return <Badge variant="outline" className="bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-black">Przeczytane</Badge>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold">Powiadomienia</h1>
-            <p className="text-muted-foreground">Zarządzaj powiadomieniami systemu</p>
+            <p className="text-muted-foreground">
+              {isOfflineMode ? 
+                "Pracujesz w trybie offline. Niektóre funkcje mogą być ograniczone." : 
+                "Zarządzaj powiadomieniami systemu"}
+            </p>
           </div>
           <div className="flex gap-2">
             <Button 
@@ -249,13 +242,16 @@ const AdminNotifications = () => {
             </Button>
             <Button 
               variant="outline" 
-              onClick={handleMarkAllAsRead}
+              onClick={markAllAsRead}
               className="hover:bg-white hover:text-black"
+              disabled={unreadCount === 0}
             >
               Oznacz wszystkie jako przeczytane
             </Button>
           </div>
         </div>
+
+        <OfflineBanner />
 
         <Tabs defaultValue="all">
           <TabsList className="mb-4">
@@ -303,7 +299,7 @@ const AdminNotifications = () => {
                     )}
                   </CardContent>
                   <CardFooter className="flex justify-end gap-2">
-                    {notification.status === 'pending' && (
+                    {notification.type === 'approval_request' && notification.status === 'unread' && !isOfflineMode && (
                       <>
                         <Button 
                           variant="outline" 
@@ -318,7 +314,7 @@ const AdminNotifications = () => {
                           variant="outline" 
                           size="sm" 
                           className="text-green-500 border-green-500 hover:bg-green-500 hover:text-white"
-                          onClick={() => handleApprove(notification)}
+                          onClick={() => handleApprove(notification.id)}
                         >
                           <Check className="h-4 w-4 mr-1" />
                           Zatwierdź
@@ -328,7 +324,7 @@ const AdminNotifications = () => {
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      onClick={() => handleDelete(notification)}
+                      onClick={() => deleteNotification(notification.id)}
                       className="hover:bg-white hover:text-black"
                     >
                       Usuń
@@ -340,7 +336,7 @@ const AdminNotifications = () => {
           </TabsContent>
 
           <TabsContent value="pending" className="space-y-4">
-            {notifications.filter(n => n.status === 'pending').length === 0 ? (
+            {notifications.filter(n => n.type === 'approval_request' && n.status === 'unread').length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
                   Brak oczekujących powiadomień
@@ -348,7 +344,7 @@ const AdminNotifications = () => {
               </Card>
             ) : (
               notifications
-                .filter(n => n.status === 'pending')
+                .filter(n => n.type === 'approval_request' && n.status === 'unread')
                 .map(notification => (
                   <Card 
                     key={notification.id}
@@ -373,24 +369,28 @@ const AdminNotifications = () => {
                       <p>{notification.message}</p>
                     </CardContent>
                     <CardFooter className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
-                        onClick={() => openRejectDialog(notification)}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Odrzuć
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-green-500 border-green-500 hover:bg-green-500 hover:text-white"
-                        onClick={() => handleApprove(notification)}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        Zatwierdź
-                      </Button>
+                      {!isOfflineMode && (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
+                            onClick={() => openRejectDialog(notification)}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Odrzuć
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-green-500 border-green-500 hover:bg-green-500 hover:text-white"
+                            onClick={() => handleApprove(notification.id)}
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Zatwierdź
+                          </Button>
+                        </>
+                      )}
                     </CardFooter>
                   </Card>
                 ))
@@ -434,7 +434,7 @@ const AdminNotifications = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => handleDelete(notification)}
+                        onClick={() => deleteNotification(notification.id)}
                         className="hover:bg-white hover:text-black"
                       >
                         Usuń
@@ -446,7 +446,7 @@ const AdminNotifications = () => {
           </TabsContent>
 
           <TabsContent value="processed" className="space-y-4">
-            {notifications.filter(n => n.status === 'approved' || n.status === 'rejected').length === 0 ? (
+            {notifications.filter(n => n.status === 'read').length === 0 ? (
               <Card>
                 <CardContent className="pt-6 text-center text-muted-foreground">
                   Brak przetworzonych powiadomień
@@ -454,11 +454,12 @@ const AdminNotifications = () => {
               </Card>
             ) : (
               notifications
-                .filter(n => n.status === 'approved' || n.status === 'rejected')
+                .filter(n => n.status === 'read')
                 .map(notification => (
                   <Card 
                     key={notification.id}
-                    className={notification.status === 'approved' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'}
+                    className={notification.type === 'approval_accepted' ? 'border-l-4 border-l-green-500' : 
+                              notification.type === 'approval_rejected' ? 'border-l-4 border-l-red-500' : ''}
                   >
                     <CardHeader className="pb-2">
                       <div className="flex justify-between">
@@ -488,7 +489,7 @@ const AdminNotifications = () => {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => handleDelete(notification)}
+                        onClick={() => deleteNotification(notification.id)}
                         className="hover:bg-white hover:text-black"
                       >
                         Usuń
@@ -530,7 +531,7 @@ const AdminNotifications = () => {
             </Button>
             <Button 
               variant="destructive" 
-              onClick={handleReject}
+              onClick={submitRejection}
             >
               Odrzuć
             </Button>

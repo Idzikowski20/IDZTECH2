@@ -1,53 +1,49 @@
 
-import React, { Suspense, lazy } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./utils/AuthProvider";
-import LoadingSpinner from "./components/ui/LoadingSpinner";
 
-// Create a loading spinner component for Suspense fallback
-const LoadingFallback = () => <LoadingSpinner />;
-
-// Lazily load pages to improve initial loading performance
-const Index = lazy(() => import('./pages/Index'));
-const Register = lazy(() => import('./pages/Register'));
-const Login = lazy(() => import('./pages/Login'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const AboutUs = lazy(() => import('./pages/AboutUs'));
-const ContactPage = lazy(() => import('./pages/ContactPage'));
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
-const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const Profile = lazy(() => import('./pages/Profile'));
-const Admin = lazy(() => import('./pages/Admin'));
-const AdminSettings = lazy(() => import('./pages/AdminSettings'));
-const AdminStats = lazy(() => import('./pages/AdminStats'));
-const AdminUsers = lazy(() => import('./pages/AdminUsers'));
-const AdminNotifications = lazy(() => import('./pages/AdminNotifications'));
-const Projects = lazy(() => import('./pages/Projects'));
-const ContentPlan = lazy(() => import('./pages/ContentPlan'));
+// Pages
+import Index from './pages/Index';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import NotFound from './pages/NotFound';
+import AboutUs from './pages/AboutUs';
+import ContactPage from './pages/ContactPage';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import AdminSettings from './pages/AdminSettings';
+import AdminStats from './pages/AdminStats';
+import AdminUsers from './pages/AdminUsers';
+import AdminNotifications from "./pages/AdminNotifications";
+import Projects from './pages/Projects';
+import ContentPlan from './pages/ContentPlan';
 
 // Service Pages
-const WebDevelopment = lazy(() => import('./pages/WebDevelopment'));
-const Seo = lazy(() => import('./pages/Seo'));
-const SeoAudit = lazy(() => import('./pages/SeoAudit'));
-const SeoCopywriting = lazy(() => import('./pages/SeoCopywriting'));
-const SeoOptimization = lazy(() => import('./pages/SeoOptimization'));
-const LocalSeo = lazy(() => import('./pages/LocalSeo'));
-const ECommerce = lazy(() => import('./pages/ECommerce'));
-const GoogleAdsAudit = lazy(() => import('./pages/GoogleAdsAudit'));
-const GoogleAdsCampaigns = lazy(() => import('./pages/GoogleAdsCampaigns'));
-const MetaAdsCampaigns = lazy(() => import('./pages/MetaAdsCampaigns'));
+import WebDevelopment from './pages/WebDevelopment';
+import Seo from './pages/Seo';
+import SeoAudit from './pages/SeoAudit';
+import SeoCopywriting from './pages/SeoCopywriting';
+import SeoOptimization from './pages/SeoOptimization';
+import LocalSeo from './pages/LocalSeo';
+import ECommerce from './pages/ECommerce';
+import GoogleAdsAudit from './pages/GoogleAdsAudit';
+import GoogleAdsCampaigns from './pages/GoogleAdsCampaigns';
+import MetaAdsCampaigns from './pages/MetaAdsCampaigns';
 
 // Blog
-const Blog = lazy(() => import('./pages/Blog'));
-const BlogPost = lazy(() => import('./pages/BlogPost'));
-const BlogPostEditor = lazy(() => import('./pages/BlogPostEditor'));
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import BlogPostEditor from './pages/BlogPostEditor';
 
 // Components
-const RequireAuth = lazy(() => import('./components/RequireAuth'));
-const ScrollToTop = lazy(() => import('./components/ScrollToTop'));
-const DotAnimation = lazy(() => import('./components/DotAnimation'));
+import RequireAuth from './components/RequireAuth';
+import ScrollToTop from './components/ScrollToTop';
+import DotAnimation from './components/DotAnimation';
 
 function App() {
   return (
@@ -56,89 +52,51 @@ function App() {
         <AuthProvider>
           <ScrollToTop />
           <DotAnimation />
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              
-              {/* Portfolio/Projects page accessible without auth */}
-              <Route path="/projects" element={<Projects />} />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            
+            {/* Portfolio/Projects page accessible without auth */}
+            <Route path="/projects" element={<Projects />} />
 
-              {/* Protected routes */}
-              <Route path="/profile" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><Profile /></RequireAuth>
-                </Suspense>
-              } />
-              <Route path="/admin" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><Admin /></RequireAuth>
-                </Suspense>
-              } />
-              <Route path="/admin/settings" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><AdminSettings /></RequireAuth>
-                </Suspense>
-              } />
-              <Route path="/admin/stats" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><AdminStats /></RequireAuth>
-                </Suspense>
-              } />
-              <Route path="/admin/users" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth requiredRole="admin"><AdminUsers /></RequireAuth>
-                </Suspense>
-              } />
-              <Route path="/admin/notifications" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><AdminNotifications /></RequireAuth>
-                </Suspense>
-              } />
-              
-              {/* Blog post editor routes */}
-              <Route path="/admin/new-post" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><BlogPostEditor /></RequireAuth>
-                </Suspense>
-              } />
-              <Route path="/admin/edit-post/:id" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><BlogPostEditor /></RequireAuth>
-                </Suspense>
-              } />
-              
-              <Route path="/content-plan" element={
-                <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><ContentPlan /></RequireAuth>
-                </Suspense>
-              } />
+            {/* Protected routes */}
+            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+            <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
+            <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
+            <Route path="/admin/users" element={<RequireAuth requiredRole="admin"><AdminUsers /></RequireAuth>} />
+            <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
+            
+            {/* Blog post editor routes */}
+            <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+            
+            <Route path="/content-plan" element={<RequireAuth><ContentPlan /></RequireAuth>} />
 
-              {/* Service pages */}
-              <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
-              <Route path="/pozycjonowanie-stron" element={<Seo />} />
-              <Route path="/audyt-seo" element={<SeoAudit />} />
-              <Route path="/copywriting-seo" element={<SeoCopywriting />} />
-              <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
-              <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
-              <Route path="/sklepy-internetowe" element={<ECommerce />} />
-              <Route path="/audyt-google-ads" element={<GoogleAdsAudit />} />
-              <Route path="/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
-              <Route path="/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
+            {/* Service pages */}
+            <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
+            <Route path="/pozycjonowanie-stron" element={<Seo />} />
+            <Route path="/audyt-seo" element={<SeoAudit />} />
+            <Route path="/copywriting-seo" element={<SeoCopywriting />} />
+            <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
+            <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
+            <Route path="/sklepy-internetowe" element={<ECommerce />} />
+            <Route path="/audyt-google-ads" element={<GoogleAdsAudit />} />
+            <Route path="/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
+            <Route path="/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
 
-              {/* Blog */}
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogPost />} />
+            {/* Blog */}
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
 
-              {/* 404 */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
           <Toaster />
         </AuthProvider>
       </ThemeProvider>

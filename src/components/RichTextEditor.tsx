@@ -33,11 +33,6 @@ const RichTextEditor = ({
       ['link', 'image', 'video'],
       ['clean']
     ],
-    clipboard: {
-      // Allow pasting HTML content
-      matchVisual: false
-    },
-    syntax: true, // Enable syntax highlighting for code
   }), []);
 
   // Quill formats
@@ -50,8 +45,7 @@ const RichTextEditor = ({
     'list', 'bullet', 'indent',
     'direction',
     'blockquote', 'code-block',
-    'link', 'image', 'video',
-    'clean'
+    'link', 'image', 'video'
   ];
 
   const minHeight = rows * 20; // Approximate height based on rows
@@ -67,11 +61,10 @@ const RichTextEditor = ({
         formats={formats}
         style={{ height: `${Math.max(minHeight, 200)}px`, backgroundColor: '#0f172a' }}
         className="bg-slate-950 text-white"
-        preserveWhitespace={true}
       />
       <div className="bg-slate-900 p-2 border-t border-premium-light/10">
-        <div className="text-sm text-premium-light/60">
-          Edytor HTML - wspiera znaczniki formatowania tekstu i kod HTML
+        <div className="text-xs text-premium-light/60">
+          Edytor HTML - wspiera znaczniki formatowania tekstu
         </div>
       </div>
     </div>
