@@ -194,23 +194,51 @@ const WebDevelopment = () => {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-center animate-fade-in" style={{ animationDelay: '0.4s' }}>
             <div className="flex flex-col items-center">
-              <img src="/lovable-uploads/2855aef6-a485-402b-b8c8-82af77fb041b.png" alt="JavaScript" className="w-16 h-16 mb-3" />
+              <div className="w-16 h-16 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                  <path fill="#ffd600" d="M6,42V6h36v36H6z"></path>
+                  <path fill="#000001" d="M29.538 32.947c.692 1.124 1.444 2.201 3.037 2.201 1.338 0 2.04-.665 2.04-1.585 0-1.101-.726-1.492-2.198-2.133l-.807-.344c-2.329-.988-3.878-2.226-3.878-4.841 0-2.41 1.845-4.244 4.728-4.244 2.053 0 3.528.711 4.592 2.573l-2.514 1.607c-.553-.988-1.151-1.377-2.078-1.377-.946 0-1.545.597-1.545 1.377 0 .964.6 1.354 1.985 1.951l.807.344C36.452 29.645 38 30.839 38 33.523 38 36.415 35.716 38 32.65 38c-2.999 0-4.702-1.505-5.65-3.368L29.538 32.947zM17.952 33.029c.506.906 1.275 1.603 2.381 1.603 1.058 0 1.667-.418 1.667-2.043V22h3.333v11.101c0 3.367-1.953 4.899-4.805 4.899-2.577 0-4.437-1.746-5.195-3.368L17.952 33.029z"></path>
+                </svg>
+              </div>
               <p className="font-medium">JavaScript</p>
             </div>
             <div className="flex flex-col items-center">
-              <img src="/lovable-uploads/af7b17cd-510f-468f-a8b1-5b0c5be88c9f.png" alt="CSS3" className="w-16 h-16 mb-3" />
+              <div className="w-16 h-16 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                  <path fill="#0277BD" d="M41,5H7l3,34l14,4l14-4L41,5L41,5z"></path>
+                  <path fill="#039BE5" d="M24 8L24 39.9 35.2 36.7 37.7 8z"></path>
+                  <path fill="#FFF" d="M33.1 13L24 13 24 17 28.9 17 28.6 21 24 21 24 25 28.4 25 28.1 29.5 24 30.9 24 35.1 31.9 32.5 32.6 21 32.6 21z"></path>
+                  <path fill="#EEE" d="M24,13v4h-8.9l-0.3-4H24z M19.4,21l0.2,4H24v-4H19.4z M19.8,27h-4l0.3,5.5l7.9,2.6v-4.2l-4.1-1.4L19.8,27z"></path>
+                </svg>
+              </div>
               <p className="font-medium">CSS3</p>
             </div>
             <div className="flex flex-col items-center">
-              <img src="/lovable-uploads/3f93b345-6750-4cdb-8e53-e7b4e8fdf0e9.png" alt="HTML5" className="w-16 h-16 mb-3" />
+              <div className="w-16 h-16 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0,0,256,256">
+                  <g fill="#ffffff" fillRule="nonzero" stroke="none" strokeWidth="1" strokeLinecap="butt" strokeLinejoin="miter" strokeMiterlimit="10" strokeDasharray="" strokeDashoffset="0" fontFamily="none" fontWeight="none" fontSize="none" textAnchor="none" style={{ mixBlendMode: "normal" }}>
+                    <g transform="scale(5.12,5.12)">
+                      <path d="M45.27344,2.32422c-0.1875,-0.20703 -0.45703,-0.32422 -0.73828,-0.32422h-39.07031c-0.28125,0 -0.55078,0.11719 -0.73828,0.32422c-0.19141,0.20703 -0.28516,0.48438 -0.25781,0.76563l3.51953,39.42578c0.03516,0.41406 0.32422,0.75781 0.72266,0.875l16.01172,4.57031c0.08594,0.02734 0.17969,0.03906 0.27344,0.03906c0.09375,0 0.18359,-0.01172 0.27344,-0.03906l16.02344,-4.57031c0.39844,-0.11719 0.68359,-0.46094 0.72266,-0.875l3.51563,-39.42578c0.02734,-0.28125 -0.06641,-0.55859 -0.25781,-0.76562zM36.84766,15.91797h-18.8125l0.44922,5.08984h17.91016l-1.34375,15.04297l-10.05859,3.03906l-0.09766,-0.03125l-9.94141,-3.01172l-0.54297,-6.12891h4.87109l0.21094,2.37891l5.55859,1.16406l5.45703,-1.16406l0.58203,-6.4375h-17.04297l-1.32422,-14.80469h24.55859z"></path>
+                    </g>
+                  </g>
+                </svg>
+              </div>
               <p className="font-medium">HTML5</p>
             </div>
             <div className="flex flex-col items-center">
-              <img src="/lovable-uploads/0a84b382-c65c-4f3a-bfdc-56f91938ef33.png" alt="TypeScript" className="w-16 h-16 mb-3" />
+              <div className="w-16 h-16 mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                  <rect width="36" height="36" x="6" y="6" fill="#1976d2"></rect>
+                  <polygon fill="#fff" points="27.49,22 14.227,22 14.227,25.264 18.984,25.264 18.984,40 22.753,40 22.753,25.264 27.49,25.264"></polygon>
+                  <path fill="#fff" d="M39.194,26.084c0,0-1.787-1.192-3.807-1.192s-2.747,0.96-2.747,1.986 c0,2.648,7.381,2.383,7.381,7.712c0,8.209-11.254,4.568-11.254,4.568V35.22c0,0,2.152,1.622,4.733,1.622s2.483-1.688,2.483-1.92 c0-2.449-7.315-2.449-7.315-7.878c0-7.381,10.658-4.469,10.658-4.469L39.194,26.084z"></path>
+                </svg>
+              </div>
               <p className="font-medium">TypeScript</p>
             </div>
             <div className="flex flex-col items-center">
-              <img src="/lovable-uploads/0487901d-bc96-4d6d-8847-1c5926dd899e.png" alt="React" className="w-16 h-16 mb-3" />
+              <div className="w-16 h-16 mb-3">
+                <img src="/lovable-uploads/a960bad8-6aa1-47aa-aa7e-6ef4c5e55aa1.png" alt="React" className="w-full h-full" />
+              </div>
               <p className="font-medium">React</p>
             </div>
           </div>

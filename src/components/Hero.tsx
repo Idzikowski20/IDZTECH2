@@ -7,8 +7,8 @@ import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { lazy, Suspense, useEffect, useState } from "react";
 
-// Lazy load the image for better loading performance
-const HeroImage = lazy(() => import("@/components/HeroImage"));
+// Import HeroImage directly instead of lazy loading for critical above-the-fold content
+import HeroImage from "@/components/HeroImage";
 
 const Hero = () => {
   const { theme } = useTheme();
@@ -35,9 +35,9 @@ const Hero = () => {
       )}
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
           {/* Hero content on the left */}
-          <div className="w-full lg:w-1/2">            
+          <div className="w-full lg:w-5/12">            
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 font-aeonik animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.2s'}}
@@ -69,30 +69,44 @@ const Hero = () => {
             </div>
             
             <div
-              className="flex flex-col md:flex-row gap-4 md:gap-8 justify-start text-sm text-premium-light/70 animate-fade-in opacity-0"
+              className="flex flex-wrap gap-4 justify-start text-sm text-premium-light/70 animate-fade-in opacity-0"
               style={{animationFillMode: 'forwards', animationDelay: '0.5s'}}
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Szybkie strony</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="text-premium-purple h-5 w-5" />
-                <span>Najlepsza wydajność</span>
+                <span>Szybka wydajność</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="text-premium-purple h-5 w-5" />
                 <span>Nowoczesne technologie</span>
               </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Wysokie SEO</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Konkurencyjne ceny</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Bezpieczeństwo strony</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>Strona nawet do 3 dni</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-premium-purple h-5 w-5" />
+                <span>CMS</span>
+              </div>
             </div>
           </div>
           
-          {/* Hero image on the right - lazy loaded */}
-          <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" 
+          {/* Hero image on the right - adjusted height */}
+          <div className="w-full lg:w-7/12 mt-8 lg:mt-0 animate-fade-in opacity-0 h-[500px] md:h-[480px] flex items-center justify-center" 
                style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
-            <Suspense fallback={<div className="h-80 w-full bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>}>
-              <HeroImage />
-            </Suspense>
+            <HeroImage />
           </div>
         </div>
       </div>

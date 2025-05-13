@@ -29,7 +29,7 @@ const DesktopControls = () => {
         <span className="sr-only">Toggle theme</span>
       </Button>
       
-      <Link to="/contact" className="hidden md:block">
+      <Link to="/contact">
         <Button 
           className="bg-black text-white hover:bg-black hover:text-white transition-colors"
         >
