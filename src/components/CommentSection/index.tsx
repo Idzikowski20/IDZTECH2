@@ -71,13 +71,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
         const transformedComments: Comment[] = data.map(comment => {
           let fullName = 'Użytkownik';
           if (comment.profiles) {
-            const profiles = comment.profiles as any;
-            if (profiles.name) {
-              fullName = profiles.name;
-              if (profiles.lastName) {
-                fullName += ` ${profiles.lastName}`;
+            const profile = comment.profiles as any;
+            if (profile.name) {
+              fullName = profile.name;
+              if (profile.lastName) {
+                fullName += ` ${profile.lastName}`;
               }
             }
+          } else if (comment.guest_name) {
+            fullName = comment.guest_name;
           }
           
           return {
