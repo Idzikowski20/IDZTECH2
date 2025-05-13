@@ -1,70 +1,39 @@
+
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import { HelmetProvider } from 'react-helmet-async';
 
 // Create a loading indicator that will show until the app is fully loaded
 const createLoadingIndicator = () => {
-  const loadingContainer = document.createElement('div');
-  loadingContainer.id = 'loading-indicator';
-  loadingContainer.style.position = 'fixed';
-  loadingContainer.style.top = '0';
-  loadingContainer.style.left = '0';
-  loadingContainer.style.width = '100%';
-  loadingContainer.style.height = '100%';
-  loadingContainer.style.display = 'flex';
-  loadingContainer.style.justifyContent = 'center';
-  loadingContainer.style.alignItems = 'center';
-  loadingContainer.style.backgroundColor = 'var(--background, #ffffff)';
-  loadingContainer.style.zIndex = '9999';
-  loadingContainer.style.transition = 'opacity 0.3s ease-out';
-  
-  // Create spinner element - using similar style as in LoadingSpinner component
-  const spinner = document.createElement('div');
-  spinner.style.width = '48px';
-  spinner.style.height = '48px';
-  spinner.style.borderRadius = '50%';
-  spinner.style.border = '3px solid rgba(138, 75, 255, 0.2)';
-  spinner.style.borderTop = '3px solid var(--primary, #8a4bff)';
-  spinner.style.animation = 'spin 1s linear infinite';
-  
-  // Add animation style
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    :root {
-      color-scheme: light dark;
-    }
-    
-    @media (prefers-color-scheme: dark) {
-      #loading-indicator {
-        background-color: var(--background, #121212);
-      }
-    }
-  `;
-  
-  document.head.appendChild(style);
-  loadingContainer.appendChild(spinner);
-  document.body.appendChild(loadingContainer);
-  
-  return loadingContainer;
+  // Skip creating another loader since we already have one in HTML
+  return null;
 };
 
 // Import App dynamically for better JS loading performance
 const loadApp = async () => {
   try {
-    const loadingIndicator = createLoadingIndicator();
-    
     // Ensure critical CSS is loaded
+    // Move this to the beginning to ensure styles load first
+    const cssPromise = new Promise((resolve) => {
+      const link = document.querySelector('link[rel="stylesheet"][href*="index.css"]');
+      if (link) {
+        if (link.sheet) {
+          resolve(true); // CSS already loaded
+        } else {
+          link.onload = () => resolve(true);
+          link.onerror = () => resolve(false);
+        }
+      } else {
+        resolve(false);
+      }
+    });
+
     await Promise.all([
       // Font loading promise
       document.fonts.ready,
-      
+      cssPromise,
       // Add a minimum delay to prevent flashes
-      new Promise(resolve => setTimeout(resolve, 300))
+      new Promise(resolve => setTimeout(resolve, 100))
     ]);
     
     // Delay import for better First Contentful Paint
@@ -80,11 +49,8 @@ const loadApp = async () => {
       </HelmetProvider>
     );
     
-    // Remove loading indicator with a fade effect
-    loadingIndicator.style.opacity = '0';
-    setTimeout(() => {
-      loadingIndicator.remove();
-    }, 300);
+    // Make body visible if it isn't already
+    document.body.style.visibility = 'visible';
     
     // Register performance metrics
     if ('performance' in window && 'measure' in window.performance) {
@@ -99,23 +65,11 @@ const loadApp = async () => {
     if (rootEl) {
       rootEl.innerHTML = '<div style="text-align:center;padding:2rem;"><h1>Coś poszło nie tak</h1><p>Wystąpił błąd podczas ładowania aplikacji. Spróbuj odświeżyć stronę.</p></div>';
     }
+    
+    // Make body visible in case of error
+    document.body.style.visibility = 'visible';
   }
 };
 
-// Create and add initial style to prevent FOUC (Flash of Unstyled Content)
-const initialStyle = document.createElement('style');
-initialStyle.textContent = `
-  body {
-    opacity: 0;
-    transition: opacity 0.3s ease-in;
-  }
-`;
-document.head.appendChild(initialStyle);
-
-// Start loading the app immediately but keep body hidden
+// Start loading the app immediately
 loadApp();
-
-// Make the body visible once styles are likely loaded
-setTimeout(() => {
-  document.body.style.opacity = '1';
-}, 100);

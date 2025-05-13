@@ -16,22 +16,17 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
+    // Set as loaded immediately to prevent flashing
+    setIsPageLoaded(true);
+    
     const handleScroll = () => {
       const offset = window.scrollY;
       setScrolled(offset > 10);
     };
 
-    // Check if page is fully loaded
-    if (document.readyState === 'complete') {
-      setIsPageLoaded(true);
-    } else {
-      window.addEventListener('load', () => setIsPageLoaded(true));
-    }
-
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('load', () => setIsPageLoaded(true));
     };
   }, []);
 
