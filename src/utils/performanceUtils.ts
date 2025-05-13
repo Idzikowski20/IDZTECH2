@@ -216,8 +216,10 @@ export const applyMobileOptimizations = () => {
   optimizeFonts();
   optimizeJavaScript();
   
-  // Add momentum scrolling for iOS - using type assertion to fix the TypeScript error
-  (document.documentElement as HTMLElement).style.webkitOverflowScrolling = 'touch';
+  // Add momentum scrolling for iOS - using both type assertion and fixing property access
+  const htmlElement = document.documentElement as HTMLElement;
+  // Use string indexing to avoid TypeScript property error
+  (htmlElement.style as any)['webkitOverflowScrolling'] = 'touch';
   
   // Register performance marks for analysis
   if ('performance' in window && 'mark' in window.performance) {
@@ -246,7 +248,7 @@ const setupIntersectionObserver = () => {
         if (element.tagName === 'IMG' && element.hasAttribute('data-src')) {
           const src = element.getAttribute('data-src');
           if (src) {
-            element.setAttribute('src', src);
+            (element as HTMLImageElement).setAttribute('src', src);
             element.removeAttribute('data-src');
           }
         }
@@ -255,7 +257,7 @@ const setupIntersectionObserver = () => {
         if (element.hasAttribute('data-bg')) {
           const bg = element.getAttribute('data-bg');
           if (bg) {
-            element.style.backgroundImage = `url(${bg})`;
+            (element as HTMLElement).style.backgroundImage = `url(${bg})`;
             element.removeAttribute('data-bg');
           }
         }
