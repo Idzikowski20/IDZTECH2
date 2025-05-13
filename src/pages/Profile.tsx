@@ -1,6 +1,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
+import { Button } from '@/components/ui/button';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -26,13 +27,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-// Add Button import
-const Button = ({ children, onClick, className }: { children: React.ReactNode, onClick?: () => void, className?: string }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 rounded ${className}`}
-  >
-    {children}
-  </button>
-);
