@@ -17,12 +17,12 @@ const HeroImage = () => {
   }, []);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full overflow-hidden">
       {!isLoaded && (
         <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
       )}
       <div 
-        className={`w-full h-full max-h-[550px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
+        className={`w-full h-full max-h-[500px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
         style={{ display: isLoaded ? 'block' : 'none' }}
       >
         <DotLottieReact
@@ -30,7 +30,7 @@ const HeroImage = () => {
           loop
           autoplay
           speed={0.5}
-          className="w-full h-full scale-[1.2]"
+          className="w-full h-full scale-[1.3]"
         />
       </div>
     </div>
