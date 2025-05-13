@@ -1,106 +1,70 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from "@/utils/themeContext";
-import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./utils/AuthProvider";
-
-// Pages
-import Index from './pages/Index';
-import Register from './pages/Register';
-import Login from './pages/Login';
-import NotFound from './pages/NotFound';
-import AboutUs from './pages/AboutUs';
-import ContactPage from './pages/ContactPage';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Profile from './pages/Profile';
-import Admin from './pages/Admin';
-import AdminSettings from './pages/AdminSettings';
-import AdminStats from './pages/AdminStats';
-import AdminUsers from './pages/AdminUsers';
-import AdminNotifications from "./pages/AdminNotifications";
-import Projects from './pages/Projects';
-import ContentPlan from './pages/ContentPlan';
-
-// Service Pages
-import WebDevelopment from './pages/WebDevelopment';
-import Seo from './pages/Seo';
-import SeoAudit from './pages/SeoAudit';
-import SeoCopywriting from './pages/SeoCopywriting';
-import SeoOptimization from './pages/SeoOptimization';
-import LocalSeo from './pages/LocalSeo';
-import ECommerce from './pages/ECommerce';
-import GoogleAdsAudit from './pages/GoogleAdsAudit';
-import GoogleAdsCampaigns from './pages/GoogleAdsCampaigns';
-import MetaAdsCampaigns from './pages/MetaAdsCampaigns';
-
-// Blog
+import './App.css';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import Home from './pages/Home';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
-import BlogPostEditor from './pages/BlogPostEditor';
-
-// Components
-import RequireAuth from './components/RequireAuth';
-import ScrollToTop from './components/ScrollToTop';
-import DotAnimation from './components/DotAnimation';
+import Services from './pages/Services';
+import Admin from './pages/Admin';
+import Login from './pages/Login';
+import SanityAuth from './components/SanityAuth';
+import AdminLayout from './components/AdminLayout';
+import NotFound from './pages/NotFound';
+import { SanityAuthProvider } from './utils/SanityAuthProvider';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { ToastAction } from '@/components/ui/toast';
+import AdminStudio from './pages/AdminStudio';
 
 function App() {
+  const [showToast, setShowToast] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (showToast) {
+      toast({
+        title: 'Witaj!',
+        description: 'Ta strona jest wciąż w budowie. Dziękujemy za cierpliwość!',
+        action: (
+          <ToastAction altText="Zamknij" onClick={() => setShowToast(false)}>
+            Zamknij
+          </ToastAction>
+        ),
+      });
+      setShowToast(false);
+    }
+  }, [showToast, toast]);
+
   return (
-    <Router>
-      <ThemeProvider>
-        <AuthProvider>
-          <ScrollToTop />
-          <DotAnimation />
+    <>
+      <SanityAuthProvider>
+        <Router>
+          <Navbar />
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            
-            {/* Portfolio/Projects page accessible without auth */}
-            <Route path="/projects" element={<Projects />} />
-
-            {/* Protected routes */}
-            <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-            <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
-            <Route path="/admin/settings" element={<RequireAuth><AdminSettings /></RequireAuth>} />
-            <Route path="/admin/stats" element={<RequireAuth><AdminStats /></RequireAuth>} />
-            <Route path="/admin/users" element={<RequireAuth requiredRole="admin"><AdminUsers /></RequireAuth>} />
-            <Route path="/admin/notifications" element={<RequireAuth><AdminNotifications /></RequireAuth>} />
-            
-            {/* Blog post editor routes */}
-            <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
-            <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
-            
-            <Route path="/content-plan" element={<RequireAuth><ContentPlan /></RequireAuth>} />
-
-            {/* Service pages */}
-            <Route path="/tworzenie-stron-www" element={<WebDevelopment />} />
-            <Route path="/pozycjonowanie-stron" element={<Seo />} />
-            <Route path="/audyt-seo" element={<SeoAudit />} />
-            <Route path="/copywriting-seo" element={<SeoCopywriting />} />
-            <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
-            <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
-            <Route path="/sklepy-internetowe" element={<ECommerce />} />
-            <Route path="/audyt-google-ads" element={<GoogleAdsAudit />} />
-            <Route path="/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
-            <Route path="/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
-
-            {/* Blog */}
+            <Route path="/" element={<Home />} />
+            <Route path="/o-nas" element={<About />} />
+            <Route path="/kontakt" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
-
-            {/* 404 */}
+            <Route path="/uslugi" element={<Services />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/auth" element={<SanityAuth />} />
+            <Route path="/admin" element={<AdminLayout><Admin /></AdminLayout>} />
+            <Route path="/admin/studio/*" element={<AdminStudio />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Toaster />
-        </AuthProvider>
-      </ThemeProvider>
-    </Router>
+          <Footer />
+        </Router>
+        <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
+      </SanityAuthProvider>
+    </>
   );
 }
 

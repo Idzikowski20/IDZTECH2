@@ -17,6 +17,8 @@ export default defineConfig({
 
   projectId: 'ahdhzkts',
   dataset: 'production',
+  
+  basePath: '/admin/studio',
 
   plugins: [
     deskTool(),

@@ -1,0 +1,10 @@
+
+{
+  "rewrites": [
+    { "source": "/admin/studio/(.*)", "destination": "/admin/studio" },
+    { "source": "/(.*)", "destination": "/" }
+  ],
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install"
+}
