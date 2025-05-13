@@ -17,7 +17,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useIsMobile } from '@/hooks/use-mobile';
 import UserRanking from '@/components/UserRanking';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -37,7 +36,6 @@ const Admin = () => {
   } = useAuth();
   
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   
   const {
     posts,
@@ -77,7 +75,7 @@ const Admin = () => {
   const [currentCommentsPage, setCurrentCommentsPage] = useState(1);
   const [currentPostsPage, setCurrentPostsPage] = useState(1);
   const commentsPerPage = 5;
-  const postsPerPage = isMobile ? 3 : 5;
+  const postsPerPage = 5;
   
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
@@ -270,65 +268,65 @@ const Admin = () => {
   
   return (
     <AdminLayout>
-      <div className={`${isMobile ? 'p-3' : 'p-6'}`}>
-        <div className="mb-6">
-          <h1 className={`text-2xl font-bold ${isMobile ? 'mb-2' : 'mb-2'}`}>Dashboard</h1>
+      <div className="p-6">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
           <p className="text-premium-light/70">
             Witaj, {user?.name || user?.email?.split('@')[0] || 'Użytkowniku'}! Oto statystyki Twojej strony.
           </p>
         </div>
 
         {/* Analytics Cards */}
-        <div className={`grid grid-cols-2 ${isMobile ? 'gap-3' : 'grid-cols-4 gap-6'} mb-6`}>
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-4 rounded-xl hover:bg-premium-light/10 transition-all duration-300">
-            <div className={`flex items-center ${isMobile ? 'mb-2' : 'mb-4'}`}>
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <BarChart className="text-blue-500" size={isMobile ? 20 : 24} />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-blue-500/10 rounded-lg">
+                <BarChart className="text-blue-500" size={24} />
               </div>
-              <h3 className="ml-2 font-semibold text-sm">Wizyty</h3>
+              <h3 className="ml-3 font-semibold">Łączne wizyty</h3>
             </div>
-            <div className={`text-${isMobile ? '2xl' : '3xl'} font-bold`}>{counters.totalVisits}</div>
+            <div className="text-3xl font-bold">{counters.totalVisits}</div>
           </div>
           
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-4 rounded-xl hover:bg-premium-light/10 transition-all duration-300">
-            <div className={`flex items-center ${isMobile ? 'mb-2' : 'mb-4'}`}>
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Users className="text-purple-500" size={isMobile ? 20 : 24} />
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-purple-500/10 rounded-lg">
+                <Users className="text-purple-500" size={24} />
               </div>
-              <h3 className="ml-2 font-semibold text-sm">Użytkownicy</h3>
+              <h3 className="ml-3 font-semibold">Unikalni użytkownicy</h3>
             </div>
-            <div className={`text-${isMobile ? '2xl' : '3xl'} font-bold`}>{counters.uniqueVisitors}</div>
+            <div className="text-3xl font-bold">{counters.uniqueVisitors}</div>
           </div>
           
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-4 rounded-xl hover:bg-premium-light/10 transition-all duration-300">
-            <div className={`flex items-center ${isMobile ? 'mb-2' : 'mb-4'}`}>
-              <div className="p-2 bg-green-500/10 rounded-lg">
-                <FileText className="text-green-500" size={isMobile ? 20 : 24} />
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-green-500/10 rounded-lg">
+                <FileText className="text-green-500" size={24} />
               </div>
-              <h3 className="ml-2 font-semibold text-sm">Blog</h3>
+              <h3 className="ml-3 font-semibold">Wyświetlenia bloga</h3>
             </div>
-            <div className={`text-${isMobile ? '2xl' : '3xl'} font-bold`}>{counters.blogViews}</div>
+            <div className="text-3xl font-bold">{counters.blogViews}</div>
           </div>
           
-          <div className="bg-premium-dark/50 border border-premium-light/10 p-4 rounded-xl hover:bg-premium-light/10 transition-all duration-300">
-            <div className={`flex items-center ${isMobile ? 'mb-2' : 'mb-4'}`}>
-              <div className="p-2 bg-amber-500/10 rounded-lg">
-                <BarChart className="text-amber-500" size={isMobile ? 20 : 24} />
+          <div className="bg-premium-dark/50 border border-premium-light/10 p-6 rounded-xl hover:bg-premium-light/10 transition-all duration-300 hover:scale-105">
+            <div className="flex items-center mb-4">
+              <div className="p-3 bg-amber-500/10 rounded-lg">
+                <BarChart className="text-amber-500" size={24} />
               </div>
-              <h3 className="ml-2 font-semibold text-sm">Czas sesji</h3>
+              <h3 className="ml-3 font-semibold">Średni czas sesji</h3>
             </div>
-            <div className={`text-${isMobile ? '2xl' : '3xl'} font-bold`}>{analytics.averageSessionTime}</div>
+            <div className="text-3xl font-bold">{analytics.averageSessionTime}</div>
           </div>
         </div>
 
         {/* Top Posts & User Rankings */}
-        <div className={`grid grid-cols-1 ${isMobile ? 'gap-6' : 'md:grid-cols-2 lg:grid-cols-3 gap-6'} mb-6`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Top Posts by Views */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
                 <TrendingUp className="mr-2 text-blue-500" size={18} />
-                Top - Wyświetlenia
+                Top posty - Wyświetlenia
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
@@ -356,7 +354,7 @@ const Admin = () => {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
                 <Heart className="mr-2 text-red-500" size={18} />
-                Top - Polubienia
+                Top posty - Polubienia
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
@@ -386,7 +384,7 @@ const Admin = () => {
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center">
                 <MessageSquare className="mr-2 text-green-500" size={18} />
-                Top - Komentarze
+                Top posty - Komentarze
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
@@ -412,108 +410,66 @@ const Admin = () => {
           </Card>
         </div>
 
-        {/* User Rankings - Only show on larger screens or stacked on mobile */}
-        <div className={`grid grid-cols-1 ${isMobile ? 'gap-6' : 'md:grid-cols-2 gap-6'} mb-6`}>
-          {!isMobile && (
-            <>
-              <UserRanking showMonthly={false} limit={5} />
-              <UserRanking showMonthly={true} limit={5} />
-            </>
-          )}
-          {isMobile && (
-            <UserRanking showMonthly={true} limit={5} />
-          )}
+        {/* User Rankings */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <UserRanking showMonthly={false} limit={5} />
+          <UserRanking showMonthly={true} limit={5} />
         </div>
         
         {/* Recent Comments */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Ostatnie komentarze</h2>
           </div>
 
-          <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden mb-6">
+          <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden mb-8">
             {!Array.isArray(recentComments) || recentComments.length === 0 ? (
               <div className="p-6 text-center text-premium-light/70">
                 Brak komentarzy do wyświetlenia.
               </div>
             ) : (
               <>
-                {isMobile ? (
-                  // Mobile comments view
-                  <div className="divide-y divide-premium-light/10">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Użytkownik</TableHead>
+                      <TableHead>Treść</TableHead>
+                      <TableHead>Post</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Akcje</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {paginatedComments.map(comment => (
-                      <div key={comment.id} className="p-4">
-                        <div className="flex justify-between mb-2">
-                          <div className="font-medium">{comment.userName}</div>
-                          <div className="text-xs text-premium-light/70">{new Date(comment.date).toLocaleDateString('pl-PL')}</div>
-                        </div>
-                        <div className="mb-2">{comment.content}</div>
-                        <div className="text-xs text-premium-light/70 mb-3">Post: {comment.postTitle}</div>
-                        <div className="flex items-center space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleReply(comment.id)}
-                            className="text-blue-400 hover:text-white hover:bg-blue-500"
-                          >
-                            <Reply size={14} />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleDeleteComment(comment.id, comment.postId)}
-                            className="text-red-400 hover:text-white hover:bg-red-500"
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  // Desktop comments view - table
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Użytkownik</TableHead>
-                        <TableHead>Treść</TableHead>
-                        <TableHead>Post</TableHead>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Akcje</TableHead>
+                      <TableRow key={comment.id}>
+                        <TableCell className="font-medium">{comment.userName}</TableCell>
+                        <TableCell>{comment.content}</TableCell>
+                        <TableCell>{comment.postTitle}</TableCell>
+                        <TableCell>{new Date(comment.date).toLocaleDateString('pl-PL')}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleReply(comment.id)}
+                              className="text-blue-400 hover:text-white hover:bg-blue-500"
+                            >
+                              <Reply size={14} />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleDeleteComment(comment.id, comment.postId)}
+                              className="text-red-400 hover:text-white hover:bg-red-500"
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {paginatedComments.map(comment => (
-                        <TableRow key={comment.id}>
-                          <TableCell className="font-medium">{comment.userName}</TableCell>
-                          <TableCell>{comment.content}</TableCell>
-                          <TableCell>{comment.postTitle}</TableCell>
-                          <TableCell>{new Date(comment.date).toLocaleDateString('pl-PL')}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleReply(comment.id)}
-                                className="text-blue-400 hover:text-white hover:bg-blue-500"
-                              >
-                                <Reply size={14} />
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleDeleteComment(comment.id, comment.postId)}
-                                className="text-red-400 hover:text-white hover:bg-red-500"
-                              >
-                                <Trash2 size={14} />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
+                    ))}
+                  </TableBody>
+                </Table>
 
                 {/* Comments Pagination */}
                 {totalCommentsPages > 1 && (
@@ -527,39 +483,31 @@ const Admin = () => {
                           />
                         </PaginationItem>
                         
-                        {isMobile ? (
-                          // Simplified pagination for mobile
-                          <PaginationItem>
-                            <PaginationLink isActive>{currentCommentsPage} / {totalCommentsPages}</PaginationLink>
-                          </PaginationItem>
-                        ) : (
-                          // Full pagination for desktop
-                          Array.from({length: Math.min(totalCommentsPages, 5)}, (_, i) => {
-                            // Display logic for page numbers
-                            let pageNum;
-                            if (totalCommentsPages <= 5) {
-                              pageNum = i + 1;
-                            } else if (currentCommentsPage <= 3) {
-                              pageNum = i + 1;
-                            } else if (currentCommentsPage >= totalCommentsPages - 2) {
-                              pageNum = totalCommentsPages - 4 + i;
-                            } else {
-                              pageNum = currentCommentsPage - 2 + i;
-                            }
-                            
-                            return (
-                              <PaginationItem key={i}>
-                                <PaginationLink 
-                                  onClick={() => setCurrentCommentsPage(pageNum)}
-                                  isActive={currentCommentsPage === pageNum}
-                                  className={currentCommentsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
-                                >
-                                  {pageNum}
-                                </PaginationLink>
-                              </PaginationItem>
-                            );
-                          })
-                        )}
+                        {Array.from({length: Math.min(totalCommentsPages, 5)}, (_, i) => {
+                          // Display logic for page numbers
+                          let pageNum;
+                          if (totalCommentsPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentCommentsPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentCommentsPage >= totalCommentsPages - 2) {
+                            pageNum = totalCommentsPages - 4 + i;
+                          } else {
+                            pageNum = currentCommentsPage - 2 + i;
+                          }
+                          
+                          return (
+                            <PaginationItem key={i}>
+                              <PaginationLink 
+                                onClick={() => setCurrentCommentsPage(pageNum)}
+                                isActive={currentCommentsPage === pageNum}
+                                className={currentCommentsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
+                              >
+                                {pageNum}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
                         
                         <PaginationItem>
                           <PaginationNext 
@@ -609,15 +557,15 @@ const Admin = () => {
         </div>
 
         {/* Blog Posts Management */}
-        <div className="mb-6">
-          <div className={`flex flex-col ${isMobile ? 'space-y-3' : 'items-center justify-between mb-6'} ${!isMobile && 'flex-row'}`}>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Blog</h2>
-            <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'gap-4'}`}>
+            <div className="flex gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-premium-light/50" size={16} />
                 <Input
                   placeholder="Wyszukaj po tytule..."
-                  className="pl-10 bg-premium-dark/30 border-premium-light/10 w-full"
+                  className="pl-10 bg-premium-dark/30 border-premium-light/10 w-64"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -629,114 +577,65 @@ const Admin = () => {
           </div>
 
           <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
-            {isMobile ? (
-              // Mobile card view for posts
-              <div className="p-4">
-                {!Array.isArray(paginatedPosts) || paginatedPosts.length === 0 ? (
-                  <div className="py-4 text-center text-premium-light/70">
-                    {searchTerm ? 'Brak wyników wyszukiwania' : 'Brak postów. Dodaj pierwszy post, aby zacząć.'}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {paginatedPosts.map(post => (
-                      <div key={post.id} className="border border-premium-light/10 rounded-lg p-4">
-                        <h3 className="font-medium mb-2">{post.title}</h3>
-                        <div className="text-xs text-premium-light/70 mb-3">
-                          {new Date(post.date).toLocaleDateString('pl-PL')} • {post.views} wyświetleń
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => navigate(`/blog/${post.slug}`)} 
-                            className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
-                          >
-                            <Eye size={14} />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => navigate(`/admin/edit-post/${post.id}`)} 
-                            className="text-green-400 hover:text-white hover:bg-green-500 transition-colors"
-                          >
-                            <Edit size={14} />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="text-red-400 hover:text-white hover:bg-red-500 transition-colors" 
-                            onClick={() => deletePost(post.id)}
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ) : (
-              // Desktop table view for posts
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="border-b border-premium-light/10">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="border-b border-premium-light/10">
+                  <tr>
+                    <th className="py-3 px-4 text-left">Tytuł</th>
+                    <th className="py-3 px-4 text-left">Data</th>
+                    <th className="py-3 px-4 text-left">Wyświetlenia</th>
+                    <th className="py-3 px-4 text-left">Akcje</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-premium-light/10">
+                  {!Array.isArray(paginatedPosts) || paginatedPosts.length === 0 ? (
                     <tr>
-                      <th className="py-3 px-4 text-left">Tytuł</th>
-                      <th className="py-3 px-4 text-left">Data</th>
-                      <th className="py-3 px-4 text-left">Wyświetlenia</th>
-                      <th className="py-3 px-4 text-left">Akcje</th>
+                      <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
+                        {searchTerm ? 'Brak wyników wyszukiwania' : 'Brak postów. Dodaj pierwszy post, aby zacząć.'}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-premium-light/10">
-                    {!Array.isArray(paginatedPosts) || paginatedPosts.length === 0 ? (
-                      <tr>
-                        <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
-                          {searchTerm ? 'Brak wyników wyszukiwania' : 'Brak postów. Dodaj pierwszy post, aby zacząć.'}
+                  ) : (
+                    paginatedPosts.map(post => (
+                      <tr key={post.id}>
+                        <td className="py-3 px-4 font-medium">{post.title}</td>
+                        <td className="py-3 px-4 text-premium-light/70">
+                          {new Date(post.date).toLocaleDateString('pl-PL')}
+                        </td>
+                        <td className="py-3 px-4">{post.views}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => navigate(`/blog/${post.slug}`)} 
+                              className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
+                            >
+                              <Eye size={14} />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => navigate(`/admin/edit-post/${post.id}`)} 
+                              className="text-green-400 hover:text-white hover:bg-green-500 transition-colors"
+                            >
+                              <Edit size={14} />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-400 hover:text-white hover:bg-red-500 transition-colors" 
+                              onClick={() => deletePost(post.id)}
+                            >
+                              <Trash2 size={14} />
+                            </Button>
+                          </div>
                         </td>
                       </tr>
-                    ) : (
-                      paginatedPosts.map(post => (
-                        <tr key={post.id}>
-                          <td className="py-3 px-4 font-medium">{post.title}</td>
-                          <td className="py-3 px-4 text-premium-light/70">
-                            {new Date(post.date).toLocaleDateString('pl-PL')}
-                          </td>
-                          <td className="py-3 px-4">{post.views}</td>
-                          <td className="py-3 px-4">
-                            <div className="flex items-center space-x-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => navigate(`/blog/${post.slug}`)} 
-                                className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
-                              >
-                                <Eye size={14} />
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => navigate(`/admin/edit-post/${post.id}`)} 
-                                className="text-green-400 hover:text-white hover:bg-green-500 transition-colors"
-                              >
-                                <Edit size={14} />
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="text-red-400 hover:text-white hover:bg-red-500 transition-colors" 
-                                onClick={() => deletePost(post.id)}
-                              >
-                                <Trash2 size={14} />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
             
             {/* Blog Posts Pagination */}
             {totalPostsPages > 1 && (
@@ -750,39 +649,31 @@ const Admin = () => {
                       />
                     </PaginationItem>
                     
-                    {isMobile ? (
-                      // Simplified pagination for mobile
-                      <PaginationItem>
-                        <PaginationLink isActive>{currentPostsPage} / {totalPostsPages}</PaginationLink>
-                      </PaginationItem>
-                    ) : (
-                      // Full pagination for desktop
-                      Array.from({length: Math.min(totalPostsPages, 5)}, (_, i) => {
-                        // Display logic for page numbers
-                        let pageNum;
-                        if (totalPostsPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPostsPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPostsPage >= totalPostsPages - 2) {
-                          pageNum = totalPostsPages - 4 + i;
-                        } else {
-                          pageNum = currentPostsPage - 2 + i;
-                        }
-                        
-                        return (
-                          <PaginationItem key={i}>
-                            <PaginationLink 
-                              onClick={() => setCurrentPostsPage(pageNum)}
-                              isActive={currentPostsPage === pageNum}
-                              className={currentPostsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
-                            >
-                              {pageNum}
-                            </PaginationLink>
-                          </PaginationItem>
-                        );
-                      })
-                    )}
+                    {Array.from({length: Math.min(totalPostsPages, 5)}, (_, i) => {
+                      // Display logic for page numbers
+                      let pageNum;
+                      if (totalPostsPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPostsPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPostsPage >= totalPostsPages - 2) {
+                        pageNum = totalPostsPages - 4 + i;
+                      } else {
+                        pageNum = currentPostsPage - 2 + i;
+                      }
+                      
+                      return (
+                        <PaginationItem key={i}>
+                          <PaginationLink 
+                            onClick={() => setCurrentPostsPage(pageNum)}
+                            isActive={currentPostsPage === pageNum}
+                            className={currentPostsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
+                          >
+                            {pageNum}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
                     
                     <PaginationItem>
                       <PaginationNext 
