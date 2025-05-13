@@ -1,17 +1,18 @@
 
 import { useState, useEffect } from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
-    // Preload image with proper path
-    const img = new Image();
-    img.src = "/lovable-uploads/5885fae1-77e4-4845-8654-69fdaa244e36.png"; // Using the uploaded image
-    img.onload = () => setIsLoaded(true);
+    // Set loaded to true after a brief timeout for smoother transition
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 200);
     
     return () => {
-      img.onload = null;
+      clearTimeout(timer);
     };
   }, []);
 
@@ -20,15 +21,17 @@ const HeroImage = () => {
       {!isLoaded && (
         <div className="w-full h-96 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
       )}
-      <img 
-        src="/lovable-uploads/5885fae1-77e4-4845-8654-69fdaa244e36.png" 
-        alt="Tworzenie Stron Internetowych" 
-        className={`w-full h-full object-contain max-h-[500px] ${isLoaded ? 'animate-float' : 'opacity-0'}`}
-        loading="eager" // Keep eager loading for hero image
-        width="800"
-        height="600"
+      <div 
+        className={`w-full h-full max-h-[500px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
         style={{ display: isLoaded ? 'block' : 'none' }}
-      />
+      >
+        <DotLottieReact
+          src="https://lottie.host/f0718c9c-401a-471f-bc37-7576f640256b/kjND9P7piN.lottie"
+          loop
+          autoplay
+          className="w-full h-full"
+        />
+      </div>
     </div>
   );
 };
