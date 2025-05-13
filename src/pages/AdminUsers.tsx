@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { sanityClient } from '@/lib/sanity';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -38,7 +39,11 @@ const AdminUsers = () => {
         // Fetch users from Supabase
         const supabaseUsers = await fetchAllUsers();
         console.log("Fetched users:", supabaseUsers);
-        setUsers(supabaseUsers);
+        
+        // Filter out the admin@idztech.pl user as requested
+        const filteredUsers = supabaseUsers.filter(user => user.email !== 'admin@idztech.pl');
+        
+        setUsers(filteredUsers);
       } catch (error) {
         console.error("Error loading users:", error);
         toast({
@@ -89,7 +94,9 @@ const AdminUsers = () => {
   };
   
   // Check if user has admin or administrator role
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'administrator';
+  const isAdmin = currentUser?.email === 'patryk.idzikowski@interia.pl' || 
+                  currentUser?.role === 'admin' || 
+                  currentUser?.role === 'administrator';
   
   if (loading) {
     return (
@@ -133,10 +140,11 @@ const AdminUsers = () => {
     );
   }
 
+  // Mobile layout vs desktop layout
   return (
     <AdminLayout>
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-6">
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h1 className="text-2xl font-bold">Zarządzaj użytkownikami</h1>
           <Dialog>
             <DialogTrigger asChild>
@@ -157,7 +165,8 @@ const AdminUsers = () => {
           </Dialog>
         </div>
         
-        <div className="bg-transparent rounded-lg shadow overflow-hidden">
+        {/* Desktop view - table */}
+        <div className="hidden md:block bg-transparent rounded-lg shadow overflow-hidden">
           <Table>
             <TableHeader className="bg-gray-900">
               <TableRow className="border-b border-gray-700">
@@ -263,6 +272,91 @@ const AdminUsers = () => {
             </TableBody>
           </Table>
         </div>
+        
+        {/* Mobile view - cards */}
+        <div className="md:hidden space-y-4">
+          {users.map((user) => (
+            <div key={user.id} className="bg-gray-800 p-4 rounded-lg shadow-md">
+              <div className="flex items-center mb-4">
+                {user.profilePicture ? (
+                  <img
+                    className="h-12 w-12 rounded-full object-cover"
+                    src={user.profilePicture}
+                    alt={user.name}
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
+                    {user.name?.charAt(0)}
+                  </div>
+                )}
+                <div className="ml-4 flex-1">
+                  <div className="font-medium text-white">
+                    {user.name} {user.lastName || ''}
+                  </div>
+                  <div className="text-sm text-gray-300">
+                    {user.email}
+                  </div>
+                  <div className="mt-1">
+                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-900 text-green-100">
+                      {user.role || 'user'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-400 mt-2 space-y-1">
+                <div>Utworzono: {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}</div>
+                <div>Ostatnie logowanie: {user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}</div>
+                {user.jobTitle && <div>Stanowisko: {user.jobTitle}</div>}
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mt-4 justify-end">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-transparent text-white hover:bg-white hover:text-black border-none"
+                  onClick={() => viewUserProfile(user)}
+                >
+                  <UserRound className="h-4 w-4 mr-1" />
+                  Profil
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="bg-transparent text-white hover:bg-white hover:text-black border-none">
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edytuj
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edytuj użytkownika</DialogTitle>
+                    </DialogHeader>
+                    <UserForm 
+                      userId={user.id} 
+                      user={user} 
+                      onSuccess={(updatedUser) => {
+                        setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+                        toast({
+                          title: "Sukces",
+                          description: "Użytkownik został zaktualizowany",
+                        });
+                      }} 
+                    />
+                  </DialogContent>
+                </Dialog>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
+                  onClick={() => handleDelete(user.id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Usuń
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* User Profile Dialog */}
@@ -282,14 +376,31 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
     lastName: user?.lastName || '',
     jobTitle: user?.jobTitle || '',
   });
+  const { user: currentUser } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+  
+  // Check if current user is admin
+  const isAdmin = currentUser?.email === 'patryk.idzikowski@interia.pl' ||
+                  currentUser?.role === 'admin' || 
+                  currentUser?.role === 'administrator';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Show error dialog if not admin
+    if (!isAdmin) {
+      toast({
+        title: "Brak uprawnień",
+        description: "Tylko administratorzy mogą edytować role użytkowników",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
@@ -343,7 +454,7 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Imię</Label>
           <Input 
@@ -397,6 +508,7 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
           onChange={handleChange}
           className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 px-3"
           required
+          disabled={!isAdmin}
         >
           <option value="user">Użytkownik</option>
           <option value="blogger">Bloger</option>
@@ -404,6 +516,9 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
           <option value="admin">Administrator</option>
           <option value="administrator">Administrator</option>
         </select>
+        {!isAdmin && (
+          <p className="text-xs text-amber-400 mt-1">Tylko administratorzy mogą zmieniać role użytkowników.</p>
+        )}
       </div>
       
       {!userId && (
@@ -421,7 +536,7 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
       )}
       
       <div className="flex justify-end pt-4">
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading || (!isAdmin && userId)}>
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
