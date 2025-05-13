@@ -120,12 +120,14 @@ const Navbar: React.FC = () => {
   }, [scrolled]);
 
   // Determine the header background based on scroll state and theme
-  const headerBackground = 
-    theme === 'light'
-      ? scrolled
-        ? 'bg-white/80 backdrop-blur-lg'
-        : 'bg-transparent'
-      : 'bg-black dark:bg-black backdrop-blur-lg';
+  const headerBackground = scrolled
+    ? theme === 'light'
+      ? 'bg-white/70 backdrop-blur-md'
+      : 'bg-black/70 dark:bg-black/70 backdrop-blur-md'
+    : 'bg-transparent';
+  
+  // Add transition class for smooth animation
+  const transitionClass = 'transition-all duration-300 ease-in-out';
   
   return (
     <>
@@ -144,17 +146,17 @@ const Navbar: React.FC = () => {
         <meta name="twitter:description" content={meta.description} />
       </Helmet>
       
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerBackground}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 ${headerBackground} ${transitionClass}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
-            <Brand />
+            <Brand scrolled={scrolled} />
             
             <div className="hidden md:flex md:items-center md:justify-center md:flex-1">
               <DesktopNavigation />
             </div>
             
-            <DesktopControls />
-            <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
+            <DesktopControls scrolled={scrolled} />
+            <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} scrolled={scrolled} />
           </div>
         </div>
       </header>

@@ -12,9 +12,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 export interface MobileMenuProps {
   isMenuOpen: boolean;
   setIsMenuOpen: (open: boolean) => void;
+  scrolled: boolean;
 }
 
-const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) => {
+const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen, scrolled }) => {
   const { isAuthenticated } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
   const location = useLocation();
@@ -41,9 +42,19 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Determine text color based on theme
-  const textColor = theme === 'light' ? 'text-black' : 'text-white';
-  const iconColor = theme === 'light' ? 'text-black' : 'text-white';
+  // Determine text and icon colors based on theme and scroll state
+  const textColor = theme === 'light' 
+    ? scrolled 
+      ? 'text-black' 
+      : 'text-black' 
+    : 'text-white';
+    
+  const iconColor = theme === 'light' 
+    ? scrolled 
+      ? 'text-black' 
+      : 'text-black' 
+    : 'text-white';
+    
   const menuBackgroundColor = theme === 'light' ? 'bg-white/80' : 'bg-black/80';
 
   return (
@@ -52,9 +63,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         <Button 
           variant="ghost" 
           size="icon" 
-          className={`md:hidden ${textColor} hover:bg-transparent`}
+          className={`md:hidden ${textColor} transition-colors duration-300 hover:bg-transparent`}
         >
-          <Menu className={`h-[1.2rem] w-[1.2rem] ${iconColor}`} />
+          <Menu className={`h-[1.2rem] w-[1.2rem] ${iconColor} transition-colors duration-300`} />
           <span className="sr-only">Menu</span>
         </Button>
       </DrawerTrigger>
