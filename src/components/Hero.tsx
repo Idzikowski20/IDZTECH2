@@ -7,8 +7,8 @@ import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { lazy, Suspense, useEffect, useState } from "react";
 
-// Lazy load the image for better loading performance
-const HeroImage = lazy(() => import("@/components/HeroImage"));
+// Import HeroImage directly instead of lazy loading for critical above-the-fold content
+import HeroImage from "@/components/HeroImage";
 
 const Hero = () => {
   const { theme } = useTheme();
@@ -87,12 +87,10 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Hero image on the right - lazy loaded */}
+          {/* Hero image on the right - directly rendered instead of lazy loaded */}
           <div className="w-full lg:w-1/2 mt-8 lg:mt-0 animate-fade-in opacity-0" 
                style={{animationFillMode: 'forwards', animationDelay: '0.6s'}}>
-            <Suspense fallback={<div className="h-80 w-full bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>}>
-              <HeroImage />
-            </Suspense>
+            <HeroImage />
           </div>
         </div>
       </div>

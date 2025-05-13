@@ -7,7 +7,7 @@ const HeroImage = () => {
   useEffect(() => {
     // Preload image with proper path
     const img = new Image();
-    img.src = "/hero-image.png"; // Using a more reliable path
+    img.src = "/lovable-uploads/5885fae1-77e4-4845-8654-69fdaa244e36.png"; // Using the uploaded image
     img.onload = () => setIsLoaded(true);
     
     return () => {
@@ -21,10 +21,10 @@ const HeroImage = () => {
         <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
       )}
       <img 
-        src="/lovable-uploads/9bffe6a8-4473-494f-86da-66a5f005a323.png" 
+        src="/lovable-uploads/5885fae1-77e4-4845-8654-69fdaa244e36.png" 
         alt="Tworzenie Stron Internetowych" 
         className={`w-full h-full object-contain ${isLoaded ? 'animate-float' : 'opacity-0'}`}
-        loading="lazy"
+        loading="eager" // Change to eager loading for hero image
         width="600"
         height="400"
         style={{ display: isLoaded ? 'block' : 'none' }}
