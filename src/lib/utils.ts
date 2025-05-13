@@ -38,5 +38,5 @@ export const applyScrollBlur = (
   }
   
   element.style.backdropFilter = `blur(${blurAmount}px)`;
-  element.style.WebkitBackdropFilter = `blur(${blurAmount}px)`;
+  element.style.backdropFilter = `blur(${blurAmount}px)`; // Replaced WebkitBackdropFilter with backdropFilter
 };
