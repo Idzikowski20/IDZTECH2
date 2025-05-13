@@ -2,13 +2,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
-import { Moon, Sun, LogIn } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 
 const DesktopControls = () => {
-  const { isAuthenticated } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
   
   return (
@@ -34,17 +32,6 @@ const DesktopControls = () => {
           className="bg-black text-white hover:bg-black hover:text-white transition-colors"
         >
           Umów spotkanie
-        </Button>
-      </Link>
-      
-      <Link to={isAuthenticated ? "/admin" : "/login"}>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-        >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
-          <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>
     </div>

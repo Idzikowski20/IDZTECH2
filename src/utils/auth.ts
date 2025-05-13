@@ -1,8 +1,13 @@
 
-// Re-export everything from the modular files
-export * from './authTypes';
-export * from './authStore';
-export * from './authIntegration'; 
+// This file is now a placeholder for future Sanity.io auth integration
+// All previous auth functionality has been removed to avoid errors
 
-// This file now just serves as a central import point
-// to maintain backward compatibility
+export const isAuthenticated = () => {
+  console.log("Authentication is currently disabled");
+  return false;
+};
+
+export const getCurrentUser = () => {
+  console.log("Authentication is currently disabled");
+  return null;
+};
