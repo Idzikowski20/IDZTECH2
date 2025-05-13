@@ -1,23 +1,14 @@
-import React, { useEffect, lazy, Suspense } from "react";
+import React, { useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import LightEffects from "@/components/LightEffects";
-import Hero from "@/components/Hero"; // ⬅️ już nie lazy
-import OurServices from "@/components/OurServices"; // ⬅️ już nie lazy
+import Hero from "@/components/Hero";
+import OurServices from "@/components/OurServices";
+import WhyWorkWithUs from "@/components/WhyWorkWithUs";
+import Testimonials from "@/components/Testimonials";
+import FAQ from "@/components/FAQ";
+import CTA from "@/components/CTA";
+import Footer from "@/components/Footer";
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
-
-// Lazy load components not immediately visible on first screen
-const WhyWorkWithUs = lazy(() => import("@/components/WhyWorkWithUs"));
-const Testimonials = lazy(() => import("@/components/Testimonials"));
-const FAQ = lazy(() => import("@/components/FAQ"));
-const CTA = lazy(() => import("@/components/CTA"));
-const Footer = lazy(() => import("@/components/Footer"));
-
-// Fallback loader for lazy components
-const LoadingFallback = () => (
-  <div className="flex items-center justify-center min-h-[200px]">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple"></div>
-  </div>
-);
 
 const Index = () => {
   useEffect(() => {
@@ -64,31 +55,13 @@ const Index = () => {
     <div className="min-h-screen">
       <LightEffects />
       <Navbar />
-
-      {/* Statyczne komponenty - ładują się natychmiast */}
       <Hero />
       <OurServices />
-
-      {/* Komponenty ładowane później */}
-      <Suspense fallback={<LoadingFallback />}>
-        <WhyWorkWithUs />
-      </Suspense>
-
-      <Suspense fallback={<LoadingFallback />}>
-        <Testimonials />
-      </Suspense>
-
-      <Suspense fallback={<LoadingFallback />}>
-        <FAQ />
-      </Suspense>
-
-      <Suspense fallback={<LoadingFallback />}>
-        <CTA />
-      </Suspense>
-
-      <Suspense fallback={<LoadingFallback />}>
-        <Footer />
-      </Suspense>
+      <WhyWorkWithUs />
+      <Testimonials />
+      <FAQ />
+      <CTA />
+      <Footer />
     </div>
   );
 };
