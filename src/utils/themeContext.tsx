@@ -11,31 +11,26 @@ type ThemeContextType = {
   setTheme: (theme: Theme) => void;
 };
 
-type ThemeProviderProps = {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-};
-
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children, defaultTheme = 'dark' }) => {
-  // Use the defaultTheme prop if provided
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Change the initial state to 'dark' to default to dark mode
+  const [theme, setTheme] = useState<Theme>('dark');
 
   useEffect(() => {
     // Check if there's a saved theme preference in localStorage
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    // If there's a saved preference, use it; otherwise use defaultTheme
+    // If there's a saved preference, use it; otherwise use dark as default
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.classList.add(savedTheme);
     } else {
-      // If no saved preference, use the defaultTheme
-      setTheme(defaultTheme);
-      document.documentElement.classList.add(defaultTheme);
-      localStorage.setItem('theme', defaultTheme);
+      // If no saved preference, default to dark mode
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     }
-  }, [defaultTheme]);
+  }, []);
 
   const toggleDarkMode = () => {
     if (theme === 'light') {

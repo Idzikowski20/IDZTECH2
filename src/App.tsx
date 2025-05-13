@@ -1,5 +1,5 @@
 
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -50,24 +50,9 @@ const ScrollToTop = lazy(() => import('./components/ScrollToTop'));
 const DotAnimation = lazy(() => import('./components/DotAnimation'));
 
 function App() {
-  // Set Polish language as default
-  useEffect(() => {
-    document.documentElement.lang = 'pl';
-    document.title = 'IDZ.TECH - Kompleksowe rozwiązania internetowe';
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute('content', 'IDZ.TECH - Tworzenie stron www, pozycjonowanie, sklepy internetowe i wiele więcej.');
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'description';
-      meta.content = 'IDZ.TECH - Tworzenie stron www, pozycjonowanie, sklepy internetowe i wiele więcej.';
-      document.head.appendChild(meta);
-    }
-  }, []);
-
   return (
     <Router>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider>
         <AuthProvider>
           <ScrollToTop />
           <DotAnimation />
@@ -107,7 +92,7 @@ function App() {
               } />
               <Route path="/admin/users" element={
                 <Suspense fallback={<LoadingFallback />}>
-                  <RequireAuth><AdminUsers /></RequireAuth>
+                  <RequireAuth requiredRole="admin"><AdminUsers /></RequireAuth>
                 </Suspense>
               } />
               <Route path="/admin/notifications" element={
