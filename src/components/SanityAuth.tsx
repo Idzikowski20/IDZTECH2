@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/utils/AuthProvider';
+import { useSanityAuth } from '@/utils/SanityAuthProvider';
 import { loginWithSanity, registerUser } from '@/utils/authSanity';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +18,7 @@ const SanityAuth: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useSanityAuth(); // Using the correct auth context
   const { toast } = useToast();
   
   const handleSubmit = async (e: React.FormEvent) => {
