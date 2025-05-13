@@ -6,10 +6,25 @@ import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const DesktopControls = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, signOut } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
+  
+  // Helper to get initials for avatar fallback
+  const getInitials = () => {
+    if (!user || !user.name) return 'U';
+    return user.name.charAt(0).toUpperCase();
+  };
   
   return (
     <div className="hidden md:flex items-center space-x-4">
@@ -37,16 +52,62 @@ const DesktopControls = () => {
         </Button>
       </Link>
       
-      <Link to={isAuthenticated ? "/admin" : "/login"}>
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-        >
-          <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
-          <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
-        </Button>
-      </Link>
+      {isAuthenticated ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 p-0">
+              <Avatar className="h-8 w-8">
+                {user?.profilePicture ? (
+                  <AvatarImage src={user.profilePicture} alt={user?.name || 'User'} />
+                ) : (
+                  <AvatarFallback className="bg-premium-gradient text-white">
+                    {getInitials()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              {user?.name ? `${user.name} ${user.lastName || ''}` : 'Użytkownik'}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/admin" className="w-full">
+                Panel Admina
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/profile" className="w-full">
+                Profil
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/admin/settings" className="w-full">
+                Ustawienia
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => signOut()}
+              className="text-red-500 hover:text-red-600 focus:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 cursor-pointer"
+            >
+              Wyloguj
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Link to="/login">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+          >
+            <LogIn className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+            <span className="sr-only">Zaloguj</span>
+          </Button>
+        </Link>
+      )}
     </div>
   );
 };

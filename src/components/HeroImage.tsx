@@ -6,24 +6,14 @@ const HeroImage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
-    // Set loaded to true after a brief timeout for smoother transition
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 200);
-    
-    return () => {
-      clearTimeout(timer);
-    };
+    // Set loaded state to true immediately to avoid quality degradation
+    setIsLoaded(true);
   }, []);
 
   return (
     <div className="relative w-full h-full">
-      {!isLoaded && (
-        <div className="w-full h-80 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse"></div>
-      )}
       <div 
-        className={`w-full h-full max-h-[450px] ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}
-        style={{ display: isLoaded ? 'block' : 'none' }}
+        className={`w-full h-full max-h-[450px] ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
       >
         <DotLottieReact
           src="https://lottie.host/f0718c9c-401a-471f-bc37-7576f640256b/kjND9P7piN.lottie"
