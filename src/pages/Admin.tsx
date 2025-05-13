@@ -1,12 +1,11 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search, Home, Shield, Loader2 } from 'lucide-react';
+import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
-import BlogPostStats from '@/components/BlogPostStats';
 import { 
   Table,
   TableBody,
@@ -46,7 +45,6 @@ const Admin = () => {
     deleteComment
   } = useBlogStore();
   
-  const [loading, setLoading] = useState(false);
   const [analytics, setAnalytics] = useState({
     totalVisits: 0,
     uniqueVisitors: 0,
@@ -268,51 +266,6 @@ const Admin = () => {
   
   console.log("Rendering Admin component");
   
-  // Check if user has admin or administrator role
-  const isAdmin = user?.role === 'admin' || user?.role === 'administrator';
-  
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-premium-purple" />
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <AdminLayout>
-        <div className="flex flex-col items-center justify-center h-[60vh] bg-premium-dark">
-          <div className="bg-gray-800 p-8 rounded-xl shadow-lg max-w-md text-center">
-            <div className="flex justify-center mb-4">
-              <Shield className="h-16 w-16 text-red-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Brak uprawnień</h2>
-            <p className="text-gray-300 mb-6">
-              Tylko administratorzy mają dostęp do zarządzania użytkownikami.
-            </p>
-            <div className="space-x-3">
-              <Button 
-                onClick={() => navigate("/admin")} 
-                className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
-              >
-                Powrót do panelu
-              </Button>
-              <Button 
-                onClick={() => navigate("/")} 
-                className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
-              >
-                <Home size={16} className="mr-2" /> Strona główna
-              </Button>
-            </div>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
       <div className="p-6">
@@ -651,12 +604,11 @@ const Admin = () => {
                         <td className="py-3 px-4">{post.views}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
-                            <BlogPostStats post={post} />
                             <Button 
                               variant="outline" 
                               size="sm" 
                               onClick={() => navigate(`/blog/${post.slug}`)} 
-                              className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors border-none"
+                              className="text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"
                             >
                               <Eye size={14} />
                             </Button>
@@ -664,14 +616,14 @@ const Admin = () => {
                               variant="outline" 
                               size="sm" 
                               onClick={() => navigate(`/admin/edit-post/${post.id}`)} 
-                              className="text-green-400 hover:text-white hover:bg-green-500 transition-colors border-none"
+                              className="text-green-400 hover:text-white hover:bg-green-500 transition-colors"
                             >
                               <Edit size={14} />
                             </Button>
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              className="text-red-400 hover:text-white hover:bg-red-500 transition-colors border-none" 
+                              className="text-red-400 hover:text-white hover:bg-red-500 transition-colors" 
                               onClick={() => deletePost(post.id)}
                             >
                               <Trash2 size={14} />

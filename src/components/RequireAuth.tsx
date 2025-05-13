@@ -30,14 +30,6 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     email: user?.email
   });
   
-  // Hard-coded admin access for specific email
-  useEffect(() => {
-    if (user && user.email === "patryk.idzikowski@interia.pl") {
-      console.log("Setting admin role for patryk.idzikowski@interia.pl");
-      setUserRole("admin");
-    }
-  }, [user]);
-  
   // Fetch user role from Supabase
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -66,8 +58,16 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
       }
     };
     
-    if (user && user.email !== "patryk.idzikowski@interia.pl") {
+    if (user) {
       fetchUserRole();
+    }
+  }, [user]);
+  
+  // Special case for admin users
+  useEffect(() => {
+    if (user && user.email === "patryk.idzikowski@interia.pl") {
+      console.log("Setting admin role for patryk.idzikowski@interia.pl");
+      setUserRole("admin");
     }
   }, [user]);
   

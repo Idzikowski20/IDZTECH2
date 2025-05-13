@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -143,7 +144,14 @@ const Blog = () => {
                   <td className="py-4 px-4 text-sm text-gray-400">{post.views || 0}</td>
                   <td className="py-4 px-4 text-sm">
                     <div className="flex space-x-2">
-                      <BlogPostStats post={post} />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewStats(post)}
+                        className="hover:bg-white hover:text-black"
+                      >
+                        <BarChart className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -185,7 +193,8 @@ const Blog = () => {
       
       {selectedPost && (
         <BlogPostStats 
-          post={selectedPost}
+          postId={selectedPost.id} 
+          postTitle={selectedPost.title} 
           isOpen={statsOpen} 
           onClose={() => setStatsOpen(false)}
         />
