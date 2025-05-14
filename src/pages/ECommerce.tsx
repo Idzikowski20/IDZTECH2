@@ -2,8 +2,8 @@ import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Check, ChevronRight, ShoppingCart, CreditCard, Truck, Package, BarChart, Shield, Share2, Search } from "lucide-react";
+import ServiceBreadcrumb from "@/components/ServiceBreadcrumb";
+import { Check, ChevronRight, ShoppingCart, CreditCard, Truck, Package, BarChart, Shield } from "lucide-react";
 import { WooCommerceIcon, ShopifyIcon, MagentoIcon } from "@/components/ECommerceIcons";
 
 const ECommerce = () => {
@@ -19,25 +19,10 @@ const ECommerce = () => {
         
         <div className="container mx-auto px-4 lg:px-8">
           {/* Breadcrumb */}
-          <Breadcrumb className="mb-8">
-            <BreadcrumbList className="text-premium-light/60">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Strona główna</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/services">Usługi</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink className="text-premium-light">Tworzenie sklepów internetowych</BreadcrumbLink>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <ServiceBreadcrumb 
+            currentPage="Tworzenie sklepów internetowych"
+            currentPath="/sklepy-internetowe"
+          />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
@@ -84,7 +69,7 @@ const ECommerce = () => {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-blue font-medium">Funkcjonalności</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Kompleksowe rozwiązania e-commerce</h2>
-            <p className="text-premium-light/70 text-lg">
+            <p className="text-gray-200 text-lg">
               Nasze sklepy internetowe są wyposażone w najnowocześniejsze funkcje, które ułatwiają zarządzanie i zwiększają sprzedaż.
             </p>
           </div>
@@ -249,7 +234,7 @@ const ECommerce = () => {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-blue font-medium">Platformy</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Platformy e-commerce, które wdrażamy</h2>
-            <p className="text-premium-light/70 text-lg">
+            <p className="text-gray-200 text-lg">
               Dobieramy najlepsze rozwiązania w zależności od potrzeb, skali biznesu i specyfiki branży.
             </p>
           </div>
@@ -261,7 +246,7 @@ const ECommerce = () => {
                 <WooCommerceIcon />
               </div>
               <h3 className="text-xl font-semibold mb-3">WooCommerce</h3>
-              <p className="text-premium-light/70 mb-4">
+              <p className="text-gray-200 mb-4">
                 Idealne rozwiązanie dla małych i średnich sklepów, zbudowane na platformie WordPress.
               </p>
               <span className="text-premium-blue font-medium">Idealny dla małych i średnich sklepów</span>
@@ -276,7 +261,7 @@ const ECommerce = () => {
                 <ShopifyIcon />
               </div>
               <h3 className="text-xl font-semibold mb-3">Shopify</h3>
-              <p className="text-premium-light/70 mb-4">
+              <p className="text-gray-200 mb-4">
                 Kompleksowa platforma e-commerce z zaawansowanymi funkcjami sprzedażowymi i marketingowymi.
               </p>
               <span className="text-premium-purple font-medium">Idealny dla firm szukających szybkiego wdrożenia</span>
@@ -288,7 +273,7 @@ const ECommerce = () => {
                 <MagentoIcon />
               </div>
               <h3 className="text-xl font-semibold mb-3">Magento</h3>
-              <p className="text-premium-light/70 mb-4">
+              <p className="text-gray-200 mb-4">
                 Zaawansowana platforma dla dużych sklepów z rozbudowanymi funkcjonalnościami i skalowalnością.
               </p>
               <span className="text-premium-pink font-medium">Idealny dla dużych projektów e-commerce</span>
@@ -303,7 +288,7 @@ const ECommerce = () => {
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-blue font-medium">Jak działamy</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Proces tworzenia sklepu internetowego</h2>
-            <p className="text-premium-light/70 text-lg">
+            <p className="text-gray-200 text-lg">
               Nasze podejście zapewnia stworzenie sklepu, który będzie spełniał wszystkie wymagania biznesowe i techniczne.
             </p>
           </div>
@@ -485,7 +470,7 @@ const ECommerce = () => {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl lg:text-4xl font-bold mb-6 animate-fade-in">Gotowy na zwiększenie sprzedaży online?</h2>
-            <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
+            <p className="text-gray-200 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
               Skontaktuj się z nami i umów się na bezpłatną konsultację. Omówimy Twoje potrzeby i zaproponujemy optymalne rozwiązanie.
             </p>
             <Button 
