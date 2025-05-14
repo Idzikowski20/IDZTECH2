@@ -563,3 +563,8 @@
     scroll-behavior: auto !important;
   }
 }
+
+.text-premium-purple {
+    --tw-text-opacity: 1; 
+    color: rgb(120 77 255 / var(--tw-text-opacity, 1)) !important;
+}
