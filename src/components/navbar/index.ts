@@ -1,6 +1,7 @@
 
 import Navbar from './Navbar';
-import { JavaScript, Css3, Html5, TypeScript, FileCode as ReactIcon } from 'lucide-react';
+import { FileCode } from 'lucide-react';
+import { JavaScript, Css3, Html5, TypeScript, ReactIcon } from '../TechnologyIcons';
 
 export default Navbar;
 export { JavaScript, Css3, Html5, TypeScript, ReactIcon };
