@@ -1,0 +1,34 @@
+
+/* Remove hover effect for audit SEO */
+.audit-seo-card:hover {
+  transform: none !important;
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Remove hover effect for optimization SEO */
+.optymalizacja-seo-card:hover {
+  transform: none !important;
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Remove hover effect for copywriting SEO */
+.copywriting-seo-card:hover {
+  transform: none !important;
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Remove hover effect for LocalSEO */
+.local-seo-card:hover {
+  transform: none !important;
+  background-color: white !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure button hover uses black text on white background */
+.cta-button-light:hover {
+  color: black !important;
+  background-color: white !important;
+}

@@ -1,10 +1,10 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, ShoppingCart, CreditCard, Truck, Package, BarChart, Shield, Share2, Search } from "lucide-react";
+import { WooCommerceIcon, ShopifyIcon, MagentoIcon } from "@/components/ECommerceIcons";
 
 const ECommerce = () => {
   return (
@@ -66,26 +66,13 @@ const ECommerce = () => {
             </div>
             
             <div className="relative animate-slide-up">
-              <div className="relative z-10">
-                <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 shadow-lg">
-                  <div className="w-full aspect-video relative overflow-hidden rounded-lg">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-premium-blue to-premium-pink opacity-10"></div>
-                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Sklep internetowy" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mt-3">
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="E-commerce" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="E-commerce" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1661956602116-aa6865609028?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="E-commerce" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                </div>
+              <div className="w-full h-auto overflow-hidden rounded-lg">
+                <img 
+                  src="/lovable-uploads/2b029775-9244-410f-a9c5-b9b1e5f16c59.png" 
+                  alt="Sklep internetowy - mockup" 
+                  className="w-full h-auto object-contain rounded-lg"
+                />
               </div>
-              <div className="absolute inset-0 bg-premium-blue/20 rounded-full blur-[80px] -z-10 transform translate-x-10 translate-y-10"></div>
             </div>
           </div>
         </div>
@@ -271,11 +258,7 @@ const ECommerce = () => {
             {/* Platform 1 */}
             <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-premium-blue/30 transition-colors text-center group">
               <div className="h-20 flex items-center justify-center mb-6">
-                <img 
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/WooCommerce_logo.svg/2560px-WooCommerce_logo.svg.png" 
-                  alt="WooCommerce" 
-                  className="h-12 object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                />
+                <WooCommerceIcon />
               </div>
               <h3 className="text-xl font-semibold mb-3">WooCommerce</h3>
               <p className="text-premium-light/70 mb-4">
@@ -290,11 +273,7 @@ const ECommerce = () => {
                 <span className="bg-premium-gradient text-xs font-medium px-3 py-1 rounded-full">Polecane</span>
               </div>
               <div className="h-20 flex items-center justify-center mb-6">
-                <img 
-                  src="https://cdn.shopify.com/static/press-center/brand/logo/full-shopify-logo-monotone-screen.svg" 
-                  alt="Shopify" 
-                  className="h-12 object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                />
+                <ShopifyIcon />
               </div>
               <h3 className="text-xl font-semibold mb-3">Shopify</h3>
               <p className="text-premium-light/70 mb-4">
@@ -306,11 +285,7 @@ const ECommerce = () => {
             {/* Platform 3 */}
             <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-premium-pink/30 transition-colors text-center group">
               <div className="h-20 flex items-center justify-center mb-6">
-                <img 
-                  src="https://magento.com/static-assets/magento-logo.svg" 
-                  alt="Magento" 
-                  className="h-12 object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                />
+                <MagentoIcon />
               </div>
               <h3 className="text-xl font-semibold mb-3">Magento</h3>
               <p className="text-premium-light/70 mb-4">

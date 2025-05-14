@@ -65,8 +65,8 @@ const ContentPlan = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto bg-premium-dark/50 rounded-3xl">
-        <h2 className="text-3xl font-bold text-center mb-12">Co zawiera profesjonalny content plan?</h2>
+      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto bg-white rounded-3xl">
+        <h2 className="text-3xl font-bold text-center mb-12 text-black">Co zawiera profesjonalny content plan?</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[{
           title: "Analiza konkurencji",
@@ -86,12 +86,12 @@ const ContentPlan = () => {
         }, {
           title: "Wytyczne dla treści",
           description: "Szczegółowe wskazówki dotyczące stylu, formatu i optymalizacji."
-        }].map((item, index) => <Card key={index} className="border border-premium-light/10 bg-premium-dark/70 hover:bg-premium-dark/90 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{
+        }].map((item, index) => <Card key={index} className="border border-premium-light/10 bg-white hover:bg-white transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{
           animationDelay: `${0.5 + index * 0.2}s`
         }}>
               <CardContent className="p-8">
                 <h3 className="text-xl font-bold mb-4 text-premium-purple">{item.title}</h3>
-                <p className="text-premium-light/80">{item.description}</p>
+                <p className="text-black/80">{item.description}</p>
               </CardContent>
             </Card>)}
         </div>
@@ -130,48 +130,6 @@ const ContentPlan = () => {
                 </div>
               </div>)}
           </div>
-        </div>
-      </section>
-
-      {/* Different Plans Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-12">Rodzaje planów treści</h2>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {[{
-          title: "Startowy",
-          price: "od 990 zł",
-          description: "Idealny dla małych firm i początkujących blogerów",
-          features: ["Plan na 3 miesiące", "10 tematów treści", "Podstawowa analiza słów kluczowych", "Podstawowe wskazówki SEO"]
-        }, {
-          title: "Biznesowy",
-          price: "od 1990 zł",
-          description: "Dla firm średniej wielkości i e-commerce",
-          features: ["Plan na 6 miesięcy", "30 tematów treści", "Zaawansowana analiza słów kluczowych", "Szczegółowe wytyczne treści", "Strategia linkowania wewnętrznego"]
-        }, {
-          title: "Enterprise",
-          price: "od 3990 zł",
-          description: "Kompleksowe rozwiązanie dla dużych firm",
-          features: ["Plan na 12 miesięcy", "60+ tematów treści", "Pełna analiza konkurencji", "Strategie cross-platform", "Szkolenie z wdrożenia", "Kwartalny audyt i aktualizacja"]
-        }].map((plan, index) => <Card key={index} className={`border ${index === 1 ? 'bg-premium-gradient border-transparent' : 'border-premium-light/10 bg-premium-dark/70'} rounded-xl overflow-hidden animate-fade-in`} style={{
-          animationDelay: `${0.5 + index * 0.2}s`
-        }}>
-              <CardContent className="p-8 bg-gray-950">
-                <h3 className="text-2xl font-bold mb-2">{plan.title}</h3>
-                <div className="text-3xl font-bold mb-2 text-premium-purple">{plan.price}</div>
-                <p className="text-sm text-premium-light/70 mb-6">{plan.description}</p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => <li key={i} className="flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-premium-purple/30 flex items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-premium-purple"></div>
-                      </div>
-                      <span className="text-premium-light/80">{feature}</span>
-                    </li>)}
-                </ul>
-                <Button className={`w-full ${index === 1 ? 'bg-white text-premium-purple hover:bg-white/90' : 'bg-premium-gradient hover:opacity-90'} transition-all`}>
-                  Wybieram ten plan
-                </Button>
-              </CardContent>
-            </Card>)}
         </div>
       </section>
 

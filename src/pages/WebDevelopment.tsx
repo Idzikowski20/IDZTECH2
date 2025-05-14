@@ -71,13 +71,10 @@ const WebDevelopment = () => {
             </div>
             <div className="w-full lg:w-1/2 flex justify-center animate-fade-in" style={{ animationDelay: '0.5s' }}>
               <div className="w-full h-auto overflow-hidden rounded-lg">
-                <iframe 
-                  style={{ border: '1px solid rgba(0, 0, 0, 0.1)' }} 
-                  width="100%" 
-                  height={window.innerWidth < 768 ? "300" : "450"} 
-                  src="https://embed.figma.com/design/SWlCEN5VCx37JgFZiVndkY/Macbook-Pro---Air-Device-Mockups--Community-?node-id=1-6&embed-host=share" 
-                  allowFullScreen
-                  className="rounded-lg"
+                <img 
+                  src="/lovable-uploads/2b029775-9244-410f-a9c5-b9b1e5f16c59.png" 
+                  alt="Tworzenie stron internetowych - mockup" 
+                  className="w-full h-auto object-contain rounded-lg"
                 />
               </div>
             </div>
@@ -465,7 +462,7 @@ const WebDevelopment = () => {
             </Button>
             <Button 
               variant="outline" 
-              className="px-8 py-6 hover:bg-black hover:text-black"
+              className="px-8 py-6 hover:bg-black hover:text-white"
               size="lg"
               onClick={() => navigate('/portfolio')}
             >
