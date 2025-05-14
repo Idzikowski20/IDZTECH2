@@ -1,8 +1,10 @@
+
 import React, { useEffect, lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import LightEffects from "@/components/LightEffects";
-import Hero from "@/components/Hero"; // ⬅️ już nie lazy
-import OurServices from "@/components/OurServices"; // ⬅️ już nie lazy
+import Hero from "@/components/Hero"; 
+import SplineWave from "@/components/SplineWave"; // Dodany import komponentu SplineWave
+import OurServices from "@/components/OurServices"; 
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
 
 // Lazy load components not immediately visible on first screen
@@ -67,6 +69,10 @@ const Index = () => {
 
       {/* Statyczne komponenty - ładują się natychmiast */}
       <Hero />
+      
+      {/* Dodana animacja Spline między Hero i OurServices */}
+      <SplineWave />
+
       <OurServices />
 
       {/* Komponenty ładowane później */}
