@@ -64,7 +64,7 @@ const LocalSeo = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white/10 hover:bg-white/5 text-gray-50 group"
+                  className=" hover:bg-white/5 text-gray-50 group"
                 >
                   <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz realizacje</span>
                 </Button>
@@ -72,26 +72,13 @@ const LocalSeo = () => {
             </div>
             
             <div className="relative animate-slide-up">
-              <div className="relative z-10">
-                <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 shadow-lg">
-                  <div className="w-full aspect-video relative overflow-hidden rounded-lg">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-premium-blue to-premium-pink opacity-10"></div>
-                    <img src="https://images.unsplash.com/photo-1607774828248-1fda57bb5101?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Local SEO" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mt-3">
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1521295121783-8a321d551ad2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Google Maps" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Local Business" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="aspect-video rounded-md overflow-hidden">
-                      <img src="https://images.unsplash.com/photo-1590012314607-cda9d9b699ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Reviews" className="w-full h-full object-cover" />
-                    </div>
-                  </div>
-                </div>
+              <div className="w-full h-auto overflow-hidden rounded-lg">
+                <img 
+                  src="src\images\seo-hero.png" 
+                  alt="Sklep internetowy - mockup" 
+                  className="w-full h-auto object-contain rounded-lg"
+                />
               </div>
-              <div className="absolute inset-0 bg-premium-blue/20 rounded-full blur-[80px] -z-10 transform translate-x-10 translate-y-10"></div>
             </div>
           </div>
         </div>
@@ -106,7 +93,7 @@ const LocalSeo = () => {
               <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Pozycjonowanie lokalne</h2>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8">
               <p className="text-premium-light/90 text-lg mb-6">
                 Pozycjonowanie lokalne (Local SEO) to zestaw działań, które mają na celu zwiększenie widoczności 
                 Twojej firmy w lokalnych wynikach wyszukiwania Google oraz w Google Maps.
@@ -119,7 +106,7 @@ const LocalSeo = () => {
               </p>
               
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-premium-dark/80 border border-white/5 rounded-lg p-6">
+                <div className="border border-white/5 rounded-lg p-6">
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
                     <MapPin className="text-premium-blue mr-2" size={24} />
                     Lokalne wyniki wyszukiwania
@@ -131,7 +118,7 @@ const LocalSeo = () => {
                   </p>
                 </div>
                 
-                <div className="bg-premium-dark/80 border border-white/5 rounded-lg p-6">
+                <div className="border border-white/5 rounded-lg p-6">
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
                     <Star className="text-premium-pink mr-2" size={24} />
                     Google Business Profile
@@ -149,7 +136,7 @@ const LocalSeo = () => {
       </section>
       
       {/* Services Section */}
-      <section className="py-16 bg-premium-dark/40">
+      <section className="py-16">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-purple font-medium">Nasze usługi</span>
@@ -161,7 +148,7 @@ const LocalSeo = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Service 1 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors group hover:-translate-y-1 duration-300">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border rounded-xl p-6 transition-colors group hover:-translate-y-1 duration-300">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-purple to-premium-blue flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Building className="text-premium-light" size={24} />
               </div>
@@ -186,7 +173,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Service 2 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors group hover:-translate-y-1 duration-300">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-6  transition-colors group hover:-translate-y-1 duration-300">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-blue to-premium-pink flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Star className="text-premium-light" size={24} />
               </div>
@@ -211,7 +198,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Service 3 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors group hover:-translate-y-1 duration-300">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-6  transition-colors group hover:-translate-y-1 duration-300">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-pink to-premium-purple flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <MapPin className="text-premium-light" size={24} />
               </div>
@@ -236,7 +223,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Service 4 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors group hover:-translate-y-1 duration-300">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-6  transition-colors group hover:-translate-y-1 duration-300">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-purple to-premium-blue flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Phone className="text-premium-light" size={24} />
               </div>
@@ -261,7 +248,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Service 5 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors group hover:-translate-y-1 duration-300">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-6  transition-colors group hover:-translate-y-1 duration-300">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-blue to-premium-pink flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <FileText className="text-premium-light" size={24} />
               </div>
@@ -286,7 +273,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Service 6 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-white/20 transition-colors group hover:-translate-y-1 duration-300">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-6  transition-colors group hover:-translate-y-1 duration-300">
               <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-premium-pink to-premium-purple flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                 <Settings className="text-premium-light" size={24} />
               </div>
@@ -326,7 +313,7 @@ const LocalSeo = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Benefit 1 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-white/20 transition-colors group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8  transition-colors group">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-purple to-premium-blue mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <MapPin className="text-premium-light" size={32} />
               </div>
@@ -337,7 +324,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Benefit 2 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-white/20 transition-colors group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8  transition-colors group">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-blue to-premium-pink mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Star className="text-premium-light" size={32} />
               </div>
@@ -348,7 +335,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Benefit 3 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-white/20 transition-colors group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8  transition-colors group">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-pink to-premium-purple mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Phone className="text-premium-light" size={32} />
               </div>
@@ -359,7 +346,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Benefit 4 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-white/20 transition-colors group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8  transition-colors group">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-purple to-premium-blue mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Target className="text-premium-light" size={32} />
               </div>
@@ -370,7 +357,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Benefit 5 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-white/20 transition-colors group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8  transition-colors group">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-blue to-premium-pink mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <TrendingUp className="text-premium-light" size={32} />
               </div>
@@ -381,7 +368,7 @@ const LocalSeo = () => {
             </div>
             
             {/* Benefit 6 */}
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-8 hover:border-white/20 transition-colors group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-8  transition-colors group">
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-premium-pink to-premium-purple mx-auto flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <Settings className="text-premium-light" size={32} />
               </div>
@@ -395,7 +382,7 @@ const LocalSeo = () => {
       </section>
       
       {/* For which businesses Section */}
-      <section className="py-16 bg-premium-dark/40">
+      <section className="py-16">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-blue font-medium">Dla kogo</span>
@@ -406,56 +393,56 @@ const LocalSeo = () => {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-restaurant-1495593-1267764.png" alt="Restaurant" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Restauracje i kawiarnie</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-store-1439799-1214370.png" alt="Retail Store" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Sklepy stacjonarne</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-spa-1543593-1306118.png" alt="Beauty Salon" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Salony piękności</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-hospital-1521298-1289217.png" alt="Medical Clinic" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Gabinety medyczne</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-lawyer-1659482-1410018.png" alt="Legal Services" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Kancelarie prawne</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-construction-worker-2482661-2072200.png" alt="Construction" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Firmy budowlane</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-car-repair-1464839-1241143.png" alt="Auto Services" className="h-10 w-10 object-contain opacity-80" />
               </div>
               <h3 className="font-medium mb-2">Warsztaty samochodowe</h3>
             </div>
             
-            <div className="bg-premium-dark/60 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
+            <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-gym-1659484-1410020.png" alt="Fitness" className="h-10 w-10 object-contain opacity-80" />
               </div>

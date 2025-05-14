@@ -185,7 +185,7 @@ const WebDevelopment = () => {
       </section>
 
       {/* Technologies Section */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
+      <section className={`py-16 ${theme === 'dark' ? '' : 'bg-white'}`}>
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Technologie</h2>
@@ -254,7 +254,7 @@ const WebDevelopment = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-premium-dark/50">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-premium-purple font-medium mb-3">Co otrzymasz</p>

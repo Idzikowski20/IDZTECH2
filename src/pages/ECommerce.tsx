@@ -245,7 +245,7 @@ const ECommerce = () => {
       </section>
       
       {/* Platforms Section */}
-      <section className="py-16 bg-premium-dark/40">
+      <section className="py-16">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-blue font-medium">Platformy</span>
