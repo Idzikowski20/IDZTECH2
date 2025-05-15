@@ -31,9 +31,6 @@ import SeoCopywriting from './pages/SeoCopywriting';
 import SeoOptimization from './pages/SeoOptimization';
 import LocalSeo from './pages/LocalSeo';
 import ECommerce from './pages/ECommerce';
-import GoogleAdsAudit from './pages/GoogleAdsAudit';
-import GoogleAdsCampaigns from './pages/GoogleAdsCampaigns';
-import MetaAdsCampaigns from './pages/MetaAdsCampaigns';
 
 // Blog
 import Blog from './pages/Blog';
@@ -86,9 +83,6 @@ function App() {
             <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
             <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
             <Route path="/sklepy-internetowe" element={<ECommerce />} />
-            <Route path="/audyt-google-ads" element={<GoogleAdsAudit />} />
-            <Route path="/kampanie-google-ads" element={<GoogleAdsCampaigns />} />
-            <Route path="/kampanie-meta-ads" element={<MetaAdsCampaigns />} />
 
             {/* Blog */}
             <Route path="/blog" element={<Blog />} />

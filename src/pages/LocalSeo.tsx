@@ -1,10 +1,10 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, MapPin, Star, FileText, Settings, Target, TrendingUp, Phone, Building } from "lucide-react";
+import SplineSEO from "@/components/SplineSEO";
 
 const LocalSeo = () => {
   return (
@@ -28,7 +28,7 @@ const LocalSeo = () => {
                 <ChevronRight className="h-4 w-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/services">Usługi</BreadcrumbLink>
+                <BreadcrumbLink>Usługi</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
                 <ChevronRight className="h-4 w-4" />
@@ -56,7 +56,7 @@ const LocalSeo = () => {
               <div className="flex flex-wrap gap-4">
                 <Button 
                   size="lg" 
-                  className="bg-premium-gradient hover:opacity-90 transition-opacity group relative overflow-hidden"
+                  className="bg-premium-gradient hover:bg-white hover:text-black transition-all group relative overflow-hidden"
                 >
                   <span className="relative z-10">Darmowa wycena</span>
                   <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
@@ -64,7 +64,7 @@ const LocalSeo = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className=" hover:bg-white/5 text-gray-50 group"
+                  className="hover:bg-black hover:text-white text-gray-50 group"
                 >
                   <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz realizacje</span>
                 </Button>
@@ -72,13 +72,7 @@ const LocalSeo = () => {
             </div>
             
             <div className="relative animate-slide-up">
-              <div className="w-full h-auto overflow-hidden rounded-lg">
-                <img 
-                  src="src\images\seo-hero.png" 
-                  alt="Sklep internetowy - mockup" 
-                  className="w-full h-auto object-contain rounded-lg"
-                />
-              </div>
+              <SplineSEO />
             </div>
           </div>
         </div>
