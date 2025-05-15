@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
-import { Toaster as UIToaster } from "@/components/ui/toaster";
+import { UIToaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./utils/AuthProvider";
 
 // Pages
@@ -91,7 +91,7 @@ function App() {
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <Toaster />
+          <UIToaster />
         </AuthProvider>
       </ThemeProvider>
     </Router>

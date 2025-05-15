@@ -38,6 +38,22 @@ export interface Notification {
   createdAt?: string; // Alias for created_at for UI compatibility
 }
 
+// Define Supabase notification structure to match the database columns
+interface SupabaseNotification {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  target_id?: string;
+  target_type?: string;
+  created_at: string;
+  is_read: boolean;
+  user_id?: string;
+  status?: string;
+  comment?: string;
+  fromUserName?: string;
+}
+
 // In-memory store for notifications
 let notificationsCache: Notification[] = [];
 let unreadCount = 0;
@@ -115,7 +131,7 @@ export const updateNotificationStatus = async (id: string, status: NotificationS
     // Update in Supabase
     const { error } = await supabase
       .from('notifications')
-      .update({ status, comment })
+      .update({ status, comment } as Partial<SupabaseNotification>)
       .eq('id', id);
       
     if (error) {
@@ -132,22 +148,6 @@ export const updateNotificationStatus = async (id: string, status: NotificationS
 // Save notification to Supabase
 const saveNotificationToSupabase = async (notification: Notification) => {
   try {
-    // Define a type that matches the Supabase table structure
-    type SupabaseNotification = {
-      id: string;
-      title: string;
-      message: string;
-      type: string;
-      target_id?: string;
-      target_type?: string;
-      created_at: string;
-      is_read: boolean;
-      user_id?: string;
-      status?: string;
-      comment?: string;
-      fromUserName?: string;
-    };
-
     const supabaseNotification: SupabaseNotification = {
       id: notification.id,
       title: notification.title,
@@ -191,12 +191,13 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     if (supabaseNotifications) {
       // Process notifications to ensure they have all fields
       const processedNotifications = supabaseNotifications.map(notification => {
+        const supaNotif = notification as unknown as SupabaseNotification;
         // Cast to our Notification type with additional properties
         const processedNotification: Notification = {
-          ...notification as unknown as Notification,
-          createdAt: notification.created_at,
-          status: notification.status as NotificationStatus || 
-                 (notification.type.includes('approval') ? 'pending' : 'unread')
+          ...supaNotif,
+          createdAt: supaNotif.created_at,
+          status: (supaNotif.status as NotificationStatus) || 
+                 (supaNotif.type.includes('approval') ? 'pending' : 'unread')
         };
         return processedNotification;
       });
