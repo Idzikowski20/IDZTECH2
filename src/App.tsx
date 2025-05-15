@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./utils/AuthProvider";
+import { AuthProvider } from "@/utils/AuthProvider";
 
 // Pages
 import Index from './pages/Index';
@@ -43,9 +43,9 @@ import DotAnimation from './components/DotAnimation';
 
 function App() {
   return (
-    <Router>
-      <ThemeProvider>
-        <AuthProvider>
+    <AuthProvider>
+      <Router>
+        <ThemeProvider>
           <ScrollToTop />
           <DotAnimation />
           <Routes>
@@ -91,9 +91,9 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
-        </AuthProvider>
-      </ThemeProvider>
-    </Router>
+        </ThemeProvider>
+      </Router>
+    </AuthProvider>
   );
 }
 
