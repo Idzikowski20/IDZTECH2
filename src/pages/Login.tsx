@@ -28,18 +28,24 @@ const Login = () => {
   const { signIn, isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
   const redirected = useRef(false);
+  const authChecked = useRef(false);
 
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
   // Redirect if already authenticated
   useEffect(() => {
-    // Prevent redirect loop with ref
-    if (isAuthenticated && user && !redirected.current) {
-      console.log("User is authenticated in Login page, redirecting to:", from);
-      redirected.current = true;
-      navigate(from, { replace: true });
-    }
+    // Dodajemy opóźnienie, żeby uniknąć nieskończonej pętli renderowania
+    const timer = setTimeout(() => {
+      if (isAuthenticated && user && !redirected.current) {
+        console.log("User is authenticated in Login page, redirecting to:", from);
+        redirected.current = true;
+        navigate(from, { replace: true });
+      }
+      authChecked.current = true;
+    }, 500);
+    
+    return () => clearTimeout(timer);
   }, [isAuthenticated, navigate, from, user]);
 
   // Login handler

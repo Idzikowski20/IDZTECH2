@@ -144,6 +144,7 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
   // Redirect to login if not authenticated
   if (!user) {
     console.log("No user, redirecting to login");
+    // Używamy state aby zachować informację o żądanej stronie
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   

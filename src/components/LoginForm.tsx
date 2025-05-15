@@ -63,12 +63,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         onSuccess();
       } else {
         console.log("Login successful, redirecting...");
-        // Opóźnij przekierowanie, aby stan autoryzacji miał czas się zaktualizować
+        // Zamiast natychmiastowego przekierowania, pozwolmy na zakończenie bieżącego renderowania
         setTimeout(() => {
           if (!redirected.current) {
             redirected.current = true;
-            setIsLoading(false);
             navigate('/admin');
+            setIsLoading(false);
           }
         }, 1000);
       }
