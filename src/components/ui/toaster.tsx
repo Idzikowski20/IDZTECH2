@@ -115,8 +115,8 @@ type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>;
 
-// Export Toaster component for use in App.tsx
-export const Toaster: React.FC = () => {
+// Export the UIToaster component for use in App.tsx
+export const UIToaster: React.FC = () => {
   return (
     <ToastProvider>
       <ToastViewport />

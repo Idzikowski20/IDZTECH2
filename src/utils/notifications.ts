@@ -194,8 +194,9 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
         const supaNotif = notification as unknown as SupabaseNotification;
         // Cast to our Notification type with additional properties
         const processedNotification: Notification = {
-          ...supaNotif,
+          ...supaNotif as unknown as Notification,
           createdAt: supaNotif.created_at,
+          type: supaNotif.type as NotificationType,
           status: (supaNotif.status as NotificationStatus) || 
                  (supaNotif.type.includes('approval') ? 'pending' : 'unread')
         };
