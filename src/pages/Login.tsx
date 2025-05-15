@@ -1,12 +1,13 @@
+
 import React from 'react';
 import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import LoginForm from '@/components/LoginForm';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/utils/themeContext';
-import { AuthProvider, useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 
-const LoginContent = () => {
+const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
@@ -33,14 +34,6 @@ const LoginContent = () => {
       </div>
       <Footer />
     </div>
-  );
-};
-
-const Login = () => {
-  return (
-    <AuthProvider>
-      <LoginContent />
-    </AuthProvider>
   );
 };
 
