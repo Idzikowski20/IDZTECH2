@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import CommentHeader from './CommentHeader';
 import { useAuth } from '@/utils/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { addCommentNotification } from '@/utils/notifications';
+import { addNotification } from '@/utils/notifications';
 
 export interface Comment {
   id: string;
@@ -162,10 +161,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId, postTitle }) =>
       setComments(prevComments => [newComment, ...prevComments]);
 
       // Send notification
-      await addCommentNotification(
-        postId, 
-        postTitle, 
-        fullName,
+      await addNotification(
+        'Nowy komentarz',
+        `${fullName} dodał komentarz do posta "${postTitle}"`,
+        'comment',
+        postId,
+        'blog_post',
         user.id
       );
 

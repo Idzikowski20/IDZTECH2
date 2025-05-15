@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 
 // Toast types
 type ToastType = 'default' | 'success' | 'error' | 'warning' | 'info' | 'destructive';
@@ -10,10 +10,7 @@ interface ToastOptions {
   description?: string;
   variant?: ToastType;
   duration?: number;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
+  action?: ReactNode;
 }
 
 // Toast interface

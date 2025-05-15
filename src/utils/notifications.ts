@@ -2,17 +2,40 @@
 import { supabase } from '@/integrations/supabase/client';
 import { v4 as uuidv4 } from 'uuid';
 
+// Notification types
+export type NotificationType = 
+  | 'info' 
+  | 'success' 
+  | 'warning' 
+  | 'error' 
+  | 'comment' 
+  | 'guest-comment'
+  | 'post_created'
+  | 'post_edited'
+  | 'post_deleted'
+  | 'comment_added'
+  | 'like_added'
+  | 'approval_request'
+  | 'approval_accepted'
+  | 'approval_rejected';
+
+export type NotificationStatus = 'pending' | 'approved' | 'rejected' | 'unread' | 'read';
+
 // Local notifications store
-interface Notification {
+export interface Notification {
   id: string;
   title: string; 
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'comment' | 'guest-comment';
+  type: NotificationType;
   target_id?: string;
   target_type?: string;
   created_at: string;
   is_read: boolean;
   user_id?: string;
+  status?: NotificationStatus;
+  comment?: string;
+  fromUserName?: string;
+  createdAt?: string; // Alias for created_at for UI compatibility
 }
 
 // In-memory store for notifications
@@ -43,7 +66,7 @@ const saveNotifications = () => {
 export const addNotification = (
   title: string,
   message: string,
-  type: 'info' | 'success' | 'warning' | 'error' | 'comment' | 'guest-comment' = 'info',
+  type: NotificationType = 'info',
   target_id?: string,
   target_type?: string,
   user_id?: string
@@ -56,8 +79,10 @@ export const addNotification = (
     target_id,
     target_type,
     created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(), // Add alias for UI compatibility
     is_read: false,
-    user_id
+    user_id,
+    status: type.includes('approval') ? 'pending' : 'unread'
   };
   
   // Add to in-memory store
@@ -77,6 +102,33 @@ export const addNotification = (
   return newNotification;
 };
 
+// Function to update notification status
+export const updateNotificationStatus = async (id: string, status: NotificationStatus, comment?: string) => {
+  try {
+    // Update local cache
+    notificationsCache = notificationsCache.map(n => 
+      n.id === id ? { ...n, status, comment } : n
+    );
+    
+    saveNotifications();
+    
+    // Update in Supabase
+    const { error } = await supabase
+      .from('notifications')
+      .update({ status, comment })
+      .eq('id', id);
+      
+    if (error) {
+      console.error("Error updating notification status in Supabase:", error);
+    }
+    
+    return notificationsCache;
+  } catch (e) {
+    console.error("Error updating notification status:", e);
+    return notificationsCache;
+  }
+};
+
 // Save notification to Supabase
 const saveNotificationToSupabase = async (notification: Notification) => {
   try {
@@ -91,7 +143,8 @@ const saveNotificationToSupabase = async (notification: Notification) => {
         target_type: notification.target_type,
         created_at: notification.created_at,
         is_read: notification.is_read,
-        user_id: notification.user_id
+        user_id: notification.user_id,
+        status: notification.status
       });
       
     if (error) {
@@ -116,13 +169,20 @@ export const fetchNotifications = async () => {
     }
     
     if (supabaseNotifications) {
+      // Process notifications to ensure they have all fields
+      const processedNotifications = supabaseNotifications.map(notification => ({
+        ...notification,
+        createdAt: notification.created_at, // Add UI alias
+        status: notification.status || (notification.type.includes('approval') ? 'pending' : 'unread')
+      }));
+      
       // Merge with local notifications by unique ID
       const allNotifications = [...notificationsCache];
       
       // Add Supabase notifications that aren't in the local cache
-      supabaseNotifications.forEach(notification => {
+      processedNotifications.forEach(notification => {
         if (!allNotifications.some(n => n.id === notification.id)) {
-          allNotifications.push(notification);
+          allNotifications.push(notification as Notification);
         }
       });
       
@@ -224,6 +284,23 @@ export const deleteNotification = async (id: string) => {
   }
 };
 
+// Add comment notification
+export const addCommentNotification = async (
+  postId: string, 
+  postTitle: string, 
+  userName: string,
+  userId: string
+) => {
+  return addNotification(
+    'Nowy komentarz',
+    `${userName} dodał komentarz do posta "${postTitle}"`,
+    'comment',
+    postId,
+    'blog_post',
+    userId
+  );
+};
+
 // Add guest comment request notification
 export const addGuestCommentRequest = (postId: string, postTitle: string, guestName: string, comment: string) => {
   return addNotification(
@@ -274,18 +351,49 @@ export const rejectGuestComment = async (commentId: string) => {
   }
 };
 
-// Custom hook to use notifications
-export const useNotifications = () => {
-  return {
-    notifications: notificationsCache,
-    unreadCount,
-    fetchNotifications,
-    addNotification,
-    markAsRead,
-    markAllAsRead,
-    deleteNotification,
-    addGuestCommentRequest,
-    approveGuestComment,
-    rejectGuestComment
+// Create a store using a custom hook pattern
+const createStore = <T extends object>(initialState: T) => {
+  let state = initialState;
+  const listeners: (() => void)[] = [];
+
+  const getState = () => state;
+
+  const setState = (partial: Partial<T>) => {
+    state = { ...state, ...partial };
+    listeners.forEach(listener => listener());
   };
+
+  const subscribe = (listener: () => void) => {
+    listeners.push(listener);
+    return () => {
+      const index = listeners.indexOf(listener);
+      if (index > -1) listeners.splice(index, 1);
+    };
+  };
+
+  const useStore = () => {
+    // This is just a wrapper to return the state
+    return { ...state, getState };
+  };
+
+  // Make state accessible directly
+  Object.assign(useStore, { getState, setState, subscribe });
+
+  return useStore;
 };
+
+// Custom hook to use notifications with Zustand-like API
+export const useNotifications = createStore({
+  notifications: notificationsCache,
+  unreadCount,
+  fetchNotifications,
+  addNotification,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+  addGuestCommentRequest,
+  approveGuestComment,
+  rejectGuestComment,
+  addCommentNotification,
+  updateNotificationStatus
+});

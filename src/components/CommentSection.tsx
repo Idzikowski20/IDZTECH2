@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/utils/AuthProvider';
 import { useBlogStore, BlogComment, CommentReply } from '@/utils/blog';
@@ -132,16 +131,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     
     const post = useBlogStore.getState().posts.find(p => p.id === postId);
     
-    // Send notification to admin for approval using addNotification instead of sendApprovalRequest
-    addNotification({
-      type: 'approval_request',
-      title: 'Prośba o dodanie komentarza',
-      message: `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}"`,
-      fromUserId: 'guest',
-      fromUserName: guestName,
-      targetId: postId,
-      targetType: 'comment'
-    });
+    // Send notification to admin for approval
+    addNotification(
+      'Prośba o dodanie komentarza',
+      `Gość "${guestName}" chce dodać komentarz do postu "${post?.title || 'Unknown post'}": "${comment}"`,
+      'approval_request',
+      postId,
+      'comment'
+    );
     
     setShowGuestDialog(false);
     setComment('');
