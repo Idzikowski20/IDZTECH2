@@ -1,16 +1,32 @@
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/utils/authStore';
-import { User } from '@/utils/authTypes';
+import { useAuth } from '@/utils/AuthProvider';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Award, Medal, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBlogStore } from '@/utils/blog';
+import { supabase } from '@/utils/supabaseClient';
 
 interface UserRankingProps {
   limit?: number;
   showMonthly?: boolean;
   className?: string;
+}
+
+interface RankedUser {
+  id: string;
+  name: string;
+  lastName?: string;
+  profilePicture?: string;
+  role?: string;
+  stats: {
+    posts: number;
+    comments: number;
+    likes: number;
+    views: number;
+    pointsTotal: number;
+    pointsThisMonth: number;
+  }
 }
 
 const UserRanking: React.FC<UserRankingProps> = ({ 
@@ -20,28 +36,71 @@ const UserRanking: React.FC<UserRankingProps> = ({
 }) => {
   const auth = useAuth();
   const { posts } = useBlogStore();
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<RankedUser[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Force refresh user stats when component mounts to ensure data is up-to-date
   useEffect(() => {
-    auth.refreshUserStats?.();
-    
-    // Fetch and handle users data
     const fetchUsers = async () => {
       try {
-        const usersList = await auth.getUserRanking();
-        setUsers(usersList);
+        setLoading(true);
+        
+        // Fetch users from Supabase profiles
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*');
+        
+        if (profilesError) {
+          console.error("Error fetching user profiles:", profilesError);
+          return;
+        }
+        
+        if (!profiles) {
+          setUsers([]);
+          return;
+        }
+        
+        // Transform profiles into RankedUser format
+        const rankedUsers = profiles.map(profile => ({
+          id: profile.id,
+          name: profile.name || 'Użytkownik',
+          lastName: profile.lastName,
+          profilePicture: profile.profilePicture,
+          role: profile.role,
+          stats: {
+            posts: Math.floor(Math.random() * 10), // Mock data - replace with real stats
+            comments: Math.floor(Math.random() * 20),
+            likes: Math.floor(Math.random() * 50),
+            views: Math.floor(Math.random() * 1000),
+            pointsTotal: Math.floor(Math.random() * 1000),
+            pointsThisMonth: Math.floor(Math.random() * 300)
+          }
+        }));
+        
+        // Sort by points
+        const sortedUsers = rankedUsers.sort((a, b) => 
+          showMonthly 
+            ? b.stats.pointsThisMonth - a.stats.pointsThisMonth 
+            : b.stats.pointsTotal - a.stats.pointsTotal
+        );
+        
+        setUsers(sortedUsers);
       } catch (error) {
         console.error("Error fetching user ranking:", error);
-        setUsers([]);
+      } finally {
+        setLoading(false);
       }
     };
     
     fetchUsers();
-  }, [auth.refreshUserStats, posts, auth.getUserRanking]);
+  }, [auth.refreshUserStats, posts, showMonthly]);
   
   // Get displayed users based on limit
   const displayUsers = users.slice(0, limit);
+  
+  if (loading) {
+    return <div className="p-4 text-center text-premium-light/50">Ładowanie rankingu...</div>;
+  }
   
   return (
     <div className={cn("space-y-4", className)}>

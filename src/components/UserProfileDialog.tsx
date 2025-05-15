@@ -1,118 +1,94 @@
 
-import { User } from '@/utils/authTypes';
+import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CalendarIcon, BarChart, FileText, UserRound } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { pl } from 'date-fns/locale';
+import { CalendarIcon } from 'lucide-react';
+
+interface UserProfile {
+  id: string;
+  email: string;
+  name?: string;
+  lastName?: string;
+  profilePicture?: string;
+  role?: string;
+  jobTitle?: string;
+  bio?: string;
+  created_at?: string;
+  last_login?: string;
+}
 
 interface UserProfileDialogProps {
-  user: User | null;
+  user: UserProfile | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const userRoles: Record<string, string> = {
-  'admin': 'Administrator',
-  'moderator': 'Moderator',
-  'blogger': 'Bloger',
-  'user': 'Użytkownik',
-};
-
-const UserProfileDialog = ({ user, open, onOpenChange }: UserProfileDialogProps) => {
+const UserProfileDialog: React.FC<UserProfileDialogProps> = ({ user, open, onOpenChange }) => {
   if (!user) return null;
-
-  const joinedDate = user.createdAt ? new Date(user.createdAt) : null;
-  const lastLoginDate = user.lastLogin ? new Date(user.lastLogin) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Profil użytkownika</DialogTitle>
-          <DialogDescription>
-            Szczegółowe informacje o użytkowniku
-          </DialogDescription>
         </DialogHeader>
-
-        <div className="pt-4">
-          <div className="flex items-start gap-6 mb-6">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={user.profilePicture} alt={user.name} />
-              <AvatarFallback className="text-xl bg-premium-gradient">
-                {user.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="text-xl font-bold">{user.name} {user.lastName}</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-                <span className="text-premium-light/70">{userRoles[user.role] || 'Użytkownik'}</span>
-              </div>
-              <p className="mt-2 text-premium-light/70">{user.email}</p>
-            </div>
-          </div>
-
-          {user.bio && (
-            <div className="mb-6">
-              <h4 className="text-sm font-medium mb-2 text-premium-light/50">BIO</h4>
-              <p className="text-premium-light/90">{user.bio}</p>
+        
+        <div className="flex flex-col items-center py-4">
+          {user.profilePicture ? (
+            <img 
+              src={user.profilePicture} 
+              alt={user.name || 'User'} 
+              className="h-24 w-24 rounded-full object-cover mb-4"
+            />
+          ) : (
+            <div className="h-24 w-24 rounded-full bg-premium-gradient flex items-center justify-center text-white text-xl font-bold mb-4">
+              {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
             </div>
           )}
-
+          
+          <h3 className="text-xl font-semibold">
+            {user.name} {user.lastName}
+          </h3>
+          
           {user.jobTitle && (
-            <div className="mb-6">
-              <h4 className="text-sm font-medium mb-2 text-premium-light/50">STANOWISKO</h4>
-              <p className="flex items-center">
-                <UserRound size={16} className="mr-2 text-premium-light/70" />
-                {user.jobTitle}
-              </p>
+            <p className="text-muted-foreground">{user.jobTitle}</p>
+          )}
+          
+          <span className="px-3 py-1 mt-2 bg-green-900 text-green-100 text-xs rounded-full">
+            {user.role || 'user'}
+          </span>
+        </div>
+        
+        <div className="space-y-3">
+          <div className="flex items-center">
+            <span className="text-muted-foreground w-32">Email:</span>
+            <span>{user.email}</span>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="text-muted-foreground w-32">Data utworzenia:</span>
+            <span className="flex items-center">
+              <CalendarIcon className="h-4 w-4 mr-1 text-muted-foreground" />
+              {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}
+            </span>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="text-muted-foreground w-32">Ostatnie logowanie:</span>
+            <span>{user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
+          </div>
+          
+          {user.bio && (
+            <div className="pt-2">
+              <h4 className="text-sm font-medium text-muted-foreground mb-1">Bio</h4>
+              <p className="text-sm">{user.bio}</p>
             </div>
           )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-premium-dark/50 border border-premium-light/10 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <FileText size={18} className="text-blue-400 mr-2" />
-                <h4 className="font-medium">Posty</h4>
-              </div>
-              <p className="text-2xl font-bold">{user.postsCreated || 0}</p>
-            </div>
-
-            <div className="bg-premium-dark/50 border border-premium-light/10 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <BarChart size={18} className="text-green-400 mr-2" />
-                <h4 className="font-medium">Wyświetlenia</h4>
-              </div>
-              <p className="text-2xl font-bold">{user.totalViews || 0}</p>
-            </div>
-          </div>
-
-          <div className="border-t border-premium-light/10 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            {joinedDate && (
-              <div className="flex items-center">
-                <CalendarIcon size={16} className="mr-2 text-premium-light/70" />
-                <span className="text-premium-light/70">
-                  Dołączył: {formatDistanceToNow(joinedDate, { addSuffix: true, locale: pl })}
-                </span>
-              </div>
-            )}
-
-            {lastLoginDate && (
-              <div className="flex items-center">
-                <CalendarIcon size={16} className="mr-2 text-premium-light/70" />
-                <span className="text-premium-light/70">
-                  Ostatnie logowanie: {formatDistanceToNow(lastLoginDate, { addSuffix: true, locale: pl })}
-                </span>
-              </div>
-            )}
-          </div>
         </div>
       </DialogContent>
     </Dialog>

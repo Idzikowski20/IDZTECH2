@@ -1,11 +1,9 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@/utils/notifications";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const NotificationBell = () => {
   const navigate = useNavigate();
@@ -14,28 +12,6 @@ const NotificationBell = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retrying, setRetrying] = useState(false);
-
-  // Check connection status on mount
-  useEffect(() => {
-    checkConnection();
-  }, []);
-
-  const checkConnection = async () => {
-    try {
-      // Test connection by fetching a simple record
-      const { error: connectionError } = await supabase
-        .from('notifications')
-        .select('count(*)', { count: 'exact', head: true });
-      
-      if (connectionError) {
-        console.error("Connection error:", connectionError);
-        setError("Nie udało się połączyć z bazą powiadomień");
-      }
-    } catch (err) {
-      console.error("Error checking connection:", err);
-      setError("Problem z połączeniem sieciowym");
-    }
-  };
 
   const handleClick = () => {
     if (error) {
@@ -97,9 +73,7 @@ const NotificationBell = () => {
       
       {error && (
         <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          {error === "Problem z połączeniem sieciowym" ? 
-            "Nie można połączyć z serwerem powiadomień. Brak połączenia internetowego lub serwer jest niedostępny." : 
-            error}
+          {error}
           <button 
             onClick={handleRetry}
             className="ml-2 bg-premium-purple px-2 py-1 rounded text-white hover:bg-black hover:text-white"

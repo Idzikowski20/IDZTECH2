@@ -1,7 +1,6 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { supabase } from '@/integrations/supabase/client';
 
 export type NotificationType = 
   | 'post_created' 
@@ -34,6 +33,42 @@ export interface Notification {
   comment?: string; // Admin feedback in case of rejection
 }
 
+// Default notifications for testing
+const defaultNotifications: Notification[] = [
+  {
+    id: '1',
+    type: 'post_created',
+    title: 'Nowy wpis na blogu',
+    message: 'Nowy artykuł został opublikowany na blogu',
+    createdAt: new Date().toISOString(),
+    status: 'unread',
+    targetId: '1',
+    targetType: 'post',
+  },
+  {
+    id: '2',
+    type: 'comment_added',
+    title: 'Nowy komentarz',
+    message: 'Jan Kowalski dodał komentarz do Twojego artykułu',
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    status: 'unread',
+    fromUserName: 'Jan Kowalski',
+    targetId: '1',
+    targetType: 'post',
+  },
+  {
+    id: '3',
+    type: 'approval_request',
+    title: 'Prośba o zatwierdzenie',
+    message: 'Nowa prośba o zatwierdzenie zawartości',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'pending',
+    fromUserName: 'Anna Nowak',
+    targetId: '2',
+    targetType: 'post',
+  }
+];
+
 interface NotificationStore {
   notifications: Notification[];
   unreadCount: number;
@@ -49,198 +84,130 @@ interface NotificationStore {
 export const useNotifications = create<NotificationStore>()(
   persist(
     (set, get) => ({
-      notifications: [],
-      unreadCount: 0,
+      notifications: defaultNotifications,
+      unreadCount: defaultNotifications.filter(n => n.status === 'unread').length,
       
       fetchNotifications: async () => {
-        try {
-          console.log("Fetching notifications from Supabase...");
-          
-          const { data, error } = await supabase
-            .from('notifications')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-          if (error) {
-            console.error('Error fetching notifications:', error);
-            throw new Error(error.message);
-          }
-
-          if (!data) {
-            console.log("No notifications found");
-            set({ notifications: [], unreadCount: 0 });
-            return;
-          }
-          
-          // Transform the Supabase data to match our Notification interface
-          const transformedNotifications: Notification[] = data.map(notification => {
-            return {
-              id: notification.id,
-              type: notification.type as NotificationType,
-              title: notification.title,
-              message: notification.message,
-              createdAt: notification.created_at,
-              status: notification.is_read ? 'read' as NotificationStatus : 'unread' as NotificationStatus,
-              fromUserId: notification.user_id,
-              targetId: notification.target_id,
-              targetType: notification.target_type,
-              fromUserName: 'Użytkownik', // Default name if not provided
-            };
-          });
-
-          const unreadCount = transformedNotifications.filter(n => n.status === 'unread').length;
-          
-          set({ 
-            notifications: transformedNotifications,
-            unreadCount
-          });
-          
-        } catch (error) {
-          console.error('Error in fetchNotifications:', error);
-          throw error;
-        }
+        // Local implementation - just return the stored notifications
+        // This function exists for API compatibility with the previous implementation
+        return Promise.resolve();
       },
       
-      addNotification: async (notification) => {
-        try {
-          const newNotification = {
-            type: notification.type,
-            title: notification.title,
-            message: notification.message,
-            user_id: notification.fromUserId,
-            target_id: notification.targetId,
-            target_type: notification.targetType,
-            is_read: notification.status === 'read',
-          };
+      addNotification: (notification) => set((state) => {
+        const newNotification: Notification = {
+          ...notification,
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString(),
+          status: notification.status || 'unread',
+        };
 
-          const { data, error } = await supabase
-            .from('notifications')
-            .insert([newNotification])
-            .select();
-
-          if (error) {
-            console.error('Error adding notification:', error);
-            return;
-          }
-
-          await get().fetchNotifications();
-        } catch (error) {
-          console.error('Error in addNotification:', error);
-        }
-      },
+        // Update unread count if the new notification is unread
+        const newUnreadCount = newNotification.status === 'unread' ? 
+          state.unreadCount + 1 : state.unreadCount;
+        
+        return {
+          notifications: [newNotification, ...state.notifications],
+          unreadCount: newUnreadCount
+        };
+      }),
       
-      markAsRead: async (id) => {
-        try {
-          const { error } = await supabase
-            .from('notifications')
-            .update({ is_read: true })
-            .eq('id', id);
+      markAsRead: (id) => set((state) => {
+        const updatedNotifications = state.notifications.map(notification => 
+          notification.id === id && notification.status === 'unread'
+            ? { ...notification, status: 'read' as NotificationStatus }
+            : notification
+        );
+        
+        // Count notifications with unread status
+        const unreadCount = updatedNotifications.filter(n => n.status === 'unread').length;
+        
+        return { 
+          notifications: updatedNotifications,
+          unreadCount
+        };
+      }),
 
-          if (error) {
-            console.error('Error marking notification as read:', error);
-            return;
-          }
-
-          await get().fetchNotifications();
-        } catch (error) {
-          console.error('Error in markAsRead:', error);
-        }
-      },
-
-      markAllAsRead: async () => {
-        try {
-          const { error } = await supabase
-            .from('notifications')
-            .update({ is_read: true })
-            .eq('is_read', false);
-
-          if (error) {
-            console.error('Error marking all notifications as read:', error);
-            return;
-          }
-
-          await get().fetchNotifications();
-        } catch (error) {
-          console.error('Error in markAllAsRead:', error);
-        }
-      },
+      markAllAsRead: () => set((state) => {
+        const updatedNotifications = state.notifications.map(notification => 
+          notification.status === 'unread'
+            ? { ...notification, status: 'read' as NotificationStatus }
+            : notification
+        );
+        
+        return { 
+          notifications: updatedNotifications,
+          unreadCount: 0
+        };
+      }),
       
-      updateNotificationStatus: async (id, status, comment) => {
-        try {
-          // First update the notification status
-          const { error } = await supabase
-            .from('notifications')
-            .update({ 
-              is_read: status === 'read'
-            })
-            .eq('id', id);
-
-          if (error) {
-            console.error('Error updating notification status:', error);
-            return;
-          }
-
-          // Get the notification that was updated
-          const { data: notificationData } = await supabase
-            .from('notifications')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-          if (notificationData && 
-              (status === 'approved' || status === 'rejected') && 
-              notificationData.user_id) {
-                
-            const responseType = status === 'approved' ? 'approval_accepted' as NotificationType : 'approval_rejected' as NotificationType;
-            const responseTitle = status === 'approved' 
-              ? 'Prośba zaakceptowana' 
-              : 'Prośba odrzucona';
+      updateNotificationStatus: (id, status, comment) => set((state) => {
+        const updatedNotifications = state.notifications.map(notification => 
+          notification.id === id
+            ? { ...notification, status, ...(comment ? { comment } : {}) }
+            : notification
+        );
+        
+        // Update unread count
+        const unreadCount = updatedNotifications.filter(n => n.status === 'unread').length;
+        
+        // If we change a status to approved or rejected, create a new notification for the user
+        const targetNotification = state.notifications.find(n => n.id === id);
+        if (targetNotification && 
+            (status === 'approved' || status === 'rejected') && 
+            targetNotification.fromUserId) {
             
-            const responseMessage = status === 'approved'
-              ? 'Twoja prośba została zaakceptowana'
-              : 'Twoja prośba została odrzucona';
-              
-            await supabase.from('notifications').insert({
-              type: responseType,
-              title: responseTitle,
-              message: responseMessage,
-              user_id: notificationData.user_id,
-              target_id: notificationData.target_id,
-              target_type: notificationData.target_type,
-            });
-          }
-
-          await get().fetchNotifications();
-        } catch (error) {
-          console.error('Error in updateNotificationStatus:', error);
+          const responseType = status === 'approved' ? 'approval_accepted' as NotificationType : 'approval_rejected' as NotificationType;
+          const responseTitle = status === 'approved' 
+            ? 'Prośba zaakceptowana' 
+            : 'Prośba odrzucona';
+          
+          const responseMessage = status === 'approved'
+            ? 'Twoja prośba została zaakceptowana'
+            : 'Twoja prośba została odrzucona';
+            
+          const newNotification: Notification = {
+            id: Date.now().toString(),
+            type: responseType,
+            title: responseTitle,
+            message: responseMessage,
+            createdAt: new Date().toISOString(),
+            status: 'unread',
+            targetId: targetNotification.targetId,
+            targetType: targetNotification.targetType,
+            comment: comment,
+          };
+          
+          return {
+            notifications: [newNotification, ...updatedNotifications],
+            unreadCount: unreadCount + 1
+          };
         }
-      },
+        
+        return { 
+          notifications: updatedNotifications,
+          unreadCount
+        };
+      }),
 
       getNotificationsForUser: (userId) => {
         const { notifications } = get();
         return notifications.filter(n => 
           (n.fromUserId === userId) || 
-          (!n.fromUserId && !n.fromUserName)
+          (!n.fromUserId && !n.fromUserName) // Notifications without specific recipient (system notifications)
         );
       },
       
-      deleteNotification: async (id) => {
-        try {
-          const { error } = await supabase
-            .from('notifications')
-            .delete()
-            .eq('id', id);
-
-          if (error) {
-            console.error('Error deleting notification:', error);
-            return;
-          }
-
-          await get().fetchNotifications();
-        } catch (error) {
-          console.error('Error in deleteNotification:', error);
-        }
-      },
+      deleteNotification: (id) => set((state) => {
+        const notification = state.notifications.find(n => n.id === id);
+        const wasUnread = notification?.status === 'unread';
+        
+        const filteredNotifications = state.notifications.filter(n => n.id !== id);
+        
+        return { 
+          notifications: filteredNotifications,
+          unreadCount: wasUnread ? state.unreadCount - 1 : state.unreadCount
+        };
+      }),
     }),
     {
       name: 'notification-storage',
@@ -248,14 +215,33 @@ export const useNotifications = create<NotificationStore>()(
   )
 );
 
-// Initialize by fetching notifications
-setTimeout(() => {
-  useNotifications.getState().fetchNotifications().catch(err => {
-    console.error("Initial notification fetch failed:", err);
-  });
-}, 1000);
-
 // Helper functions for adding specific notification types
+export const sendApprovalRequest = (fromUserId: string, fromUserName: string, targetId: string, targetType: string, title: string, message: string) => {
+  useNotifications.getState().addNotification({
+    type: 'approval_request',
+    title,
+    message,
+    fromUserId,
+    fromUserName,
+    targetId,
+    targetType,
+    status: 'pending'
+  });
+};
+
+export const notifyPostCreated = (userId: string, userName: string, postId: string, postTitle: string) => {
+  useNotifications.getState().addNotification({
+    type: 'post_created',
+    title: 'Nowy post został utworzony',
+    message: `Użytkownik ${userName} utworzył nowy post "${postTitle}"`,
+    fromUserId: userId,
+    fromUserName: userName,
+    targetId: postId,
+    targetType: 'post',
+  });
+};
+
+// Helper for adding a comment notification
 export const addCommentNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return useNotifications.getState().addNotification({
     type: 'comment_added',
@@ -268,6 +254,7 @@ export const addCommentNotification = (postId: string, postTitle: string, userNa
   });
 };
 
+// Helper for adding a like notification
 export const addLikeNotification = (postId: string, postTitle: string, userName: string, userId: string = "") => {
   return useNotifications.getState().addNotification({
     type: 'like_added',
@@ -277,5 +264,17 @@ export const addLikeNotification = (postId: string, postTitle: string, userName:
     fromUserName: userName,
     targetId: postId,
     targetType: 'post',
+  });
+};
+
+// Helper for adding a guest comment request
+export const addGuestCommentRequest = (postId: string, postTitle: string, guestName: string, commentContent: string) => {
+  return useNotifications.getState().addNotification({
+    type: 'approval_request',
+    title: 'Prośba o zatwierdzenie komentarza gościa',
+    message: `${guestName} chce dodać komentarz do "${postTitle}": "${commentContent.substring(0, 50)}${commentContent.length > 50 ? '...' : ''}"`,
+    fromUserName: guestName,
+    targetId: postId,
+    targetType: 'comment',
   });
 };

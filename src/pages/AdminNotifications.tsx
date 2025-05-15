@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/utils/AuthProvider';
-import { useSupabaseNotifications, NotificationType, NotificationStatus } from '@/hooks/useSupabaseNotifications';
+import { useNotifications, NotificationType, NotificationStatus } from '@/utils/notifications';
 import { 
   Card, 
   CardContent, 
@@ -35,7 +36,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const NotificationIcon = ({ type }: { type: string }) => {
   switch (type) {
@@ -92,41 +92,18 @@ const AdminNotifications = () => {
     markAsRead, 
     updateNotificationStatus, 
     deleteNotification, 
-    markAllAsRead,
-    loading: notificationsLoading,
-    error: notificationsError,
-    fetchNotifications
-  } = useSupabaseNotifications();
+    markAllAsRead 
+  } = useNotifications();
   const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  console.log("AdminNotifications render - notifications:", notifications);
-  console.log("AdminNotifications render - user:", user);
-  console.log("AdminNotifications render - error:", notificationsError);
-  
-  // Set loaded state after initial render - with delay to ensure notifications are loaded
-  useEffect(() => {
-    console.log("AdminNotifications component mounted");
-    
-    // Add a delay to ensure notifications state is fully loaded
-    const timer = setTimeout(() => {
-      console.log("Setting isLoaded to true");
-      setIsLoaded(true);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   // Redirect if not authenticated
-  useEffect(() => {
-    if (isLoaded && !user) {
-      console.log("No user found, redirecting to login");
-      navigate('/login');
-    }
-  }, [user, navigate, isLoaded]);
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
 
   const handleNotificationClick = (notification: any) => {
     if (notification.status === 'unread') {
@@ -136,6 +113,13 @@ const AdminNotifications = () => {
 
   const handleApprove = (notification: any) => {
     updateNotificationStatus(notification.id, 'approved');
+    
+    // If this is a guest comment approval, handle it (implementation would depend on your comment system)
+    if (notification.targetType === 'comment') {
+      // In a real implementation, you would add the guest comment to your database here
+      console.log('Approved guest comment:', notification);
+    }
+    
     toast({
       title: 'Zatwierdzono',
       description: 'Prośba została zatwierdzona',
@@ -178,57 +162,6 @@ const AdminNotifications = () => {
       description: 'Wszystkie powiadomienia zostały oznaczone jako przeczytane',
     });
   };
-  
-  const handleRetryFetch = () => {
-    fetchNotifications();
-    toast({
-      title: 'Odświeżanie',
-      description: 'Ponowne pobieranie powiadomień...',
-    });
-  };
-
-  // If not loaded yet or notifications are still loading, show loading state
-  if (!isLoaded || notificationsLoading) {
-    return (
-      <AdminLayout>
-        <div className="p-6">
-          <h1 className="text-2xl font-bold">Powiadomienia</h1>
-          <div className="mt-4">Ładowanie powiadomień...</div>
-        </div>
-      </AdminLayout>
-    );
-  }
-  
-  // If we're loaded but user is not authenticated, redirect handled by useEffect
-
-  // If there's an error loading notifications
-  if (notificationsError) {
-    return (
-      <AdminLayout>
-        <div className="p-6">
-          <h1 className="text-2xl font-bold">Powiadomienia</h1>
-          <Alert variant="destructive" className="mt-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Błąd</AlertTitle>
-            <AlertDescription>
-              Nie udało się pobrać powiadomień.
-              <div className="mt-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleRetryFetch}
-                  className="flex items-center gap-2"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  Spróbuj ponownie
-                </Button>
-              </div>
-            </AlertDescription>
-          </Alert>
-        </div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
@@ -238,15 +171,7 @@ const AdminNotifications = () => {
             <h1 className="text-2xl font-bold">Powiadomienia</h1>
             <p className="text-muted-foreground">Zarządzaj powiadomieniami systemu</p>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={handleRetryFetch}
-              className="flex items-center gap-2 hover:bg-white hover:text-black"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Odśwież
-            </Button>
+          <div>
             <Button 
               variant="outline" 
               onClick={handleMarkAllAsRead}

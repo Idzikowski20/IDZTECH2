@@ -1,32 +1,41 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/utils/AuthProvider';
-import { User } from '@/utils/authTypes';
-import { fetchAllUsers, deleteUser, addUser, updateUserRole } from '@/utils/authIntegration';
+import { supabase } from '@/utils/supabaseClient';
 import { Loader2, UserRound, Shield, Edit, Trash2, Home } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
-import UserProfileDialog from '@/components/UserProfileDialog';
 import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 
+interface UserProfile {
+  id: string;
+  email: string;
+  name?: string;
+  lastName?: string;
+  profilePicture?: string;
+  role?: string;
+  jobTitle?: string;
+  created_at?: string;
+  last_login?: string;
+}
+
 const AdminUsers = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const { user: currentUser } = useAuth();
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -36,9 +45,39 @@ const AdminUsers = () => {
       try {
         setLoading(true);
         // Fetch users from Supabase
-        const supabaseUsers = await fetchAllUsers();
-        console.log("Fetched users:", supabaseUsers);
-        setUsers(supabaseUsers);
+        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (authError) {
+          console.error("Error loading users:", authError);
+          throw authError;
+        }
+        
+        // Fetch profiles with additional info
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*');
+          
+        if (profilesError) {
+          console.error("Error loading profiles:", profilesError);
+        }
+        
+        // Combine auth users with profile info
+        const combinedUsers = authUsers?.users.map(authUser => {
+          const profile = profiles?.find(p => p.id === authUser.id);
+          return {
+            id: authUser.id,
+            email: authUser.email || '',
+            name: profile?.name || authUser.user_metadata?.name || '',
+            lastName: profile?.lastName || authUser.user_metadata?.lastName || '',
+            profilePicture: profile?.profilePicture || authUser.user_metadata?.avatar_url || '',
+            role: profile?.role || 'user',
+            jobTitle: profile?.jobTitle || '',
+            created_at: authUser.created_at,
+            last_login: authUser.last_sign_in_at
+          };
+        }) || [];
+
+        setUsers(combinedUsers);
       } catch (error) {
         console.error("Error loading users:", error);
         toast({
@@ -57,21 +96,17 @@ const AdminUsers = () => {
   const handleDelete = async (userId: string) => {
     if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        const success = await deleteUser(userId);
+        const { error } = await supabase.auth.admin.deleteUser(userId);
         
-        if (success) {
-          setUsers(users.filter(user => user.id !== userId));
-          toast({
-            title: "Sukces",
-            description: "Użytkownik został usunięty",
-          });
-        } else {
-          toast({
-            title: "Błąd",
-            description: "Nie udało się usunąć użytkownika",
-            variant: "destructive"
-          });
+        if (error) {
+          throw error;
         }
+        
+        setUsers(users.filter(user => user.id !== userId));
+        toast({
+          title: "Sukces",
+          description: "Użytkownik został usunięty",
+        });
       } catch (error) {
         console.error("Error deleting user:", error);
         toast({
@@ -83,7 +118,7 @@ const AdminUsers = () => {
     }
   };
 
-  const viewUserProfile = (user: User) => {
+  const viewUserProfile = (user: UserProfile) => {
     setSelectedUser(user);
     setProfileOpen(true);
   };
@@ -139,9 +174,6 @@ const AdminUsers = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Zarządzaj użytkownikami</h1>
           <Dialog>
-            <DialogTrigger asChild>
-              <Button>Dodaj użytkownika</Button>
-            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
@@ -225,12 +257,6 @@ const AdminUsers = () => {
                       Profil
                     </Button>
                     <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" className="bg-transparent text-white hover:bg-white hover:text-black border-none">
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edytuj
-                        </Button>
-                      </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Edytuj użytkownika</DialogTitle>
@@ -271,7 +297,13 @@ const AdminUsers = () => {
   );
 };
 
-const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; onSuccess?: (user: any) => void }) => {
+interface UserFormProps {
+  userId?: string;
+  user?: UserProfile;
+  onSuccess?: (user: UserProfile) => void;
+}
+
+const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -293,43 +325,59 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
     setIsLoading(true);
     
     try {
-      let result;
-      
       if (userId) {
         // Update existing user
-        result = await updateUserRole(userId, formData.role as any);
-        console.log("User updated:", result);
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            name: formData.name,
+            lastName: formData.lastName,
+            jobTitle: formData.jobTitle,
+            role: formData.role
+          })
+          .eq('id', userId);
+        
+        if (error) throw error;
       } else {
         // Add new user
-        result = await addUser({
-          name: formData.name,
+        const { data, error } = await supabase.auth.admin.createUser({
           email: formData.email,
-          role: formData.role as any,
-          lastName: formData.lastName,
-          jobTitle: formData.jobTitle,
-          profilePicture: '',
-          stats: {
-            views: 0,
-            posts: 0,
-            comments: 0,
-            likes: 0,
-            pointsTotal: 0,
-            pointsThisMonth: 0,
-            lastUpdated: new Date().toISOString()
+          password: formData.password,
+          email_confirm: true,
+          user_metadata: {
+            name: formData.name,
+            lastName: formData.lastName
           }
-        }, formData.password);
-        console.log("User added:", result);
+        });
+        
+        if (error) throw error;
+        
+        // Create profile entry
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: formData.email,
+              name: formData.name,
+              lastName: formData.lastName,
+              role: formData.role,
+              jobTitle: formData.jobTitle
+            });
+            
+          if (profileError) throw profileError;
+        }
       }
       
       if (onSuccess) {
         onSuccess({
-          id: userId || result?.id || Math.random().toString(),
+          id: userId || Math.random().toString(),
           ...formData,
-          createdAt: user?.createdAt || new Date().toISOString(),
-          lastLogin: user?.lastLogin || null
+          created_at: user?.created_at || new Date().toISOString(),
+          last_login: user?.last_login || null
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting form:", error);
       toast({
         title: "Błąd",
@@ -375,6 +423,7 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
           value={formData.email}
           onChange={handleChange}
           required
+          disabled={!!userId} // Can't change email for existing user
         />
       </div>
       
@@ -431,6 +480,67 @@ const UserForm = ({ userId, user, onSuccess }: { userId?: string; user?: any; on
         </Button>
       </div>
     </form>
+  );
+};
+
+const UserProfileDialog = ({ user, open, onOpenChange }: { 
+  user: UserProfile | null; 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void;
+}) => {
+  if (!user) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Profil użytkownika</DialogTitle>
+        </DialogHeader>
+        
+        <div className="flex flex-col items-center py-4">
+          {user.profilePicture ? (
+            <img 
+              src={user.profilePicture} 
+              alt={user.name} 
+              className="h-24 w-24 rounded-full object-cover mb-4"
+            />
+          ) : (
+            <div className="h-24 w-24 rounded-full bg-premium-gradient flex items-center justify-center text-white text-xl font-bold mb-4">
+              {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+            </div>
+          )}
+          
+          <h3 className="text-xl font-semibold">
+            {user.name} {user.lastName}
+          </h3>
+          
+          {user.jobTitle && (
+            <p className="text-muted-foreground">{user.jobTitle}</p>
+          )}
+          
+          <span className="px-3 py-1 mt-2 bg-green-900 text-green-100 text-xs rounded-full">
+            {user.role || 'user'}
+          </span>
+        </div>
+        
+        <div className="space-y-3">
+          <div className="flex items-center">
+            <span className="text-muted-foreground w-32">Email:</span>
+            <span>{user.email}</span>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="text-muted-foreground w-32">Data utworzenia:</span>
+            <span>{user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}</span>
+          </div>
+          
+          <div className="flex items-center">
+            <span className="text-muted-foreground w-32">Ostatnie logowanie:</span>
+            <span>{user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
