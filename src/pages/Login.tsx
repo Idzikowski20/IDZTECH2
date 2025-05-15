@@ -4,7 +4,7 @@ import LoginForm from '@/components/LoginForm';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/utils/themeContext';
-import { useAuth } from '@/utils/AuthContext';
+import { useAuth } from '@/utils/AuthProvider';
 
 const Login = () => {
   const navigate = useNavigate();
