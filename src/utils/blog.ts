@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { useNotifications } from './notifications';
+import { useNotifications, addNotification } from './notifications';
 import { NotificationType } from './notifications';
 
 export interface CommentReply {
@@ -224,7 +224,7 @@ export const useBlogStore = create<BlogStore>()(
           };
           
           // Add notification for new comment
-          addNotificationFunc(
+          addNotification(
             'Nowy komentarz',
             `${userName} dodał komentarz do "${post.title}"`,
             'comment_added',
@@ -272,7 +272,7 @@ export const useBlogStore = create<BlogStore>()(
           };
           
           // Add notification for new reply
-          addNotificationFunc(
+          addNotification(
             'Nowa odpowiedź',
             `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
             'comment_added',
@@ -337,7 +337,7 @@ export const useBlogStore = create<BlogStore>()(
           // Add notification if it's a new like (not a removal)
           if (!hasLiked) {
             // We would typically get the username from the user profile based on userId
-            addNotificationFunc(
+            addNotification(
               'Nowe polubienie',
               `Użytkownik polubił "${post.title}"`,
               'like_added',
@@ -371,7 +371,7 @@ export const useBlogStore = create<BlogStore>()(
           const guestLikes = post.guestLikes || [];
           
           // Add notification for new like
-          addNotificationFunc(
+          addNotification(
             'Nowe polubienie',
             `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
             'like_added',
@@ -426,7 +426,7 @@ export const useBlogStore = create<BlogStore>()(
           
           // Add notification if it's a new like (not a removal)
           if (!hasLiked) {
-            addNotificationFunc(
+            addNotification(
               'Nowe polubienie',
               `Gość polubił "${post.title}"`,
               'like_added',

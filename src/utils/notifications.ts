@@ -132,22 +132,40 @@ export const updateNotificationStatus = async (id: string, status: NotificationS
 // Save notification to Supabase
 const saveNotificationToSupabase = async (notification: Notification) => {
   try {
+    // Define a type that matches the Supabase table structure
+    type SupabaseNotification = {
+      id: string;
+      title: string;
+      message: string;
+      type: string;
+      target_id?: string;
+      target_type?: string;
+      created_at: string;
+      is_read: boolean;
+      user_id?: string;
+      status?: string;
+      comment?: string;
+      fromUserName?: string;
+    };
+
+    const supabaseNotification: SupabaseNotification = {
+      id: notification.id,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+      target_id: notification.target_id,
+      target_type: notification.target_type,
+      created_at: notification.created_at,
+      is_read: notification.is_read,
+      user_id: notification.user_id,
+      status: notification.status,
+      comment: notification.comment,
+      fromUserName: notification.fromUserName
+    };
+      
     const { error } = await supabase
       .from('notifications')
-      .insert({
-        id: notification.id,
-        title: notification.title,
-        message: notification.message,
-        type: notification.type,
-        target_id: notification.target_id,
-        target_type: notification.target_type,
-        created_at: notification.created_at,
-        is_read: notification.is_read,
-        user_id: notification.user_id,
-        status: notification.status,
-        comment: notification.comment,
-        fromUserName: notification.fromUserName
-      });
+      .insert(supabaseNotification);
       
     if (error) {
       console.error("Error saving notification to Supabase:", error);
@@ -172,11 +190,16 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     
     if (supabaseNotifications) {
       // Process notifications to ensure they have all fields
-      const processedNotifications = supabaseNotifications.map(notification => ({
-        ...notification,
-        createdAt: notification.created_at, // Add UI alias
-        status: notification.status || (notification.type.includes('approval') ? 'pending' : 'unread')
-      }));
+      const processedNotifications = supabaseNotifications.map(notification => {
+        // Cast to our Notification type with additional properties
+        const processedNotification: Notification = {
+          ...notification as unknown as Notification,
+          createdAt: notification.created_at,
+          status: notification.status as NotificationStatus || 
+                 (notification.type.includes('approval') ? 'pending' : 'unread')
+        };
+        return processedNotification;
+      });
       
       // Merge with local notifications by unique ID
       const allNotifications = [...notificationsCache];
@@ -184,7 +207,7 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
       // Add Supabase notifications that aren't in the local cache
       processedNotifications.forEach(notification => {
         if (!allNotifications.some(n => n.id === notification.id)) {
-          allNotifications.push(notification as Notification);
+          allNotifications.push(notification);
         }
       });
       

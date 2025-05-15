@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -158,86 +157,85 @@ const BlogPostEditor = () => {
           .eq('id', id)
           .select()
           .single();
-          
-        if (error) throw error;
-        result = data;
         
-        // Update local state
-        updatePost(id, {
+      if (error) throw error;
+      result = data;
+      
+      // Update local state
+      updatePost(id, {
+        ...postData,
+        author: user.name || 'Anonymous',
+        featuredImage: imageUrl,
+        excerpt: values.summary
+      });
+      
+      toast({
+        title: "Post zaktualizowany",
+        description: "Post został pomyślnie zaktualizowany."
+      });
+    } else {
+      // Add new post to database
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .insert({
           ...postData,
-          id,
+          date: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+          views: 0
+        })
+        .select()
+        .single();
+        
+      if (error) throw error;
+      result = data;
+      
+      // Add to local state
+      if (data) {
+        addPost({
+          title: values.title,
+          slug: values.slug,
+          excerpt: values.summary,
+          content: values.content,
+          featuredImage: imageUrl,
           author: user.name || 'Anonymous',
-          featuredImage: imageUrl
+          categories: values.categories.split(',').map(cat => cat.trim()),
+          tags: values.tags.split(',').map(tag => tag.trim())
         });
-        
-        toast({
-          title: "Post zaktualizowany",
-          description: "Post został pomyślnie zaktualizowany."
-        });
-      } else {
-        // Add new post to database
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .insert({
-            ...postData,
-            date: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-            views: 0
-          })
-          .select()
-          .single();
-          
-        if (error) throw error;
-        result = data;
-        
-        // Add to local state
-        if (data) {
-          addPost({
-            id: data.id,
-            title: values.title,
-            slug: values.slug,
-            excerpt: values.summary,
-            content: values.content,
-            featuredImage: imageUrl,
-            author: user.name || 'Anonymous',
-            categories: values.categories.split(',').map(cat => cat.trim()),
-            tags: values.tags.split(',').map(tag => tag.trim())
-          });
-        }
-        
-        toast({
-          title: "Post dodany",
-          description: "Nowy post został dodany do bloga."
-        });
-        
-        // Generate sitemap update
-        try {
-          await fetch('/api/update-sitemap', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              slug: values.slug
-            })
-          });
-        } catch (sitemapError) {
-          console.error('Error updating sitemap:', sitemapError);
-        }
       }
       
-      navigate('/admin');
-    } catch (error) {
-      console.error('Error saving post:', error);
       toast({
-        title: "Błąd",
-        description: "Wystąpił problem podczas zapisywania posta.",
-        variant: "destructive"
+        title: "Post dodany",
+        description: "Nowy post został dodany do bloga."
       });
-    } finally {
-      setIsLoading(false);
+      
+      // Generate sitemap update
+      try {
+        await fetch('/api/update-sitemap', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            slug: values.slug
+          })
+        });
+      } catch (sitemapError) {
+        console.error('Error updating sitemap:', sitemapError);
+      }
     }
-  };
+    
+    navigate('/admin');
+  } catch (error) {
+    console.error('Error saving post:', error);
+    toast({
+      title: "Błąd",
+      description: "Wystąpił problem podczas zapisywania posta.",
+      variant: "destructive"
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // Handle slug generation from title
   const generateSlug = () => {
