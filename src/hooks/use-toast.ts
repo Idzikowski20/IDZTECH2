@@ -2,10 +2,10 @@
 import { useState, useEffect, ReactNode } from 'react';
 
 // Toast types
-type ToastType = 'default' | 'success' | 'error' | 'warning' | 'info' | 'destructive';
+export type ToastType = 'default' | 'success' | 'error' | 'warning' | 'info' | 'destructive';
 
 // Toast options interface
-interface ToastOptions {
+export interface ToastOptions {
   title?: string;
   description?: string;
   variant?: ToastType;
@@ -14,7 +14,7 @@ interface ToastOptions {
 }
 
 // Toast interface
-interface Toast extends ToastOptions {
+export interface Toast extends ToastOptions {
   id: string;
 }
 

@@ -70,7 +70,7 @@ export const addNotification = (
   target_id?: string,
   target_type?: string,
   user_id?: string
-) => {
+): Notification => {
   const newNotification: Notification = {
     id: uuidv4(),
     title,
@@ -144,7 +144,9 @@ const saveNotificationToSupabase = async (notification: Notification) => {
         created_at: notification.created_at,
         is_read: notification.is_read,
         user_id: notification.user_id,
-        status: notification.status
+        status: notification.status,
+        comment: notification.comment,
+        fromUserName: notification.fromUserName
       });
       
     if (error) {
@@ -156,7 +158,7 @@ const saveNotificationToSupabase = async (notification: Notification) => {
 };
 
 // Fetch notifications from both localStorage and Supabase
-export const fetchNotifications = async () => {
+export const fetchNotifications = async (): Promise<Notification[]> => {
   try {
     // Get notifications from Supabase
     const { data: supabaseNotifications, error } = await supabase
@@ -205,7 +207,7 @@ export const fetchNotifications = async () => {
 };
 
 // Mark notification as read
-export const markAsRead = async (id: string) => {
+export const markAsRead = async (id: string): Promise<Notification[]> => {
   try {
     // Update local cache
     notificationsCache = notificationsCache.map(n => 
@@ -232,7 +234,7 @@ export const markAsRead = async (id: string) => {
 };
 
 // Mark all notifications as read
-export const markAllAsRead = async () => {
+export const markAllAsRead = async (): Promise<Notification[]> => {
   try {
     // Update local cache
     notificationsCache = notificationsCache.map(n => ({ ...n, is_read: true }));
@@ -257,7 +259,7 @@ export const markAllAsRead = async () => {
 };
 
 // Delete notification
-export const deleteNotification = async (id: string) => {
+export const deleteNotification = async (id: string): Promise<Notification[]> => {
   try {
     // Remove from local cache
     const notificationToDelete = notificationsCache.find(n => n.id === id);
@@ -290,7 +292,7 @@ export const addCommentNotification = async (
   postTitle: string, 
   userName: string,
   userId: string
-) => {
+): Promise<Notification> => {
   return addNotification(
     'Nowy komentarz',
     `${userName} dodał komentarz do posta "${postTitle}"`,
@@ -302,7 +304,7 @@ export const addCommentNotification = async (
 };
 
 // Add guest comment request notification
-export const addGuestCommentRequest = (postId: string, postTitle: string, guestName: string, comment: string) => {
+export const addGuestCommentRequest = (postId: string, postTitle: string, guestName: string, comment: string): Notification => {
   return addNotification(
     'Nowy komentarz gościa',
     `${guestName} dodał komentarz do posta "${postTitle}": "${comment.substring(0, 50)}${comment.length > 50 ? '...' : ''}"`,
@@ -351,7 +353,23 @@ export const rejectGuestComment = async (commentId: string) => {
   }
 };
 
-// Create a store using a custom hook pattern
+// Store state type
+type State = {
+  notifications: Notification[];
+  unreadCount: number;
+  fetchNotifications: typeof fetchNotifications;
+  addNotification: typeof addNotification;
+  markAsRead: typeof markAsRead;
+  markAllAsRead: typeof markAllAsRead;
+  deleteNotification: typeof deleteNotification;
+  addGuestCommentRequest: typeof addGuestCommentRequest;
+  approveGuestComment: typeof approveGuestComment;
+  rejectGuestComment: typeof rejectGuestComment;
+  addCommentNotification: typeof addCommentNotification;
+  updateNotificationStatus: typeof updateNotificationStatus;
+};
+
+// Create a proper store that allows for getState and setState
 const createStore = <T extends object>(initialState: T) => {
   let state = initialState;
   const listeners: (() => void)[] = [];
@@ -372,18 +390,21 @@ const createStore = <T extends object>(initialState: T) => {
   };
 
   const useStore = () => {
-    // This is just a wrapper to return the state
-    return { ...state, getState };
+    return { ...state };
   };
 
-  // Make state accessible directly
-  Object.assign(useStore, { getState, setState, subscribe });
+  // Make these methods accessible via the useStore function
+  const storeWithMethods = Object.assign(useStore, {
+    getState,
+    setState,
+    subscribe
+  });
 
-  return useStore;
+  return storeWithMethods;
 };
 
-// Custom hook to use notifications with Zustand-like API
-export const useNotifications = createStore({
+// Initialize store with state
+export const useNotifications = createStore<State>({
   notifications: notificationsCache,
   unreadCount,
   fetchNotifications,
@@ -397,3 +418,8 @@ export const useNotifications = createStore({
   addCommentNotification,
   updateNotificationStatus
 });
+
+// Export a function to initialize the notifications
+export const initializeNotifications = async () => {
+  await fetchNotifications();
+};

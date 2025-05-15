@@ -1,13 +1,14 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useNotifications } from "@/utils/notifications";
+import { useNotifications, fetchNotifications } from "@/utils/notifications";
 import { useToast } from "@/hooks/use-toast";
 
 const NotificationBell = () => {
   const navigate = useNavigate();
-  const { unreadCount, fetchNotifications } = useNotifications();
+  const { notifications, unreadCount } = useNotifications();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

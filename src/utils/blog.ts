@@ -224,16 +224,14 @@ export const useBlogStore = create<BlogStore>()(
           };
           
           // Add notification for new comment
-          useNotifications.getState().addNotification({
-            title: 'Nowy komentarz',
-            message: `${userName} dodał komentarz do "${post.title}"`,
-            type: 'comment_added' as NotificationType,
-            status: 'unread',
-            fromUserId: userId,
-            fromUserName: userName,
-            targetId: postId,
-            targetType: 'post'
-          });
+          addNotificationFunc(
+            'Nowy komentarz',
+            `${userName} dodał komentarz do "${post.title}"`,
+            'comment_added',
+            postId,
+            'post',
+            userId
+          );
 
           return {
             posts: state.posts.map((p) => 
@@ -274,16 +272,14 @@ export const useBlogStore = create<BlogStore>()(
           };
           
           // Add notification for new reply
-          useNotifications.getState().addNotification({
-            title: 'Nowa odpowiedź',
-            message: `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
-            type: 'comment_added' as NotificationType,
-            status: 'unread',
-            fromUserId: userId,
-            fromUserName: userName,
-            targetId: postId,
-            targetType: 'post'
-          });
+          addNotificationFunc(
+            'Nowa odpowiedź',
+            `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
+            'comment_added',
+            postId,
+            'post',
+            userId
+          );
           
           return {
             posts: state.posts.map((p) => 
@@ -341,16 +337,14 @@ export const useBlogStore = create<BlogStore>()(
           // Add notification if it's a new like (not a removal)
           if (!hasLiked) {
             // We would typically get the username from the user profile based on userId
-            useNotifications.getState().addNotification({
-              title: 'Nowe polubienie',
-              message: `Użytkownik polubił "${post.title}"`,
-              type: 'like_added' as NotificationType,
-              status: 'unread',
-              fromUserId: userId,
-              fromUserName: "Użytkownik",
-              targetId: postId,
-              targetType: 'post'
-            });
+            addNotificationFunc(
+              'Nowe polubienie',
+              `Użytkownik polubił "${post.title}"`,
+              'like_added',
+              postId,
+              'post',
+              userId
+            );
           }
           
           return {
@@ -377,16 +371,14 @@ export const useBlogStore = create<BlogStore>()(
           const guestLikes = post.guestLikes || [];
           
           // Add notification for new like
-          useNotifications.getState().addNotification({
-            title: 'Nowe polubienie',
-            message: `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
-            type: 'like_added' as NotificationType,
-            status: 'unread',
-            fromUserId: "guest",
-            fromUserName: guestName || "Gość",
-            targetId: postId,
-            targetType: 'post'
-          });
+          addNotificationFunc(
+            'Nowe polubienie',
+            `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
+            'like_added',
+            postId,
+            'post',
+            "guest"
+          );
           
           return {
             posts: state.posts.map((p) => 
@@ -434,16 +426,14 @@ export const useBlogStore = create<BlogStore>()(
           
           // Add notification if it's a new like (not a removal)
           if (!hasLiked) {
-            useNotifications.getState().addNotification({
-              title: 'Nowe polubienie',
-              message: `Gość polubił "${post.title}"`,
-              type: 'like_added' as NotificationType,
-              status: 'unread',
-              fromUserId: "guest",
-              fromUserName: "Gość",
-              targetId: postId,
-              targetType: 'post'
-            });
+            addNotificationFunc(
+              'Nowe polubienie',
+              `Gość polubił "${post.title}"`,
+              'like_added',
+              postId,
+              'post',
+              "guest"
+            );
           }
           
           return {

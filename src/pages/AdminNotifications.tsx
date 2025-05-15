@@ -1,9 +1,17 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/AdminLayout';
 import { useAuth } from '@/utils/AuthProvider';
-import { useNotifications, NotificationType, NotificationStatus } from '@/utils/notifications';
+import { 
+  useNotifications, 
+  NotificationType, 
+  NotificationStatus, 
+  Notification,
+  markAsRead,
+  updateNotificationStatus,
+  deleteNotification,
+  markAllAsRead
+} from '@/utils/notifications';
 import { 
   Card, 
   CardContent, 
@@ -87,17 +95,15 @@ const NotificationStatusBadge = ({ status }: { status: NotificationStatus }) => 
 const AdminNotifications = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { 
-    notifications, 
-    markAsRead, 
-    updateNotificationStatus, 
-    deleteNotification, 
-    markAllAsRead 
-  } = useNotifications();
-  const [selectedNotification, setSelectedNotification] = useState<any | null>(null);
+  const { notifications, fetchNotifications } = useNotifications();
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const { toast } = useToast();
+  
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   // Redirect if not authenticated
   if (!user) {
@@ -105,17 +111,17 @@ const AdminNotifications = () => {
     return null;
   }
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (notification.status === 'unread') {
       markAsRead(notification.id);
     }
   };
 
-  const handleApprove = (notification: any) => {
+  const handleApprove = (notification: Notification) => {
     updateNotificationStatus(notification.id, 'approved');
     
     // If this is a guest comment approval, handle it (implementation would depend on your comment system)
-    if (notification.targetType === 'comment') {
+    if (notification.target_type === 'comment') {
       // In a real implementation, you would add the guest comment to your database here
       console.log('Approved guest comment:', notification);
     }
@@ -126,7 +132,7 @@ const AdminNotifications = () => {
     });
   };
 
-  const openRejectDialog = (notification: any) => {
+  const openRejectDialog = (notification: Notification) => {
     setSelectedNotification(notification);
     setRejectionComment('');
     setOpenDialog(true);
@@ -147,7 +153,7 @@ const AdminNotifications = () => {
     }
   };
 
-  const handleDelete = (notification: any) => {
+  const handleDelete = (notification: Notification) => {
     deleteNotification(notification.id);
     toast({
       title: 'Usunięto',

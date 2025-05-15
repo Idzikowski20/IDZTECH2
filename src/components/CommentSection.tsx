@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, MessageCircle, CornerDownRight } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
-import { useNotifications } from '@/utils/notifications';
+import { useNotifications, addNotification } from '@/utils/notifications';
 
 interface CommentSectionProps {
   postId: string;
@@ -31,7 +31,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const { addComment, deleteComment, getPostComments, addReplyToComment, deleteReplyFromComment } = useBlogStore();
   const { toast } = useToast();
   const { theme } = useTheme();
-  const { addNotification } = useNotifications();
   
   // Add null check and default to empty array if comments are undefined
   const comments = getPostComments(postId) || [];
