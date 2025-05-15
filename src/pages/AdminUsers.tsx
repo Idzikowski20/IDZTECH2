@@ -1,15 +1,13 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, UserRound, Edit, Trash2, Plus } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -39,14 +37,13 @@ const AdminUsers = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [addUserOpen, setAddUserOpen] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
   
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoading(true);
         
-        // Fetch profiles from Supabase
+        // Fetch all users from Supabase Auth (through profiles table)
         const { data: profiles, error } = await supabase
           .from('profiles')
           .select('*');
@@ -61,20 +58,9 @@ const AdminUsers = () => {
           return;
         }
         
-        // Map profiles to user objects
-        const mappedUsers = profiles?.map(profile => ({
-          id: profile.id,
-          email: profile.email || '',
-          name: profile.name || '',
-          lastName: profile.lastName || '',
-          profilePicture: profile.profilePicture || '',
-          role: profile.role === 'admin' ? 'admin' : 'user', // Only admin or user roles
-          jobTitle: profile.jobTitle || '',
-          created_at: profile.created_at,
-          last_sign_in_at: profile.last_login
-        })) || [];
-
-        setUsers(mappedUsers);
+        if (profiles) {
+          setUsers(profiles);
+        }
       } catch (error) {
         console.error("Error loading users:", error);
         toast({
@@ -91,9 +77,9 @@ const AdminUsers = () => {
   }, [toast]);
 
   const handleDelete = async (userId: string) => {
-    if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
+    if (window.confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        // First delete the profile
+        // Delete profile first
         const { error: profileError } = await supabase
           .from('profiles')
           .delete()
@@ -101,18 +87,6 @@ const AdminUsers = () => {
         
         if (profileError) {
           throw profileError;
-        }
-        
-        // Then try to delete the auth user if possible
-        try {
-          await fetch(`${window.location.origin}/api/delete-user?id=${userId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        } catch (authError) {
-          console.log("Could not delete auth user, but profile was removed:", authError);
         }
         
         // Update local state
@@ -189,103 +163,104 @@ const AdminUsers = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow 
-                  key={user.id} 
-                  className="border-b border-gray-700 hover:bg-gray-700"
-                >
-                  <TableCell className="py-4">
-                    <div className="flex items-center">
-                      {user.profilePicture ? (
-                        <img
-                          className="h-10 w-10 rounded-full object-cover"
-                          src={user.profilePicture}
-                          alt={user.name}
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                        </div>
-                      )}
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-white">
-                          {user.name} {user.lastName || ''}
-                        </div>
-                        {user.jobTitle && (
-                          <div className="text-xs text-gray-400">
-                            {user.jobTitle}
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <TableRow 
+                    key={user.id} 
+                    className="border-b border-gray-700 hover:bg-gray-700"
+                  >
+                    <TableCell className="py-4">
+                      <div className="flex items-center">
+                        {user.profilePicture ? (
+                          <img
+                            className="h-10 w-10 rounded-full object-cover"
+                            src={user.profilePicture}
+                            alt={user.name}
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
+                            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                           </div>
                         )}
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-white">
+                            {user.name} {user.lastName || ''}
+                          </div>
+                          {user.jobTitle && (
+                            <div className="text-xs text-gray-400">
+                              {user.jobTitle}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {user.email}
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
-                    }`}>
-                      {user.role || 'user'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pl-PL') : 'Nigdy'}
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-transparent text-white hover:bg-white hover:text-black border-none"
-                      onClick={() => viewUserProfile(user)}
-                    >
-                      <UserRound className="h-4 w-4 mr-1" />
-                      Profil
-                    </Button>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="bg-transparent text-white hover:bg-white hover:text-black border-none"
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edytuj
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edytuj użytkownika</DialogTitle>
-                        </DialogHeader>
-                        <UserForm 
-                          userId={user.id} 
-                          user={user} 
-                          onSuccess={(updatedUser) => {
-                            setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-                            toast({
-                              title: "Sukces",
-                              description: "Użytkownik został zaktualizowany",
-                            });
-                          }} 
-                        />
-                      </DialogContent>
-                    </Dialog>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Usuń
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {users.length === 0 && (
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {user.email}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
+                      }`}>
+                        {user.role || 'user'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}
+                    </TableCell>
+                    <TableCell className="text-gray-300">
+                      {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pl-PL') : 'Nigdy'}
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="bg-transparent text-white hover:bg-white hover:text-black border-none"
+                        onClick={() => viewUserProfile(user)}
+                      >
+                        <UserRound className="h-4 w-4 mr-1" />
+                        Profil
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="bg-transparent text-white hover:bg-white hover:text-black border-none"
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Edytuj
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edytuj użytkownika</DialogTitle>
+                          </DialogHeader>
+                          <UserForm 
+                            userId={user.id} 
+                            user={user} 
+                            onSuccess={(updatedUser) => {
+                              setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+                              toast({
+                                title: "Sukces",
+                                description: "Użytkownik został zaktualizowany",
+                              });
+                            }} 
+                          />
+                        </DialogContent>
+                      </Dialog>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
+                        onClick={() => handleDelete(user.id)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Usuń
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-gray-400">
                     Brak użytkowników do wyświetlenia
@@ -319,7 +294,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    role: user?.role === 'admin' ? 'admin' : 'user', // Simplified role system
+    role: user?.role === 'admin' ? 'admin' : 'user',
     password: '',
     lastName: user?.lastName || '',
     jobTitle: user?.jobTitle || '',
@@ -336,7 +311,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
     
     try {
       if (userId) {
-        // Update existing user
+        // Update existing user profile
         const { error } = await supabase
           .from('profiles')
           .update({
@@ -383,7 +358,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
       
       if (onSuccess) {
         onSuccess({
-          id: userId || Math.random().toString(),
+          id: userId || (Math.random() + 1).toString(36).substring(7),
           ...formData,
           created_at: user?.created_at || new Date().toISOString(),
           last_sign_in_at: user?.last_sign_in_at || null

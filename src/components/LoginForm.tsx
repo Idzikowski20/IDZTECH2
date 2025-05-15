@@ -1,10 +1,9 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
@@ -23,7 +22,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   const { signIn } = useAuth();
   const { toast } = useToast();
   const { theme } = useTheme();
-  const redirected = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +42,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
       
       if (error) {
         console.error("Login error:", error);
-        
         toast({
           title: "Błąd logowania",
           description: error.message || "Nieprawidłowy email lub hasło",
@@ -54,23 +51,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         return;
       }
       
-      toast({
-        title: "Zalogowano pomyślnie",
-        description: "Witamy z powrotem!"
-      });
-      
+      // If onSuccess callback was provided, run it
       if (onSuccess) {
         onSuccess();
       } else {
-        console.log("Login successful, redirecting...");
-        // Zamiast natychmiastowego przekierowania, pozwolmy na zakończenie bieżącego renderowania
-        setTimeout(() => {
-          if (!redirected.current) {
-            redirected.current = true;
-            navigate('/admin');
-            setIsLoading(false);
-          }
-        }, 1000);
+        // Otherwise, redirect to admin page
+        navigate('/admin');
       }
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
@@ -79,6 +65,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         description: "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
+    } finally {
       setIsLoading(false);
     }
   };
