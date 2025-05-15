@@ -4,21 +4,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, ArrowLeft, Upload } from 'lucide-react';
+import { Save, ArrowLeft, Upload, FileCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useBlogStore, BlogPost } from '@/utils/blog';
+import { useBlogStore } from '@/utils/blog';
 import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
+import { supabase } from '@/integrations/supabase/client';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
   slug: z.string().min(5, 'Slug musi mieć co najmniej 5 znaków').regex(/^[a-z0-9-]+$/, 'Slug może zawierać tylko małe litery, cyfry i myślniki'),
-  excerpt: z.string().min(10, 'Zajawka musi mieć co najmniej 10 znaków'),
+  summary: z.string().min(10, 'Zajawka musi mieć co najmniej 10 znaków'),
   content: z.string().min(50, 'Treść musi mieć co najmniej 50 znaków'),
   categories: z.string().min(2, 'Kategorie są wymagane'),
   tags: z.string().min(2, 'Tagi są wymagane')
@@ -37,8 +38,40 @@ const BlogPostEditor = () => {
   const [imagePreview, setImagePreview] = useState<string>('');
 
   // Find existing post if editing
-  const existingPost = id ? posts.find(post => post.id === id) : undefined;
-  const isEditing = !!existingPost;
+  const [existingPost, setExistingPost] = useState<any>(null);
+  const isEditing = !!id;
+
+  // Fetch post from database if editing
+  useEffect(() => {
+    const fetchPost = async () => {
+      if (id) {
+        try {
+          const { data, error } = await supabase
+            .from('blog_posts')
+            .select('*')
+            .eq('id', id)
+            .single();
+            
+          if (error) {
+            throw error;
+          }
+          
+          if (data) {
+            setExistingPost(data);
+          }
+        } catch (error) {
+          console.error('Error fetching post:', error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się załadować posta",
+            variant: "destructive"
+          });
+        }
+      }
+    };
+    
+    fetchPost();
+  }, [id, toast]);
 
   // Set up form with default values
   const form = useForm<FormValues>({
@@ -46,17 +79,25 @@ const BlogPostEditor = () => {
     defaultValues: {
       title: existingPost?.title || '',
       slug: existingPost?.slug || '',
-      excerpt: existingPost?.excerpt || '',
+      summary: existingPost?.summary || '',
       content: existingPost?.content || '',
-      categories: existingPost?.categories.join(', ') || '',
-      tags: existingPost?.tags.join(', ') || ''
-    }
+      categories: existingPost?.categories?.join(', ') || '',
+      tags: existingPost?.tags?.join(', ') || ''
+    },
+    values: existingPost ? {
+      title: existingPost.title || '',
+      slug: existingPost.slug || '',
+      summary: existingPost.summary || '',
+      content: existingPost.content || '',
+      categories: existingPost.categories?.join(', ') || '',
+      tags: existingPost.tags?.join(', ') || ''
+    } : undefined
   });
 
   // Initialize image preview if we're editing a post with an existing image
   useEffect(() => {
-    if (existingPost?.featuredImage) {
-      setImagePreview(existingPost.featuredImage);
+    if (existingPost?.featured_image) {
+      setImagePreview(existingPost.featured_image);
     }
   }, [existingPost]);
 
@@ -84,7 +125,7 @@ const BlogPostEditor = () => {
     setIsLoading(true);
     try {
       // Convert image to base64 if we have a new image
-      let imageUrl = existingPost?.featuredImage || '';
+      let imageUrl = existingPost?.featured_image || '';
       
       if (featuredImage) {
         const reader = new FileReader();
@@ -94,32 +135,100 @@ const BlogPostEditor = () => {
         });
       }
 
+      // Prepare data for database
       const postData = {
         title: values.title,
         slug: values.slug,
-        excerpt: values.excerpt,
+        summary: values.summary,
         content: values.content,
-        featuredImage: imageUrl,
-        author: user.name || 'Anonymous',  // Use logged in user name
+        featured_image: imageUrl,
+        author_id: user.id,
         categories: values.categories.split(',').map(cat => cat.trim()),
-        tags: values.tags.split(',').map(tag => tag.trim())
+        tags: values.tags.split(',').map(tag => tag.trim()),
+        updated_at: new Date().toISOString()
       };
 
-      if (isEditing && existingPost) {
-        updatePost(existingPost.id, postData);
+      let result;
+      
+      if (isEditing && id) {
+        // Update existing post in database
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .update(postData)
+          .eq('id', id)
+          .select()
+          .single();
+          
+        if (error) throw error;
+        result = data;
+        
+        // Update local state
+        updatePost(id, {
+          ...postData,
+          id,
+          author: user.name || 'Anonymous',
+          featuredImage: imageUrl
+        });
+        
         toast({
           title: "Post zaktualizowany",
           description: "Post został pomyślnie zaktualizowany."
         });
       } else {
-        addPost(postData);
+        // Add new post to database
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert({
+            ...postData,
+            date: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            views: 0
+          })
+          .select()
+          .single();
+          
+        if (error) throw error;
+        result = data;
+        
+        // Add to local state
+        if (data) {
+          addPost({
+            id: data.id,
+            title: values.title,
+            slug: values.slug,
+            excerpt: values.summary,
+            content: values.content,
+            featuredImage: imageUrl,
+            author: user.name || 'Anonymous',
+            categories: values.categories.split(',').map(cat => cat.trim()),
+            tags: values.tags.split(',').map(tag => tag.trim())
+          });
+        }
+        
         toast({
           title: "Post dodany",
           description: "Nowy post został dodany do bloga."
         });
+        
+        // Generate sitemap update
+        try {
+          await fetch('/api/update-sitemap', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              slug: values.slug
+            })
+          });
+        } catch (sitemapError) {
+          console.error('Error updating sitemap:', sitemapError);
+        }
       }
+      
       navigate('/admin');
     } catch (error) {
+      console.error('Error saving post:', error);
       toast({
         title: "Błąd",
         description: "Wystąpił problem podczas zapisywania posta.",
@@ -134,7 +243,13 @@ const BlogPostEditor = () => {
   const generateSlug = () => {
     const title = form.getValues('title');
     if (title) {
-      const slug = title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+      const slug = title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
       form.setValue('slug', slug);
     }
   };
@@ -151,10 +266,15 @@ const BlogPostEditor = () => {
               {isEditing ? 'Edytuj post' : 'Dodaj nowy post'}
             </h1>
           </div>
-          <Button onClick={form.handleSubmit(onSubmit)} className="bg-premium-gradient" disabled={isLoading}>
-            <Save size={18} className="mr-2" />
-            {isLoading ? 'Zapisywanie...' : 'Zapisz post'}
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={() => form.setValue('content', form.getValues('content') + '<h2>Nagłówek H2</h2>')} className="bg-gray-700">
+              <FileCode size={18} className="mr-2" /> Dodaj H2
+            </Button>
+            <Button onClick={form.handleSubmit(onSubmit)} className="bg-premium-gradient" disabled={isLoading}>
+              <Save size={18} className="mr-2" />
+              {isLoading ? 'Zapisywanie...' : 'Zapisz post'}
+            </Button>
+          </div>
         </div>
 
         <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
@@ -172,7 +292,9 @@ const BlogPostEditor = () => {
                           {...field} 
                           placeholder="Tytuł posta" 
                           onBlur={() => {
-                            if (!isEditing) generateSlug();
+                            if (!isEditing && !form.getValues('slug')) {
+                              generateSlug();
+                            }
                           }} 
                           className="bg-slate-950" 
                         />
@@ -187,7 +309,7 @@ const BlogPostEditor = () => {
                   name="slug" 
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug</FormLabel>
+                      <FormLabel>Slug (URL)</FormLabel>
                       <FormControl>
                         <Input {...field} placeholder="url-posta" className="bg-slate-950" />
                       </FormControl>
@@ -199,7 +321,7 @@ const BlogPostEditor = () => {
               
               <FormField 
                 control={form.control} 
-                name="excerpt" 
+                name="summary" 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Zajawka</FormLabel>
@@ -217,6 +339,15 @@ const BlogPostEditor = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
+                    <div className="mb-2 flex gap-2">
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h1>Nagłówek H1</h1>')}>H1</Button>
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h2>Nagłówek H2</h2>')}>H2</Button>
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h3>Nagłówek H3</h3>')}>H3</Button>
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<p>Paragraf</p>')}>P</Button>
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<strong>Pogrubienie</strong>')}>Bold</Button>
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<em>Kursywa</em>')}>Italic</Button>
+                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<ul>\n<li>Element listy</li>\n<li>Element listy</li>\n</ul>')}>Lista</Button>
+                    </div>
                     <FormControl>
                       <RichTextEditor 
                         value={field.value}
@@ -316,6 +447,19 @@ const BlogPostEditor = () => {
                   </FormItem>
                 )} 
               />
+              
+              <div className="pt-4">
+                <Button 
+                  type="submit" 
+                  className="bg-premium-gradient" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Zapisywanie...' : isEditing ? 'Aktualizuj post' : 'Opublikuj post'}
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Post zostanie automatycznie dodany do sitemap.xml dla lepszego indeksowania w Google.
+                </p>
+              </div>
             </form>
           </Form>
         </div>

@@ -3,3 +3,7 @@ project_id = "apeestymqcpmpdnmccmd"
 
 [functions.send-notification]
 verify_jwt = true
+
+[functions.update-sitemap]
+verify_jwt = true
+

@@ -83,12 +83,6 @@ const NotificationBell = () => {
           </button>
         </div>
       )}
-      
-      {!error && !loading && unreadCount === 0 && (
-        <div className="absolute z-50 mt-2 right-14 bg-gray-800 text-white p-2 rounded shadow-lg text-xs">
-          Brak nowych powiadomień
-        </div>
-      )}
     </div>
   );
 };

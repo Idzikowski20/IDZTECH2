@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { addGuestCommentRequest } from '@/utils/notifications';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface GuestCommentFormProps {
@@ -65,7 +65,12 @@ const GuestCommentForm: React.FC<GuestCommentFormProps> = ({ postId, postTitle, 
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+    <form onSubmit={handleSubmit} className="space-y-4 mt-6 bg-premium-dark/30 p-5 rounded-lg border border-premium-light/10">
+      <div className="flex items-center gap-2 mb-4 text-premium-light">
+        <MessageSquare className="h-5 w-5" />
+        <h3 className="font-medium">Dodaj komentarz jako gość</h3>
+      </div>
+      
       <div>
         <Label htmlFor="guest-name">Imię</Label>
         <Input
@@ -74,6 +79,7 @@ const GuestCommentForm: React.FC<GuestCommentFormProps> = ({ postId, postTitle, 
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          className="bg-premium-dark/50"
         />
       </div>
       
@@ -86,14 +92,14 @@ const GuestCommentForm: React.FC<GuestCommentFormProps> = ({ postId, postTitle, 
           onChange={(e) => setComment(e.target.value)}
           rows={4}
           required
-          className="resize-none"
+          className="resize-none bg-premium-dark/50"
         />
       </div>
       
       <Button 
         type="submit" 
         disabled={isSubmitting || !name.trim() || !comment.trim()}
-        className="w-full"
+        className="w-full bg-premium-gradient hover:bg-white hover:text-black"
       >
         {isSubmitting ? (
           <>

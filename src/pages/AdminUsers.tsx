@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/utils/AuthProvider';
-import { supabase } from '@/utils/supabaseClient';
-import { Loader2, UserRound, Shield, Edit, Trash2, Home } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Loader2, UserRound, Edit, Trash2, Plus } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +28,7 @@ interface UserProfile {
   role?: string;
   jobTitle?: string;
   created_at?: string;
-  last_login?: string;
+  last_sign_in_at?: string;
 }
 
 const AdminUsers = () => {
@@ -37,6 +37,7 @@ const AdminUsers = () => {
   const { user: currentUser } = useAuth();
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [addUserOpen, setAddUserOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -44,40 +45,36 @@ const AdminUsers = () => {
     const loadUsers = async () => {
       try {
         setLoading(true);
-        // Fetch users from Supabase
-        const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
         
-        if (authError) {
-          console.error("Error loading users:", authError);
-          throw authError;
-        }
-        
-        // Fetch profiles with additional info
-        const { data: profiles, error: profilesError } = await supabase
+        // Fetch profiles from Supabase
+        const { data: profiles, error } = await supabase
           .from('profiles')
           .select('*');
           
-        if (profilesError) {
-          console.error("Error loading profiles:", profilesError);
+        if (error) {
+          console.error("Error loading profiles:", error);
+          toast({
+            title: "Błąd",
+            description: "Nie udało się załadować użytkowników",
+            variant: "destructive"
+          });
+          return;
         }
         
-        // Combine auth users with profile info
-        const combinedUsers = authUsers?.users.map(authUser => {
-          const profile = profiles?.find(p => p.id === authUser.id);
-          return {
-            id: authUser.id,
-            email: authUser.email || '',
-            name: profile?.name || authUser.user_metadata?.name || '',
-            lastName: profile?.lastName || authUser.user_metadata?.lastName || '',
-            profilePicture: profile?.profilePicture || authUser.user_metadata?.avatar_url || '',
-            role: profile?.role || 'user',
-            jobTitle: profile?.jobTitle || '',
-            created_at: authUser.created_at,
-            last_login: authUser.last_sign_in_at
-          };
-        }) || [];
+        // Map profiles to user objects
+        const mappedUsers = profiles?.map(profile => ({
+          id: profile.id,
+          email: profile.email || '',
+          name: profile.name || '',
+          lastName: profile.lastName || '',
+          profilePicture: profile.profilePicture || '',
+          role: profile.role === 'admin' ? 'admin' : 'user', // Only admin or user roles
+          jobTitle: profile.jobTitle || '',
+          created_at: profile.created_at,
+          last_sign_in_at: profile.last_login
+        })) || [];
 
-        setUsers(combinedUsers);
+        setUsers(mappedUsers);
       } catch (error) {
         console.error("Error loading users:", error);
         toast({
@@ -96,12 +93,29 @@ const AdminUsers = () => {
   const handleDelete = async (userId: string) => {
     if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        const { error } = await supabase.auth.admin.deleteUser(userId);
+        // First delete the profile
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .delete()
+          .eq('id', userId);
         
-        if (error) {
-          throw error;
+        if (profileError) {
+          throw profileError;
         }
         
+        // Then try to delete the auth user if possible
+        try {
+          await fetch(`${window.location.origin}/api/delete-user?id=${userId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (authError) {
+          console.log("Could not delete auth user, but profile was removed:", authError);
+        }
+        
+        // Update local state
         setUsers(users.filter(user => user.id !== userId));
         toast({
           title: "Sukces",
@@ -123,9 +137,6 @@ const AdminUsers = () => {
     setProfileOpen(true);
   };
   
-  // Check if user has admin or administrator role
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'administrator';
-  
   if (loading) {
     return (
       <AdminLayout>
@@ -136,55 +147,31 @@ const AdminUsers = () => {
     );
   }
 
-  if (!isAdmin) {
-    return (
-      <AdminLayout>
-        <div className="flex flex-col items-center justify-center h-[60vh] bg-premium-dark">
-          <div className="bg-gray-800 p-8 rounded-xl shadow-lg max-w-md text-center">
-            <div className="flex justify-center mb-4">
-              <Shield className="h-16 w-16 text-red-500" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-4">Brak uprawnień</h2>
-            <p className="text-gray-300 mb-6">
-              Tylko administratorzy mają dostęp do zarządzania użytkownikami.
-            </p>
-            <div className="space-x-3">
-              <Button 
-                onClick={() => navigate("/admin")} 
-                className="px-6 py-2 bg-premium-gradient text-white rounded-lg hover:bg-white hover:text-black"
-              >
-                Powrót do panelu
-              </Button>
-              <Button 
-                onClick={() => navigate("/")} 
-                className="px-6 py-2 border border-gray-500 text-white rounded-lg hover:bg-white hover:text-black"
-              >
-                <Home size={16} className="mr-2" /> Strona główna
-              </Button>
-            </div>
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
   return (
     <AdminLayout>
       <div className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Zarządzaj użytkownikami</h1>
-          <Dialog>
+          <Dialog open={addUserOpen} onOpenChange={setAddUserOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-premium-gradient">
+                <Plus className="mr-2 h-4 w-4" /> Dodaj użytkownika
+              </Button>
+            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
               </DialogHeader>
-              <UserForm onSuccess={(newUser) => {
-                setUsers([...users, newUser]);
-                toast({
-                  title: "Sukces",
-                  description: "Użytkownik został dodany",
-                });
-              }} />
+              <UserForm 
+                onSuccess={(newUser) => {
+                  setUsers([...users, newUser]);
+                  setAddUserOpen(false);
+                  toast({
+                    title: "Sukces",
+                    description: "Użytkownik został dodany",
+                  });
+                }}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -205,7 +192,7 @@ const AdminUsers = () => {
               {users.map((user) => (
                 <TableRow 
                   key={user.id} 
-                  className="border-b border-gray-700 hover:bg-gray-700 dark:hover:bg-gray-700"
+                  className="border-b border-gray-700 hover:bg-gray-700"
                 >
                   <TableCell className="py-4">
                     <div className="flex items-center">
@@ -217,7 +204,7 @@ const AdminUsers = () => {
                         />
                       ) : (
                         <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                          {user.name?.charAt(0)}
+                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                         </div>
                       )}
                       <div className="ml-4">
@@ -236,7 +223,9 @@ const AdminUsers = () => {
                     {user.email}
                   </TableCell>
                   <TableCell>
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900 text-green-100">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
+                    }`}>
                       {user.role || 'user'}
                     </span>
                   </TableCell>
@@ -244,7 +233,7 @@ const AdminUsers = () => {
                     {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}
                   </TableCell>
                   <TableCell className="text-gray-300">
-                    {user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}
+                    {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pl-PL') : 'Nigdy'}
                   </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button 
@@ -257,6 +246,16 @@ const AdminUsers = () => {
                       Profil
                     </Button>
                     <Dialog>
+                      <DialogTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="bg-transparent text-white hover:bg-white hover:text-black border-none"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edytuj
+                        </Button>
+                      </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Edytuj użytkownika</DialogTitle>
@@ -286,13 +285,24 @@ const AdminUsers = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              {users.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-gray-400">
+                    Brak użytkowników do wyświetlenia
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
       </div>
 
       {/* User Profile Dialog */}
-      <UserProfileDialog user={selectedUser} open={profileOpen} onOpenChange={setProfileOpen} />
+      <UserProfileDialog 
+        user={selectedUser} 
+        open={profileOpen} 
+        onOpenChange={setProfileOpen} 
+      />
     </AdminLayout>
   );
 };
@@ -309,7 +319,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    role: user?.role || 'user',
+    role: user?.role === 'admin' ? 'admin' : 'user', // Simplified role system
     password: '',
     lastName: user?.lastName || '',
     jobTitle: user?.jobTitle || '',
@@ -339,14 +349,15 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
         
         if (error) throw error;
       } else {
-        // Add new user
-        const { data, error } = await supabase.auth.admin.createUser({
+        // Add new user via signup
+        const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
-          email_confirm: true,
-          user_metadata: {
-            name: formData.name,
-            lastName: formData.lastName
+          options: {
+            data: {
+              name: formData.name,
+              lastName: formData.lastName
+            }
           }
         });
         
@@ -356,13 +367,14 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
         if (data.user) {
           const { error: profileError } = await supabase
             .from('profiles')
-            .insert({
+            .upsert({
               id: data.user.id,
               email: formData.email,
               name: formData.name,
               lastName: formData.lastName,
               role: formData.role,
-              jobTitle: formData.jobTitle
+              jobTitle: formData.jobTitle,
+              created_at: new Date().toISOString()
             });
             
           if (profileError) throw profileError;
@@ -374,7 +386,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           id: userId || Math.random().toString(),
           ...formData,
           created_at: user?.created_at || new Date().toISOString(),
-          last_login: user?.last_login || null
+          last_sign_in_at: user?.last_sign_in_at || null
         });
       }
     } catch (error: any) {
@@ -448,10 +460,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           required
         >
           <option value="user">Użytkownik</option>
-          <option value="blogger">Bloger</option>
-          <option value="moderator">Moderator</option>
           <option value="admin">Administrator</option>
-          <option value="administrator">Administrator</option>
         </select>
       </div>
       
@@ -506,7 +515,7 @@ const UserProfileDialog = ({ user, open, onOpenChange }: {
             />
           ) : (
             <div className="h-24 w-24 rounded-full bg-premium-gradient flex items-center justify-center text-white text-xl font-bold mb-4">
-              {user.name?.charAt(0) || user.email.charAt(0).toUpperCase()}
+              {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
             </div>
           )}
           
@@ -518,7 +527,9 @@ const UserProfileDialog = ({ user, open, onOpenChange }: {
             <p className="text-muted-foreground">{user.jobTitle}</p>
           )}
           
-          <span className="px-3 py-1 mt-2 bg-green-900 text-green-100 text-xs rounded-full">
+          <span className={`px-3 py-1 mt-2 ${
+            user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
+          } text-xs rounded-full`}>
             {user.role || 'user'}
           </span>
         </div>
@@ -536,7 +547,7 @@ const UserProfileDialog = ({ user, open, onOpenChange }: {
           
           <div className="flex items-center">
             <span className="text-muted-foreground w-32">Ostatnie logowanie:</span>
-            <span>{user.last_login ? new Date(user.last_login).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
+            <span>{user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
           </div>
         </div>
       </DialogContent>
