@@ -4,9 +4,9 @@ import LoginForm from '@/components/LoginForm';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/utils/themeContext';
-import { useAuth } from '@/utils/AuthProvider';
+import { AuthProvider, useAuth } from '@/utils/AuthProvider';
 
-const Login = () => {
+const LoginContent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
@@ -33,6 +33,14 @@ const Login = () => {
       </div>
       <Footer />
     </div>
+  );
+};
+
+const Login = () => {
+  return (
+    <AuthProvider>
+      <LoginContent />
+    </AuthProvider>
   );
 };
 
