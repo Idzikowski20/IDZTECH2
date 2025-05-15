@@ -45,6 +45,11 @@ const UserRanking: React.FC<UserRankingProps> = ({
       try {
         setLoading(true);
         
+        // Call refreshUserStats from auth context if available
+        if (auth.refreshUserStats) {
+          auth.refreshUserStats();
+        }
+        
         // Fetch users from Supabase profiles
         const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
@@ -93,7 +98,7 @@ const UserRanking: React.FC<UserRankingProps> = ({
     };
     
     fetchUsers();
-  }, [auth.refreshUserStats, posts, showMonthly]);
+  }, [auth, posts, showMonthly]);
   
   // Get displayed users based on limit
   const displayUsers = users.slice(0, limit);

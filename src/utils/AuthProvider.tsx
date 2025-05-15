@@ -26,6 +26,7 @@ export interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error?: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
   getCurrentUser: () => (User & ExtendedUserProfile) | null;
+  refreshUserStats: () => void; // Add the refreshUserStats function
 }
 
 // Create auth context
@@ -422,6 +423,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
+  // Add refreshUserStats function
+  const refreshUserStats = () => {
+    // Implement a function to refresh user stats
+    // This is a placeholder function that will be used by the UserRanking component
+    console.log("Refreshing user stats from AuthProvider");
+    
+    // You might want to fetch updated user data here
+    // or trigger a refresh of the user ranking component
+    try {
+      // Placeholder for actual implementation
+      // In a real implementation, you might want to fetch updated user data from Supabase
+      // or trigger a refresh of related components
+    } catch (error) {
+      console.error("Error refreshing user stats:", error);
+    }
+  };
+  
   // Auth context value
   const value = {
     user,
@@ -435,6 +453,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetPassword,
     updateProfile,
     getCurrentUser,
+    refreshUserStats, // Add the refreshUserStats function to the context value
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
