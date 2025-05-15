@@ -22,6 +22,7 @@ export interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
+  refreshUserStats: () => void; // Added the missing property
 }
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
