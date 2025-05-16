@@ -15,10 +15,10 @@ export interface BlogPost {
   author_id: string;
   created_at: string;
   updated_at: string;
-  // Add missing SEO fields
-  meta_title: string;
-  meta_description: string;
-  meta_tags: string;
+  // Make SEO fields optional with ? since they might not exist in older records
+  meta_title?: string;
+  meta_description?: string;
+  meta_tags?: string;
 }
 
 export interface BlogAuthor {
