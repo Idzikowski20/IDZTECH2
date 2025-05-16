@@ -114,7 +114,7 @@ const Projects = () => {
                 className={`px-6 py-2 rounded-full transition-all duration-300 ${
                   activeCategory === category.id 
                     ? 'bg-premium-gradient text-white' 
-                    : 'border border-grey/100 text-premium-light/70 hover:text-premium-light hover:border-black/30'
+                    : 'bg-premium-dark/80 border border-white/10 text-premium-light/70 hover:text-premium-light hover:border-white/30'
                 }`}
               >
                 {category.name}
@@ -139,8 +139,8 @@ const Projects = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-premium-dark/90 to-transparent opacity-70 group-hover:opacity-90 transition-opacity"></div>
                 </div>
                 <div className="absolute bottom-0 left-0 w-full p-6">
-                  <h3 className="text-xl font-semibold mb-2 text-bialy">{item.title}</h3>
-                  <p className="text-sm text-szary mb-4">
+                  <h3 className="text-xl font-semibold mb-2 text-premium-light">{item.title}</h3>
+                  <p className="text-sm text-premium-light/70 mb-4">
                     {item.category === 'web' && 'Strona internetowa'}
                     {item.category === 'ecommerce' && 'Sklep internetowy'}
                     {item.category === 'seo' && 'Pozycjonowanie'}

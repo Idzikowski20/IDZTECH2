@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -45,13 +46,13 @@ const AdminUsers = () => {
       try {
         setLoading(true);
         
-        // Fetch users from Supabase
-        const { data: users, error } = await supabase
-          .from('users')
+        // Fetch profiles from Supabase
+        const { data: profiles, error } = await supabase
+          .from('profiles')
           .select('*');
           
         if (error) {
-          console.error("Error loading users:", error);
+          console.error("Error loading profiles:", error);
           toast({
             title: "Błąd",
             description: "Nie udało się załadować użytkowników",
@@ -60,17 +61,17 @@ const AdminUsers = () => {
           return;
         }
         
-        // Map users to user objects
-        const mappedUsers = users?.map(user => ({
-          id: user.id,
-          email: user.email || '',
-          name: user.name || '',
-          lastName: user.lastName || '',
-          profilePicture: user.profilePicture || '',
-          role: user.role === 'admin' ? 'admin' : 'user', // Only admin or user roles
-          jobTitle: user.jobTitle || '',
-          created_at: user.created_at,
-          last_sign_in_at: user.last_login
+        // Map profiles to user objects
+        const mappedUsers = profiles?.map(profile => ({
+          id: profile.id,
+          email: profile.email || '',
+          name: profile.name || '',
+          lastName: profile.lastName || '',
+          profilePicture: profile.profilePicture || '',
+          role: profile.role === 'admin' ? 'admin' : 'user', // Only admin or user roles
+          jobTitle: profile.jobTitle || '',
+          created_at: profile.created_at,
+          last_sign_in_at: profile.last_login
         })) || [];
 
         setUsers(mappedUsers);
@@ -337,13 +338,12 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
       if (userId) {
         // Update existing user
         const { error } = await supabase
-          .from('users')
+          .from('profiles')
           .update({
             name: formData.name,
             lastName: formData.lastName,
             jobTitle: formData.jobTitle,
-            role: formData.role,
-            updated_at: new Date().toISOString()
+            role: formData.role
           })
           .eq('id', userId);
         
@@ -356,18 +356,17 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           options: {
             data: {
               name: formData.name,
-              lastName: formData.lastName,
-              role: formData.role
+              lastName: formData.lastName
             }
           }
         });
         
         if (error) throw error;
         
-        // Create user entry
+        // Create profile entry
         if (data.user) {
-          const { error: userError } = await supabase
-            .from('users')
+          const { error: profileError } = await supabase
+            .from('profiles')
             .upsert({
               id: data.user.id,
               email: formData.email,
@@ -378,7 +377,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
               created_at: new Date().toISOString()
             });
             
-          if (userError) throw userError;
+          if (profileError) throw profileError;
         }
       }
       

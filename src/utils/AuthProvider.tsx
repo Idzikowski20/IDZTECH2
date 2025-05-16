@@ -11,7 +11,6 @@ export interface ExtendedUserProfile {
   profilePicture?: string | null;
   bio?: string | null;
   jobTitle?: string | null;
-  role?: string | null;
 }
 
 // Define auth context type
@@ -66,9 +65,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               try {
                 if (abortController.signal.aborted || !isMounted) return;
                 
-                // Fetch user data
-                const { data: userData } = await supabase
-                  .from('users')
+                // Fetch profile data
+                const { data: profileData } = await supabase
+                  .from('profiles')
                   .select('*')
                   .eq('id', currentSession.user.id)
                   .single();
@@ -76,12 +75,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 if (isMounted) {
                   setUser({
                     ...currentSession.user,
-                    name: userData?.name || currentSession.user.user_metadata?.name || null,
-                    lastName: userData?.lastName || currentSession.user.user_metadata?.lastName || null,
-                    profilePicture: userData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
-                    bio: userData?.bio || currentSession.user.user_metadata?.bio || null,
-                    jobTitle: userData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null,
-                    role: userData?.role || currentSession.user.user_metadata?.role || 'user'
+                    name: profileData?.name || currentSession.user.user_metadata?.name || null,
+                    lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
+                    profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
+                    bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
+                    jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
                   });
                   setIsAuthenticated(true);
                 }
@@ -153,21 +151,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log("Found existing session:", session.user.id);
           setSession(session);
           
-          // Fetch user data
-          const { data: userData } = await supabase
-            .from('users')
+          // Fetch profile data
+          const { data: profileData } = await supabase
+            .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .single();
           
           setUser({
             ...session.user,
-            name: userData?.name || session.user.user_metadata?.name || null,
-            lastName: userData?.lastName || session.user.user_metadata?.lastName || null,
-            profilePicture: userData?.profilePicture || session.user.user_metadata?.profilePicture || null,
-            bio: userData?.bio || session.user.user_metadata?.bio || null,
-            jobTitle: userData?.jobTitle || session.user.user_metadata?.jobTitle || null,
-            role: userData?.role || session.user.user_metadata?.role || 'user'
+            name: profileData?.name || session.user.user_metadata?.name || null,
+            lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
+            profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
+            bio: profileData?.bio || session.user.user_metadata?.bio || null,
+            jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null
           });
           setIsAuthenticated(true);
         } else {
@@ -267,18 +264,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
       
-      // Create user entry
+      // Create profile
       if (user) {
-        const { error: userError } = await supabase.from('users').upsert({
+        const { error: profileError } = await supabase.from('profiles').upsert({
           id: user.id,
           email: user.email,
           name: userData.name,
-          role: userData.role || 'user',
           created_at: new Date().toISOString()
         });
         
-        if (userError) {
-          console.error("Error creating user:", userError);
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
         }
       }
       
@@ -316,18 +312,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return success;
       }
       
-      // If Supabase registration succeeded, create a user entry
+      // If Supabase registration succeeded, create a profile
       if (data.user) {
-        const { error: userError } = await supabase.from('users').upsert({
+        const { error: profileError } = await supabase.from('profiles').upsert({
           id: data.user.id,
           email: data.user.email,
           name: name,
-          role: 'user',
           created_at: new Date().toISOString()
         });
         
-        if (userError) {
-          console.error("Error creating user:", userError);
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
         }
       }
       
@@ -386,43 +381,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user?.id) return;
       
-      // Make sure we have the user's email for the update
+      // Make sure we have the user's email for the profile update
       const userEmail = user.email || '';
       
-      // Update user data in Supabase
-      const { error: userError } = await supabase
-        .from('users')
+      // Update Supabase profile first
+      const { error: profileError } = await supabase
+        .from('profiles')
         .upsert({
           id: user.id,
-          email: userEmail,
-          ...data,
-          updated_at: new Date().toISOString()
+          email: userEmail, // Add required email field
+          ...data
         });
       
-      if (userError) {
-        console.error("Error updating user:", userError);
-        throw userError;
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
+        throw profileError;
       }
       
       // Also update user metadata
-      const { error: metadataError } = await supabase.auth.updateUser({
+      const { error: userError } = await supabase.auth.updateUser({
         data: data
       });
       
-      if (metadataError) {
-        console.error("Error updating user metadata:", metadataError);
-        // Continue anyway since we updated the user data
+      if (userError) {
+        console.error("Error updating user metadata:", userError);
+        // Continue anyway since we updated the profile
       }
       
       setUser(prev => prev ? { ...prev, ...data } : null);
       
       toast({
-        title: "Dane użytkownika zaktualizowane",
-        description: "Twoje dane zostały pomyślnie zaktualizowane",
+        title: "Profil zaktualizowany",
+        description: "Twój profil został pomyślnie zaktualizowany",
       });
     } catch (error: any) {
       toast({
-        title: "Błąd aktualizacji danych",
+        title: "Błąd aktualizacji profilu",
         description: error.message || "Wystąpił nieoczekiwany błąd",
         variant: "destructive",
       });

@@ -1,16 +1,17 @@
+
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ExtendedUserProfile } from "@/contexts/AuthContext";
 
-export const useUserManager = (user: (User & ExtendedUserProfile) | null) => {
+export const useProfileManager = (user: (User & ExtendedUserProfile) | null) => {
   const { toast } = useToast();
 
-  const updateUser = async (userData: Partial<ExtendedUserProfile>) => {
+  const updateProfile = async (profileData: Partial<ExtendedUserProfile>) => {
     if (!user?.id) {
-      console.error('Cannot update user: No user is logged in');
+      console.error('Cannot update profile: No user is logged in');
       toast({
-        title: "Błąd aktualizacji użytkownika",
+        title: "Błąd aktualizacji profilu",
         description: "Nie jesteś zalogowany",
         variant: "destructive"
       });
@@ -18,25 +19,25 @@ export const useUserManager = (user: (User & ExtendedUserProfile) | null) => {
     }
 
     try {
-      console.log('Updating user data:', userData);
+      console.log('Updating profile data:', profileData);
       
-      // Ensure we have the required fields for the users table
+      // Ensure we have the required fields for the profiles table
       const dataToUpdate = {
-        ...userData,
+        ...profileData,
         updated_at: new Date().toISOString()
       };
       
-      // Update the user in Supabase
+      // Update the profile in Supabase
       const { error } = await supabase
-        .from('users')
+        .from('profiles')
         .update(dataToUpdate)
         .eq('id', user.id);
 
       if (error) {
-        console.error('Error updating user:', error);
+        console.error('Error updating profile:', error);
         toast({
-          title: "Błąd aktualizacji użytkownika",
-          description: error.message || "Nie udało się zaktualizować danych użytkownika",
+          title: "Błąd aktualizacji profilu",
+          description: error.message || "Nie udało się zaktualizować profilu",
           variant: "destructive"
         });
         return;
@@ -45,7 +46,7 @@ export const useUserManager = (user: (User & ExtendedUserProfile) | null) => {
       // Also update the user metadata in auth if available
       try {
         await supabase.auth.updateUser({
-          data: userData
+          data: profileData
         });
       } catch (authError) {
         console.log('Could not update auth metadata:', authError);
@@ -53,21 +54,21 @@ export const useUserManager = (user: (User & ExtendedUserProfile) | null) => {
       }
 
       toast({
-        title: "Dane użytkownika zaktualizowane",
+        title: "Profil zaktualizowany",
         description: "Twoje dane zostały pomyślnie zaktualizowane"
       });
       
       return true;
     } catch (error) {
-      console.error('Error in updateUser:', error);
+      console.error('Error updating profile:', error);
       toast({
-        title: "Błąd aktualizacji użytkownika",
-        description: "Wystąpił nieoczekiwany błąd podczas aktualizacji danych",
+        title: "Błąd aktualizacji profilu",
+        description: "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
       return false;
     }
   };
 
-  return { updateUser };
+  return { updateProfile };
 };

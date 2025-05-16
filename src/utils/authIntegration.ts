@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -14,8 +15,8 @@ export const integrateAuth = async () => {
       console.log('Using Supabase authentication');
       
       // Get profile data if available
-      const { data: userData } = await supabase
-        .from('users')
+      const { data: profileData } = await supabase
+        .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
@@ -25,14 +26,14 @@ export const integrateAuth = async () => {
         session,
         user: {
           ...session.user,
-          name: userData?.name || session.user.user_metadata?.name || null,
-          lastName: userData?.lastName || session.user.user_metadata?.lastName || null,
-          profilePicture: userData?.profilePicture || session.user.user_metadata?.profilePicture || null,
-          bio: userData?.bio || session.user.user_metadata?.bio || null,
-          jobTitle: userData?.jobTitle || session.user.user_metadata?.jobTitle || null,
-          role: userData?.role || session.user.user_metadata?.role || 'user',
+          name: profileData?.name || session.user.user_metadata?.name || null,
+          lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
+          profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
+          bio: profileData?.bio || session.user.user_metadata?.bio || null,
+          jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null,
+          role: profileData?.role || session.user.user_metadata?.role || 'user',
           // Needed for compatibility with local auth
-          createdAt: userData?.created_at || session.user.created_at || new Date().toISOString()
+          createdAt: profileData?.created_at || session.user.created_at || new Date().toISOString()
         }
       };
     } else {
@@ -75,20 +76,20 @@ export const registerUser = async (email: string, name: string, password: string
       }
     });
     
-    // If Supabase signup works, create a user entry
+    // If Supabase signup works, create a profile
     if (data.user && !error) {
       console.log('Registered user with Supabase');
       
-      // Create user entry
-      const { error: userError } = await supabase.from('users').upsert({
+      // Create profile
+      const { error: profileError } = await supabase.from('profiles').upsert({
         id: data.user.id,
         email: data.user.email,
         name: name,
         created_at: new Date().toISOString()
       });
       
-      if (userError) {
-        console.error("Error creating user:", userError);
+      if (profileError) {
+        console.error("Error creating profile:", profileError);
       }
       
       return true;
@@ -129,23 +130,23 @@ export const loginUser = async (email: string, password: string) => {
     if (data.session && !error) {
       console.log('Logged in with Supabase');
       
-      // Check if user entry exists, if not create it
-      const { data: userData } = await supabase
-        .from('users')
+      // Check if profile exists, if not create it
+      const { data: profileData } = await supabase
+        .from('profiles')
         .select('id')
         .eq('id', data.user.id)
         .single();
       
-      if (!userData) {
-        const { error: userError } = await supabase.from('users').upsert({
+      if (!profileData) {
+        const { error: profileError } = await supabase.from('profiles').upsert({
           id: data.user.id,
           email: data.user.email,
           name: data.user.user_metadata?.name || email.split('@')[0],
           created_at: new Date().toISOString()
         });
         
-        if (userError) {
-          console.error("Error creating user during login:", userError);
+        if (profileError) {
+          console.error("Error creating profile during login:", profileError);
         }
       }
       
@@ -202,22 +203,21 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
     
     if (session && session.user.id === userId) {
       // Get the user email first
-      const { data: userDataAuth } = await supabase.auth.getUser();
-      const email = userDataAuth?.user?.email || '';
+      const { data: userData } = await supabase.auth.getUser();
+      const email = userData?.user?.email || '';
       
-      // Update Supabase user entry
-      const { error: userError } = await supabase
-        .from('users')
+      // Update Supabase profile
+      const { error: profileError } = await supabase
+        .from('profiles')
         .upsert({
           id: userId,
           email: email, // Add required email field
-          ...userData,
-          updated_at: new Date().toISOString()
+          ...userData
         });
       
-      if (userError) {
-        console.error("Error updating user:", userError);
-        return { success: false, error: userError };
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
+        return { success: false, error: profileError };
       }
       
       // Also update user metadata
@@ -240,19 +240,19 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
 // Fetch all users from Supabase
 export const fetchAllUsers = async () => {
   try {
-    console.log('Fetching all users from Supabase users table');
+    console.log('Fetching all users from Supabase profiles');
     
-    // Fetch all users from the users table
-    const { data: users, error } = await supabase
-      .from('users')
+    // Fetch all profiles from the profiles table
+    const { data: profiles, error } = await supabase
+      .from('profiles')
       .select('*');
     
     if (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching profiles:', error);
       return [];
     }
     
-    return users || [];
+    return profiles || [];
   } catch (error) {
     console.error('Error in fetchAllUsers:', error);
     return [];
@@ -286,9 +286,9 @@ export const addUser = async (userData: any, password: string) => {
       return { success: false, error };
     }
     
-    // Create user entry
+    // Create profile
     if (user) {
-      const { error: userError } = await supabase.from('users').upsert({
+      const { error: profileError } = await supabase.from('profiles').upsert({
         id: user.id,
         email: userData.email,
         name: userData.name,
@@ -300,9 +300,9 @@ export const addUser = async (userData: any, password: string) => {
         created_at: new Date().toISOString()
       });
       
-      if (userError) {
-        console.error('Error creating user:', userError);
-        return { success: false, error: userError };
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        return { success: false, error: profileError };
       }
     }
     
@@ -320,9 +320,9 @@ export const updateUserRole = async (userId: string, role: UserRole) => {
   try {
     console.log('Updating role for user:', userId, 'to', role);
     
-    // Update the user with the new role
+    // Update the profile with the new role
     const { error } = await supabase
-      .from('users')
+      .from('profiles')
       .update({ role })
       .eq('id', userId);
     
@@ -345,14 +345,15 @@ export const deleteUser = async (userId: string) => {
   try {
     console.log('Deleting user:', userId);
     
-    // Delete user entry from users table
+    // We can't directly delete users from auth.users with the client SDK
+    // But we can delete their profile, which is effectively the same for our purposes
     const { error } = await supabase
-      .from('users')
+      .from('profiles')
       .delete()
       .eq('id', userId);
     
     if (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting user profile:', error);
       return false;
     }
     
