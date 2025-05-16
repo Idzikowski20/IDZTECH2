@@ -67,9 +67,7 @@ export const integrateAuth = async () => {
 // Handle registration through both systems
 export const registerUser = async (email: string, name: string, password: string) => {
   try {
-    console.log('Adding new user:', name);
-    
-    // Create user in Supabase
+    // First try Supabase
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -223,17 +221,14 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
       }
       
       // Also update user metadata
-      // Use type assertion to handle the role property
-      const userMetadata: Record<string, any> = { ...userData };
-      
       const { error } = await supabase.auth.updateUser({
-        data: userMetadata
+        data: userData
       });
       
       return { success: !error, error };
     } else {
       // Update local user
-      const success = await authStore.useAuth.getState().updateUser(userId, userData as any);
+      const success = await authStore.useAuth.getState().updateUser(userId, userData);
       return { success, error: success ? null : new Error('Failed to update user') };
     }
   } catch (error) {

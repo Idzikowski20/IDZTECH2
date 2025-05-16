@@ -1,74 +1,68 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Eye } from 'lucide-react';
-import { Helmet } from 'react-helmet';
+import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { getPostBySlug, getAuthorById, BlogPost, BlogAuthor } from '@/services/blogService';
+import { useBlogStore } from '@/utils/blog';
+import { useAuth } from '@/utils/AuthProvider';
+import CommentSection from '@/components/CommentSection';
+import LikeButton from '@/components/LikeButton';
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from '@/utils/themeContext';
+import { supabase } from '@/utils/supabaseClient';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-const BlogPostPage = () => {
+const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { getPostBySlug, incrementView } = useBlogStore();
+  const { user } = useAuth();
+  const viewCountUpdated = useRef(false);
+  const isMobile = useIsMobile();
   const { theme } = useTheme();
+  const [authorProfile, setAuthorProfile] = useState<any>(null);
   
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [author, setAuthor] = useState<BlogAuthor | null>(null);
-  const [loading, setLoading] = useState(true);
+  const post = slug ? getPostBySlug(slug) : undefined;
   
   useEffect(() => {
-    const fetchPost = async () => {
-      if (!slug) return;
-      
-      try {
-        setLoading(true);
-        const postData = await getPostBySlug(slug);
-        
-        if (!postData) {
-          // Post nie został znaleziony
-          setLoading(false);
-          return;
-        }
-        
-        setPost(postData);
-        
-        // Pobierz dane autora
-        if (postData.author_id) {
-          const authorData = await getAuthorById(postData.author_id);
-          setAuthor(authorData);
-        }
-      } catch (error) {
-        console.error('Error fetching blog post:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPost();
-
-    // Przewiń stronę na górę
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-  }, [slug]);
+    
+    // Increment view count only once per component mount
+    if (post?.id && !viewCountUpdated.current) {
+      incrementView(post.id);
+      viewCountUpdated.current = true;
+    }
+  }, [post?.id, incrementView]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-premium-dark">
-        <Navbar />
-        <div className="container mx-auto px-4 pt-40 pb-24 flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premium-purple"></div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
+  // Fetch author profile from Supabase if we have an author ID
+  useEffect(() => {
+    const fetchAuthorProfile = async () => {
+      // Use post.author instead of post.authorId since that's what's available in the BlogPost type
+      if (post?.author) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('name', post.author) // Using name instead of ID
+            .single();
+            
+          if (!error && data) {
+            setAuthorProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching author profile:', error);
+        }
+      }
+    };
+    
+    fetchAuthorProfile();
+  }, [post?.author]);
+  
   if (!post) {
     return (
       <div className="min-h-screen bg-premium-dark">
@@ -85,33 +79,21 @@ const BlogPostPage = () => {
     );
   }
 
-  // Dane autora - użyj dostępnych informacji lub fallback
-  const authorDisplayName = author?.name || "IDZ.TECH";
+  // Używamy danych autora z profilu lub z posta jako fallback
+  const authorDisplayName = authorProfile?.name || post.author || "IDZ.TECH";
   const authorInitial = authorDisplayName.charAt(0);
-  const authorProfilePicture = author?.profilePicture || null;
+  const authorProfilePicture = authorProfile?.profilePicture || null;
+
+  // Safely access post properties with fallbacks for undefined values
+  const commentsCount = post.comments ? post.comments.length : 0;
+  const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
+
+  // Check if user is admin, moderator or blogger (has special permissions)
+  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
+  const isUserLoggedIn = !!user;
 
   return (
     <div className="min-h-screen bg-premium-dark">
-      <Helmet>
-        <title>{post.meta_title || post.title} | IDZ.TECH</title>
-        <meta name="description" content={post.meta_description || post.summary} />
-        <meta name="keywords" content={post.meta_tags || post.tags?.join(', ')} />
-        <link rel="canonical" href={`https://idz.tech/blog/${post.slug}`} />
-        
-        {/* Open Graph */}
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.summary} />
-        <meta property="og:image" content={post.featured_image} />
-        <meta property="og:url" content={`https://idz.tech/blog/${post.slug}`} />
-        <meta property="og:type" content="article" />
-        
-        {/* Twitter Card */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={post.summary} />
-        <meta name="twitter:image" content={post.featured_image} />
-      </Helmet>
-
       <Navbar />
       
       {/* Hero section */}
@@ -130,24 +112,36 @@ const BlogPostPage = () => {
                 <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
               </div>
               
-              {post.categories && post.categories.length > 0 && (
+              {isUserLoggedIn && (
                 <>
                   <span className="mx-2">•</span>
                   <span>{post.categories.join(', ')}</span>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Eye size={14} className="mr-1" />
+                    <span>{post.views} wyświetleń</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <MessageCircle size={14} className="mr-1" />
+                    <span>{commentsCount} komentarzy</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Heart size={14} className="mr-1" />
+                    <span>{likesCount} polubień</span>
+                  </div>
                 </>
               )}
-              
-              <span className="mx-2">•</span>
-              <div className="flex items-center">
-                <Eye size={14} className="mr-1" />
-                <span>{post.views} wyświetleń</span>
-              </div>
             </div>
             
             <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
-            <div className="flex items-center mb-6">
-              {/* Avatar autora */}
+            <div className="flex items-center mb-4">
+              {/* Używamy avatara z profilem z Supabase */}
               <Avatar className="h-10 w-10 border">
                 <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
                 <AvatarFallback className="bg-premium-gradient text-white">
@@ -157,9 +151,13 @@ const BlogPostPage = () => {
               <div className="ml-3">
                 <div className="font-medium">{authorDisplayName}</div>
                 <div className="text-sm text-premium-light/60">
-                  {author?.jobTitle || "Autor"}
+                  {authorProfile?.jobTitle || "Autor"}
                 </div>
               </div>
+            </div>
+
+            <div className="mb-6">
+              <LikeButton postId={post.id} />
             </div>
           </div>
         </div>
@@ -169,7 +167,7 @@ const BlogPostPage = () => {
       <div className="container mx-auto px-4 mb-10">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-xl overflow-hidden">
-            <img src={post.featured_image} alt={post.title} className="w-full h-auto" />
+            <img src={post.featuredImage} alt={post.title} className="w-full h-auto" />
           </div>
         </div>
       </div>
@@ -181,18 +179,33 @@ const BlogPostPage = () => {
             <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
           
-          {post.tags && post.tags.length > 0 && (
-            <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
-              <div className="flex flex-wrap gap-2">
-                {post.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+          <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
+            <div className="flex flex-wrap gap-2">
+              {post.tags && post.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Comments section - only show when logged in */}
+          {isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto">
+              <CommentSection postId={post.id} />
+            </div>
+          )}
+          
+          {!isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
+              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
+              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
+              <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
+                Zaloguj się
+              </Button>
             </div>
           )}
         </div>
@@ -203,4 +216,4 @@ const BlogPostPage = () => {
   );
 };
 
-export default BlogPostPage;
+export default BlogPost;

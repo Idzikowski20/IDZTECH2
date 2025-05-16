@@ -9,7 +9,282 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_stats: {
+        Row: {
+          comments: number | null
+          created_at: string | null
+          date: string | null
+          id: string
+          likes: number | null
+          monthly_data: Json | null
+          posts: number | null
+          updated_at: string | null
+          views: number | null
+          weekly_data: Json | null
+        }
+        Insert: {
+          comments?: number | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          likes?: number | null
+          monthly_data?: Json | null
+          posts?: number | null
+          updated_at?: string | null
+          views?: number | null
+          weekly_data?: Json | null
+        }
+        Update: {
+          comments?: number | null
+          created_at?: string | null
+          date?: string | null
+          id?: string
+          likes?: number | null
+          monthly_data?: Json | null
+          posts?: number | null
+          updated_at?: string | null
+          views?: number | null
+          weekly_data?: Json | null
+        }
+        Relationships: []
+      }
+      blog_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          guest_name: string | null
+          id: string
+          post_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          guest_name?: string | null
+          id?: string
+          post_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          guest_name?: string | null
+          id?: string
+          post_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          categories: string[] | null
+          content: string
+          created_at: string | null
+          date: string | null
+          featured_image: string | null
+          id: string
+          slug: string
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          views: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          categories?: string[] | null
+          content: string
+          created_at?: string | null
+          date?: string | null
+          featured_image?: string | null
+          id?: string
+          slug: string
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          views?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          categories?: string[] | null
+          content?: string
+          created_at?: string | null
+          date?: string | null
+          featured_image?: string | null
+          id?: string
+          slug?: string
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          views?: number | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          target_id: string | null
+          target_type: string | null
+          title: string
+          type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          target_id?: string | null
+          target_type?: string | null
+          title: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          target_id?: string | null
+          target_type?: string | null
+          title?: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          email: string
+          id: string
+          jobTitle: string | null
+          last_login: string | null
+          lastName: string | null
+          name: string | null
+          profilePicture: string | null
+          role: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          email: string
+          id: string
+          jobTitle?: string | null
+          last_login?: string | null
+          lastName?: string | null
+          name?: string | null
+          profilePicture?: string | null
+          role?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          jobTitle?: string | null
+          last_login?: string | null
+          lastName?: string | null
+          name?: string | null
+          profilePicture?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
