@@ -1,570 +1,114 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer utilities {
-  .animate-float-1 {
-    animation: float1 4s ease-in-out infinite;
-  }
-  
-  .animate-float-2 {
-    animation: float2 5s ease-in-out infinite;
-  }
-  
-  .animate-float-3 {
-    animation: float3 6s ease-in-out infinite;
-  }
-  
-  @keyframes float1 {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
-  @keyframes float2 {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-15px);
-    }
-  }
-  
-  @keyframes float3 {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
-  }
-}
-
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
+    --foreground: 222.2 84% 4.9%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    --primary: 262 100% 65%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-
+    --destructive-foreground: 210 40% 98%;
+ 
+    --ring: 215 20.2% 65.1%;
+ 
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 222.2 47.4% 11.2%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 215 20.2% 65.1%;
+    
     --radius: 0.5rem;
+    
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+    
+    --gradient-color: #8350e8;
+    --sparkles-color: #8350e8;
   }
-
+ 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 262 100% 65%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --destructive-foreground: 0 85.7% 97.3%;
+ 
+    --ring: 217.2 32.6% 17.5%;
+    
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 217.2 32.6% 17.5%;
+    
+    --gradient-color: #8350e8;
+    --sparkles-color: #ffffff;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
-    scroll-behavior: smooth; /* Enable smooth scrolling */
-    -webkit-font-smoothing: antialiased; /* Better font rendering on mobile */
-    -moz-osx-font-smoothing: grayscale;
   }
-
   body {
-    @apply bg-background text-foreground font-montserrat;
-    scrollbar-width: thin;
-    scrollbar-color: #000000 transparent;
-    overscroll-behavior-y: none; /* Prevent overscroll bounce */
-    touch-action: manipulation; /* Optimize for touch devices */
-    -webkit-overflow-scrolling: touch; /* Improve scrolling on iOS devices */
-    text-size-adjust: 100%; /* Prevent iOS font size adjustment */
-    -webkit-text-size-adjust: 100%;
-  }
-  
-  /* iOS-specific fixes */
-  @supports (-webkit-touch-callout: none) {
-    body {
-      /* Fix for iOS height issues */
-      min-height: -webkit-fill-available;
-    }
-    
-    /* Fix for iOS form elements */
-    input, select, textarea {
-      font-size: 16px !important; /* Prevents zooming on input focus */
-    }
-    
-    /* Fix for iOS button tap highlight */
-    a, button {
-      -webkit-tap-highlight-color: transparent;
-    }
-  }
-  
-  /* Android-specific fixes */
-  @supports not (-webkit-touch-callout: none) {
-    body {
-      overscroll-behavior: contain;
-    }
-    
-    /* Fix for Android form elements */
-    input, select, textarea {
-      font-size: 16px !important;
-    }
-  }
-  
-  /* Optimize images */
-  img {
-    @apply will-change-transform;
-    content-visibility: auto; /* Use content-visibility for faster rendering */
-    aspect-ratio: attr(width) / attr(height); /* Prevent layout shift */
-  }
-  
-  /* Better touch targets for mobile */
-  button, a, input[type="button"], input[type="submit"], [role="button"] {
-    min-height: 44px; /* Apple's recommended touch target size */
-    min-width: 44px;
-    padding: 0.5rem 1rem;
-  }
-  
-  /* Mobile-optimized focus styles */
-  :focus {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-  }
-  
-  /* Optimize animations */
-  .animate-fade-in,
-  .animate-float-1,
-  .animate-float-2,
-  .animate-float-3 {
-    will-change: transform, opacity;
-  }
-
-  /* Webkit scrollbar styles */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background-color: #000000;
-    border-radius: 4px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: #333333;
-  }
-  
-  .light {
-    @apply bg-white text-premium-dark;
-  }
-  
-  .dark {
-    @apply bg-premium-dark text-premium-light;
-  }
-  
-  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
-  .light p, .light span {
-    @apply text-premium-dark;
-  }
-  
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .light h6, 
-  .dark p, .dark span {
-    @apply text-premium-light;
-  }
-  
-  /* Hover effects in navigation with white text - Fixed for both light and dark mode */
-  .light .hover\:bg-white:hover,
-  .light .hover\:bg-black:hover {
-    color: #FFFFFF !important;
-  }
-
-  .dark .hover\:bg-white:hover,
-  .dark .hover\:bg-black:hover {
-    color: #000000 !important;
-  }
-
-  .light .hover\:text-white:hover {
-    color: #FFFFFF !important;
-  }
-
-  .dark .hover\:text-black:hover {
-    color: #000000 !important;
-  }
-  
-  /* Fixed for light mode dropdown navigation items */
-  .light .bg-black\/80 .text-white,
-  .light .bg-black\/80 p {
-    color: #FFFFFF !important;
-  }
-
-  .light .bg-black\/80 .hover\:bg-white\/10:hover .text-white {
-    color: #FFFFFF !important;
-  }
-  
-  /* Card styles in light mode */
-  .light .bg-premium-dark {
-    background-color: #FFFFFF;
-  }
-  
-  /* Light mode navigation text color */
-  .light .text-white {
-    color: #000000;
-  }
-  
-  /* FAQs HoverCard content in light mode */
-  .light .w-80.bg-premium-dark\/95 {
-    background-color: #FFFFFF;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Fixed styles for light mode cards */
-  .light .bg-premium-dark\/60 {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-color: #e5e7eb;
-  }
-
-  /* Process cards in light mode - with shadow */
-  .light .bg-premium-dark\/40, 
-  .light .bg-premium-dark\/50,
-  .light .bg-premium-dark\/70 {
-    background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  /* Fixed styles for FAQ section text in light mode */
-  .light .accordion-content {
-    color: #000000;
-  }
-  
-  /* Navigation dropdown menu background in light mode */
-  .light .bg-black\/80 {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-color: #e5e7eb;
-  }
-  
-  /* Footer link color fixes in light mode */
-  .light .text-premium-light\/70 {
-    color: rgba(0, 0, 0, 0.7);
-  }
-  
-  .light .text-premium-light\/60 {
-    color: rgba(0, 0, 0, 0.6);
-  }
-  
-  .light .hover\:text-premium-light:hover {
-    color: #000000;
-  }
-  
-  /* CTA button in light mode */
-  .light .border-black {
-    border-color: #000000;
-  }
-  
-  /* Meeting button in light mode navigation */
-  .light .bg-black.text-white {
-    color: #FFFFFF !important;
-  }
-
-  /* Specifically for hover card in light mode */
-  .light .HoverCardContent {
-    background-color: #FFFFFF;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Fixed navbars in light and dark mode */
-  .light .backdrop-blur-md.bg-premium-dark\/80 {
-    background-color: rgba(255, 255, 255, 0.8);
-    color: #000000;
-  }
-
-  .light .backdrop-blur-md.bg-white\/80 {
-    background-color: rgba(255, 255, 255, 0.8);
-    color: #000000;
-  }
-
-  /* Comment reply background in light mode */
-  .light .bg-premium-dark\/30 {
-    background-color: #FFFFFF;
-    border: 1px solid #e5e7eb;
-  }
-
-  /* Portfolio overlay text color fix for light mode */
-  .light .portfolio-item .portfolio-overlay h3,
-  .light .portfolio-item .portfolio-overlay p,
-  .light .portfolio-item:hover .portfolio-overlay h3,
-  .light .portfolio-item:hover .portfolio-overlay p {
-    color: #FFFFFF !important;
-  }
-  
-  /* Fix for portfolio category buttons in light mode */
-  .light .portfolio-category {
-    background-color: white;
-    color: #000000;
-  }
-  
-  .light .portfolio-category:hover {
-    background-color: #000000;
-    color: #FFFFFF;
-  }
-
-  /* Force white text on black background hover in light mode */
-  .light button:hover svg,
-  .light a:hover svg {
-    color: #FFFFFF;
-  }
-  
-  /* Force black text on white background hover in dark mode */
-  .dark button:hover svg,
-  .dark a:hover svg {
-    color: #000000;
-  }
-  
-  /* Fix for the "Zobacz projekty" button in hero section */
-  .light .outline.hover\:bg-black:hover,
-  .light .hover\:bg-black:hover {
-    color: #FFFFFF !important;
-    background-color: #000000 !important;
-  }
-  
-  .dark .outline.hover\:bg-black:hover,
-  .dark .hover\:bg-black:hover {
-    color: #000000 !important;
-    background-color: #FFFFFF !important;
-  }
-  
-  /* Fix for the "Zobacz nasze realizacje" button in CTA */
-  .light .border-black.hover\:bg-black:hover {
-    color: #FFFFFF !important;
-    background-color: #000000 !important;
-  }
-  
-  .dark .border-black.hover\:bg-white:hover {
-    color: #000000 !important;
-    background-color: #FFFFFF !important;
-  }
-  
-  /* Add border to inputs in light mode */
-  .light input,
-  .light textarea {
-    border: 1px solid #ccc;
-  }
-  
-  /* Social icon hover scale effect */
-  .footer a.hover\:scale-110:hover,
-  .footer a:hover svg {
-    transform: scale(1.1);
-  }
-  
-  /* Fix for SEO optimization boxes in light mode */
-  .light .hover\:bg-black {
-    transition: transform 0.3s ease;
-  }
-
-  .light .hover\:bg-black:hover {
-    transform: scale(1.05);
-    background-color: #000000 !important;
-    color: #FFFFFF !important;
-  }
-
-  .dark .hover\:bg-black {
-    transition: transform 0.3s ease;
-  }
-
-  .dark .hover\:bg-black:hover {
-    transform: scale(1.05);
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
-  }
-  
-  /* Floating animation keyframes */
-  @keyframes float-1 {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  
-  @keyframes float-2 {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-15px);
-    }
-  }
-  
-  @keyframes float-3 {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-8px);
-    }
-  }
-  
-  .animate-float-1 {
-    animation: float-1 5s ease-in-out infinite;
-  }
-  
-  .animate-float-2 {
-    animation: float-2 6s ease-in-out infinite;
-  }
-  
-  .animate-float-3 {
-    animation: float-3 4s ease-in-out infinite;
-  }
-
-  /* Original floating animations (kept for compatibility) */
-  @keyframes floating-light-1 {
-    0%, 100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(20px, -20px);
-    }
-  }
-  
-  @keyframes floating-light-2 {
-    0%, 100% {
-      transform: translate(0, 0) translateX(-50%);
-    }
-    50% {
-      transform: translate(15px, 20px) translateX(-50%);
-    }
-  }
-  
-  @keyframes floating-light-3 {
-    0%, 100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(-20px, -15px);
-    }
-  }
-  
-  .animate-floating-light-1 {
-    animation: floating-light-1 15s ease-in-out infinite;
-  }
-  
-  .animate-floating-light-2 {
-    animation: floating-light-2 18s ease-in-out infinite;
-  }
-  
-  .animate-floating-light-3 {
-    animation: floating-light-3 20s ease-in-out infinite;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Mobile-specific optimizations */
-@media (max-width: 768px) {
-  html, body {
-    font-size: 14px; /* Slightly smaller base font for mobile */
-  }
-  
-  /* Improve tap targets on mobile */
-  button, a, input, select, textarea {
-    min-height: 44px;
-    padding: 0.75rem 1rem;
-  }
-  
-  /* Reduce motion on mobile for better performance */
-  .animate-float-1,
-  .animate-float-2,
-  .animate-float-3 {
-    animation-duration: 6s; /* Slow down animations on mobile */
-  }
-  
-  /* Optimize mobile navigation */
-  nav {
-    height: auto;
-    padding: 0.75rem 1rem;
-  }
-  
-  /* Fix mobile overflow issues */
-  .container {
-    width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    overflow-x: hidden;
-  }
-  
-  /* Better spacing on mobile */
-  section {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-  }
-  
-  /* Fix for iOS momentum scrolling */
-  .overflow-y-auto,
-  .overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Reduce motion if user prefers */
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-.text-premium-purple {
-    --tw-text-opacity: 1; 
-    color: rgb(120 77 255 / var(--tw-text-opacity, 1)) !important;
+/* App specific styles */
+html {
+  scroll-behavior: smooth;
 }

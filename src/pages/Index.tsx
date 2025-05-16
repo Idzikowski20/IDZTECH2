@@ -1,9 +1,11 @@
+
 import React, { useEffect, lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import LightEffects from "@/components/LightEffects";
-import Hero from "@/components/Hero"; // ⬅️ już nie lazy
-import OurServices from "@/components/OurServices"; // ⬅️ już nie lazy
+import Hero from "@/components/Hero"; 
+import OurServices from "@/components/OurServices"; 
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
+import { Demo } from "@/components/ui/demo";
 
 // Lazy load components not immediately visible on first screen
 const WhyWorkWithUs = lazy(() => import("@/components/WhyWorkWithUs"));
@@ -67,6 +69,10 @@ const Index = () => {
 
       {/* Statyczne komponenty - ładują się natychmiast */}
       <Hero />
+      
+      {/* Demo component */}
+      <Demo />
+      
       <OurServices />
 
       {/* Komponenty ładowane później */}

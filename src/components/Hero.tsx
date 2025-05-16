@@ -7,6 +7,7 @@ import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import HeroImage from "@/components/HeroImage";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 
 const Hero = () => {
   const { theme } = useTheme();
@@ -52,9 +53,7 @@ const Hero = () => {
               className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-3 md:gap-4 mb-6 md:mb-10 transition-opacity duration-500 ${showContent ? 'opacity-100 delay-200' : 'opacity-0'} ${isMobile ? 'w-full' : ''}`}
             >
               <Link to="/contact" className={isMobile ? 'w-full' : ''}>
-                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full">
-                  Skontaktuj się
-                </Button>
+                <RainbowButton>Skontaktuj się</RainbowButton>
               </Link>
               <Link to="/projects" className={isMobile ? 'w-full' : ''}>
                 <Button size="lg" variant="outline" className="hover:bg-black hover:text-white w-full">

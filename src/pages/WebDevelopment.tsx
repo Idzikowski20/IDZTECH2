@@ -3,6 +3,7 @@ import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { RainbowButton } from '@/components/ui/rainbow-button';
 import PageDotAnimation from '@/components/PageDotAnimation';
 import { useNavigate } from 'react-router-dom';
 import { Check, ExternalLink } from 'lucide-react';
@@ -11,6 +12,8 @@ import VerticalProcessSteps from '@/components/VerticalProcessSteps';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { JavaScript, Css3, Html5, TypeScript, ReactIcon } from '@/components/TechnologyIcons';
 import { useTheme } from '@/utils/themeContext';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { Link } from 'react-router-dom';
 
 const WebDevelopment = () => {
   const navigate = useNavigate();
@@ -55,13 +58,11 @@ const WebDevelopment = () => {
                 pomagają osiągać cele biznesowe i wyróżniać się na tle konkurencji.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button 
-                  onClick={() => navigate('/kontakt')} 
-                  className="px-8 py-6 bg-premium-gradient hover:bg-white hover:text-black"
-                  size="lg"
-                >
-                  Zamów bezpłatną wycenę
-                </Button>
+                <Link to="/kontakt">
+                  <RainbowButton>
+                    Zamów bezpłatną wycenę
+                  </RainbowButton>
+                </Link>
                 <Button 
                   variant="outline" 
                   className="px-8 py-6 hover:bg-white hover:text-black"
@@ -183,6 +184,27 @@ const WebDevelopment = () => {
           </div>
         </div>
       </section>
+
+      {/* Container Scroll Animation */}
+      <ContainerScroll
+        titleComponent={
+          <>
+            <h1 className="text-4xl font-semibold text-premium-light">
+              Zobacz jak <br />
+              <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none bg-premium-gradient text-transparent bg-clip-text">
+                tworzymy strony
+              </span>
+            </h1>
+          </>
+        }
+      >
+        <img
+          src="/lovable-uploads/97ac4bd6-784a-468e-8520-021492b8878d.png"
+          alt="hero"
+          className="mx-auto rounded-2xl object-cover h-full object-left-top"
+          draggable={false}
+        />
+      </ContainerScroll>
 
       {/* Technologies Section */}
       <section className={`py-16 ${theme === 'dark' ? '' : 'bg-white'}`}>
@@ -458,13 +480,11 @@ const WebDevelopment = () => {
             która będzie przyciągać klientów i zwiększać sprzedaż.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button 
-              onClick={() => navigate('/kontakt')} 
-              className="px-8 py-6 bg-premium-gradient hover:bg-white hover:text-black"
-              size="lg"
-            >
-              Skontaktuj się z nami
-            </Button>
+            <Link to="/kontakt">
+              <RainbowButton>
+                Skontaktuj się z nami
+              </RainbowButton>
+            </Link>
             <Button 
               variant="outline" 
               className={`px-8 py-6 ${theme === 'dark' ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white'}`}

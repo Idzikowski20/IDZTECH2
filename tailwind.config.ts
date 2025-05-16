@@ -69,6 +69,12 @@ export default {
 				'premium-purple': '#784dff',
 				'premium-blue': '#00a0ff',
 				'premium-pink': '#ff4d8c',
+				// Rainbow button colors
+				"color-1": "hsl(var(--color-1))",
+                "color-2": "hsl(var(--color-2))",
+                "color-3": "hsl(var(--color-3))",
+                "color-4": "hsl(var(--color-4))",
+                "color-5": "hsl(var(--color-5))",
 			},
 			fontFamily: {
 				montserrat: ['Montserrat', 'sans-serif'],
@@ -126,7 +132,11 @@ export default {
 					'50%': {
 						transform: 'translate(20px, -20px)'
 					}
-				}
+				},
+				rainbow: {
+                    "0%": { "background-position": "0%" },
+                    "100%": { "background-position": "200%" },
+                },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -135,7 +145,8 @@ export default {
 				'slide-up': 'slide-up 0.6s ease-out',
 				'float': 'float 6s ease-in-out infinite',
 				'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
-				'floating-light': 'floating-light 8s ease-in-out infinite'
+				'floating-light': 'floating-light 8s ease-in-out infinite',
+				rainbow: "rainbow var(--speed, 2s) infinite linear",
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
