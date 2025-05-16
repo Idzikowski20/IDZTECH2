@@ -233,7 +233,7 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
       return { success: !error, error };
     } else {
       // Update local user
-      const success = await authStore.useAuth.getState().updateUser(userId, userData);
+      const success = await authStore.useAuth.getState().updateUser(userId, userData as any);
       return { success, error: success ? null : new Error('Failed to update user') };
     }
   } catch (error) {
