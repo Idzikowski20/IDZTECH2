@@ -1,22 +1,40 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { useBlogStore } from '@/utils/blog';
+import { supabase } from '@/utils/supabaseClient';
 
 const Blog = () => {
-  const { posts } = useBlogStore();
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Ensure scroll to top on page load
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    const fetchPosts = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*, users:author_id(first_name, last_name, avatar_url)')
+      .order('created_at', { ascending: false });
+      if (!error && data) {
+        // Mapujemy dane, by zachować dotychczasowy format
+        setPosts(data.map(post => ({
+          ...post,
+          featuredImage: post.featured_image,
+          excerpt: post.summary,
+          categories: post.categories || [],
+          author: (post as any).users ? `${(post as any).users.first_name} ${(post as any).users.last_name}` : '',
+          authorAvatar: (post as any).users?.avatar_url || null,
+        })));
+      } else {
+        setPosts([]);
+      }
+      setLoading(false);
+    };
+    fetchPosts();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   return (
@@ -44,7 +62,11 @@ const Blog = () => {
       <section className="pb-24">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {posts.map((post) => (
+            {loading ? (
+              <div className="col-span-3 text-center text-premium-light/70 py-12">Ładowanie postów...</div>
+            ) : posts.length === 0 ? (
+              <div className="col-span-3 text-center text-premium-light/70 py-12">Brak postów do wyświetlenia.</div>
+            ) : posts.map((post) => (
               <div 
                 key={post.id} 
                 className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"

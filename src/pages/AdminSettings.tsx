@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/utils/AuthProvider';
@@ -22,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Bell, Lock, Eye, Trash, Settings, Save, Undo } from 'lucide-react';
+import { Lock, Eye, Trash, Settings, Save, Undo } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InterfaceSettings {
@@ -49,16 +48,6 @@ const AdminSettings = () => {
     confirmPassword: '',
   });
 
-  // Notification settings
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    commentNotifications: true,
-    likeNotifications: true,
-    systemNotifications: true,
-    marketingEmails: false,
-    weeklyDigest: true,
-  });
-
   // Privacy settings
   const [privacySettings, setPrivacySettings] = useState({
     showOnlineStatus: true, 
@@ -81,29 +70,10 @@ const AdminSettings = () => {
     setInterfaceSettings(prev => ({ ...prev, theme }));
   }, [theme]);
 
-  // Save notification settings
-  const handleNotificationSettingsSave = () => {
-    setLoading(true);
-    
-    // Save notification settings to localStorage for persistence
-    localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
-    
-    setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Ustawienia zapisane",
-        description: "Twoje ustawienia powiadomień zostały zaktualizowane",
-      });
-    }, 800);
-  };
-
   // Save privacy settings
   const handlePrivacySettingsSave = () => {
     setLoading(true);
-    
-    // Save privacy settings to localStorage for persistence
     localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
-    
     setTimeout(() => {
       setLoading(false);
       toast({
@@ -116,24 +86,17 @@ const AdminSettings = () => {
   // Save interface settings
   const handleInterfaceSettingsSave = () => {
     setLoading(true);
-    
-    // Apply theme changes
     setTheme(interfaceSettings.theme);
-    
-    // Save other interface settings to localStorage
     localStorage.setItem('interfaceSettings', JSON.stringify({
       compactView: interfaceSettings.compactView,
       highContrast: interfaceSettings.highContrast,
       fontSize: interfaceSettings.fontSize,
       animationsEnabled: interfaceSettings.animationsEnabled
     }));
-    
-    // Apply settings to document
     document.documentElement.setAttribute('data-compact', interfaceSettings.compactView.toString());
     document.documentElement.setAttribute('data-high-contrast', interfaceSettings.highContrast.toString());
     document.documentElement.setAttribute('data-font-size', interfaceSettings.fontSize);
     document.documentElement.setAttribute('data-animations', interfaceSettings.animationsEnabled.toString());
-    
     setTimeout(() => {
       setLoading(false);
       toast({
@@ -152,19 +115,13 @@ const AdminSettings = () => {
       fontSize: 'medium',
       animationsEnabled: true,
     };
-    
     setInterfaceSettings(defaultSettings);
     setTheme('system');
-    
-    // Clear localStorage settings
     localStorage.removeItem('interfaceSettings');
-    
-    // Reset document attributes
     document.documentElement.removeAttribute('data-compact');
     document.documentElement.removeAttribute('data-high-contrast');
     document.documentElement.removeAttribute('data-font-size');
     document.documentElement.removeAttribute('data-animations');
-    
     toast({
       title: "Ustawienia zresetowane",
       description: "Przywrócono domyślne ustawienia interfejsu",
@@ -174,7 +131,6 @@ const AdminSettings = () => {
   // Zmiana hasła
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (passwords.newPassword !== passwords.confirmPassword) {
       toast({
         title: 'Błąd',
@@ -183,7 +139,6 @@ const AdminSettings = () => {
       });
       return;
     }
-
     if (passwords.newPassword.length < 6) {
       toast({
         title: 'Błąd',
@@ -192,18 +147,13 @@ const AdminSettings = () => {
       });
       return;
     }
-
     try {
       setLoading(true);
-      
-      // Simulate successful password change
       await new Promise(resolve => setTimeout(resolve, 1000));
-
       toast({
         title: 'Hasło zmienione',
         description: 'Twoje hasło zostało pomyślnie zmienione',
       });
-      
       setPasswords({
         currentPassword: '',
         newPassword: '',
@@ -222,18 +172,8 @@ const AdminSettings = () => {
 
   // Load settings from localStorage on component mount
   useEffect(() => {
-    const loadedNotificationSettings = localStorage.getItem('notificationSettings');
     const loadedPrivacySettings = localStorage.getItem('privacySettings');
     const loadedInterfaceSettings = localStorage.getItem('interfaceSettings');
-    
-    if (loadedNotificationSettings) {
-      try {
-        setNotificationSettings(JSON.parse(loadedNotificationSettings));
-      } catch (e) {
-        console.error('Error parsing notification settings:', e);
-      }
-    }
-    
     if (loadedPrivacySettings) {
       try {
         setPrivacySettings(JSON.parse(loadedPrivacySettings));
@@ -241,7 +181,6 @@ const AdminSettings = () => {
         console.error('Error parsing privacy settings:', e);
       }
     }
-    
     if (loadedInterfaceSettings) {
       try {
         const parsed = JSON.parse(loadedInterfaceSettings);
@@ -252,8 +191,6 @@ const AdminSettings = () => {
           fontSize: parsed.fontSize || 'medium',
           animationsEnabled: parsed.animationsEnabled !== undefined ? parsed.animationsEnabled : true
         }));
-        
-        // Apply settings to document
         document.documentElement.setAttribute('data-compact', parsed.compactView.toString());
         document.documentElement.setAttribute('data-high-contrast', parsed.highContrast.toString());
         document.documentElement.setAttribute('data-font-size', parsed.fontSize);
@@ -268,20 +205,11 @@ const AdminSettings = () => {
   const handleDeleteAccount = async () => {
     try {
       setLoading(true);
-      
-      // Here would be the actual account deletion logic
-      // const { error } = await supabase.auth.admin.deleteUser(user.id)
-      // if (error) throw error;
-
-      // Simulate account deletion process
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       toast({
         title: 'Konto usunięte',
         description: 'Twoje konto zostało pomyślnie usunięte',
       });
-      
-      // Sign out and redirect to home
       await signOut();
       navigate('/');
     } catch (error: any) {
@@ -300,20 +228,11 @@ const AdminSettings = () => {
   const handleLogoutAllDevices = async () => {
     try {
       setLoading(true);
-      
-      // Here would be the actual logout from all devices logic
-      // const { error } = await supabase.auth.signOut({ scope: 'global' })
-      // if (error) throw error;
-
-      // Simulate the process
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       toast({
         title: 'Wylogowano',
         description: 'Zostałeś wylogowany ze wszystkich urządzeń',
       });
-      
-      // Sign out and redirect to login
       await signOut();
       navigate('/login');
     } catch (error: any) {
@@ -332,13 +251,8 @@ const AdminSettings = () => {
     <AdminLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Ustawienia</h1>
-        
-        <Tabs defaultValue="notifications" className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full mb-4">
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
-              <Bell size={16} />
-              <span className="hidden sm:inline">Powiadomienia</span>
-            </TabsTrigger>
+        <Tabs defaultValue="security" className="space-y-6">
+          <TabsList className="grid grid-cols-2 md:grid-cols-3 w-full mb-4">
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Lock size={16} />
               <span className="hidden sm:inline">Bezpieczeństwo</span>
@@ -352,101 +266,10 @@ const AdminSettings = () => {
               <span className="hidden sm:inline">Interfejs</span>
             </TabsTrigger>
           </TabsList>
-          
-          {/* Notification Settings */}
-          <TabsContent value="notifications" className="space-y-6">
-            <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
-              <h2 className="text-xl font-bold mb-6">Ustawienia powiadomień</h2>
-              
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-medium">Powiadomienia e-mail</h3>
-                      <p className="text-sm text-premium-light/60">Otrzymuj wiadomości e-mail z powiadomieniami o ważnych wydarzeniach</p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.emailNotifications}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, emailNotifications: checked }))}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-medium">Powiadomienia o komentarzach</h3>
-                      <p className="text-sm text-premium-light/60">Otrzymuj powiadomienia gdy ktoś skomentuje Twój post</p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.commentNotifications}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, commentNotifications: checked }))}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-medium">Powiadomienia o polubieniach</h3>
-                      <p className="text-sm text-premium-light/60">Otrzymuj powiadomienia gdy ktoś polubi Twój post</p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.likeNotifications}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, likeNotifications: checked }))}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-medium">Powiadomienia systemowe</h3>
-                      <p className="text-sm text-premium-light/60">Otrzymuj powiadomienia o aktualizacjach systemu i ważnych informacjach</p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.systemNotifications}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, systemNotifications: checked }))}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-medium">E-maile marketingowe</h3>
-                      <p className="text-sm text-premium-light/60">Otrzymuj informacje o promocjach i nowościach</p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.marketingEmails}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, marketingEmails: checked }))}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-medium">Tygodniowe podsumowanie</h3>
-                      <p className="text-sm text-premium-light/60">Otrzymuj cotygodniowe podsumowanie aktywności na Twojej stronie</p>
-                    </div>
-                    <Switch
-                      checked={notificationSettings.weeklyDigest}
-                      onCheckedChange={(checked) => setNotificationSettings(prev => ({ ...prev, weeklyDigest: checked }))}
-                    />
-                  </div>
-                </div>
-                
-                <div className="pt-4">
-                  <Button 
-                    type="button" 
-                    className="bg-premium-gradient flex items-center gap-2" 
-                    disabled={loading}
-                    onClick={handleNotificationSettingsSave}
-                  >
-                    <Save size={16} />
-                    {loading ? 'Zapisywanie...' : 'Zapisz zmiany'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
           {/* Security Settings */}
           <TabsContent value="security" className="space-y-6">
             <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
               <h2 className="text-xl font-bold mb-6">Zmiana hasła</h2>
-              
               <form onSubmit={handlePasswordChange} className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -460,7 +283,6 @@ const AdminSettings = () => {
                       required
                     />
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">Nowe hasło</Label>
                     <Input
@@ -474,7 +296,6 @@ const AdminSettings = () => {
                     />
                     <p className="text-xs text-premium-light/60">Hasło musi zawierać co najmniej 6 znaków</p>
                   </div>
-                  
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Potwierdź nowe hasło</Label>
                     <Input
@@ -488,7 +309,6 @@ const AdminSettings = () => {
                     />
                   </div>
                 </div>
-                
                 <div className="pt-4">
                   <Button type="submit" className="bg-premium-gradient flex items-center gap-2" disabled={loading}>
                     <Lock size={16} />
@@ -497,10 +317,8 @@ const AdminSettings = () => {
                 </div>
               </form>
             </div>
-            
             <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
               <h2 className="text-xl font-bold mb-6">Bezpieczeństwo konta</h2>
-              
               <div className="space-y-8">
                 <div>
                   <h3 className="text-lg font-medium mb-2">Wylogowanie ze wszystkich urządzeń</h3>
@@ -516,7 +334,6 @@ const AdminSettings = () => {
                     Wyloguj ze wszystkich urządzeń
                   </Button>
                 </div>
-                
                 <div>
                   <h3 className="text-lg font-medium mb-2">Usunięcie konta</h3>
                   <p className="text-sm text-premium-light/60 mb-4">
@@ -535,12 +352,10 @@ const AdminSettings = () => {
               </div>
             </div>
           </TabsContent>
-          
           {/* Privacy Settings */}
           <TabsContent value="privacy">
             <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
               <h2 className="text-xl font-bold mb-6">Ustawienia prywatności</h2>
-              
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -553,7 +368,6 @@ const AdminSettings = () => {
                       onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, showOnlineStatus: checked }))}
                     />
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-medium">Profil publiczny</h3>
@@ -564,7 +378,6 @@ const AdminSettings = () => {
                       onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, publicProfile: checked }))}
                     />
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-medium">Pokaż moją aktywność</h3>
@@ -575,7 +388,6 @@ const AdminSettings = () => {
                       onCheckedChange={(checked) => setPrivacySettings(prev => ({ ...prev, showActivity: checked }))}
                     />
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-medium">Zezwól na zbieranie danych</h3>
@@ -587,7 +399,6 @@ const AdminSettings = () => {
                     />
                   </div>
                 </div>
-                
                 <div className="pt-4">
                   <Button 
                     type="button" 
@@ -599,7 +410,6 @@ const AdminSettings = () => {
                     {loading ? 'Zapisywanie...' : 'Zapisz ustawienia'}
                   </Button>
                 </div>
-                
                 <div className="pt-6 border-t border-premium-light/10">
                   <h3 className="text-lg font-medium mb-4">Eksport danych</h3>
                   <p className="text-sm text-premium-light/60 mb-4">
@@ -613,12 +423,10 @@ const AdminSettings = () => {
               </div>
             </div>
           </TabsContent>
-          
           {/* Interface Settings */}
           <TabsContent value="interface">
             <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
               <h2 className="text-xl font-bold mb-6">Ustawienia interfejsu</h2>
-              
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div>
@@ -659,7 +467,6 @@ const AdminSettings = () => {
                       </Button>
                     </div>
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-medium">Widok kompaktowy</h3>
@@ -670,7 +477,6 @@ const AdminSettings = () => {
                       onCheckedChange={(checked) => setInterfaceSettings(prev => ({ ...prev, compactView: checked }))}
                     />
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-medium">Wysoki kontrast</h3>
@@ -681,7 +487,6 @@ const AdminSettings = () => {
                       onCheckedChange={(checked) => setInterfaceSettings(prev => ({ ...prev, highContrast: checked }))}
                     />
                   </div>
-                  
                   <div>
                     <h3 className="text-base font-medium mb-2">Rozmiar czcionki</h3>
                     <div className="flex flex-wrap gap-3">
@@ -720,7 +525,6 @@ const AdminSettings = () => {
                       </Button>
                     </div>
                   </div>
-                  
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-base font-medium">Animacje</h3>
@@ -732,7 +536,6 @@ const AdminSettings = () => {
                     />
                   </div>
                 </div>
-                
                 <div className="flex items-center gap-4 pt-4">
                   <Button 
                     type="button" 
@@ -743,7 +546,6 @@ const AdminSettings = () => {
                     <Save size={16} />
                     {loading ? 'Zapisywanie...' : 'Zapisz ustawienia'}
                   </Button>
-                  
                   <Button 
                     type="button" 
                     variant="outline"
@@ -759,9 +561,7 @@ const AdminSettings = () => {
           </TabsContent>
         </Tabs>
       </div>
-      
       {/* Alert Dialogs */}
-      
       {/* Alert Dialog for Account Deletion */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -782,7 +582,6 @@ const AdminSettings = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
       {/* Alert Dialog for Logging Out from All Devices */}
       <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
         <AlertDialogContent>
