@@ -41,7 +41,13 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
     throw new Error('Failed to fetch posts');
   }
   
-  return data || [];
+  // Ensure all posts have the required SEO fields
+  return (data || []).map(post => ({
+    ...post,
+    meta_title: post.meta_title || post.title,
+    meta_description: post.meta_description || post.summary,
+    meta_tags: post.meta_tags || (post.tags ? post.tags.join(', ') : '')
+  }));
 };
 
 // Pobierz post według sluga
@@ -63,9 +69,17 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
   // Zwiększenie liczby wyświetleń
   if (data) {
     await incrementPostViews(data.id);
+    
+    // Ensure the post has the required SEO fields
+    return {
+      ...data,
+      meta_title: data.meta_title || data.title,
+      meta_description: data.meta_description || data.summary,
+      meta_tags: data.meta_tags || (data.tags ? data.tags.join(', ') : '')
+    };
   }
   
-  return data;
+  return null;
 };
 
 // Zwiększ licznik wyświetleń
@@ -119,7 +133,13 @@ export const createPost = async (post: Omit<BlogPost, 'id' | 'created_at' | 'upd
     console.error('Error updating sitemap:', err);
   }
   
-  return data;
+  // Ensure the post has the required SEO fields
+  return {
+    ...data,
+    meta_title: data.meta_title || data.title,
+    meta_description: data.meta_description || data.summary,
+    meta_tags: data.meta_tags || (data.tags ? data.tags.join(', ') : '')
+  };
 };
 
 // Zaktualizuj istniejący post
@@ -148,7 +168,13 @@ export const updatePost = async (id: string, post: Partial<BlogPost>): Promise<B
     }
   }
   
-  return data;
+  // Ensure the post has the required SEO fields
+  return {
+    ...data,
+    meta_title: data.meta_title || data.title,
+    meta_description: data.meta_description || data.summary,
+    meta_tags: data.meta_tags || (data.tags ? data.tags.join(', ') : '')
+  };
 };
 
 // Usuń post

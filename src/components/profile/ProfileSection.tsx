@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { User } from '@supabase/supabase-js';
-import { ExtendedUserProfile } from '@/utils/AuthProvider';
+import { ExtendedUserProfile } from '@/utils/AuthContext';
 import ProfileImage from '@/components/profile/ProfileImage';
 import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileForm from '@/components/profile/ProfileForm';

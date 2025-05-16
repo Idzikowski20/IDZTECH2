@@ -2,10 +2,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "./supabaseClient";
 import { Session, User } from "@supabase/supabase-js";
-import { getUserProfile, UserProfile } from '@/services/userService';
+import { getUserProfile, UserProfile, updateUserProfile } from '@/services/userService';
 
 // Extend User type to include profile data
-export interface ExtendedUser extends User {
+export interface ExtendedUserProfile {
   name?: string;
   lastName?: string;
   profilePicture?: string;
@@ -15,17 +15,23 @@ export interface ExtendedUser extends User {
   profile?: UserProfile;
 }
 
+export interface ExtendedUser extends User, ExtendedUserProfile {}
+
 export interface AuthContextType {
   isAuthenticated: boolean;
   user: ExtendedUser | null;
   session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ error: any | null }>;
+  signIn: (email: string, password: string) => Promise<{ data?: any, error: any | null }>;
   register: (email: string, password: string, name?: string) => Promise<{ error: any | null, user: any | null }>;
   logout: () => Promise<void>;
+  signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  refreshUserStats: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ error: any | null }>;
   resetPassword: (password: string) => Promise<{ error: any | null }>;
+  updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,6 +97,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Alias for refreshUser to support existing code
+  const refreshUserStats = refreshUser;
+
   useEffect(() => {
     async function loadUserFromSession() {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -134,6 +143,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Alias for login to support existing code
+  const signIn = async (email: string, password: string) => {
+    try {
+      const result = await supabase.auth.signInWithPassword({ email, password });
+      return { data: result.data, error: result.error };
+    } catch (error) {
+      console.error("Login error:", error);
+      return { error };
+    }
+  };
+
   const register = async (email: string, password: string, name?: string) => {
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -163,6 +183,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  // Alias for logout to support existing code
+  const signOut = logout;
+
   const forgotPassword = async (email: string) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -185,17 +208,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const updateProfile = async (profileData: Partial<ExtendedUserProfile>) => {
+    if (!user?.id) {
+      console.error('Cannot update profile: No user is logged in');
+      return false;
+    }
+
+    try {
+      const result = await updateUserProfile(user.id, profileData);
+      if (result) {
+        await refreshUser(); // Refresh user data after update
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error in updateProfile:', error);
+      return false;
+    }
+  };
+
   const value: AuthContextType = {
     isAuthenticated: !!session,
     user,
     session,
     loading,
     login,
+    signIn,
     register,
     logout,
+    signOut,
     refreshUser,
+    refreshUserStats,
     forgotPassword,
     resetPassword,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
