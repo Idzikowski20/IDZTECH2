@@ -1,9 +1,9 @@
 
 project_id = "apeestymqcpmpdnmccmd"
 
-[api]
-enabled = true
+[functions.send-notification]
+verify_jwt = true
 
-[functions]
 [functions.update-sitemap]
 verify_jwt = true
+

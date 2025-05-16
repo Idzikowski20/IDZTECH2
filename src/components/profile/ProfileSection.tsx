@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/utils/AuthContext';
+import { useAuth } from '@/utils/AuthProvider';
 import { User } from '@supabase/supabase-js';
-import { ExtendedUserProfile } from '@/utils/AuthContext';
+import { ExtendedUserProfile } from '@/utils/AuthProvider';
 import ProfileImage from '@/components/profile/ProfileImage';
 import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileForm from '@/components/profile/ProfileForm';
@@ -22,11 +22,6 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
     }
   }, [user?.profilePicture]);
 
-  // Create a wrapper function for updateProfile that returns void
-  const handleUpdateProfile = async (data: Partial<ExtendedUserProfile>): Promise<void> => {
-    await updateProfile(data);
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-1">
@@ -35,7 +30,7 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
             user={user} 
             previewImage={previewImage} 
             setPreviewImage={setPreviewImage} 
-            updateProfile={handleUpdateProfile}
+            updateProfile={updateProfile}
           />
           
           <ProfileInfo user={user} />
@@ -48,7 +43,7 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
           
           <ProfileForm 
             user={user} 
-            updateProfile={handleUpdateProfile}
+            updateProfile={updateProfile}
             previewImage={previewImage}
             setPreviewImage={setPreviewImage}
           />
