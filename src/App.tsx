@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./utils/AuthProvider";
+import { AuthProvider } from "./utils/AuthContext"; // Make sure we use the correct import path
 
 // Pages
 import Index from './pages/Index';
@@ -45,7 +46,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-      <ThemeProvider>
+        <ThemeProvider>
           <ScrollToTop />
           <DotAnimation />
           <Routes>
@@ -91,7 +92,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
-      </ThemeProvider>
+        </ThemeProvider>
       </AuthProvider>
     </Router>
   );

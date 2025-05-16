@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -127,7 +128,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className="text-premium-purple p-0 hover:text-white dark:hover:text-white"
+            className="text-premium-purple p-0 hover:text-white"
             onClick={() => navigate('/forgot-password')}
           >
             Nie pamiętasz hasła?
@@ -154,7 +155,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className="p-0 hover:text-white dark:hover:text-white"
+            className="p-0 hover:text-white"
             onClick={() => navigate('/register')}
           >
             Zarejestruj się
