@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn, Menu } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
