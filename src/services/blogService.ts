@@ -13,11 +13,12 @@ export interface BlogPost {
   tags: string[];
   views: number;
   author_id: string;
+  created_at: string;
+  updated_at: string;
+  // Add missing SEO fields
   meta_title: string;
   meta_description: string;
   meta_tags: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface BlogAuthor {

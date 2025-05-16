@@ -40,7 +40,8 @@ export function Sparkles({
   useEffect(() => {
     const initParticles = async () => {
       try {
-        await loadSlim(window);
+        // Use the correct method signature for loadSlim
+        await loadSlim();
         setIsReady(true);
       } catch (error) {
         console.error("Failed to initialize particles:", error);
