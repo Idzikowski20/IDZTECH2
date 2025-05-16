@@ -568,3 +568,13 @@
     --tw-text-opacity: 1; 
     color: rgb(120 77 255 / var(--tw-text-opacity, 1)) !important;
 }
+
+.text-bialy {
+    --tw-text-opacity: 1; 
+    color: rgb(255 255 255 / var(--tw-text-opacity, 1)) !important;
+}
+
+.text-szary {
+  --tw-text-opacity: 1; 
+  color: #c2c2c2 !important;
+}

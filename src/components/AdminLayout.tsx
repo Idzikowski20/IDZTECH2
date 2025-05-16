@@ -119,7 +119,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
         <aside
           className={`${
             isSidebarOpen ? "w-64" : "w-16"
-          } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
+          } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-18 z-40`}
         >
           <nav className="p-4 space-y-2">
             <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>

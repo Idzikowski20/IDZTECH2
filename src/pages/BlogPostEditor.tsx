@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, ArrowLeft, Upload, FileCode } from 'lucide-react';
+import { Save, ArrowLeft, Upload, FileCode, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -21,7 +22,10 @@ const blogPostSchema = z.object({
   summary: z.string().min(10, 'Zajawka musi mieć co najmniej 10 znaków'),
   content: z.string().min(50, 'Treść musi mieć co najmniej 50 znaków'),
   categories: z.string().min(2, 'Kategorie są wymagane'),
-  tags: z.string().min(2, 'Tagi są wymagane')
+  tags: z.string().min(2, 'Tagi są wymagane'),
+  meta_title: z.string().min(1, 'Meta title jest wymagany'),
+  meta_description: z.string().min(1, 'Meta description jest wymagana'),
+  meta_keywords: z.string().min(1, 'Meta keywords są wymagane'),
 });
 
 type FormValues = z.infer<typeof blogPostSchema>;
@@ -35,6 +39,7 @@ const BlogPostEditor = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [showPreview, setShowPreview] = useState(false);
 
   // Find existing post if editing
   const [existingPost, setExistingPost] = useState<any>(null);
@@ -81,7 +86,10 @@ const BlogPostEditor = () => {
       summary: existingPost?.summary || '',
       content: existingPost?.content || '',
       categories: existingPost?.categories?.join(', ') || '',
-      tags: existingPost?.tags?.join(', ') || ''
+      tags: existingPost?.tags?.join(', ') || '',
+      meta_title: existingPost?.meta_title || '',
+      meta_description: existingPost?.meta_description || '',
+      meta_keywords: existingPost?.meta_keywords || '',
     },
     values: existingPost ? {
       title: existingPost.title || '',
@@ -89,7 +97,10 @@ const BlogPostEditor = () => {
       summary: existingPost.summary || '',
       content: existingPost.content || '',
       categories: existingPost.categories?.join(', ') || '',
-      tags: existingPost.tags?.join(', ') || ''
+      tags: existingPost.tags?.join(', ') || '',
+      meta_title: existingPost.meta_title || '',
+      meta_description: existingPost.meta_description || '',
+      meta_keywords: existingPost.meta_keywords || '',
     } : undefined
   });
 
@@ -158,309 +169,246 @@ const BlogPostEditor = () => {
           .select()
           .single();
         
-      if (error) throw error;
-      result = data;
-      
-      // Update local state
-      updatePost(id, {
-        ...postData,
-        author: user.name || 'Anonymous',
-        featuredImage: imageUrl,
-        excerpt: values.summary
-      });
-      
-      toast({
-        title: "Post zaktualizowany",
-        description: "Post został pomyślnie zaktualizowany."
-      });
-    } else {
-      // Add new post to database
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert({
-          ...postData,
-          date: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          views: 0
-        })
-        .select()
-        .single();
+        if (error) throw error;
+        result = data;
         
-      if (error) throw error;
-      result = data;
-      
-      // Add to local state
-      if (data) {
-        addPost({
-          title: values.title,
-          slug: values.slug,
-          excerpt: values.summary,
-          content: values.content,
-          featuredImage: imageUrl,
+        // Update local state
+        updatePost(id, {
+          ...postData,
           author: user.name || 'Anonymous',
-          categories: values.categories.split(',').map(cat => cat.trim()),
-          tags: values.tags.split(',').map(tag => tag.trim())
+          featuredImage: imageUrl,
+          excerpt: values.summary
         });
-      }
-      
-      toast({
-        title: "Post dodany",
-        description: "Nowy post został dodany do bloga."
-      });
-      
-      // Generate sitemap update
-      try {
-        await fetch('/api/update-sitemap', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            slug: values.slug
+        
+        toast({
+          title: "Post zaktualizowany",
+          description: "Post został pomyślnie zaktualizowany."
+        });
+      } else {
+        // Add new post to database
+        const { data, error } = await supabase
+          .from('blog_posts')
+          .insert({
+            ...postData,
+            created_at: new Date().toISOString()
           })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        result = data;
+        
+        // Add to local state
+        if (data) {
+          addPost({
+            title: values.title,
+            slug: values.slug,
+            excerpt: values.summary,
+            content: values.content,
+            featuredImage: imageUrl,
+            author: user.name || 'Anonymous',
+            categories: values.categories.split(',').map(cat => cat.trim()),
+            tags: values.tags.split(',').map(tag => tag.trim())
+          });
+        }
+        
+        toast({
+          title: "Post dodany",
+          description: "Nowy post został dodany do bloga."
         });
-      } catch (sitemapError) {
-        console.error('Error updating sitemap:', sitemapError);
       }
-    }
-    
-    navigate('/admin');
-  } catch (error) {
-    console.error('Error saving post:', error);
-    toast({
-      title: "Błąd",
-      description: "Wystąpił problem podczas zapisywania posta.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  // Handle slug generation from title
-  const generateSlug = () => {
-    const title = form.getValues('title');
-    if (title) {
-      const slug = title
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-      form.setValue('slug', slug);
+      
+      navigate('/admin');
+    } catch (error) {
+      console.error('Error saving post:', error);
+      toast({
+        title: "Błąd",
+        description: "Wystąpił problem podczas zapisywania posta.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Automatyczne generowanie sluga na podstawie tytułu
+  useEffect(() => {
+    const subscription = form.watch((values, { name }) => {
+      if (name === 'title') {
+        const title = values.title || '';
+        const slug = title
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[ -]/g, c => c)
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        form.setValue('slug', slug);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   return (
     <AdminLayout>
       <div className="p-6">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <Button variant="ghost" onClick={() => navigate('/admin')} className="hover:bg-premium-light/5 mb-2">
-              <ArrowLeft size={18} className="mr-2" /> Wróć do panelu
-            </Button>
-            <h1 className="text-2xl font-bold">
-              {isEditing ? 'Edytuj post' : 'Dodaj nowy post'}
-            </h1>
-          </div>
-          <div className="flex gap-3">
-            <Button onClick={() => form.setValue('content', form.getValues('content') + '<h2>Nagłówek H2</h2>')} className="bg-gray-700">
-              <FileCode size={18} className="mr-2" /> Dodaj H2
-            </Button>
-            <Button onClick={form.handleSubmit(onSubmit)} className="bg-premium-gradient" disabled={isLoading}>
-              <Save size={18} className="mr-2" />
-              {isLoading ? 'Zapisywanie...' : 'Zapisz post'}
-            </Button>
-          </div>
-        </div>
-
-        <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField 
-                  control={form.control} 
-                  name="title" 
-                  render={({ field }) => (
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="flex flex-col md:flex-row gap-8">
+              {/* Lewa kolumna: główne pola */}
+              <div className="flex-1 bg-premium-dark/40 rounded-2xl shadow-lg p-8">
+                <div className="flex flex-col gap-6">
+                  <FormField control={form.control} name="title" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tytuł</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Tytuł</FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
-                          placeholder="Tytuł posta" 
-                          onBlur={() => {
-                            if (!isEditing && !form.getValues('slug')) {
-                              generateSlug();
-                            }
-                          }} 
-                          className="bg-slate-950" 
-                        />
+                        <Input {...field} placeholder="Tytuł posta" className="bg-slate-950 text-lg py-4 px-4 rounded-xl" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )} 
-                />
-                
-                <FormField 
-                  control={form.control} 
-                  name="slug" 
-                  render={({ field }) => (
+                  )} />
+                  <FormField control={form.control} name="slug" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug (URL)</FormLabel>
+                      <FormLabel className="text-lg font-semibold">Slug (URL)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="url-posta" className="bg-slate-950" />
+                        <Input {...field} placeholder="url-posta" className="bg-slate-950 py-4 px-4 rounded-xl" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )} 
-                />
-              </div>
-              
-              <FormField 
-                control={form.control} 
-                name="summary" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Zajawka</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="bg-slate-950" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} 
-              />
-              
-              <FormField 
-                control={form.control} 
-                name="content" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Treść (HTML)</FormLabel>
-                    <div className="mb-2 flex gap-2">
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h1>Nagłówek H1</h1>')}>H1</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h2>Nagłówek H2</h2>')}>H2</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h3>Nagłówek H3</h3>')}>H3</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<p>Paragraf</p>')}>P</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<strong>Pogrubienie</strong>')}>Bold</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<em>Kursywa</em>')}>Italic</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<ul>\n<li>Element listy</li>\n<li>Element listy</li>\n</ul>')}>Lista</Button>
-                    </div>
-                    <FormControl>
-                      <RichTextEditor 
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Treść posta w formacie HTML"
-                        rows={15}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} 
-              />
-              
-              {/* Featured Image Upload */}
-              <div className="space-y-2">
-                <FormLabel>Zdjęcie główne</FormLabel>
-                <div className="flex flex-col space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <label className="cursor-pointer">
-                      <div className="bg-premium-light/5 border border-premium-light/20 hover:bg-premium-light/10 transition-colors rounded-lg px-4 py-2 flex items-center">
-                        <Upload size={18} className="mr-2" />
-                        <span>Wybierz plik</span>
+                  )} />
+                  <FormField control={form.control} name="summary" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold">Zajawka</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="bg-slate-950 py-4 px-4 rounded-xl" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="content" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg font-semibold">Treść (HTML)</FormLabel>
+                      <FormControl>
+                        <RichTextEditor value={field.value} onChange={field.onChange} placeholder="Treść posta w formacie HTML" rows={15} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  {/* Featured Image Upload */}
+                  <div className="space-y-2">
+                    <FormLabel className="text-lg font-semibold">Zdjęcie główne</FormLabel>
+                    <div className="flex flex-col space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <label className="cursor-pointer">
+                          <div className="bg-premium-light/5 border border-premium-light/20 hover:bg-premium-light/10 transition-colors rounded-lg px-4 py-2 flex items-center">
+                            <Upload size={18} className="mr-2" />
+                            <span>Wybierz plik</span>
+                          </div>
+                          <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                        </label>
+                        {featuredImage && (
+                          <span className="text-sm text-premium-light/70">{featuredImage.name} ({Math.round(featuredImage.size / 1024)} KB)</span>
+                        )}
                       </div>
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        className="hidden" 
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                    {featuredImage && (
-                      <span className="text-sm text-premium-light/70">
-                        {featuredImage.name} ({Math.round(featuredImage.size / 1024)} KB)
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Image Preview */}
-                  {imagePreview && (
-                    <div className="relative mt-2 max-w-md">
-                      <img 
-                        src={imagePreview} 
-                        alt="Podgląd zdjęcia głównego" 
-                        className="rounded-lg max-h-48 object-cover" 
-                      />
-                      <Button 
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2 opacity-80 hover:opacity-100"
-                        onClick={() => {
-                          setImagePreview('');
-                          setFeaturedImage(null);
-                        }}
-                      >
-                        Usuń
-                      </Button>
+                      {imagePreview && (
+                        <div className="relative mt-2 max-w-md">
+                          <img src={imagePreview} alt="Podgląd zdjęcia głównego" className="rounded-lg max-h-48 object-cover" />
+                          <Button type="button" variant="destructive" size="sm" className="absolute top-2 right-2 opacity-80 hover:opacity-100" onClick={() => { setImagePreview(''); setFeaturedImage(null); }}>Usuń</Button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Author information display (not editable) */}
-                <div className="space-y-2">
-                  <FormLabel>Autor</FormLabel>
-                  <div className="bg-slate-950 border border-premium-light/10 rounded-md px-4 py-2 text-premium-light/80">
-                    {user?.name || 'Nieznany autor'}
                   </div>
                 </div>
-                
-                <FormField 
-                  control={form.control} 
-                  name="categories" 
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="bg-slate-950" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} 
-                />
               </div>
-              
-              <FormField 
-                control={form.control} 
-                name="tags" 
-                render={({ field }) => (
+              {/* Prawa kolumna: ustawienia posta */}
+              <div className="w-full md:w-96 flex-shrink-0 bg-premium-dark/60 rounded-2xl shadow-lg p-8 flex flex-col gap-6">
+                <div>
+                  <FormLabel className="text-lg font-semibold">Autor</FormLabel>
+                  <div className="bg-slate-950 border border-premium-light/10 rounded-md px-4 py-2 text-premium-light/80 mt-2">
+                    {user?.name || user?.email || 'Nieznany autor'}
+                  </div>
+                </div>
+                <FormField control={form.control} name="categories" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
+                    <FormLabel className="text-lg font-semibold">Kategorie (oddzielone przecinkami)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="bg-slate-950" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="tags" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold">Tagi (oddzielone przecinkami)</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="pozycjonowanie, SEO, Google" className="bg-slate-950" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                )} 
-              />
-              
-              <div className="pt-4">
-                <Button 
-                  type="submit" 
-                  className="bg-premium-gradient" 
-                  disabled={isLoading}
-                >
-                  {isLoading ? 'Zapisywanie...' : isEditing ? 'Aktualizuj post' : 'Opublikuj post'}
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Post zostanie automatycznie dodany do sitemap.xml dla lepszego indeksowania w Google.
-                </p>
+                )} />
+                <FormField control={form.control} name="meta_title" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold">Meta Title (SEO)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Meta tytuł (do SEO, max 60 znaków)" className="bg-slate-950" maxLength={60} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="meta_description" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold">Meta Description (SEO)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Meta opis (do SEO, max 160 znaków)" className="bg-slate-950" maxLength={160} rows={2} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="meta_keywords" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-lg font-semibold">Meta Keywords (oddzielone przecinkami)</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="np. pozycjonowanie, SEO, strony internetowe" className="bg-slate-950" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
               </div>
-            </form>
-          </Form>
-        </div>
+            </div>
+            {/* Przyciski na górze */}
+            <div className="flex gap-4 justify-end mt-8">
+              <Button type="button" onClick={() => setShowPreview(true)} className="bg-blue-700 px-8 py-3 text-lg rounded-xl shadow-md hover:bg-blue-800 transition">Podgląd posta</Button>
+              <Button type="submit" className="bg-premium-gradient px-8 py-3 text-lg rounded-xl shadow-md hover:scale-105 transition" disabled={isLoading}>{isLoading ? 'Zapisywanie...' : isEditing ? 'Aktualizuj post' : 'Opublikuj post'}</Button>
+            </div>
+          </form>
+        </Form>
+
+        <Dialog open={showPreview} onOpenChange={setShowPreview}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Podgląd posta</DialogTitle>
+            </DialogHeader>
+            <div className="prose prose-invert max-w-none">
+              <h1>{form.getValues('title')}</h1>
+              <p className="text-premium-light/70 mb-2">{form.getValues('summary')}</p>
+              {imagePreview && (
+                <img src={imagePreview} alt="Podgląd zdjęcia głównego" className="rounded-lg max-h-64 object-cover mb-4" />
+              )}
+              <div dangerouslySetInnerHTML={{ __html: form.getValues('content') }} />
+              <div className="mt-4 text-xs text-premium-light/60">
+                Kategorie: {form.getValues('categories')}
+                <br />
+                Tagi: {form.getValues('tags')}
+                <br />
+                Autor: {user?.name || 'Nieznany autor'}
+              </div>
+            </div>
+            <DialogClose asChild>
+              <Button variant="outline" className="mt-4">Zamknij podgląd</Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
       </div>
     </AdminLayout>
   );
