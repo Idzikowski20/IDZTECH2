@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +22,8 @@ export interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
+  register: (email: string, name: string, password: string) => Promise<boolean>;
+  refreshUserStats: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -161,6 +162,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Add the register method
+  const register = async (email: string, name: string, password: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name,
+            full_name: name
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Błąd rejestracji",
+          description: error.message || "Wystąpił nieoczekiwany błąd",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      toast({
+        title: "Rejestracja udana",
+        description: "Teraz możesz się zalogować",
+      });
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Błąd rejestracji",
+        description: error.message || "Wystąpił nieoczekiwany błąd",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  // Add the refreshUserStats method
+  const refreshUserStats = () => {
+    // Import the actual function to avoid circular dependencies
+    const { refreshUserStats: refreshStats } = require('./authStatsFunctions');
+    refreshStats();
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -173,6 +219,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         resetPassword,
         updatePassword,
         updateProfile,
+        register,
+        refreshUserStats,
       }}
     >
       {children}
