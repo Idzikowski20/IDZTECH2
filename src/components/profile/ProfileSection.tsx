@@ -22,6 +22,11 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
     }
   }, [user?.profilePicture]);
 
+  // Create a wrapper function for updateProfile that returns void
+  const handleUpdateProfile = async (data: Partial<ExtendedUserProfile>): Promise<void> => {
+    await updateProfile(data);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-1">
@@ -30,7 +35,7 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
             user={user} 
             previewImage={previewImage} 
             setPreviewImage={setPreviewImage} 
-            updateProfile={updateProfile}
+            updateProfile={handleUpdateProfile}
           />
           
           <ProfileInfo user={user} />
@@ -43,7 +48,7 @@ const ProfileSection = ({ user }: ProfileSectionProps) => {
           
           <ProfileForm 
             user={user} 
-            updateProfile={updateProfile}
+            updateProfile={handleUpdateProfile}
             previewImage={previewImage}
             setPreviewImage={setPreviewImage}
           />

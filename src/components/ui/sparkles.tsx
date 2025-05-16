@@ -2,8 +2,24 @@
 "use client"
 
 import { useEffect, useId, useState } from "react"
-import Particles, { initParticlesEngine } from "@tsparticles/react"
+import { type Container, type ISourceOptions } from "@tsparticles/engine"
+import { Particles } from "@tsparticles/react"
 import { loadSlim } from "@tsparticles/slim"
+
+interface SparklesProps {
+  className?: string;
+  size?: number;
+  minSize?: number | null;
+  density?: number;
+  speed?: number;
+  minSpeed?: number | null;
+  opacity?: number;
+  opacitySpeed?: number;
+  minOpacity?: number | null;
+  color?: string;
+  background?: string;
+  options?: Partial<ISourceOptions>;
+}
 
 export function Sparkles({
   className,
@@ -18,20 +34,21 @@ export function Sparkles({
   color = "#FFFFFF",
   background = "transparent",
   options = {},
-}) {
+}: SparklesProps) {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine)
-    }).then(() => {
-      setIsReady(true)
-    })
+    const initParticles = async () => {
+      await loadSlim();
+      setIsReady(true);
+    };
+    
+    initParticles();
   }, [])
 
   const id = useId()
 
-  const defaultOptions = {
+  const defaultOptions: ISourceOptions = {
     background: {
       color: {
         value: background,

@@ -47,7 +47,7 @@ export const getAllPosts = async (): Promise<BlogPost[]> => {
     meta_title: post.meta_title || post.title,
     meta_description: post.meta_description || post.summary,
     meta_tags: post.meta_tags || (post.tags ? post.tags.join(', ') : '')
-  }));
+  } as BlogPost));
 };
 
 // Pobierz post według sluga
@@ -76,7 +76,7 @@ export const getPostBySlug = async (slug: string): Promise<BlogPost | null> => {
       meta_title: data.meta_title || data.title,
       meta_description: data.meta_description || data.summary,
       meta_tags: data.meta_tags || (data.tags ? data.tags.join(', ') : '')
-    };
+    } as BlogPost;
   }
   
   return null;
@@ -139,7 +139,7 @@ export const createPost = async (post: Omit<BlogPost, 'id' | 'created_at' | 'upd
     meta_title: data.meta_title || data.title,
     meta_description: data.meta_description || data.summary,
     meta_tags: data.meta_tags || (data.tags ? data.tags.join(', ') : '')
-  };
+  } as BlogPost;
 };
 
 // Zaktualizuj istniejący post
@@ -174,7 +174,7 @@ export const updatePost = async (id: string, post: Partial<BlogPost>): Promise<B
     meta_title: data.meta_title || data.title,
     meta_description: data.meta_description || data.summary,
     meta_tags: data.meta_tags || (data.tags ? data.tags.join(', ') : '')
-  };
+  } as BlogPost;
 };
 
 // Usuń post
