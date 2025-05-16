@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "./utils/AuthContext"; // Make sure we use the correct import path
+import { AuthProvider } from "./utils/AuthContext"; // Use this import consistently
 
 // Pages
 import Index from './pages/Index';
