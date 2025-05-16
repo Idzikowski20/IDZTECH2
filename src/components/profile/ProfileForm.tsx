@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,7 +11,9 @@ import { ExtendedUserProfile } from '@/utils/AuthProvider';
 
 interface ProfileFormProps {
   user: User & ExtendedUserProfile;
-  onUpdate: (data: Partial<ExtendedUserProfile>) => Promise<boolean>;
+  updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
+  previewImage: string | null;
+  setPreviewImage: (value: string | null) => void;
 }
 
 const profileSchema = z.object({
@@ -22,7 +25,7 @@ const profileSchema = z.object({
   jobTitle: z.string().max(50, 'Stanowisko nie może przekroczyć 50 znaków').optional()
 });
 
-const ProfileForm = ({ user, onUpdate }: ProfileFormProps) => {
+const ProfileForm = ({ user, updateProfile, previewImage, setPreviewImage }: ProfileFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof profileSchema>>({
@@ -40,67 +43,36 @@ const ProfileForm = ({ user, onUpdate }: ProfileFormProps) => {
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     setIsLoading(true);
     try {
-      const success = await onUpdate({
+      // Use preview image if available, otherwise use the URL from form
+      const profilePictureToUse = previewImage || values.profilePicture;
+      
+      await updateProfile({
         name: values.name,
         lastName: values.lastName,
-        profilePicture: values.profilePicture,
+        profilePicture: profilePictureToUse,
         bio: values.bio,
         jobTitle: values.jobTitle
       });
       
-      if (!success) {
-        throw new Error('Nie udało się zaktualizować danych użytkownika');
-      }
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating profile:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
-      <h2 className="text-xl font-semibold mb-6">Edytuj swoje dane</h2>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField 
-              control={form.control} 
-              name="name" 
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Imię</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Imię" className="bg-transparent" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} 
-            />
-            
-            <FormField 
-              control={form.control} 
-              name="lastName" 
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nazwisko</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nazwisko" className="bg-transparent" {...field} value={field.value || ''} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} 
-            />
-          </div>
-          
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField 
             control={form.control} 
-            name="email" 
+            name="name" 
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Imię</FormLabel>
                 <FormControl>
-                  <Input placeholder="Email" {...field} disabled className="bg-premium-light/5" />
+                  <Input placeholder="Imię" className="bg-transparent" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -109,71 +81,106 @@ const ProfileForm = ({ user, onUpdate }: ProfileFormProps) => {
           
           <FormField 
             control={form.control} 
-            name="jobTitle" 
+            name="lastName" 
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Stanowisko</FormLabel>
+                <FormLabel>Nazwisko</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="np. CEO, Marketing Manager, Developer" 
-                    {...field} 
-                    value={field.value || ''} 
-                    className="bg-transparent" 
-                  />
+                  <Input placeholder="Nazwisko" className="bg-transparent" {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )} 
           />
-          
-          <FormField 
-            control={form.control} 
-            name="profilePicture" 
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>URL zdjęcia profilowego</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="https://example.com/your-image.jpg" 
-                    {...field} 
-                    value={field.value || ''} 
-                    className="bg-transparent" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} 
-          />
-          
-          <FormField 
-            control={form.control} 
-            name="bio" 
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bio</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="Krótki opis o Tobie" 
-                    {...field} 
-                    value={field.value || ''} 
-                    className="bg-transparent" 
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} 
-          />
-          
-          <Button 
-            type="submit" 
-            className="bg-premium-gradient hover:bg-white hover:text-black transition-colors" 
-            disabled={isLoading}
-          >
-            {isLoading ? "Aktualizowanie..." : "Zapisz zmiany"}
-          </Button>
-        </form>
-      </Form>
-    </div>
+        </div>
+        
+        <FormField 
+          control={form.control} 
+          name="email" 
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="Email" {...field} disabled className="bg-premium-light/5" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} 
+        />
+        
+        <FormField 
+          control={form.control} 
+          name="jobTitle" 
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Stanowisko</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="np. CEO, Marketing Manager, Developer" 
+                  {...field} 
+                  value={field.value || ''} 
+                  className="bg-transparent" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} 
+        />
+        
+        <FormField 
+          control={form.control} 
+          name="profilePicture" 
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>URL zdjęcia profilowego</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="https://example.com/your-image.jpg" 
+                  {...field} 
+                  value={field.value || ''} 
+                  className="bg-transparent" 
+                  onChange={(e) => {
+                    field.onChange(e);
+                    // If URL changes, update preview
+                    if (e.target.value) {
+                      setPreviewImage(null); // Clear preview if URL is manually entered
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} 
+        />
+        
+        <FormField 
+          control={form.control} 
+          name="bio" 
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Bio</FormLabel>
+              <FormControl>
+                <Input 
+                  placeholder="Krótki opis o Tobie" 
+                  {...field} 
+                  value={field.value || ''} 
+                  className="bg-transparent" 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} 
+        />
+        
+        <Button 
+          type="submit" 
+          className="bg-premium-gradient hover:bg-white hover:text-black transition-colors" 
+          disabled={isLoading}
+        >
+          {isLoading ? "Aktualizowanie..." : "Zapisz zmiany"}
+        </Button>
+      </form>
+    </Form>
   );
 };
 

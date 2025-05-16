@@ -285,48 +285,6 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          id: string
-          email: string
-          name: string | null
-          lastName: string | null
-          profilePicture: string | null
-          bio: string | null
-          jobTitle: string | null
-          role: string | null
-          created_at: string | null
-          updated_at: string | null
-          last_login: string | null
-        }
-        Insert: {
-          id: string
-          email: string
-          name?: string | null
-          lastName?: string | null
-          profilePicture?: string | null
-          bio?: string | null
-          jobTitle?: string | null
-          role?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-          last_login?: string | null
-        }
-        Update: {
-          id?: string
-          email?: string
-          name?: string | null
-          lastName?: string | null
-          profilePicture?: string | null
-          bio?: string | null
-          jobTitle?: string | null
-          role?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-          last_login?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never

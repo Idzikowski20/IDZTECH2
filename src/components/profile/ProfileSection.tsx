@@ -1,40 +1,58 @@
+
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { User } from '@supabase/supabase-js';
-import { ExtendedUserProfile } from '@/utils/AuthProvider';
+import { ExtendedUserProfile } from '@/utils/AuthContext';
 import ProfileImage from '@/components/profile/ProfileImage';
 import ProfileInfo from '@/components/profile/ProfileInfo';
 import ProfileForm from '@/components/profile/ProfileForm';
-import { useUserManager } from '@/hooks/useProfileManager';
 
 interface ProfileSectionProps {
   user: User & ExtendedUserProfile;
 }
 
-const ProfileSection: React.FC<ProfileSectionProps> = ({ user }) => {
+const ProfileSection = ({ user }: ProfileSectionProps) => {
+  const { updateProfile } = useAuth();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const { updateUser } = useUserManager(user);
+  
+  // Set preview image from user profile when component mounts
+  useEffect(() => {
+    if (user?.profilePicture) {
+      setPreviewImage(user.profilePicture);
+    }
+  }, [user?.profilePicture]);
 
-  const handleUpdateUser = async (data: Partial<ExtendedUserProfile>) => {
-    return await updateUser(data);
+  // Create a wrapper function for updateProfile that returns void
+  const handleUpdateProfile = async (data: Partial<ExtendedUserProfile>): Promise<void> => {
+    await updateProfile(data);
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-      <div className="space-y-6">
-        <ProfileImage 
-          user={user} 
-          previewImage={previewImage} 
-          setPreviewImage={setPreviewImage}
-          updateProfile={handleUpdateUser}
-        />
-        <ProfileInfo user={user} />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="md:col-span-1">
+        <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
+          <ProfileImage 
+            user={user} 
+            previewImage={previewImage} 
+            setPreviewImage={setPreviewImage} 
+            updateProfile={handleUpdateProfile}
+          />
+          
+          <ProfileInfo user={user} />
+        </div>
       </div>
-      <div>
-        <ProfileForm 
-          user={user} 
-          onUpdate={handleUpdateUser}
-        />
+
+      <div className="md:col-span-2">
+        <div className="bg-premium-dark/50 p-6 rounded-xl border border-premium-light/10 hover:bg-premium-light/5 transition-all duration-300">
+          <h2 className="text-xl font-semibold mb-6">Edytuj swoje dane</h2>
+          
+          <ProfileForm 
+            user={user} 
+            updateProfile={handleUpdateProfile}
+            previewImage={previewImage}
+            setPreviewImage={setPreviewImage}
+          />
+        </div>
       </div>
     </div>
   );
