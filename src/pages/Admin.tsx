@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext'; // Changed from '@/utils/AuthProvider'
 import { Button } from '@/components/ui/button';
 import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
 import AdminLayout from '@/components/AdminLayout';
