@@ -1,218 +1,198 @@
 
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, FileText, PenSquare, LogOut, User, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Settings, User } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuth } from '@/utils/AuthContext'; // Changed from '@/utils/AuthProvider'
-import { useTheme } from '@/utils/themeContext';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { useNotifications } from '@/utils/notifications';
-import NotificationBell from './NotificationBell';
+import { useAuth } from '@/utils/AuthProvider';
+import UserProfile from '@/components/UserProfile';
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
-  activeNavItem?: string;
+  children: ReactNode;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'dashboard' }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-  const { theme } = useTheme();
-  const { pathname } = useLocation();
-  const { unreadCount } = useNotifications();
+  const location = useLocation();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
   
-  console.log("AdminLayout rendered, user:", user);
+  // Define navigation items
+  const navItems = [
+    { 
+      name: 'Dashboard', 
+      path: '/admin', 
+      icon: <LayoutDashboard className="w-5 h-5 mr-2" />, 
+      exact: true 
+    },
+    { 
+      name: 'Blog', 
+      path: '/admin/blog', 
+      icon: <FileText className="w-5 h-5 mr-2" />,
+      submenu: [
+        { name: 'Wszystkie posty', path: '/admin' },
+        { name: 'Dodaj nowy', path: '/admin/new-post' }
+      ]
+    },
+  ];
   
-  const handleLogout = () => {
-    signOut();
+  // Helper to check if path is active
+  const isActive = (path: string, exact: boolean = false) => {
+    if (exact) {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+  
+  // Handle logout
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
-
-  // Bezpieczny dostęp do danych użytkownika
-  const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
-  // Get full name if lastName exists
-  const fullName = user?.lastName ? `${displayName} ${user.lastName}` : displayName;
-  // Get user role for display
-  const userRole = user?.role || 'user';
   
-  // Bezpiecznie pobieramy avatar
-  const userAvatar = user?.profilePicture || '';
-
+  // Toggle profile panel
+  const toggleProfilePanel = () => {
+    setShowUserProfile(!showUserProfile);
+    if (mobileNavOpen) {
+      setMobileNavOpen(false);
+    }
+  };
+  
   return (
-    <div className="min-h-screen bg-premium-dark">
-      <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
-        {/* Light effects */}
-        <div className="absolute top-3 left-10 w-16 h-16 bg-premium-purple/40 rounded-full blur-[40px] animate-pulse-slow"></div>
-        <div className="absolute top-2 right-20 w-16 h-16 bg-premium-blue/40 rounded-full blur-[40px] animate-pulse-slow delay-150"></div>
+    <div className="min-h-screen bg-premium-dark flex flex-col md:flex-row">
+      {/* Mobile navigation toggle */}
+      <div className="md:hidden flex items-center justify-between px-4 py-3 bg-premium-dark/80 backdrop-blur-md border-b border-premium-light/10">
+        <Link to="/" className="flex items-center">
+          <span className="font-bold text-xl">IDZ.TECH</span>
+        </Link>
         
-        <div className="flex items-center relative z-10">
-          <div className="flex items-center">
-            <Link to="/">
-              <Button 
-                variant="ghost" 
-                className={`hover:bg-white hover:text-black flex gap-2 items-center ${theme === 'dark' ? 'text-premium-light' : 'text-black'}`}
-              >
-                <Home size={18} />
-                Wróć na stronę główną
-              </Button>
-            </Link>
-          </div>
-        </div>
-        
-        <div className="flex items-center space-x-4 relative z-10">
-          <div className="flex items-center">
-            <span className="font-mono">IDZ.TECH</span>
-          </div>
-
-          <NotificationBell />
-
-          <div className="flex items-center ml-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
-                    {userAvatar ? (
-                      <AvatarImage src={userAvatar} alt={fullName} />
-                    ) : (
-                      <AvatarFallback className="bg-premium-gradient text-white">
-                        {fullName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col">
-                    <span>{fullName}</span>
-                    <span className="text-xs text-muted-foreground">{userRole}</span>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Ustawienia</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleLogout}
-                  className="text-white bg-red-500 hover:bg-red-600 focus:text-white hover:text-white"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Wyloguj</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-
-      <div className="flex">
-        {/* Sidebar */}
-        <aside
-          className={`${
-            isSidebarOpen ? "w-64" : "w-16"
-          } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => setMobileNavOpen(!mobileNavOpen)}
         >
-          <nav className="p-4 space-y-2">
-            <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
-            <nav>
-              <ul>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
+          {mobileNavOpen ? <X /> : <Menu />}
+        </Button>
+      </div>
+      
+      {/* Sidebar */}
+      <div 
+        className={`${
+          mobileNavOpen ? 'block absolute inset-0 z-50 pt-16' : 'hidden'
+        } md:block bg-premium-dark/50 backdrop-blur-lg border-r border-premium-light/10 w-full md:w-64 md:static md:pt-0 md:min-h-screen`}
+      >
+        {/* Logo - desktop only */}
+        <div className="hidden md:flex items-center justify-between p-6 border-b border-premium-light/10">
+          <Link to="/" className="flex items-center">
+            <span className="font-bold text-xl">IDZ.TECH</span>
+          </Link>
+        </div>
+        
+        {/* Nav items */}
+        <nav className="p-4">
+          <ul className="space-y-1">
+            {navItems.map((item) => (
+              <React.Fragment key={item.name}>
+                <li>
+                  <Link
+                    to={item.path}
+                    className={`flex items-center px-4 py-3 rounded-md transition-colors ${
+                      isActive(item.path, item.exact) 
+                        ? 'bg-premium-light/10 text-white' 
+                        : 'hover:bg-premium-light/5'
+                    }`}
+                    onClick={() => setMobileNavOpen(false)}
                   >
-                    Dashboard
+                    {item.icon}
+                    <span>{item.name}</span>
                   </Link>
                 </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/stats" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Statystyki
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/profile" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Profil
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/notifications" 
-                    className={`flex items-center px-4 py-2 rounded-md transition-colors ${pathname === '/admin/notifications' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Powiadomienia
-                    {unreadCount > 0 && (
-                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/users" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Użytkownicy
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/settings" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Ustawienia
-                  </Link>
-                </li>
-              </ul>
-            </nav>
+                
+                {/* Submenu items */}
+                {item.submenu && isActive(item.path) && (
+                  <li className="ml-6 mt-1 space-y-1">
+                    {item.submenu.map((subitem) => (
+                      <Link
+                        key={subitem.name}
+                        to={subitem.path}
+                        className={`flex items-center px-4 py-2 rounded-md text-sm transition-colors ${
+                          location.pathname === subitem.path
+                            ? 'bg-premium-light/10 text-white' 
+                            : 'hover:bg-premium-light/5 text-premium-light/70'
+                        }`}
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        {subitem.name}
+                      </Link>
+                    ))}
+                  </li>
+                )}
+              </React.Fragment>
+            ))}
             
-            {/* Logout button at the bottom */}
-            <div className="pt-4 mt-6 border-t border-premium-light/10">
+            {/* Profile link */}
+            <li>
+              <button
+                onClick={toggleProfilePanel}
+                className={`flex w-full items-center px-4 py-3 rounded-md transition-colors ${
+                  showUserProfile 
+                    ? 'bg-premium-light/10 text-white' 
+                    : 'hover:bg-premium-light/5'
+                }`}
+              >
+                <User className="w-5 h-5 mr-2" />
+                <span>Profil</span>
+              </button>
+            </li>
+            
+            {/* Logout button */}
+            <li>
               <button
                 onClick={handleLogout}
-                className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
+                className="flex w-full items-center px-4 py-3 rounded-md text-red-400 hover:bg-red-500/10 transition-colors"
               >
-                <LogOut className="w-5 h-5 mr-3" />
-                {isSidebarOpen && <span>Wyloguj</span>}
-                {!isSidebarOpen && (
-                  <span className="absolute left-full ml-2 p-2 bg-premium-dark/90 text-premium-light rounded whitespace-nowrap border border-premium-light/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Wyloguj
-                  </span>
-                )}
+                <LogOut className="w-5 h-5 mr-2" />
+                <span>Wyloguj</span>
               </button>
-            </div>
-          </nav>
-        </aside>
+            </li>
+          </ul>
+        </nav>
         
-        {/* Main content */}
-        <div
-          className={`flex-1 transition-all duration-300 ease-in-out ${
-            isSidebarOpen ? "ml-64" : "ml-16"
-          }`}
-        >
-          {children}
+        {/* Back to site link - visible on mobile only */}
+        <div className="md:hidden p-4 pt-6 border-t border-premium-light/10">
+          <Link 
+            to="/"
+            className="flex items-center justify-center px-4 py-2 rounded-md text-sm bg-premium-light/5 hover:bg-premium-light/10 transition-colors"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            Powrót do strony głównej
+          </Link>
         </div>
+      </div>
+      
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-h-screen">
+        {/* Content area */}
+        <main className="flex-1">
+          {showUserProfile ? (
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Twój profil</h1>
+                <Button variant="ghost" onClick={() => setShowUserProfile(false)}>
+                  Powrót
+                </Button>
+              </div>
+              <UserProfile />
+            </div>
+          ) : (
+            children
+          )}
+        </main>
+        
+        {/* Footer */}
+        <footer className="border-t border-premium-light/10 p-4 text-center text-sm text-premium-light/50">
+          &copy; {new Date().getFullYear()} IDZ.TECH - Panel administracyjny
+        </footer>
       </div>
     </div>
   );

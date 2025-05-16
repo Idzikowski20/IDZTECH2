@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -9,11 +10,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useBlogStore } from '@/utils/blog';
+import { createPost, updatePost, getPostBySlug, BlogPost } from '@/services/blogService';
 import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
-import { supabase } from '@/integrations/supabase/client';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -21,42 +21,35 @@ const blogPostSchema = z.object({
   summary: z.string().min(10, 'Zajawka musi mieć co najmniej 10 znaków'),
   content: z.string().min(50, 'Treść musi mieć co najmniej 50 znaków'),
   categories: z.string().min(2, 'Kategorie są wymagane'),
-  tags: z.string().min(2, 'Tagi są wymagane')
+  tags: z.string().min(2, 'Tagi są wymagane'),
+  meta_title: z.string().optional(),
+  meta_description: z.string().optional(),
+  meta_tags: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof blogPostSchema>;
 
 const BlogPostEditor = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { posts, addPost, updatePost } = useBlogStore();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [existingPost, setExistingPost] = useState<BlogPost | null>(null);
+  const isEditing = !!slug;
 
-  // Find existing post if editing
-  const [existingPost, setExistingPost] = useState<any>(null);
-  const isEditing = !!id;
-
-  // Fetch post from database if editing
+  // Fetch post if editing
   useEffect(() => {
     const fetchPost = async () => {
-      if (id) {
+      if (slug) {
         try {
-          const { data, error } = await supabase
-            .from('blog_posts')
-            .select('*')
-            .eq('id', id)
-            .single();
-            
-          if (error) {
-            throw error;
-          }
+          const data = await getPostBySlug(slug);
+          setExistingPost(data);
           
-          if (data) {
-            setExistingPost(data);
+          if (data?.featured_image) {
+            setImagePreview(data.featured_image);
           }
         } catch (error) {
           console.error('Error fetching post:', error);
@@ -70,18 +63,21 @@ const BlogPostEditor = () => {
     };
     
     fetchPost();
-  }, [id, toast]);
+  }, [slug, toast]);
 
   // Set up form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(blogPostSchema),
     defaultValues: {
-      title: existingPost?.title || '',
-      slug: existingPost?.slug || '',
-      summary: existingPost?.summary || '',
-      content: existingPost?.content || '',
-      categories: existingPost?.categories?.join(', ') || '',
-      tags: existingPost?.tags?.join(', ') || ''
+      title: '',
+      slug: '',
+      summary: '',
+      content: '',
+      categories: '',
+      tags: '',
+      meta_title: '',
+      meta_description: '',
+      meta_tags: '',
     },
     values: existingPost ? {
       title: existingPost.title || '',
@@ -89,16 +85,12 @@ const BlogPostEditor = () => {
       summary: existingPost.summary || '',
       content: existingPost.content || '',
       categories: existingPost.categories?.join(', ') || '',
-      tags: existingPost.tags?.join(', ') || ''
+      tags: existingPost.tags?.join(', ') || '',
+      meta_title: existingPost.meta_title || '',
+      meta_description: existingPost.meta_description || '',
+      meta_tags: existingPost.meta_tags || '',
     } : undefined
   });
-
-  // Initialize image preview if we're editing a post with an existing image
-  useEffect(() => {
-    if (existingPost?.featured_image) {
-      setImagePreview(existingPost.featured_image);
-    }
-  }, [existingPost]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -127,8 +119,8 @@ const BlogPostEditor = () => {
       let imageUrl = existingPost?.featured_image || '';
       
       if (featuredImage) {
-        const reader = new FileReader();
         imageUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
           reader.onload = () => resolve(reader.result as string);
           reader.readAsDataURL(featuredImage);
         });
@@ -144,98 +136,44 @@ const BlogPostEditor = () => {
         author_id: user.id,
         categories: values.categories.split(',').map(cat => cat.trim()),
         tags: values.tags.split(',').map(tag => tag.trim()),
-        updated_at: new Date().toISOString()
+        date: existingPost?.date || new Date().toISOString(),
+        meta_title: values.meta_title || values.title,
+        meta_description: values.meta_description || values.summary,
+        meta_tags: values.meta_tags || values.tags,
       };
 
       let result;
       
-      if (isEditing && id) {
-        // Update existing post in database
-        const { data, error } = await supabase
-          .from('blog_posts')
-          .update(postData)
-          .eq('id', id)
-          .select()
-          .single();
+      if (isEditing && existingPost?.id) {
+        // Update existing post
+        result = await updatePost(existingPost.id, postData);
         
-      if (error) throw error;
-      result = data;
-      
-      // Update local state
-      updatePost(id, {
-        ...postData,
-        author: user.name || 'Anonymous',
-        featuredImage: imageUrl,
-        excerpt: values.summary
-      });
-      
-      toast({
-        title: "Post zaktualizowany",
-        description: "Post został pomyślnie zaktualizowany."
-      });
-    } else {
-      // Add new post to database
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert({
-          ...postData,
-          date: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          views: 0
-        })
-        .select()
-        .single();
+        toast({
+          title: "Post zaktualizowany",
+          description: "Post został pomyślnie zaktualizowany."
+        });
+      } else {
+        // Add new post
+        result = await createPost(postData);
         
-      if (error) throw error;
-      result = data;
-      
-      // Add to local state
-      if (data) {
-        addPost({
-          title: values.title,
-          slug: values.slug,
-          excerpt: values.summary,
-          content: values.content,
-          featuredImage: imageUrl,
-          author: user.name || 'Anonymous',
-          categories: values.categories.split(',').map(cat => cat.trim()),
-          tags: values.tags.split(',').map(tag => tag.trim())
+        toast({
+          title: "Post dodany",
+          description: "Nowy post został dodany do bloga."
         });
       }
       
+      navigate('/admin');
+    } catch (error) {
+      console.error('Error saving post:', error);
       toast({
-        title: "Post dodany",
-        description: "Nowy post został dodany do bloga."
+        title: "Błąd",
+        description: "Wystąpił problem podczas zapisywania posta.",
+        variant: "destructive"
       });
-      
-      // Generate sitemap update
-      try {
-        await fetch('/api/update-sitemap', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            slug: values.slug
-          })
-        });
-      } catch (sitemapError) {
-        console.error('Error updating sitemap:', sitemapError);
-      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    navigate('/admin');
-  } catch (error) {
-    console.error('Error saving post:', error);
-    toast({
-      title: "Błąd",
-      description: "Wystąpił problem podczas zapisywania posta.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   // Handle slug generation from title
   const generateSlug = () => {
@@ -293,6 +231,11 @@ const BlogPostEditor = () => {
                             if (!isEditing && !form.getValues('slug')) {
                               generateSlug();
                             }
+                            
+                            // Ustaw meta_title jeśli pusty
+                            if (!form.getValues('meta_title')) {
+                              form.setValue('meta_title', field.value);
+                            }
                           }} 
                           className="bg-slate-950" 
                         />
@@ -324,7 +267,18 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="bg-slate-950" />
+                      <Textarea 
+                        {...field} 
+                        placeholder="Krótki opis posta (będzie widoczny na liście postów)" 
+                        rows={2} 
+                        className="bg-slate-950"
+                        onBlur={() => {
+                          // Ustaw meta_description jeśli pusty
+                          if (!form.getValues('meta_description')) {
+                            form.setValue('meta_description', field.value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -358,6 +312,55 @@ const BlogPostEditor = () => {
                   </FormItem>
                 )} 
               />
+              
+              {/* SEO section */}
+              <div className="mt-10 border-t border-premium-light/10 pt-6">
+                <h3 className="text-xl font-semibold mb-4">SEO</h3>
+                
+                <div className="space-y-4">
+                  <FormField 
+                    control={form.control} 
+                    name="meta_title" 
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Meta Title</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Meta tytuł (SEO)" className="bg-slate-950" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} 
+                  />
+                  
+                  <FormField 
+                    control={form.control} 
+                    name="meta_description" 
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Meta Description</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} placeholder="Meta opis (SEO)" className="bg-slate-950" rows={2} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} 
+                  />
+                  
+                  <FormField 
+                    control={form.control} 
+                    name="meta_tags" 
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Meta Tags</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Meta tagi oddzielone przecinkami (SEO)" className="bg-slate-950" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} 
+                  />
+                </div>
+              </div>
               
               {/* Featured Image Upload */}
               <div className="space-y-2">
@@ -413,7 +416,7 @@ const BlogPostEditor = () => {
                 <div className="space-y-2">
                   <FormLabel>Autor</FormLabel>
                   <div className="bg-slate-950 border border-premium-light/10 rounded-md px-4 py-2 text-premium-light/80">
-                    {user?.name || 'Nieznany autor'}
+                    {user?.name || user?.email?.split('@')[0] || 'Nieznany autor'}
                   </div>
                 </div>
                 
@@ -439,7 +442,17 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" className="bg-slate-950" />
+                      <Input 
+                        {...field} 
+                        placeholder="pozycjonowanie, SEO, Google" 
+                        className="bg-slate-950"
+                        onBlur={() => {
+                          // Ustaw meta_tags jeśli pusty
+                          if (!form.getValues('meta_tags')) {
+                            form.setValue('meta_tags', field.value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
