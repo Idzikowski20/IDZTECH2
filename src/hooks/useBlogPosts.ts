@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../lib/supabase'
-import type { BlogPost, BlogPostInsert, BlogPostUpdate } from '../lib/supabase'
+import { supabase } from '@/integrations/supabase/client'
+import type { Database } from '@/types/supabase'
+
+type BlogPost = Database['public']['Tables']['blog_posts']['Row']
+type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert']
+type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update']
 
 export function useBlogPosts() {
   const queryClient = useQueryClient()
