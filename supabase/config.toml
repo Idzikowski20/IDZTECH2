@@ -1,9 +1,1 @@
-
-project_id = "apeestymqcpmpdnmccmd"
-
-[api]
-enabled = true
-
-[functions]
-[functions.update-sitemap]
-verify_jwt = true
+project_id = "wgqbustrnzyyybmclwmn"
