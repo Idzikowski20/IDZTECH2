@@ -48,7 +48,7 @@ export function Sparkles({
       },
       move: {
         enable: true,
-        direction: "none",
+        direction: "none" as const, // Using a type assertion to ensure it's one of the allowed values
         speed: {
           min: minSpeed || speed / 10,
           max: speed,
