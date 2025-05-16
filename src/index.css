@@ -74,6 +74,10 @@
     --ring: 240 10% 3.9%;
 
     --radius: 0.5rem;
+
+    --gradient-color: #8350e8;
+
+    --sparkles-color: #8350e8;
   }
 
   .dark {
@@ -104,6 +108,8 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    --gradient-color: #8350e8;
+    --sparkles-color: #ffffff;
   }
 }
 
@@ -567,4 +573,19 @@
 .text-premium-purple {
     --tw-text-opacity: 1; 
     color: rgb(120 77 255 / var(--tw-text-opacity, 1)) !important;
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.h-70 {
+  height: 70vh;
 }
