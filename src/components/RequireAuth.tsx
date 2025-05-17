@@ -4,7 +4,6 @@ import { useAuth } from "@/utils/AuthProvider";
 import { Loader2, ShieldAlert } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 interface RequireAuthProps {
   children: JSX.Element;
@@ -29,33 +28,12 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
     userRole
   });
   
-  // Fetch user role from Supabase
+  // Setup role - using the user's metadata or a default value
   useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!user?.id) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-          
-        if (error) {
-          console.error("Error fetching user role:", error);
-          return;
-        }
-        
-        if (data && data.role) {
-          setUserRole(data.role);
-        }
-      } catch (err) {
-        console.error("Error in fetchUserRole:", err);
-      }
-    };
-    
-    if (user) {
-      fetchUserRole();
+    if (user?.id) {
+      // Get role from user metadata if available
+      const role = user.user_metadata?.role || 'user';
+      setUserRole(role);
     }
   }, [user]);
   

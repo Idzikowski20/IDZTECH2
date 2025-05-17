@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +27,7 @@ export interface AuthContextType {
   resetPassword: (email: string) => Promise<{ error?: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
   getCurrentUser: () => (User & ExtendedUserProfile) | null;
-  refreshUserStats: () => void; // Add the refreshUserStats function
+  refreshUserStats: () => void;
 }
 
 // Create auth context
@@ -60,29 +61,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.log("Session exists in auth state change");
             setSession(currentSession);
             
-            // Use setTimeout to avoid potential Supabase auth deadlock
             setTimeout(async () => {
               try {
                 if (abortController.signal.aborted || !isMounted) return;
                 
-                // Fetch profile data
-                const { data: profileData } = await supabase
-                  .from('profiles')
-                  .select('*')
-                  .eq('id', currentSession.user.id)
-                  .single();
+                const userData = {
+                  ...currentSession.user,
+                  name: currentSession.user.user_metadata?.name || null,
+                  lastName: currentSession.user.user_metadata?.lastName || null,
+                  profilePicture: currentSession.user.user_metadata?.profilePicture || null,
+                  bio: currentSession.user.user_metadata?.bio || null,
+                  jobTitle: currentSession.user.user_metadata?.jobTitle || null
+                };
                 
-                if (isMounted) {
-                  setUser({
-                    ...currentSession.user,
-                    name: profileData?.name || currentSession.user.user_metadata?.name || null,
-                    lastName: profileData?.lastName || currentSession.user.user_metadata?.lastName || null,
-                    profilePicture: profileData?.profilePicture || currentSession.user.user_metadata?.profilePicture || null,
-                    bio: profileData?.bio || currentSession.user.user_metadata?.bio || null,
-                    jobTitle: profileData?.jobTitle || currentSession.user.user_metadata?.jobTitle || null
-                  });
-                  setIsAuthenticated(true);
-                }
+                setUser(userData);
+                setIsAuthenticated(true);
               } catch (error) {
                 console.error("Error processing auth state change:", error);
               } finally {
@@ -151,21 +144,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log("Found existing session:", session.user.id);
           setSession(session);
           
-          // Fetch profile data
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-          
-          setUser({
+          // Use user metadata directly instead of fetching profiles
+          const userData = {
             ...session.user,
-            name: profileData?.name || session.user.user_metadata?.name || null,
-            lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
-            profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
-            bio: profileData?.bio || session.user.user_metadata?.bio || null,
-            jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null
-          });
+            name: session.user.user_metadata?.name || null,
+            lastName: session.user.user_metadata?.lastName || null,
+            profilePicture: session.user.user_metadata?.profilePicture || null,
+            bio: session.user.user_metadata?.bio || null,
+            jobTitle: session.user.user_metadata?.jobTitle || null
+          };
+          
+          setUser(userData);
           setIsAuthenticated(true);
         } else {
           console.log("No existing session found");
@@ -264,20 +253,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error };
       }
       
-      // Create profile
-      if (user) {
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: user.id,
-          email: user.email,
-          name: userData.name,
-          created_at: new Date().toISOString()
-        });
-        
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-        }
-      }
-      
       console.log("Sign up successful:", user?.id);
       return { data: { session, user }, error: null };
     } catch (error) {
@@ -310,20 +285,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const success = await registerUser(email, name, password);
         setLoading(false);
         return success;
-      }
-      
-      // If Supabase registration succeeded, create a profile
-      if (data.user) {
-        const { error: profileError } = await supabase.from('profiles').upsert({
-          id: data.user.id,
-          email: data.user.email,
-          name: name,
-          created_at: new Date().toISOString()
-        });
-        
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-        }
       }
       
       setLoading(false);
@@ -381,33 +342,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (!user?.id) return;
       
-      // Make sure we have the user's email for the profile update
-      const userEmail = user.email || '';
-      
-      // Update Supabase profile first
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          email: userEmail, // Add required email field
-          ...data
-        });
-      
-      if (profileError) {
-        console.error("Error updating profile:", profileError);
-        throw profileError;
-      }
-      
-      // Also update user metadata
+      // Update user metadata
       const { error: userError } = await supabase.auth.updateUser({
         data: data
       });
       
       if (userError) {
         console.error("Error updating user metadata:", userError);
-        // Continue anyway since we updated the profile
+        throw userError;
       }
       
+      // Update local state
       setUser(prev => prev ? { ...prev, ...data } : null);
       
       toast({
@@ -425,19 +370,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
   // Add refreshUserStats function
   const refreshUserStats = () => {
-    // Implement a function to refresh user stats
-    // This is a placeholder function that will be used by the UserRanking component
     console.log("Refreshing user stats from AuthProvider");
     
-    // You might want to fetch updated user data here
-    // or trigger a refresh of the user ranking component
-    try {
-      // Placeholder for actual implementation
-      // In a real implementation, you might want to fetch updated user data from Supabase
-      // or trigger a refresh of related components
-    } catch (error) {
-      console.error("Error refreshing user stats:", error);
-    }
+    // Placeholder for implementation
   };
   
   // Auth context value
@@ -453,7 +388,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetPassword,
     updateProfile,
     getCurrentUser,
-    refreshUserStats, // Add the refreshUserStats function to the context value
+    refreshUserStats,
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

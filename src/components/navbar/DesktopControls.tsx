@@ -13,38 +13,36 @@ const DesktopControls = () => {
   
   return (
     <div className="hidden md:flex items-center space-x-4">
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => {
-        toggleDarkMode();
-        trackEvent(
-          'toggle_theme',
-          'ui',
-          `Theme toggled to ${theme === 'light' ? 'dark' : 'light'}`
-        );
-      }}
-      className={`
-        transition-colors 
-        ${theme === 'light' 
-          ? 'text-black hover:bg-gray-100 hover:text-black' 
-          : 'text-white hover:bg-white/10 hover:text-white'}
-      `}
-    >
-      {theme === 'light' ? (
-        <Moon 
-          className="h-[1.2rem] w-[1.2rem]" 
-          stroke="#000000" 
-          fill="none"
-        />
-      ) : (
-        <Sun className="h-[1.2rem] w-[1.2rem]" stroke="currentColor" />
-      )}
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          toggleDarkMode();
+          trackEvent(
+            'toggle_theme',
+            'ui',
+            `Theme toggled to ${theme === 'light' ? 'dark' : 'light'}`
+          );
+        }}
+        className={`
+          transition-colors 
+          ${theme === 'light' 
+            ? 'text-black hover:bg-gray-100 hover:text-black' 
+            : 'text-white hover:bg-white/10 hover:text-white'}
+        `}
+      >
+        {theme === 'light' ? (
+          <Moon 
+            className="h-[1.2rem] w-[1.2rem]" 
+            stroke="#000000" 
+            fill="none"
+          />
+        ) : (
+          <Sun className="h-[1.2rem] w-[1.2rem]" stroke="currentColor" />
+        )}
+        <span className="sr-only">Toggle theme</span>
+      </Button>
 
-
-    
       <Link to="/contact" className="hidden md:block">
         <Button 
           className="bg-black text-white hover:bg-black hover:text-white transition-colors"
@@ -55,24 +53,22 @@ const DesktopControls = () => {
       
       <Link to={isAuthenticated ? "/admin" : "/login"}>
         <Button 
-            variant="ghost" 
-            size="icon" 
-            className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black text-black' : 'bg-gray-50 hover:bg-white/10 hover:text-black text-black'}`}
-          >
-            {theme === 'light' ? (
-        <LogIn 
-          className="h-[1.2rem] w-[1.2rem]" 
-          stroke="#000000" 
-          fill="none"
-        />
-        ) : (
-                  <LogIn 
-          className="h-[1.2rem] w-[1.2rem]" 
-          stroke="#000000" 
-          fill="none"
-        />
-        )}
-            <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
+          variant="ghost" 
+          size="icon" 
+          className={`transition-colors ${
+            theme === 'light' 
+              ? 'text-black hover:bg-gray-100 hover:text-black' 
+              : 'text-white bg-gray-50/10 hover:bg-white/10 hover:text-white'
+          }`}
+        >
+          <LogIn 
+            className="h-[1.2rem] w-[1.2rem]" 
+            stroke={theme === 'light' ? "#000000" : "#FFFFFF"} 
+            fill="none"
+          />
+          <span className="sr-only">
+            {isAuthenticated ? "Panel administracyjny" : "Zaloguj"}
+          </span>
         </Button>
       </Link>
     </div>

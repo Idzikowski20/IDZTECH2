@@ -1,37 +1,44 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-// Function to fetch user profile data from profiles table
+// Function to fetch user data and extract profile information from metadata
 export const fetchUserProfile = async (userId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('name, lastName, profilePicture, bio, jobTitle')
-      .eq('id', userId)
-      .single();
+    const { data: authData, error: authError } = await supabase.auth.getUser();
     
-    if (error) {
-      console.error('Error fetching user profile:', error);
+    if (authError) {
+      console.error('Error fetching user data:', authError);
       return null;
     }
     
-    return data;
+    if (authData?.user) {
+      return {
+        name: authData.user.user_metadata?.name,
+        lastName: authData.user.user_metadata?.lastName,
+        profilePicture: authData.user.user_metadata?.profilePicture,
+        bio: authData.user.user_metadata?.bio,
+        jobTitle: authData.user.user_metadata?.jobTitle,
+        role: authData.user.user_metadata?.role || 'user'
+      };
+    }
+    
+    return null;
   } catch (error) {
     console.error('Error in fetchUserProfile:', error);
     return null;
   }
 };
 
-// Function to create a new profile if one doesn't exist
+// Function to create/update user metadata
 export const createUserProfile = async (userId: string, email: string, name: string | null = null) => {
   try {
-    const { error } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId,
+    const { error } = await supabase.auth.updateUser({
+      data: {
         email,
-        name
-      });
+        name,
+        created_at: new Date().toISOString()
+      }
+    });
     
     if (error) {
       console.error('Error creating user profile:', error);
