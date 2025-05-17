@@ -3,8 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ExtendedUserProfile } from "@/contexts/AuthContext";
-import { fetchUserProfile } from "@/utils/profileUtils";
+import { ExtendedUserProfile } from "@/utils/AuthProvider";
 
 export const useAuthState = (navigate: any, location: any) => {
   const [user, setUser] = useState<(User & ExtendedUserProfile) | null>(null);
@@ -41,19 +40,17 @@ export const useAuthState = (navigate: any, location: any) => {
                 try {
                   if (abortController.signal.aborted) return;
                   
-                  // Fetch additional profile data if user is logged in
-                  const profileData = await fetchUserProfile(currentSession.user.id);
-                  
-                  // Merge Supabase user with profile data
-                  setUser({
+                  // Use user metadata instead of profiles table
+                  const userData = {
                     ...currentSession.user,
-                    name: profileData?.name || null,
-                    lastName: profileData?.lastName || null,
-                    profilePicture: profileData?.profilePicture || null,
-                    bio: profileData?.bio || null,
-                    jobTitle: profileData?.jobTitle || null
-                  });
+                    name: currentSession.user.user_metadata?.name || null,
+                    lastName: currentSession.user.user_metadata?.lastName || null,
+                    profilePicture: currentSession.user.user_metadata?.profilePicture || null,
+                    bio: currentSession.user.user_metadata?.bio || null,
+                    jobTitle: currentSession.user.user_metadata?.jobTitle || null
+                  };
                   
+                  setUser(userData);
                   setIsAuthenticated(true);
                   
                   // Handle login redirection after a delay to prevent loops
@@ -98,19 +95,17 @@ export const useAuthState = (navigate: any, location: any) => {
         if (currentSession?.user) {
           setSession(currentSession);
           
-          // Fetch additional profile data if user is logged in
-          const profileData = await fetchUserProfile(currentSession.user.id);
-          
-          // Merge Supabase user with profile data
-          setUser({
+          // Use user metadata from session
+          const userData = {
             ...currentSession.user,
-            name: profileData?.name || null,
-            lastName: profileData?.lastName || null,
-            profilePicture: profileData?.profilePicture || null,
-            bio: profileData?.bio || null,
-            jobTitle: profileData?.jobTitle || null
-          });
+            name: currentSession.user.user_metadata?.name || null,
+            lastName: currentSession.user.user_metadata?.lastName || null,
+            profilePicture: currentSession.user.user_metadata?.profilePicture || null,
+            bio: currentSession.user.user_metadata?.bio || null,
+            jobTitle: currentSession.user.user_metadata?.jobTitle || null
+          };
           
+          setUser(userData);
           setIsAuthenticated(true);
         } else {
           setUser(null);
