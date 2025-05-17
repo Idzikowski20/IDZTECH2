@@ -9,7 +9,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useBlogStore } from '@/utils/blog';
 import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
@@ -30,13 +29,10 @@ const BlogPostEditor = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { posts, addPost, updatePost } = useBlogStore();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
-
-  // Find existing post if editing
   const [existingPost, setExistingPost] = useState<any>(null);
   const isEditing = !!id;
 
@@ -50,16 +46,9 @@ const BlogPostEditor = () => {
             .select('*')
             .eq('id', id)
             .single();
-            
-          if (error) {
-            throw error;
-          }
-          
-          if (data) {
-            setExistingPost(data);
-          }
+          if (error) throw error;
+          if (data) setExistingPost(data);
         } catch (error) {
-          console.error('Error fetching post:', error);
           toast({
             title: "Błąd",
             description: "Nie udało się załadować posta",
@@ -68,7 +57,6 @@ const BlogPostEditor = () => {
         }
       }
     };
-    
     fetchPost();
   }, [id, toast]);
 
@@ -123,9 +111,7 @@ const BlogPostEditor = () => {
 
     setIsLoading(true);
     try {
-      // Convert image to base64 if we have a new image
       let imageUrl = existingPost?.featured_image || '';
-      
       if (featuredImage) {
         const reader = new FileReader();
         imageUrl = await new Promise((resolve) => {
@@ -134,7 +120,6 @@ const BlogPostEditor = () => {
         });
       }
 
-      // Prepare data for database
       const postData = {
         title: values.title,
         slug: values.slug,
@@ -147,95 +132,36 @@ const BlogPostEditor = () => {
         updated_at: new Date().toISOString()
       };
 
-      let result;
-      
       if (isEditing && id) {
-        // Update existing post in database
-        const { data, error } = await supabase
+        const { error } = await supabase
           .from('blog_posts')
           .update(postData)
-          .eq('id', id)
-          .select()
-          .single();
-        
-      if (error) throw error;
-      result = data;
-      
-      // Update local state
-      updatePost(id, {
-        ...postData,
-        author: user.name || 'Anonymous',
-        featuredImage: imageUrl,
-        excerpt: values.summary
-      });
-      
-      toast({
-        title: "Post zaktualizowany",
-        description: "Post został pomyślnie zaktualizowany."
-      });
-    } else {
-      // Add new post to database
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .insert({
-          ...postData,
-          date: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          views: 0
-        })
-        .select()
-        .single();
-        
-      if (error) throw error;
-      result = data;
-      
-      // Add to local state
-      if (data) {
-        addPost({
-          title: values.title,
-          slug: values.slug,
-          excerpt: values.summary,
-          content: values.content,
-          featuredImage: imageUrl,
-          author: user.name || 'Anonymous',
-          categories: values.categories.split(',').map(cat => cat.trim()),
-          tags: values.tags.split(',').map(tag => tag.trim())
-        });
+          .eq('id', id);
+        if (error) throw error;
+        toast({ title: "Post zaktualizowany", description: "Post został zaktualizowany." });
+      } else {
+        const { error } = await supabase
+          .from('blog_posts')
+          .insert({
+            ...postData,
+            date: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            views: 0
+          });
+        if (error) throw error;
+        toast({ title: "Post dodany", description: "Nowy post został dodany do bloga." });
       }
-      
+      navigate('/admin');
+    } catch (error) {
       toast({
-        title: "Post dodany",
-        description: "Nowy post został dodany do bloga."
+        title: "Błąd",
+        description: "Wystąpił problem podczas zapisywania posta.",
+        variant: "destructive"
       });
-      
-      // Generate sitemap update
-      try {
-        await fetch('/api/update-sitemap', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            slug: values.slug
-          })
-        });
-      } catch (sitemapError) {
-        console.error('Error updating sitemap:', sitemapError);
-      }
+    } finally {
+      setIsLoading(false);
     }
-    
-    navigate('/admin');
-  } catch (error) {
-    console.error('Error saving post:', error);
-    toast({
-      title: "Błąd",
-      description: "Wystąpił problem podczas zapisywania posta.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   // Handle slug generation from title
   const generateSlug = () => {
@@ -265,9 +191,6 @@ const BlogPostEditor = () => {
             </h1>
           </div>
           <div className="flex gap-3">
-            <Button onClick={() => form.setValue('content', form.getValues('content') + '<h2>Nagłówek H2</h2>')} className="bg-gray-700">
-              <FileCode size={18} className="mr-2" /> Dodaj H2
-            </Button>
             <Button onClick={form.handleSubmit(onSubmit)} className="bg-premium-gradient" disabled={isLoading}>
               <Save size={18} className="mr-2" />
               {isLoading ? 'Zapisywanie...' : 'Zapisz post'}
@@ -294,7 +217,7 @@ const BlogPostEditor = () => {
                               generateSlug();
                             }
                           }} 
-                          className="bg-slate-950" 
+                          className="" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -309,7 +232,7 @@ const BlogPostEditor = () => {
                     <FormItem>
                       <FormLabel>Slug (URL)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="url-posta" className="bg-slate-950" />
+                        <Input {...field} placeholder="url-posta" className="" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -324,7 +247,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="bg-slate-950" />
+                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -337,16 +260,8 @@ const BlogPostEditor = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
-                    <div className="mb-2 flex gap-2">
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h1>Nagłówek H1</h1>')}>H1</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h2>Nagłówek H2</h2>')}>H2</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h3>Nagłówek H3</h3>')}>H3</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<p>Paragraf</p>')}>P</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<strong>Pogrubienie</strong>')}>Bold</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<em>Kursywa</em>')}>Italic</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<ul>\n<li>Element listy</li>\n<li>Element listy</li>\n</ul>')}>Lista</Button>
-                    </div>
-                    <FormControl>
+                    <FormControl
+                    className='ql-editor-white'>
                       <RichTextEditor 
                         value={field.value}
                         onChange={field.onChange}
@@ -412,7 +327,7 @@ const BlogPostEditor = () => {
                 {/* Author information display (not editable) */}
                 <div className="space-y-2">
                   <FormLabel>Autor</FormLabel>
-                  <div className="bg-slate-950 border border-premium-light/10 rounded-md px-4 py-2 text-premium-light/80">
+                  <div className="border transition-colors rounded-lg px-4 py-2 flex items-center">
                     {user?.name || 'Nieznany autor'}
                   </div>
                 </div>
@@ -424,7 +339,7 @@ const BlogPostEditor = () => {
                     <FormItem>
                       <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="bg-slate-950" />
+                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -439,7 +354,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" className="bg-slate-950" />
+                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" className="" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

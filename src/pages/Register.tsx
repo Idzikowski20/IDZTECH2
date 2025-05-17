@@ -123,7 +123,7 @@ const Register = () => {
         console.log("Supabase registration successful:", data);
         
         // Create profile record
-        await supabase.from('profiles').upsert({
+        await supabase.from('users').upsert({
           id: data.user?.id,
           email: values.email,
           name: values.name,

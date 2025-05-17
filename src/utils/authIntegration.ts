@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -16,7 +15,7 @@ export const integrateAuth = async () => {
       
       // Get profile data if available
       const { data: profileData } = await supabase
-        .from('profiles')
+        .from('users')
         .select('*')
         .eq('id', session.user.id)
         .single();
@@ -81,7 +80,7 @@ export const registerUser = async (email: string, name: string, password: string
       console.log('Registered user with Supabase');
       
       // Create profile
-      const { error: profileError } = await supabase.from('profiles').upsert({
+      const { error: profileError } = await supabase.from('users').upsert({
         id: data.user.id,
         email: data.user.email,
         name: name,
@@ -132,13 +131,13 @@ export const loginUser = async (email: string, password: string) => {
       
       // Check if profile exists, if not create it
       const { data: profileData } = await supabase
-        .from('profiles')
+        .from('users')
         .select('id')
         .eq('id', data.user.id)
         .single();
       
       if (!profileData) {
-        const { error: profileError } = await supabase.from('profiles').upsert({
+        const { error: profileError } = await supabase.from('users').upsert({
           id: data.user.id,
           email: data.user.email,
           name: data.user.user_metadata?.name || email.split('@')[0],
@@ -208,7 +207,7 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
       
       // Update Supabase profile
       const { error: profileError } = await supabase
-        .from('profiles')
+        .from('users')
         .upsert({
           id: userId,
           email: email, // Add required email field
@@ -240,11 +239,11 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
 // Fetch all users from Supabase
 export const fetchAllUsers = async () => {
   try {
-    console.log('Fetching all users from Supabase profiles');
+    console.log('Fetching all users from Supabase users');
     
-    // Fetch all profiles from the profiles table
+    // Fetch all profiles from the users table
     const { data: profiles, error } = await supabase
-      .from('profiles')
+      .from('users')
       .select('*');
     
     if (error) {
@@ -288,7 +287,7 @@ export const addUser = async (userData: any, password: string) => {
     
     // Create profile
     if (user) {
-      const { error: profileError } = await supabase.from('profiles').upsert({
+      const { error: profileError } = await supabase.from('users').upsert({
         id: user.id,
         email: userData.email,
         name: userData.name,
@@ -322,7 +321,7 @@ export const updateUserRole = async (userId: string, role: UserRole) => {
     
     // Update the profile with the new role
     const { error } = await supabase
-      .from('profiles')
+      .from('users')
       .update({ role })
       .eq('id', userId);
     
@@ -348,7 +347,7 @@ export const deleteUser = async (userId: string) => {
     // We can't directly delete users from auth.users with the client SDK
     // But we can delete their profile, which is effectively the same for our purposes
     const { error } = await supabase
-      .from('profiles')
+      .from('users')
       .delete()
       .eq('id', userId);
     

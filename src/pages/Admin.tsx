@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
 import { Button } from '@/components/ui/button';
-import { useBlogStore, BlogComment, BlogPost } from '@/utils/blog';
+import { supabase } from '@/integrations/supabase/client';
 import AdminLayout from '@/components/AdminLayout';
 import { 
   Table,
@@ -36,13 +35,9 @@ const Admin = () => {
   
   const { toast } = useToast();
   
-  const {
-    posts,
-    deletePost,
-    getPostComments,
-    addComment,
-    deleteComment
-  } = useBlogStore();
+  // Stan dla postów bloga
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   
   const [analytics, setAnalytics] = useState({
     totalVisits: 0,
@@ -57,13 +52,13 @@ const Admin = () => {
     blogViews: 0
   });
   
-  const [recentComments, setRecentComments] = useState<(BlogComment & { postTitle: string })[]>([]);
+  const [recentComments, setRecentComments] = useState<any[]>([]);
   const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [isReplying, setIsReplying] = useState<Record<string, boolean>>({});
   const [topPosts, setTopPosts] = useState<{
-    byViews: BlogPost[];
-    byLikes: BlogPost[];
-    byComments: BlogPost[];
+    byViews: any[];
+    byLikes: any[];
+    byComments: any[];
   }>({
     byViews: [],
     byLikes: [],
@@ -92,57 +87,39 @@ const Admin = () => {
     }
   }, [isAuthenticated, navigate, user]);
   
-  // Filter posts based on search term
+  // Pobieranie postów z Supabase
+  useEffect(() => {
+    const fetchPosts = async () => {
+      setLoadingPosts(true);
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error) setPosts(data || []);
+      setLoadingPosts(false);
+    };
+    fetchPosts();
+  }, []);
+  
+  // Filtrowanie postów po tytule
   useEffect(() => {
     if (!Array.isArray(posts)) {
       setFilteredPosts([]);
       return;
     }
-    
     const filtered = searchTerm
       ? posts.filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()))
       : posts;
-      
     setFilteredPosts(filtered);
   }, [posts, searchTerm]);
   
-  // Get all comments from all posts
+  // Top posty na podstawie pobranych postów
   useEffect(() => {
-    console.log("Processing posts:", posts);
-    if (!Array.isArray(posts)) {
-      console.log("Posts is not an array");
-      return;
-    }
-    
-    const allComments = posts.flatMap(post => 
-      Array.isArray(post.comments) 
-        ? post.comments.map(comment => ({
-            ...comment,
-            postTitle: post.title
-          }))
-        : []
-    );
-    
-    // Sort by date, newest first
-    const sortedComments = allComments.sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    
-    setRecentComments(sortedComments);
-    
-    // Calculate top posts by views, likes, and comments
-    const sortedByViews = [...posts].sort((a, b) => b.views - a.views).slice(0, 5);
-    
-    const sortedByLikes = [...posts].sort((a, b) => 
-      (Array.isArray(b.likes) ? b.likes.length : 0) - 
-      (Array.isArray(a.likes) ? a.likes.length : 0)
-    ).slice(0, 5);
-    
-    const sortedByComments = [...posts].sort((a, b) => 
-      (Array.isArray(b.comments) ? b.comments.length : 0) - 
-      (Array.isArray(a.comments) ? a.comments.length : 0)
-    ).slice(0, 5);
-    
+    if (!Array.isArray(posts)) return;
+    const sortedByViews = [...posts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5);
+    // Jeśli masz polubienia i komentarze jako liczby lub tablice, dostosuj poniżej:
+    const sortedByLikes = [...posts].sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0)).slice(0, 5);
+    const sortedByComments = [...posts].sort((a, b) => (b.comments?.length || 0) - (a.comments?.length || 0)).slice(0, 5);
     setTopPosts({
       byViews: sortedByViews,
       byLikes: sortedByLikes,
@@ -200,50 +177,6 @@ const Admin = () => {
     
     return () => clearInterval(timer);
   }, [posts]);
-  
-  const handleReply = (commentId: string) => {
-    setIsReplying({
-      ...isReplying,
-      [commentId]: !isReplying[commentId]
-    });
-  };
-  
-  const submitReply = (commentId: string, postId: string) => {
-    if (replyText[commentId] && user) {
-      addComment(
-        postId,
-        user.id,
-        user.name || user.email?.split('@')[0] || 'Użytkownik',
-        user.profilePicture,
-        `@${recentComments.find(c => c.id === commentId)?.userName}: ${replyText[commentId]}`
-      );
-      
-      // Reset reply state
-      setReplyText({
-        ...replyText,
-        [commentId]: ''
-      });
-      setIsReplying({
-        ...isReplying,
-        [commentId]: false
-      });
-      
-      toast({
-        title: "Odpowiedź dodana",
-        description: "Twoja odpowiedź została pomyślnie dodana."
-      });
-    }
-  };
-  
-  const handleDeleteComment = (commentId: string, postId: string) => {
-    if (confirm("Czy na pewno chcesz usunąć ten komentarz?")) {
-      deleteComment(postId, commentId);
-      toast({
-        title: "Komentarz usunięty",
-        description: "Komentarz został pomyślnie usunięty."
-      });
-    }
-  };
   
   // Calculate pagination
   const commentsStartIndex = (currentCommentsPage - 1) * commentsPerPage;
@@ -410,7 +343,7 @@ const Admin = () => {
         </div>
 
 
-        {/* Blog Posts Management */}
+        {/* Blog Posts Management (DYNAMICZNE API) */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Blog</h2>
@@ -442,18 +375,24 @@ const Admin = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
-                  {!Array.isArray(paginatedPosts) || paginatedPosts.length === 0 ? (
+                  {loadingPosts ? (
+                    <tr>
+                      <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
+                        Ładowanie...
+                      </td>
+                    </tr>
+                  ) : filteredPosts.length === 0 ? (
                     <tr>
                       <td className="py-4 px-4 text-center text-premium-light/70" colSpan={4}>
                         {searchTerm ? 'Brak wyników wyszukiwania' : 'Brak postów. Dodaj pierwszy post, aby zacząć.'}
                       </td>
                     </tr>
                   ) : (
-                    paginatedPosts.map(post => (
+                    filteredPosts.map(post => (
                       <tr key={post.id}>
                         <td className="py-3 px-4 font-medium">{post.title}</td>
                         <td className="py-3 px-4 text-premium-light/70">
-                          {new Date(post.date).toLocaleDateString('pl-PL')}
+                          {new Date(post.created_at).toLocaleDateString('pl-PL')}
                         </td>
                         <td className="py-3 px-4">{post.views}</td>
                         <td className="py-3 px-4">
@@ -478,7 +417,17 @@ const Admin = () => {
                               variant="outline" 
                               size="sm" 
                               className="text-red-400 hover:text-white hover:bg-red-500 transition-colors" 
-                              onClick={() => deletePost(post.id)}
+                              onClick={async () => {
+                                if (window.confirm('Czy na pewno chcesz usunąć ten post?')) {
+                                  const { error } = await supabase.from('blog_posts').delete().eq('id', post.id);
+                                  if (!error) {
+                                    setPosts(posts => posts.filter(p => p.id !== post.id));
+                                    toast({ title: 'Usunięto', description: 'Post został usunięty.' });
+                                  } else {
+                                    toast({ title: 'Błąd', description: 'Nie udało się usunąć posta.', variant: 'destructive' });
+                                  }
+                                }
+                              }}
                             >
                               <Trash2 size={14} />
                             </Button>

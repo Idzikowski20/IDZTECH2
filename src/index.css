@@ -589,3 +589,8 @@
 .h-70 {
   height: 70vh;
 }
+
+.ql-editor, .ql-toolbar.ql-snow {
+  background: white !important;
+}
+
