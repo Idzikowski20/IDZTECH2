@@ -9,279 +9,104 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_stats: {
-        Row: {
-          comments: number | null
-          created_at: string | null
-          date: string | null
-          id: string
-          likes: number | null
-          monthly_data: Json | null
-          posts: number | null
-          updated_at: string | null
-          views: number | null
-          weekly_data: Json | null
-        }
-        Insert: {
-          comments?: number | null
-          created_at?: string | null
-          date?: string | null
-          id?: string
-          likes?: number | null
-          monthly_data?: Json | null
-          posts?: number | null
-          updated_at?: string | null
-          views?: number | null
-          weekly_data?: Json | null
-        }
-        Update: {
-          comments?: number | null
-          created_at?: string | null
-          date?: string | null
-          id?: string
-          likes?: number | null
-          monthly_data?: Json | null
-          posts?: number | null
-          updated_at?: string | null
-          views?: number | null
-          weekly_data?: Json | null
-        }
-        Relationships: []
-      }
-      blog_comments: {
-        Row: {
-          content: string
-          created_at: string | null
-          guest_name: string | null
-          id: string
-          post_id: string | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          guest_name?: string | null
-          id?: string
-          post_id?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          guest_name?: string | null
-          id?: string
-          post_id?: string | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      blog_likes: {
-        Row: {
-          created_at: string | null
-          id: string
-          post_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          post_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          post_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_likes_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       blog_posts: {
         Row: {
-          author_id: string | null
+          author_id: string
           categories: string[] | null
           content: string
-          created_at: string | null
-          date: string | null
-          featured_image: string | null
+          created_at: string
+          excerpt: string | null
+          featured_image: string
           id: string
+          meta_description: string | null
+          meta_tags: string[] | null
+          meta_title: string | null
+          published: boolean
+          published_at: string | null
           slug: string
           summary: string | null
           tags: string[] | null
           title: string
-          updated_at: string | null
-          views: number | null
+          updated_at: string
         }
         Insert: {
-          author_id?: string | null
+          author_id: string
           categories?: string[] | null
           content: string
-          created_at?: string | null
-          date?: string | null
-          featured_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string
           id?: string
+          meta_description?: string | null
+          meta_tags?: string[] | null
+          meta_title?: string | null
+          published?: boolean
+          published_at?: string | null
           slug: string
           summary?: string | null
           tags?: string[] | null
           title: string
-          updated_at?: string | null
-          views?: number | null
+          updated_at?: string
         }
         Update: {
-          author_id?: string | null
+          author_id?: string
           categories?: string[] | null
           content?: string
-          created_at?: string | null
-          date?: string | null
-          featured_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string
           id?: string
+          meta_description?: string | null
+          meta_tags?: string[] | null
+          meta_title?: string | null
+          published?: boolean
+          published_at?: string | null
           slug?: string
           summary?: string | null
           tags?: string[] | null
           title?: string
-          updated_at?: string | null
-          views?: number | null
-        }
-        Relationships: []
-      }
-      notifications: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_read: boolean | null
-          message: string
-          target_id: string | null
-          target_type: string | null
-          title: string
-          type: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_read?: boolean | null
-          message: string
-          target_id?: string | null
-          target_type?: string | null
-          title: string
-          type?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_read?: boolean | null
-          message?: string
-          target_id?: string | null
-          target_type?: string | null
-          title?: string
-          type?: string | null
-          user_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
       }
-      profiles: {
+      users: {
         Row: {
-          bio: string | null
-          created_at: string | null
-          email: string
-          id: string
-          jobTitle: string | null
-          last_login: string | null
-          lastName: string | null
-          name: string | null
-          profilePicture: string | null
-          role: string | null
-        }
-        Insert: {
-          bio?: string | null
-          created_at?: string | null
-          email: string
-          id: string
-          jobTitle?: string | null
-          last_login?: string | null
-          lastName?: string | null
-          name?: string | null
-          profilePicture?: string | null
-          role?: string | null
-        }
-        Update: {
-          bio?: string | null
-          created_at?: string | null
-          email?: string
-          id?: string
-          jobTitle?: string | null
-          last_login?: string | null
-          lastName?: string | null
-          name?: string | null
-          profilePicture?: string | null
-          role?: string | null
-        }
-        Relationships: []
-      }
-      tasks: {
-        Row: {
+          avatar_url: string | null
           created_at: string
-          description: string | null
-          due_date: string | null
+          email: string
+          first_name: string | null
           id: string
-          priority: string
-          status: string
-          title: string
+          last_name: string | null
+          role: Database["public"]["Enums"]["user_role"]
           updated_at: string
-          user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
-          description?: string | null
-          due_date?: string | null
+          email: string
+          first_name?: string | null
           id?: string
-          priority?: string
-          status?: string
-          title: string
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
-          user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
-          description?: string | null
-          due_date?: string | null
+          email?: string
+          first_name?: string | null
           id?: string
-          priority?: string
-          status?: string
-          title?: string
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -293,7 +118,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "editor" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -408,6 +233,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "editor", "user"],
+    },
   },
 } as const
