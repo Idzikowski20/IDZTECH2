@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from '@/utils/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/utils/AuthProvider';
 import {
@@ -28,6 +27,7 @@ import {
 } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Task {
   id: string;
@@ -37,6 +37,7 @@ interface Task {
   priority: string;
   due_date: string | null;
   created_at: string;
+  user_id: string;
 }
 
 const taskSchema = z.object({
@@ -47,6 +48,40 @@ const taskSchema = z.object({
   due_date: z.string().optional(),
 });
 
+// Mock data for tasks since we don't have a tasks table in Supabase yet
+const mockTasks: Task[] = [
+  {
+    id: '1',
+    title: 'Stworzyć stronę główną',
+    description: 'Zaprojektować i zaimplementować nową stronę główną',
+    status: 'in-progress',
+    priority: 'high',
+    due_date: '2025-05-25',
+    created_at: '2025-05-10T10:00:00Z',
+    user_id: '1'
+  },
+  {
+    id: '2',
+    title: 'Optymalizacja SEO',
+    description: 'Przeprowadzić audyt SEO i wdrożyć zalecenia',
+    status: 'pending',
+    priority: 'medium',
+    due_date: '2025-06-01',
+    created_at: '2025-05-12T10:00:00Z',
+    user_id: '1'
+  },
+  {
+    id: '3',
+    title: 'Testowanie aplikacji',
+    description: 'Wykonać testy funkcjonalne i wydajnościowe',
+    status: 'completed',
+    priority: 'medium',
+    due_date: '2025-05-15',
+    created_at: '2025-05-05T10:00:00Z',
+    user_id: '1'
+  }
+];
+
 const TaskManager = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,37 +90,21 @@ const TaskManager = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const form = useForm<z.infer<typeof taskSchema>>({
-    resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      priority: 'medium',
-      status: 'pending',
-      due_date: '',
-    },
-  });
-
-  // Pobieranie zadań
+  // Use mock data instead of fetching from Supabase
   const fetchTasks = async () => {
-    if (!user) return;
-
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTasks(data || []);
+      // Simulate API delay
+      setTimeout(() => {
+        setTasks(mockTasks);
+        setLoading(false);
+      }, 500);
     } catch (error: any) {
       toast({
         title: 'Błąd przy pobieraniu zadań',
         description: error.message,
         variant: 'destructive',
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -118,42 +137,57 @@ const TaskManager = () => {
     setDialogOpen(true);
   };
 
+  const form = useForm<z.infer<typeof taskSchema>>({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      priority: 'medium',
+      status: 'pending',
+      due_date: '',
+    },
+  });
+
   const onSubmit = async (values: z.infer<typeof taskSchema>) => {
     if (!user) return;
 
     try {
       if (editingTask) {
-        // Aktualizacja zadania
-        const { error } = await supabase
-          .from('tasks')
-          .update({
-            title: values.title,
-            description: values.description || null,
-            priority: values.priority,
-            status: values.status,
-            due_date: values.due_date || null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', editingTask.id);
-
-        if (error) throw error;
+        // Update task in mock data
+        const updatedTask = {
+          ...editingTask,
+          title: values.title,
+          description: values.description || null,
+          priority: values.priority,
+          status: values.status,
+          due_date: values.due_date || null,
+          updated_at: new Date().toISOString(),
+        };
+        
+        const updatedTasks = tasks.map(task => 
+          task.id === editingTask.id ? updatedTask : task
+        );
+        
+        setTasks(updatedTasks);
 
         toast({
           title: 'Zadanie zaktualizowane',
           description: 'Zadanie zostało pomyślnie zaktualizowane',
         });
       } else {
-        // Dodawanie nowego zadania
-        const { error } = await supabase.from('tasks').insert({
+        // Add new task to mock data
+        const newTask: Task = {
+          id: uuidv4(),
           title: values.title,
           description: values.description || null,
           priority: values.priority,
           status: values.status,
           due_date: values.due_date || null,
+          created_at: new Date().toISOString(),
           user_id: user.id,
-        });
-
-        if (error) throw error;
+        };
+        
+        setTasks([newTask, ...tasks]);
 
         toast({
           title: 'Zadanie dodane',
@@ -162,7 +196,6 @@ const TaskManager = () => {
       }
 
       setDialogOpen(false);
-      fetchTasks();
     } catch (error: any) {
       toast({
         title: 'Błąd',
@@ -176,15 +209,14 @@ const TaskManager = () => {
     if (!confirm('Czy na pewno chcesz usunąć to zadanie?')) return;
 
     try {
-      const { error } = await supabase.from('tasks').delete().eq('id', id);
-
-      if (error) throw error;
+      // Remove task from mock data
+      const filteredTasks = tasks.filter(task => task.id !== id);
+      setTasks(filteredTasks);
 
       toast({
         title: 'Zadanie usunięte',
         description: 'Zadanie zostało pomyślnie usunięte',
       });
-      fetchTasks();
     } catch (error: any) {
       toast({
         title: 'Błąd',
@@ -196,18 +228,17 @@ const TaskManager = () => {
 
   const markAsCompleted = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ status: 'completed', updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) throw error;
+      // Update task status in mock data
+      const updatedTasks = tasks.map(task => 
+        task.id === id ? { ...task, status: 'completed' } : task
+      );
+      
+      setTasks(updatedTasks);
 
       toast({
         title: 'Zadanie zakończone',
         description: 'Zadanie zostało oznaczone jako zakończone',
       });
-      fetchTasks();
     } catch (error: any) {
       toast({
         title: 'Błąd',
@@ -252,7 +283,7 @@ const TaskManager = () => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">Zadania</h2>
-        <Button onClick={openAddDialog} className="bg-premium-gradient">
+        <Button onClick={openAddDialog} className="bg-premium-gradient hover:bg-black hover:text-white">
           <Plus size={16} className="mr-2" /> Dodaj zadanie
         </Button>
       </div>
@@ -265,7 +296,7 @@ const TaskManager = () => {
         ) : tasks.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-premium-light/70">Nie masz jeszcze żadnych zadań</p>
-            <Button onClick={openAddDialog} variant="outline" className="mt-4">
+            <Button onClick={openAddDialog} variant="outline" className="mt-4 hover:bg-black hover:text-white">
               Dodaj pierwsze zadanie
             </Button>
           </div>
@@ -443,10 +474,11 @@ const TaskManager = () => {
                   type="button"
                   variant="outline"
                   onClick={() => setDialogOpen(false)}
+                  className="hover:bg-black hover:text-white"
                 >
                   Anuluj
                 </Button>
-                <Button type="submit" className="bg-premium-gradient">
+                <Button type="submit" className="bg-premium-gradient hover:bg-black hover:text-white">
                   {editingTask ? 'Zapisz zmiany' : 'Dodaj zadanie'}
                 </Button>
               </DialogFooter>
