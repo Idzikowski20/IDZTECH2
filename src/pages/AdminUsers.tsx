@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -22,13 +21,12 @@ import {
 interface UserProfile {
   id: string;
   email: string;
-  name?: string;
-  lastName?: string;
-  profilePicture?: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
   role?: string;
-  jobTitle?: string;
   created_at?: string;
-  last_sign_in_at?: string;
+  updated_at?: string;
 }
 
 const AdminUsers = () => {
@@ -46,13 +44,13 @@ const AdminUsers = () => {
       try {
         setLoading(true);
         
-        // Fetch profiles from Supabase
-        const { data: profiles, error } = await supabase
-          .from('profiles')
+        // Fetch users from Supabase
+        const { data: users, error } = await supabase
+          .from('users')
           .select('*');
           
         if (error) {
-          console.error("Error loading profiles:", error);
+          console.error("Error loading users:", error);
           toast({
             title: "Błąd",
             description: "Nie udało się załadować użytkowników",
@@ -61,20 +59,7 @@ const AdminUsers = () => {
           return;
         }
         
-        // Map profiles to user objects
-        const mappedUsers = profiles?.map(profile => ({
-          id: profile.id,
-          email: profile.email || '',
-          name: profile.name || '',
-          lastName: profile.lastName || '',
-          profilePicture: profile.profilePicture || '',
-          role: profile.role === 'admin' ? 'admin' : 'user', // Only admin or user roles
-          jobTitle: profile.jobTitle || '',
-          created_at: profile.created_at,
-          last_sign_in_at: profile.last_login
-        })) || [];
-
-        setUsers(mappedUsers);
+        setUsers(users || []);
       } catch (error) {
         console.error("Error loading users:", error);
         toast({
@@ -93,26 +78,13 @@ const AdminUsers = () => {
   const handleDelete = async (userId: string) => {
     if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
       try {
-        // First delete the profile
-        const { error: profileError } = await supabase
-          .from('profiles')
+        const { error } = await supabase
+          .from('users')
           .delete()
           .eq('id', userId);
         
-        if (profileError) {
-          throw profileError;
-        }
-        
-        // Then try to delete the auth user if possible
-        try {
-          await fetch(`${window.location.origin}/api/delete-user?id=${userId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        } catch (authError) {
-          console.log("Could not delete auth user, but profile was removed:", authError);
+        if (error) {
+          throw error;
         }
         
         // Update local state
@@ -196,26 +168,21 @@ const AdminUsers = () => {
                 >
                   <TableCell className="py-4">
                     <div className="flex items-center">
-                      {user.profilePicture ? (
+                      {user.avatar_url ? (
                         <img
                           className="h-10 w-10 rounded-full object-cover"
-                          src={user.profilePicture}
-                          alt={user.name}
+                          src={user.avatar_url}
+                          alt={user.first_name}
                         />
                       ) : (
                         <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                          {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                          {user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U'}
                         </div>
                       )}
                       <div className="ml-4">
                         <div className="text-sm font-medium text-white">
-                          {user.name} {user.lastName || ''}
+                          {user.first_name} {user.last_name || ''}
                         </div>
-                        {user.jobTitle && (
-                          <div className="text-xs text-gray-400">
-                            {user.jobTitle}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -233,7 +200,7 @@ const AdminUsers = () => {
                     {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}
                   </TableCell>
                   <TableCell className="text-gray-300">
-                    {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pl-PL') : 'Nigdy'}
+                    {user.updated_at ? new Date(user.updated_at).toLocaleDateString('pl-PL') : 'Nigdy'}
                   </TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button 
@@ -317,12 +284,11 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    first_name: user?.first_name || '',
+    last_name: user?.last_name || '',
     email: user?.email || '',
-    role: user?.role === 'admin' ? 'admin' : 'user', // Simplified role system
+    role: user?.role || 'user',
     password: '',
-    lastName: user?.lastName || '',
-    jobTitle: user?.jobTitle || '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -338,11 +304,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
       if (userId) {
         // Update existing user
         const { error } = await supabase
-          .from('profiles')
+          .from('users')
           .update({
-            name: formData.name,
-            lastName: formData.lastName,
-            jobTitle: formData.jobTitle,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
             role: formData.role
           })
           .eq('id', userId);
@@ -355,29 +320,29 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           password: formData.password,
           options: {
             data: {
-              name: formData.name,
-              lastName: formData.lastName
+              first_name: formData.first_name,
+              last_name: formData.last_name
             }
           }
         });
         
         if (error) throw error;
         
-        // Create profile entry
+        // Create user entry
         if (data.user) {
-          const { error: profileError } = await supabase
-            .from('profiles')
+          const { error: userError } = await supabase
+            .from('users')
             .upsert({
               id: data.user.id,
               email: formData.email,
-              name: formData.name,
-              lastName: formData.lastName,
+              first_name: formData.first_name,
+              last_name: formData.last_name,
               role: formData.role,
-              jobTitle: formData.jobTitle,
-              created_at: new Date().toISOString()
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
             });
             
-          if (profileError) throw profileError;
+          if (userError) throw userError;
         }
       }
       
@@ -386,7 +351,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           id: userId || Math.random().toString(),
           ...formData,
           created_at: user?.created_at || new Date().toISOString(),
-          last_sign_in_at: user?.last_sign_in_at || null
+          updated_at: user?.updated_at || new Date().toISOString()
         });
       }
     } catch (error: any) {
@@ -405,22 +370,22 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
     <form onSubmit={handleSubmit} className="space-y-4 pt-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Imię</Label>
+          <Label htmlFor="first_name">Imię</Label>
           <Input 
-            id="name"
-            name="name"
-            value={formData.name}
+            id="first_name"
+            name="first_name"
+            value={formData.first_name}
             onChange={handleChange}
             required
           />
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="lastName">Nazwisko</Label>
+          <Label htmlFor="last_name">Nazwisko</Label>
           <Input 
-            id="lastName"
-            name="lastName"
-            value={formData.lastName}
+            id="last_name"
+            name="last_name"
+            value={formData.last_name}
             onChange={handleChange}
           />
         </div>
@@ -436,16 +401,6 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           onChange={handleChange}
           required
           disabled={!!userId} // Can't change email for existing user
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="jobTitle">Stanowisko</Label>
-        <Input 
-          id="jobTitle"
-          name="jobTitle"
-          value={formData.jobTitle}
-          onChange={handleChange}
         />
       </div>
       
@@ -507,25 +462,21 @@ const UserProfileDialog = ({ user, open, onOpenChange }: {
         </DialogHeader>
         
         <div className="flex flex-col items-center py-4">
-          {user.profilePicture ? (
+          {user.avatar_url ? (
             <img 
-              src={user.profilePicture} 
-              alt={user.name} 
+              src={user.avatar_url} 
+              alt={user.first_name} 
               className="h-24 w-24 rounded-full object-cover mb-4"
             />
           ) : (
             <div className="h-24 w-24 rounded-full bg-premium-gradient flex items-center justify-center text-white text-xl font-bold mb-4">
-              {user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
+              {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
             </div>
           )}
           
           <h3 className="text-xl font-semibold">
-            {user.name} {user.lastName}
+            {user.first_name} {user.last_name}
           </h3>
-          
-          {user.jobTitle && (
-            <p className="text-muted-foreground">{user.jobTitle}</p>
-          )}
           
           <span className={`px-3 py-1 mt-2 ${
             user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
@@ -547,7 +498,7 @@ const UserProfileDialog = ({ user, open, onOpenChange }: {
           
           <div className="flex items-center">
             <span className="text-muted-foreground w-32">Ostatnie logowanie:</span>
-            <span>{user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
+            <span>{user.updated_at ? new Date(user.updated_at).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
           </div>
         </div>
       </DialogContent>
