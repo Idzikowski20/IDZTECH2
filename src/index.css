@@ -80,6 +80,14 @@
     --sparkles-color: #8350e8;
   }
 
+  @font-face {
+    font-family: 'Aeonik';
+    src: url('https://db.onlinewebfonts.com/c/8f2a9d487bbbc60974cd132fc3a63862?family=Aeonik+Regular') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
