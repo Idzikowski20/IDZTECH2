@@ -41,7 +41,7 @@ const LanguageSwitcher: React.FC = () => {
           size="sm" 
           className={`${
             theme === 'light' 
-              ? 'text-black hover:bg-gray-100 hover:text-black' 
+              ? 'text-black hover:bg-gray-100 hover:text-white' 
               : 'text-white hover:bg-white/10 hover:text-white'
           } flex items-center gap-2`}
         >
