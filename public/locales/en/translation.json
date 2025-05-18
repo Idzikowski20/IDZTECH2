@@ -12,70 +12,7 @@
   "tools": {
     "passwordGenerator": "Password Generator",
     "privacyPolicyGenerator": "Privacy Policy Generator",
-    "domainCreator": "Domain Name Creator",
-    "nameGenerator": {
-      "title": "Name Generator",
-      "subtitle": "Generate creative business, brand, product or personal names with our easy-to-use generator.",
-      "form": {
-        "details": "Enter Details",
-        "description": "Enter keywords or choose an industry to generate name suggestions",
-        "keywords": "Keywords",
-        "keywordsPlaceholder": "Enter keywords separated by commas",
-        "keywordsExample": "E.g. smart, tech, future, creative",
-        "industry": "Industry (optional)",
-        "industryPlaceholder": "Select industry",
-        "anyIndustry": "Any",
-        "nameType": "Name Type",
-        "options": "Options",
-        "useAdjectives": "Use descriptive words",
-        "useVerbs": "Use action words",
-        "generating": "Generating...",
-        "generate": "Generate Names"
-      },
-      "results": {
-        "title": "Generated Names",
-        "description": "Click the heart icon to save your favorites or copy icon to copy to clipboard.",
-        "empty": "Generate some names to see results here.",
-        "favorites": "Favorite Names",
-        "favoritesDescription": "Your saved names will appear here.",
-        "noResults": "No names generated yet. Fill in the form and click Generate.",
-        "noFavorites": "No favorite names saved yet. Click the heart icon on names you like."
-      },
-      "actions": {
-        "copy": "Copy name",
-        "addToFavorites": "Add to favorites",
-        "removeFromFavorites": "Remove from favorites"
-      },
-      "errors": {
-        "noInput": "Please enter keywords or select an industry"
-      },
-      "copied": "Name \"{{name}}\" copied to clipboard!",
-      "favoriteAdded": "Name added to favorites!",
-      "favoriteRemoved": "Name removed from favorites.",
-      "tips": {
-        "title": "Name Selection Tips",
-        "tip1": "Choose short, memorable names that are easy to pronounce",
-        "tip2": "Consider the meaning and connotations of your name",
-        "tip3": "Check domain availability for your chosen name",
-        "tip4": "Test the name with your target audience"
-      },
-      "industries": {
-        "tech": "Technology",
-        "health": "Health & Wellness",
-        "finance": "Finance",
-        "education": "Education",
-        "food": "Food & Restaurant",
-        "fashion": "Fashion & Apparel",
-        "travel": "Travel & Tourism",
-        "creative": "Creative & Design"
-      },
-      "types": {
-        "business": "Business",
-        "product": "Product",
-        "brand": "Brand",
-        "personal": "Personal"
-      }
-    }
+    "domainCreator": "Domain Name Creator"
   },
   "websiteTypes": {
     "websites": "Websites",

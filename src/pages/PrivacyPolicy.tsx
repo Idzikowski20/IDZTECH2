@@ -15,8 +15,8 @@ const PrivacyPolicy = () => {
       <Navbar />
       <PageDotAnimation />
       
-      <div className="container mx-auto px-4 py-28"> {/* Increased padding-top */}
-        <div className={`prose max-w-4xl mx-auto text-center ${theme === 'light' ? 'prose-black' : 'prose-invert'}`}> {/* Added text-center */}
+      <div className="container mx-auto px-4 py-20">
+        <div className={`prose max-w-4xl mx-auto ${theme === 'light' ? 'prose-black' : 'prose-invert'}`}>
           <h1 className="text-4xl font-bold mb-8">{t('privacy.title')}</h1>
           <p className="mb-4">{t('privacy.lastUpdate')}: 18.05.2025</p>
           

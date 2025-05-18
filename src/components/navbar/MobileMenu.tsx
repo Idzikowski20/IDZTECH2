@@ -178,7 +178,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
               </AccordionItem>
               
               <AccordionItem value="tools" className={theme === 'light' ? 'border-gray-200' : 'border-white/10'}>
-                <AccordionTrigger className={`${textColor} text-lg px-3 py-2 ${(isActive('/password-generator') || isActive('/privacy-policy-generator') || isActive('/domain-creator') || isActive('/name-generator')) ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}>
+                <AccordionTrigger className={`${textColor} text-lg px-3 py-2 ${(isActive('/password-generator') || isActive('/privacy-policy-generator') || isActive('/domain-creator')) ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}>
                   {t('navigation.tools')}
                 </AccordionTrigger>
                 <AccordionContent>
@@ -200,12 +200,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                       onClick={() => setIsMenuOpen(false)}
                     >
                       {t('tools.domainCreator')}
-                    </Link>
-                    <Link to="/name-generator" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/name-generator') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {t('tools.nameGenerator.title')}
                     </Link>
                   </div>
                 </AccordionContent>

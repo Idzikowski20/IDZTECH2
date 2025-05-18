@@ -69,10 +69,10 @@ const DesktopNavigation = () => {
                               theme === 'light'
                                 ? isActive(item.path)
                                   ? 'bg-gray-100 text-black'
-                                  : 'hover:bg-gray-100 text-black hover:text-black'
+                                  : 'hover:bg-gray-100 text-black'
                                 : isActive(item.path)
-                                  ? 'bg-gray-700 text-white'
-                                  : 'hover:bg-gray-700 text-white hover:text-white'
+                                  ? 'bg-gray-700 text-black'
+                                  : 'hover:bg-gray-700 text-white'
                             )}
                           >
                             <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -110,10 +110,10 @@ const DesktopNavigation = () => {
                               theme === 'light'
                                 ? isActive(item.path)
                                   ? 'bg-gray-100 text-black'
-                                  : 'hover:bg-gray-100 text-black hover:text-black'
+                                  : 'hover:bg-gray-100 text-black'
                                 : isActive(item.path)
-                                  ? 'bg-gray-700 text-white'
-                                  : 'hover:bg-gray-700 text-white hover:text-white'
+                                  ? 'bg-gray-700 text-black'
+                                  : 'hover:bg-gray-700 text-white'
                             )}
                           >
                             <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -149,8 +149,7 @@ const DesktopNavigation = () => {
                   {[
                     { path: '/password-generator', label: t('tools.passwordGenerator') },
                     { path: '/privacy-policy-generator', label: t('tools.privacyPolicyGenerator') },
-                    { path: '/domain-creator', label: t('tools.domainCreator') },
-                    { path: '/name-generator', label: t('tools.nameGenerator.title') } // New tool added
+                    { path: '/domain-creator', label: t('tools.domainCreator') }
                   ].map(item => (
                     <li key={item.path}>
                       <NavigationMenuLink asChild>
@@ -161,10 +160,10 @@ const DesktopNavigation = () => {
                             theme === 'light'
                               ? isActive(item.path)
                                 ? 'bg-gray-100 text-black'
-                                : 'hover:bg-gray-100 text-black hover:text-black'
+                                : 'hover:bg-gray-100 text-black'
                               : isActive(item.path)
-                                ? 'bg-gray-700 text-white'
-                                : 'hover:bg-gray-700 text-white hover:text-white'
+                                ? 'bg-gray-700 text-black'
+                                : 'hover:bg-gray-700 text-white'
                           )}
                         >
                           <div className={cn('text-sm font-medium', theme === 'light' ? 'text-black' : 'text-white')}>
