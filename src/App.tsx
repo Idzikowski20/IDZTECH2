@@ -1,52 +1,38 @@
 
-import React, { useEffect } from 'react';
-import {
-  createBrowserRouter,
-  RouterProvider,
-  useLocation,
-  Routes,
-  Route
-} from "react-router-dom";
-import Index from "@/pages/Index";
-import Login from "@/pages/Login";
-import Register from "@/pages/Register";
-import ForgotPassword from "@/pages/ForgotPassword";
-import ResetPassword from "@/pages/ResetPassword";
-import Profile from "@/pages/Profile";
-import Blog from "@/pages/Blog";
-import BlogPostEditor from "@/pages/BlogPostEditor";
-import BlogPost from "@/pages/BlogPost";
-import ContactPage from "@/pages/ContactPage";
-import AboutUs from "@/pages/AboutUs";
-import Projects from "@/pages/Projects";
-import WebDevelopment from "@/pages/WebDevelopment";
-import ECommerce from "@/pages/ECommerce";
-import Seo from "@/pages/Seo";
-import LocalSeo from "@/pages/LocalSeo";
-import SeoAudit from "@/pages/SeoAudit";
-import SeoOptimization from "@/pages/SeoOptimization";
-import SeoCopywriting from "@/pages/SeoCopywriting";
-import ContentPlan from "@/pages/ContentPlan";
-import Error404 from "@/pages/Error404";
-import NotFound from "@/pages/NotFound";
-import PasswordGenerator from "@/pages/tools/PasswordGenerator";
-import PrivacyPolicyGenerator from "@/pages/tools/PrivacyPolicyGenerator";
-import DomainNameCreator from "@/pages/tools/DomainNameCreator";
-import RequireAuth from "@/components/RequireAuth";
-import ErrorPage from '@/pages/ErrorPage';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Index from '@/pages/Index';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
+import Profile from '@/pages/Profile';
+import Blog from '@/pages/Blog';
+import BlogPostEditor from '@/pages/BlogPostEditor';
+import BlogPost from '@/pages/BlogPost';
+import ContactPage from '@/pages/ContactPage';
+import AboutUs from '@/pages/AboutUs';
+import Projects from '@/pages/Projects';
+import WebDevelopment from '@/pages/WebDevelopment';
+import ECommerce from '@/pages/ECommerce';
+import Seo from '@/pages/Seo';
+import LocalSeo from '@/pages/LocalSeo';
+import SeoAudit from '@/pages/SeoAudit';
+import SeoOptimization from '@/pages/SeoOptimization';
+import SeoCopywriting from '@/pages/SeoCopywriting';
+import ContentPlan from '@/pages/ContentPlan';
+import Error404 from '@/pages/Error404';
+import NotFound from '@/pages/NotFound';
+import PasswordGenerator from '@/pages/tools/PasswordGenerator';
+import PrivacyPolicyGenerator from '@/pages/tools/PrivacyPolicyGenerator';
+import DomainNameCreator from '@/pages/tools/DomainNameCreator';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfUse from '@/pages/TermsOfUse';
-import { trackPageView } from '@/utils/analytics';
-import LanguageController from '@/components/LanguageController';
+import LanguageController from './components/LanguageController';
+import RequireAuth from '@/components/RequireAuth';
+import ErrorPage from '@/pages/ErrorPage';
 
-// We'll use this component for page view tracking and language management
-const AppContent = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    trackPageView(location.pathname);
-  }, [location]);
-
+const App = () => {
   return (
     <>
       <LanguageController />
@@ -82,10 +68,6 @@ const AppContent = () => {
       </Routes>
     </>
   );
-};
-
-const App = () => {
-  return <AppContent />;
 };
 
 export default App;
