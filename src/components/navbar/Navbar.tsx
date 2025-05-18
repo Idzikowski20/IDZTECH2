@@ -52,14 +52,14 @@ const Navbar = () => {
           : 'py-3 backdrop-blur-md bg-premium-dark/80 shadow-lg'
         : 'py-5'
     }`}>
-      <div className="w-full px-4 md:px-6 lg:px-8 xl:px-12 flex items-center justify-between">
+      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         {/* Logo on the left */}
         <div className="flex-shrink-0">
           <Brand />
         </div>
         
         {/* Navigation links centered */}
-        <div className="flex-grow flex justify-center mx-6 lg:mx-10">
+        <div className="flex-grow flex justify-center">
           <DesktopNavigation />
         </div>
 

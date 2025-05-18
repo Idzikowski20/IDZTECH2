@@ -1,3 +1,4 @@
+
 {
   "navigation": {
     "start": "Home",
@@ -11,8 +12,7 @@
   "tools": {
     "passwordGenerator": "Password Generator",
     "privacyPolicyGenerator": "Privacy Policy Generator",
-    "domainCreator": "Domain Name Creator",
-    "nameGenerator": "Name Generator"
+    "domainCreator": "Domain Name Creator"
   },
   "websiteTypes": {
     "websites": "Websites",
@@ -95,71 +95,6 @@
       "beauty": "Beauty",
       "realestate": "Real Estate",
       "automotive": "Automotive"
-    }
-  },
-  "nameGenerator": {
-    "pageTitle": "Name Generator | IDZTECH",
-    "pageDescription": "Generate creative brand names, product names, or domain names for your business.",
-    "title": "Name Generator",
-    "subtitle": "Generate creative brand names, product names, or domain names with our AI tool.",
-    "form": {
-      "details": "Enter Details",
-      "description": "Enter keywords and select options to generate name ideas",
-      "keywords": "Keywords",
-      "keywordsPlaceholder": "Enter keywords separated by commas",
-      "keywordsExample": "E.g. tech, digital, marketing",
-      "type": "Name Type",
-      "typePlaceholder": "Select type",
-      "mood": "Style",
-      "moodPlaceholder": "Select style",
-      "language": "Language",
-      "languagePlaceholder": "Select language",
-      "generating": "Generating...",
-      "generate": "Generate Names"
-    },
-    "types": {
-      "business": "Business Name",
-      "product": "Product Name",
-      "domain": "Domain Name"
-    },
-    "moods": {
-      "professional": "Professional",
-      "creative": "Creative",
-      "fun": "Fun & Playful",
-      "technical": "Technical"
-    },
-    "languages": {
-      "auto": "Auto (Based on keywords)",
-      "english": "English",
-      "polish": "Polish",
-      "german": "German",
-      "french": "French",
-      "spanish": "Spanish"
-    },
-    "results": {
-      "title": "Generated Names",
-      "favorites": "Favorite Names"
-    },
-    "favorites": {
-      "empty": "You haven't added any names to favorites yet."
-    },
-    "actions": {
-      "copy": "Copy",
-      "addToFavorites": "Add to favorites",
-      "removeFromFavorites": "Remove from favorites"
-    },
-    "errors": {
-      "noInput": "Please enter at least one keyword"
-    },
-    "copied": "Name \"{{name}}\" copied to clipboard!",
-    "tips": {
-      "title": "Tips for Choosing a Good Name",
-      "tip1": "Choose a name that's easy to pronounce and spell",
-      "tip2": "Ensure the name is unique and not already in use",
-      "tip3": "Check domain availability if you're planning to use it online",
-      "tip4": "Avoid using trendy terms that may become outdated quickly",
-      "tip5": "Consider how the name will look in a logo or on marketing materials",
-      "conclusion": "After you've found the perfect name, we can help you with branding, website development, and marketing to make your new venture a success."
     }
   },
   "notFound": {

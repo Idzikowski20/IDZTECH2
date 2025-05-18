@@ -15,8 +15,8 @@ const PrivacyPolicy = () => {
       <Navbar />
       <PageDotAnimation />
       
-      <div className="container mx-auto px-4 py-28">
-        <div className={`prose max-w-4xl mx-auto text-center ${theme === 'light' ? 'prose-black' : 'prose-invert'}`}>
+      <div className="container mx-auto px-4 py-20">
+        <div className={`prose max-w-4xl mx-auto ${theme === 'light' ? 'prose-black' : 'prose-invert'}`}>
           <h1 className="text-4xl font-bold mb-8">{t('privacy.title')}</h1>
           <p className="mb-4">{t('privacy.lastUpdate')}: 18.05.2025</p>
           
@@ -31,12 +31,12 @@ const PrivacyPolicy = () => {
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">{t('privacy.dataCollection.title')}</h2>
           <p>{t('privacy.dataCollection.intro')}</p>
-          <p className="text-left"><strong>a) {t('privacy.dataCollection.personal.title')}</strong> {t('privacy.dataCollection.personal.content')}</p>
-          <p className="text-left"><strong>b) {t('privacy.dataCollection.technical.title')}</strong> {t('privacy.dataCollection.technical.content')}</p>
+          <p><strong>a) {t('privacy.dataCollection.personal.title')}</strong> {t('privacy.dataCollection.personal.content')}</p>
+          <p><strong>b) {t('privacy.dataCollection.technical.title')}</strong> {t('privacy.dataCollection.technical.content')}</p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">{t('privacy.dataUsage.title')}</h2>
           <p>{t('privacy.dataUsage.intro')}</p>
-          <ul className="text-left">
+          <ul>
             <li>{t('privacy.dataUsage.purpose1')}</li>
             <li>{t('privacy.dataUsage.purpose2')}</li>
             <li>{t('privacy.dataUsage.purpose3')}</li>
@@ -59,7 +59,7 @@ const PrivacyPolicy = () => {
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">{t('privacy.rights.title')}</h2>
           <p>{t('privacy.rights.intro')}</p>
-          <ul className="text-left">
+          <ul>
             <li>{t('privacy.rights.right1')}</li>
             <li>{t('privacy.rights.right2')}</li>
             <li>{t('privacy.rights.right3')}</li>

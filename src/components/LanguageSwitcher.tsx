@@ -45,7 +45,7 @@ const LanguageSwitcher: React.FC = () => {
               : 'text-white hover:bg-white/10'
           } flex items-center gap-2`}
         >
-          <Globe className={`h-[1.2rem] w-[1.2rem] ${theme === 'light' ? 'text-black' : 'text-white'}`} />
+          <Globe className="h-[1.2rem] w-[1.2rem]" />
           <span className="hidden md:inline">{currentLanguage}</span>
         </Button>
       </DropdownMenuTrigger>
@@ -64,7 +64,7 @@ const LanguageSwitcher: React.FC = () => {
             } ${
               theme === 'light'
                 ? 'text-black hover:bg-gray-100 hover:text-black'
-                : 'text-white hover:bg-gray-100 hover:text-black'
+                : 'text-white hover:bg-gray-700 hover:text-white'
             } cursor-pointer`}
           >
             {lng.name}
