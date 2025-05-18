@@ -3,8 +3,11 @@ import React from 'react';
 import { ArrowUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
+  const { t } = useTranslation();
+  
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -23,7 +26,7 @@ const Footer = () => {
               <span className="text-xl font-bold">IDZ.TECH_</span>
             </div>
             <p className="text-premium-light/70 mb-6">
-              Dostarczamy kompleksowe rozwiązania marketingowe, które pomagają firmom osiągać realne wyniki i zyskać przewagę konkurencyjną.
+              {t('footer.about')}
             </p>
             <div className="flex space-x-3">
               <a href="#" className="w-9 h-9 rounded-full bg-premium-dark border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors hover:scale-110">
@@ -43,39 +46,39 @@ const Footer = () => {
           
           {/* Column 2 - Services - Updated to match the submenus */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Usługi</h3>
+            <h3 className="font-semibold text-lg mb-4">{t('navigation.services')}</h3>
             <ul className="space-y-3">
-              <li><Link to="/tworzenie-stron-www" className="text-premium-light/70 hover:text-premium-light transition-colors">Tworzenie stron www</Link></li>
-              <li><Link to="/sklepy-internetowe" className="text-premium-light/70 hover:text-premium-light transition-colors">Sklepy internetowe</Link></li>
-              <li><Link to="/pozycjonowanie-stron" className="text-premium-light/70 hover:text-premium-light transition-colors">Pozycjonowanie stron</Link></li>
-              <li><Link to="/pozycjonowanie-lokalne" className="text-premium-light/70 hover:text-premium-light transition-colors">Pozycjonowanie lokalne</Link></li>
-              <li><Link to="/audyt-seo" className="text-premium-light/70 hover:text-premium-light transition-colors">Audyt SEO</Link></li>
-              <li><Link to="/optymalizacja-seo" className="text-premium-light/70 hover:text-premium-light transition-colors">Optymalizacja SEO</Link></li>
-              <li><Link to="/copywriting-seo" className="text-premium-light/70 hover:text-premium-light transition-colors">Copywriting SEO</Link></li>
-              <li><Link to="/content-plan" className="text-premium-light/70 hover:text-premium-light transition-colors">Content Plan</Link></li>
+              <li><Link to="/tworzenie-stron-www" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('websiteTypes.webDevelopment')}</Link></li>
+              <li><Link to="/sklepy-internetowe" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('websiteTypes.eCommerce')}</Link></li>
+              <li><Link to="/pozycjonowanie-stron" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('seo.seoServices')}</Link></li>
+              <li><Link to="/pozycjonowanie-lokalne" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('seo.localSeo')}</Link></li>
+              <li><Link to="/audyt-seo" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('seo.seoAudit')}</Link></li>
+              <li><Link to="/optymalizacja-seo" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('seo.seoOptimization')}</Link></li>
+              <li><Link to="/copywriting-seo" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('seo.seoCopywriting')}</Link></li>
+              <li><Link to="/content-plan" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('seo.contentPlan')}</Link></li>
             </ul>
           </div>
           
           {/* Column 3 - Company - Updated with requested links */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Firma</h3>
+            <h3 className="font-semibold text-lg mb-4">{t('footer.company')}</h3>
             <ul className="space-y-3">
-              <li><Link to="/about" className="text-premium-light/70 hover:text-premium-light transition-colors">O nas</Link></li>
-              <li><Link to="/blog" className="text-premium-light/70 hover:text-premium-light transition-colors">Blog</Link></li>
-              <li><Link to="/contact" className="text-premium-light/70 hover:text-premium-light transition-colors">Kontakt</Link></li>
-              <li><Link to="/projects" className="text-premium-light/70 hover:text-premium-light transition-colors">Portfolio</Link></li>
+              <li><Link to="/about" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('navigation.about')}</Link></li>
+              <li><Link to="/blog" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('navigation.blog')}</Link></li>
+              <li><Link to="/contact" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('navigation.contact')}</Link></li>
+              <li><Link to="/projects" className="text-premium-light/70 hover:text-premium-light transition-colors">{t('navigation.portfolio')}</Link></li>
             </ul>
           </div>
           
           {/* Column 4 - Newsletter */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Newsletter</h3>
+            <h3 className="font-semibold text-lg mb-4">{t('footer.newsletter')}</h3>
             <p className="text-premium-light/70 mb-4">
-              Zapisz się do naszego newslettera i bądź na bieżąco z najnowszymi trendami marketingowymi.
+              {t('footer.newsletterDescription')}
             </p>
             <form className="flex">
               <Input 
-                placeholder="Twój adres email" 
+                placeholder={t('footer.emailPlaceholder')}
                 className="bg-premium-dark/40 border-white/10 focus:border-premium-purple focus-visible:ring-premium-purple/20 rounded-r-none"
               />
               <button className="bg-premium-gradient px-4 rounded-r-md hover:opacity-90 transition-opacity">
@@ -88,18 +91,15 @@ const Footer = () => {
         <div className="border-t border-white/10 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-premium-light/60 text-sm mb-4 md:mb-0">
-              &copy; {new Date().getFullYear()} IDZ.TECH Wszystkie prawa zastrzeżone.
+              &copy; {new Date().getFullYear()} IDZ.TECH {t('footer.allRightsReserved')}
             </p>
             
             <div className="flex space-x-6">
               <Link to="/privacy" className="text-premium-light/60 text-sm hover:text-premium-light transition-colors">
-                Polityka prywatności
+                {t('footer.privacyPolicy')}
               </Link>
               <Link to="/terms" className="text-premium-light/60 text-sm hover:text-premium-light transition-colors">
-                Warunki korzystania
-              </Link>
-              <Link to="/sitemap" className="text-premium-light/60 text-sm hover:text-premium-light transition-colors">
-                Mapa strony
+                {t('footer.termsOfUse')}
               </Link>
             </div>
           </div>

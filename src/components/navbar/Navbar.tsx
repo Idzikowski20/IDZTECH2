@@ -53,13 +53,18 @@ const Navbar = () => {
         : 'py-5'
     }`}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <Brand />
+        {/* Logo on the left */}
+        <div className="flex-shrink-0">
+          <Brand />
+        </div>
         
-        {/* Desktop Navigation */}
-        <DesktopNavigation />
+        {/* Navigation links centered */}
+        <div className="flex-grow flex justify-center">
+          <DesktopNavigation />
+        </div>
 
-        <div className="flex items-center space-x-4">
-          {/* Desktop-only buttons */}
+        {/* Controls on the right */}
+        <div className="flex-shrink-0 flex items-center">
           <DesktopControls />
           
           {/* Mobile Menu Button */}
