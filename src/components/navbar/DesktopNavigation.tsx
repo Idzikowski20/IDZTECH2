@@ -29,9 +29,9 @@ const DesktopNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="hidden lg:flex items-center gap-1 w-full max-w-4xl justify-center">
-      <NavigationMenu>
-        <NavigationMenuList>
+    <div className="hidden lg:flex items-center gap-1 justify-center w-full max-w-5xl">
+      <NavigationMenu className="mx-auto">
+        <NavigationMenuList className="space-x-1">
           <NavigationMenuItem>
             <Link to="/" className={cn(linkClass, isActive('/') && activeClass)}>
               {t('navigation.start')}
@@ -50,87 +50,86 @@ const DesktopNavigation = () => {
               {t('navigation.services')}
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-            <div className="grid w-[600px] grid-cols-2 gap-3 p-4 bg-white dark:bg-black/80">
-              <div>
-                <h3 className={cn('font-medium mb-2 px-3', theme === 'light' ? 'text-black' : 'text-white')}>
-                  {t('websiteTypes.websites')}
-                </h3>
-                <ul>
-                  {[
-                    { path: '/tworzenie-stron-www', label: t('websiteTypes.webDevelopment'), desc: t('websiteTypes.webDevelopment') },
-                    { path: '/sklepy-internetowe', label: t('websiteTypes.eCommerce'), desc: t('websiteTypes.eCommerce') },
-                  ].map(item => (
-                    <li key={item.path}>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          to={item.path}
-                          className={cn(
-                            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
-                            theme === 'light'
-                              ? isActive(item.path)
-                                ? 'bg-gray-100 text-black'
-                                : 'hover:bg-gray-100 text-black'
-                              : isActive(item.path)
-                                ? 'bg-gray-700 text-black'
-                                : 'hover:bg-gray-700 text-white'
-                          )}
-                        >
-                          <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
-                            {item.label}
-                          </div>
-                          <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
-                            {item.desc}
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <div className="grid w-[650px] grid-cols-2 gap-3 p-6 bg-white dark:bg-black/80">
+                <div>
+                  <h3 className={cn('font-medium mb-3 px-3', theme === 'light' ? 'text-black' : 'text-white')}>
+                    {t('websiteTypes.websites')}
+                  </h3>
+                  <ul className="space-y-1">
+                    {[
+                      { path: '/tworzenie-stron-www', label: t('websiteTypes.webDevelopment'), desc: t('websiteTypes.webDevelopment') },
+                      { path: '/sklepy-internetowe', label: t('websiteTypes.eCommerce'), desc: t('websiteTypes.eCommerce') },
+                    ].map(item => (
+                      <li key={item.path}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={item.path}
+                            className={cn(
+                              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                              theme === 'light'
+                                ? isActive(item.path)
+                                  ? 'bg-gray-100 text-black'
+                                  : 'hover:bg-gray-100 text-black'
+                                : isActive(item.path)
+                                  ? 'bg-gray-700 text-black'
+                                  : 'hover:bg-gray-700 text-white'
+                            )}
+                          >
+                            <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
+                              {item.label}
+                            </div>
+                            <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
+                              {item.desc}
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-              <div>
-                <h3 className={cn('font-medium mb-2 px-3', theme === 'light' ? 'text-black' : 'text-white')}>
-                  {t('seo.title')}
-                </h3>
-                <ul>
-                  {[
-                    { path: '/pozycjonowanie-stron', label: t('seo.seoServices'), desc: t('seo.seoServices') },
-                    { path: '/pozycjonowanie-lokalne', label: t('seo.localSeo'), desc: t('seo.localSeo') },
-                    { path: '/audyt-seo', label: t('seo.seoAudit'), desc: t('seo.seoAudit') },
-                    { path: '/optymalizacja-seo', label: t('seo.seoOptimization'), desc: t('seo.seoOptimization') },
-                    { path: '/copywriting-seo', label: t('seo.seoCopywriting'), desc: t('seo.seoCopywriting') },
-                    { path: '/content-plan', label: t('seo.contentPlan'), desc: t('seo.contentPlan') }
-                  ].map(item => (
-                    <li key={item.path}>
-                      <NavigationMenuLink asChild>
-                        <Link
-                          to={item.path}
-                          className={cn(
-                            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
-                            theme === 'light'
-                              ? isActive(item.path)
-                                ? 'bg-gray-100 text-black'
-                                : 'hover:bg-gray-100 text-black'
-                              : isActive(item.path)
-                                ? 'bg-gray-700 text-black'
-                                : 'hover:bg-gray-700 text-white'
-                          )}
-                        >
-                          <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
-                            {item.label}
-                          </div>
-                          <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
-                            {item.desc}
-                          </p>
-                        </Link>
-                      </NavigationMenuLink>
-                    </li>
-                  ))}
-                </ul>
+                <div>
+                  <h3 className={cn('font-medium mb-3 px-3', theme === 'light' ? 'text-black' : 'text-white')}>
+                    {t('seo.title')}
+                  </h3>
+                  <ul className="space-y-1">
+                    {[
+                      { path: '/pozycjonowanie-stron', label: t('seo.seoServices'), desc: t('seo.seoServices') },
+                      { path: '/pozycjonowanie-lokalne', label: t('seo.localSeo'), desc: t('seo.localSeo') },
+                      { path: '/audyt-seo', label: t('seo.seoAudit'), desc: t('seo.seoAudit') },
+                      { path: '/optymalizacja-seo', label: t('seo.seoOptimization'), desc: t('seo.seoOptimization') },
+                      { path: '/copywriting-seo', label: t('seo.seoCopywriting'), desc: t('seo.seoCopywriting') },
+                      { path: '/content-plan', label: t('seo.contentPlan'), desc: t('seo.contentPlan') }
+                    ].map(item => (
+                      <li key={item.path}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to={item.path}
+                            className={cn(
+                              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                              theme === 'light'
+                                ? isActive(item.path)
+                                  ? 'bg-gray-100 text-black'
+                                  : 'hover:bg-gray-100 text-black'
+                                : isActive(item.path)
+                                  ? 'bg-gray-700 text-black'
+                                  : 'hover:bg-gray-700 text-white'
+                            )}
+                          >
+                            <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
+                              {item.label}
+                            </div>
+                            <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
+                              {item.desc}
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>
-          </NavigationMenuContent>
-
+            </NavigationMenuContent>
           </NavigationMenuItem>
           
           <NavigationMenuItem>
@@ -145,8 +144,8 @@ const DesktopNavigation = () => {
               {t('navigation.tools')}
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className="w-[200px] p-2 bg-white dark:bg-black/80">
-                <ul>
+              <div className="w-[280px] p-4 bg-white dark:bg-black/80">
+                <ul className="space-y-2">
                   {[
                     { path: '/password-generator', label: t('tools.passwordGenerator') },
                     { path: '/privacy-policy-generator', label: t('tools.privacyPolicyGenerator') },

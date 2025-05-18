@@ -27,7 +27,7 @@ const LanguageSwitcher: React.FC = () => {
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
     setOpen(false);
-    // Zapisuje wybór użytkownika w localStorage
+    // Save user's choice in localStorage
     localStorage.setItem('i18nextLng', lng);
   };
 
@@ -41,8 +41,8 @@ const LanguageSwitcher: React.FC = () => {
           size="sm" 
           className={`${
             theme === 'light' 
-              ? 'text-black hover:bg-gray-100 hover:text-black' 
-              : 'text-white hover:bg-white/10 hover:text-white'
+              ? 'text-black hover:bg-gray-100' 
+              : 'text-white hover:bg-white/10'
           } flex items-center gap-2`}
         >
           <Globe className="h-[1.2rem] w-[1.2rem]" />
@@ -63,8 +63,8 @@ const LanguageSwitcher: React.FC = () => {
                 : 'font-normal'
             } ${
               theme === 'light'
-                ? 'text-black hover:bg-gray-100 hover:text-black'
-                : 'text-white hover:bg-white/10 hover:text-white'
+                ? 'text-black hover:bg-gray-100'
+                : 'text-white hover:bg-gray-700'
             } cursor-pointer`}
           >
             {lng.name}

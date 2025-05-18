@@ -96,5 +96,154 @@
       "realestate": "Bienes Raíces",
       "automotive": "Automotriz"
     }
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Página no encontrada",
+    "description": "Lo sentimos, la página que está buscando no existe o ha sido movida.",
+    "backToHome": "Volver al inicio",
+    "back": "Regresar"
+  },
+  "error": {
+    "title": "Error",
+    "serverError": "Error del servidor",
+    "accessDenied": "Acceso denegado",
+    "somethingWrong": "Algo salió mal",
+    "serverErrorMsg": "Lo sentimos, ha ocurrido un error interno del servidor. Por favor, inténtelo de nuevo más tarde.",
+    "accessDeniedMsg": "No tiene permisos para ver esta página.",
+    "unexpectedErrorMsg": "Lo sentimos, ha ocurrido un error inesperado. Por favor, inténtelo de nuevo más tarde."
+  },
+  "footer": {
+    "about": "Proporcionamos soluciones de marketing integrales que ayudan a las empresas a lograr resultados reales y obtener una ventaja competitiva.",
+    "company": "Empresa",
+    "newsletter": "Boletín",
+    "newsletterDescription": "Suscríbase a nuestro boletín y manténgase al día con las últimas tendencias de marketing.",
+    "emailPlaceholder": "Su dirección de correo electrónico",
+    "allRightsReserved": "Todos los derechos reservados.",
+    "privacyPolicy": "Política de privacidad",
+    "termsOfUse": "Términos de uso"
+  },
+  "privacy": {
+    "title": "Política de Privacidad",
+    "lastUpdate": "Última actualización",
+    "introduction": {
+      "title": "Introducción",
+      "content": "IDZTECH (\"nosotros\", \"nos\", \"nuestro\") respeta la privacidad de los visitantes de nuestro sitio web https://idztech.pl (\"Sitio\"). Esta Política de Privacidad explica cómo recopilamos, usamos y protegemos la información que puede proporcionarnos al usar nuestro Sitio.",
+      "agreement": "Al usar nuestro Sitio, acepta las prácticas descritas en esta Política de Privacidad. Si no está de acuerdo con algún punto de esta política, por favor deje de usar nuestro Sitio."
+    },
+    "contact": {
+      "title": "Información de Contacto",
+      "content": "Si tiene preguntas sobre esta Política de Privacidad o nuestras prácticas relacionadas con los datos, contáctenos:"
+    },
+    "dataCollection": {
+      "title": "Información que Recopilamos",
+      "intro": "Podemos recopilar los siguientes tipos de información:",
+      "personal": {
+        "title": "Información Personal:",
+        "content": "Nombre, dirección de correo electrónico, número de teléfono y otros datos que nos proporciona voluntariamente a través de formularios de contacto o registro."
+      },
+      "technical": {
+        "title": "Datos Técnicos:",
+        "content": "Dirección IP, tipo y versión del navegador, configuración de zona horaria, tipos y versiones de complementos del navegador, sistema operativo y plataforma, y otras tecnologías utilizadas en los dispositivos que utiliza para acceder a nuestro Sitio."
+      }
+    },
+    "dataUsage": {
+      "title": "Cómo Utilizamos su Información",
+      "intro": "Utilizamos la información recopilada para:",
+      "purpose1": "Proporcionar, operar y mejorar nuestro Sitio",
+      "purpose2": "Personalizar la experiencia del usuario",
+      "purpose3": "Responder a consultas o solicitudes de usuarios",
+      "purpose4": "Enviar información y actualizaciones sobre nuestros servicios (si el usuario da su consentimiento)",
+      "purpose5": "Analizar tendencias de uso y rendimiento del Sitio"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "description": "Nuestro Sitio utiliza cookies, que son pequeños archivos de texto colocados en su dispositivo para reconocer su navegador. Las cookies nos ayudan a analizar el tráfico en el sitio, personalizar nuestro Sitio según las necesidades del usuario y rastrear información básica del usuario.",
+      "settings": "Puede configurar su navegador para rechazar todas o algunas cookies o para que le notifique cuando se colocan cookies. Sin embargo, si desactiva las cookies, es posible que algunas funciones de nuestro Sitio no funcionen correctamente."
+    },
+    "analytics": {
+      "title": "Herramientas Analíticas",
+      "content": "Utilizamos herramientas analíticas, como Google Analytics, para comprender cómo los usuarios interactúan con nuestro Sitio. Estas herramientas pueden utilizar cookies y otras tecnologías para recopilar y analizar información sobre su uso del Sitio. La información generada por estas herramientas sobre su uso de nuestro Sitio se transmite a los proveedores de servicios analíticos y se almacena en sus servidores."
+    },
+    "sharing": {
+      "title": "Compartir Información",
+      "content": "No vendemos, comercializamos ni transferimos de otro modo sus datos personales a terceros, excepto a terceros de confianza que nos ayudan a operar nuestro Sitio, siempre que estas partes acuerden mantener esta información confidencial."
+    },
+    "security": {
+      "title": "Seguridad de Datos",
+      "content": "Hemos implementado medidas de seguridad apropiadas para proteger sus datos personales contra pérdida, uso indebido, acceso no autorizado, divulgación, alteración o destrucción."
+    },
+    "rights": {
+      "title": "Derechos del Usuario",
+      "intro": "Según las leyes de protección de datos aplicables, puede tener derecho a:",
+      "right1": "Acceder a sus datos personales",
+      "right2": "Corregir sus datos personales",
+      "right3": "Eliminar sus datos personales",
+      "right4": "Oponerse al procesamiento de sus datos personales",
+      "right5": "Restringir el procesamiento de sus datos personales",
+      "right6": "Transferir sus datos personales",
+      "howTo": "Para ejercer estos derechos, contáctenos utilizando la información de contacto proporcionada anteriormente."
+    },
+    "changes": {
+      "title": "Cambios en la Política de Privacidad",
+      "content": "Podemos actualizar nuestra Política de Privacidad de vez en cuando. Cualquier cambio se publicará en esta página con una nueva fecha de actualización. Recomendamos verificar periódicamente esta Política de Privacidad para mantenerse informado de cualquier cambio."
+    },
+    "consent": {
+      "title": "Consentimiento",
+      "content": "Al usar nuestro Sitio, acepta los términos de esta Política de Privacidad."
+    }
+  },
+  "terms": {
+    "title": "Términos de Uso",
+    "lastUpdate": "Última actualización",
+    "introduction": {
+      "title": "Introducción",
+      "content": "Estos Términos de Uso constituyen un acuerdo entre usted e IDZTECH (\"nosotros\", \"nos\", \"nuestro\") con respecto a su uso de nuestro sitio web https://idztech.pl (\"Sitio\") y los servicios que proporcionamos. Lea estos Términos de Uso detenidamente antes de acceder o utilizar nuestro Sitio."
+    },
+    "acceptance": {
+      "title": "Aceptación de Términos",
+      "content": "Al acceder o utilizar nuestro Sitio, acepta estar sujeto a estos Términos de Uso. Si no está de acuerdo con estos términos, por favor no utilice nuestro Sitio."
+    },
+    "services": {
+      "title": "Descripción de Servicios",
+      "content": "IDZTECH ofrece desarrollo web, desarrollo de comercio electrónico, servicios de SEO y otras soluciones de marketing digital. El alcance y los detalles de servicios específicos se determinarán en acuerdos individuales con los clientes."
+    },
+    "intellectualProperty": {
+      "title": "Propiedad Intelectual",
+      "content": "Todo el contenido de este Sitio, incluido texto, gráficos, logotipos, imágenes, audio, video y software, es propiedad de IDZTECH o sus proveedores de contenido y está protegido por leyes de derechos de autor y propiedad intelectual. No puede usar, reproducir, distribuir, modificar o crear trabajos derivados de ningún contenido en nuestro Sitio sin nuestro consentimiento previo por escrito."
+    },
+    "userContent": {
+      "title": "Contenido del Usuario",
+      "content": "Al enviar contenido a nuestro Sitio (incluidos, entre otros, comentarios, opiniones o sugerencias), otorga a IDZTECH una licencia no exclusiva, libre de regalías, perpetua y mundial para usar, reproducir, modificar, adaptar, publicar, traducir y distribuir dicho contenido en cualquier formato de medios y a través de cualquier canal de medios."
+    },
+    "prohibited": {
+      "title": "Actividades Prohibidas",
+      "intro": "Al usar nuestro Sitio, acepta no:",
+      "item1": "Violar cualquier ley o regulación aplicable",
+      "item2": "Infringir los derechos de otros",
+      "item3": "Usar nuestro Sitio para distribuir spam, malware u otro contenido dañino",
+      "item4": "Intentar interferir con el funcionamiento adecuado de nuestro Sitio",
+      "item5": "Recopilar o extraer datos de usuario sin permiso"
+    },
+    "liability": {
+      "title": "Limitación de Responsabilidad",
+      "content": "IDZTECH no será responsable por ningún daño directo, indirecto, incidental, especial, consecuente o punitivo que resulte de su acceso o uso, o incapacidad para acceder o usar, nuestro Sitio o cualquier contenido en él. Nuestro Sitio se proporciona \"tal cual\" y \"según disponibilidad\" sin garantías de ningún tipo."
+    },
+    "termination": {
+      "title": "Terminación",
+      "content": "Podemos terminar o suspender su acceso a nuestro Sitio inmediatamente, sin previo aviso o responsabilidad, por cualquier motivo, incluyendo el incumplimiento de estos Términos de Uso. Al terminar, su derecho a usar nuestro Sitio cesará inmediatamente."
+    },
+    "changes": {
+      "title": "Cambios en los Términos",
+      "content": "Nos reservamos el derecho de modificar o reemplazar estos Términos de Uso en cualquier momento. Es su responsabilidad revisar estos Términos de Uso periódicamente para detectar cambios. Su uso continuado de nuestro Sitio después de cualquier cambio en estos Términos de Uso constituye su aceptación de los nuevos términos."
+    },
+    "governingLaw": {
+      "title": "Ley Aplicable",
+      "content": "Estos Términos de Uso se regirán e interpretarán de acuerdo con las leyes de Polonia, sin tener en cuenta sus disposiciones sobre conflictos de leyes."
+    },
+    "contact": {
+      "title": "Contáctenos",
+      "content": "Si tiene alguna pregunta sobre estos Términos de Uso, contáctenos en patryk.idzikowski@idztech.pl."
+    }
   }
 }
