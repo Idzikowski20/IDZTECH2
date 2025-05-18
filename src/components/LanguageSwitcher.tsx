@@ -63,8 +63,8 @@ const LanguageSwitcher: React.FC = () => {
                 : 'font-normal'
             } ${
               theme === 'light'
-                ? 'text-black hover:bg-gray-100'
-                : 'text-white hover:bg-gray-700'
+                ? 'text-black hover:bg-gray-100 hover:text-black'
+                : 'text-white hover:bg-gray-700 hover:text-white'
             } cursor-pointer`}
           >
             {lng.name}

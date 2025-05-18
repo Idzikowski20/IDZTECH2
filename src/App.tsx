@@ -1,18 +1,15 @@
-import React from 'react'
+
+import React, { useEffect } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
+  useLocation,
 } from "react-router-dom";
 import Index from "@/pages/Index";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
-import AdminLayout from "@/layouts/AdminLayout";
-import Admin from "@/pages/admin/Admin";
-import AdminUsers from "@/pages/admin/AdminUsers";
-import AdminStats from "@/pages/admin/AdminStats";
-import AdminSettings from "@/pages/admin/AdminSettings";
 import Profile from "@/pages/Profile";
 import Blog from "@/pages/Blog";
 import BlogPostEditor from "@/pages/BlogPostEditor";
@@ -37,20 +34,19 @@ import RequireAuth from "@/components/RequireAuth";
 import ErrorPage from '@/pages/ErrorPage';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfUse from '@/pages/TermsOfUse';
-import ReactGA from 'react-ga4';
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { trackPageView } from '@/utils/analytics';
 
-const TRACKING_ID = "G-9RHFQ8J95N";
-ReactGA.initialize(TRACKING_ID);
-
-const App = () => {
+const AppContent = () => {
   const location = useLocation();
 
   useEffect(() => {
-    ReactGA.send({ hitType: "pageview", page: location.pathname });
+    trackPageView(location.pathname);
   }, [location]);
 
+  return null;
+}
+
+const App = () => {
   return (
     <RouterProvider router={router} />
   );
@@ -79,32 +75,6 @@ const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
-  },
-  {
-    path: "/admin",
-    element: (
-      <RequireAuth>
-        <AdminLayout />
-      </RequireAuth>
-    ),
-    children: [
-      {
-        path: "",
-        element: <Admin />
-      },
-      {
-        path: "users",
-        element: <AdminUsers />
-      },
-      {
-        path: "stats",
-        element: <AdminStats />
-      },
-      {
-        path: "settings",
-        element: <AdminSettings />
-      }
-    ]
   },
   {
     path: "/profile",

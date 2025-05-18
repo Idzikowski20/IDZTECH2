@@ -11,6 +11,10 @@ import { Toaster } from '@/components/ui/toaster'
 import { Toaster as SonnerToaster } from 'sonner'
 import LanguageController from '@/components/LanguageController'
 import './utils/i18n'
+import { initGA } from './utils/analytics'
+
+// Initialize Google Analytics
+initGA();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,7 +28,7 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HelmetProvider>
-      <ThemeProvider defaultTheme="dark" storageKey="idztech-ui-theme">
+      <ThemeProvider>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <LanguageController />
