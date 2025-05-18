@@ -2,9 +2,6 @@
 // Since this is a client-side application and not a server-side application,
 // we'll adjust the save-sitemap functionality to work without Express
 
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
-
 // Define a simplified Request and Response interface
 interface SimpleRequest {
   method: string;

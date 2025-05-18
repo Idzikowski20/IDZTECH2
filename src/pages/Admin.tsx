@@ -37,6 +37,11 @@ interface BlogPost {
   updated_at: string;
   likes?: string[];
   comments?: any[];
+  content: string;
+  featured_image: string;
+  summary: string;
+  categories: string[];
+  author_id: string;
 }
 
 const Admin = () => {
@@ -49,7 +54,7 @@ const Admin = () => {
   const { toast } = useToast();
   
   // Stan dla postów bloga
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   
   const [analytics, setAnalytics] = useState({
@@ -69,9 +74,9 @@ const Admin = () => {
   const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [isReplying, setIsReplying] = useState<Record<string, boolean>>({});
   const [topPosts, setTopPosts] = useState<{
-    byViews: any[];
-    byLikes: any[];
-    byComments: any[];
+    byViews: BlogPost[];
+    byLikes: BlogPost[];
+    byComments: BlogPost[];
   }>({
     byViews: [],
     byLikes: [],
@@ -109,6 +114,7 @@ const Admin = () => {
         .select('*')
         .order('created_at', { ascending: false });
       if (!error) setPosts(data || []);
+      else console.error("Error fetching blog posts:", error);
       setLoadingPosts(false);
     };
     fetchPosts();
@@ -147,7 +153,7 @@ const Admin = () => {
     }
     
     // Calculate total blog views
-    const totalBlogViews = posts.reduce((total, post) => total + post.views, 0);
+    const totalBlogViews = posts.reduce((total, post) => total + (post.views || 0), 0);
 
     // Estimate unique visitors (in real app this would come from analytics)
     const estimatedUniqueVisitors = Math.floor(totalBlogViews * 0.7);
@@ -401,13 +407,13 @@ const Admin = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredPosts.map(post => (
+                    paginatedPosts.map(post => (
                       <tr key={post.id}>
                         <td className="py-3 px-4 font-medium">{post.title}</td>
                         <td className="py-3 px-4 text-premium-light/70">
                           {new Date(post.created_at).toLocaleDateString('pl-PL')}
                         </td>
-                        <td className="py-3 px-4">{post.views}</td>
+                        <td className="py-3 px-4">{post.views || 0}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
                             <Button 

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
@@ -8,8 +9,33 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/utils/AuthProvider';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from '@/utils/themeContext';
-import { supabase } from '@/utils/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+// Define the BlogPost interface
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  featured_image: string;
+  summary: string;
+  categories: string[];
+  tags: string[];
+  author_id: string;
+  created_at: string;
+  updated_at: string;
+  published: boolean;
+  views: number;
+  users?: {
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+  };
+  comments?: any[];
+  likes?: string[];
+  guestLikes?: string[];
+}
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,7 +43,7 @@ const BlogPost = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const { theme } = useTheme();
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,6 +54,7 @@ const BlogPost = () => {
         .select('*, users:author_id(first_name, last_name, avatar_url)')
         .eq('slug', slug)
         .single();
+        
       if (!error && data) {
         setPost({
           ...data,
@@ -35,10 +62,20 @@ const BlogPost = () => {
           excerpt: data.summary,
           categories: data.categories || [],
           tags: data.tags || [],
-          author: (data as any).users ? `${(data as any).users.first_name} ${(data as any).users.last_name}` : '',
+          author: (data as any).users ? `${(data as any).users.first_name || ''} ${(data as any).users.last_name || ''}`.trim() : '',
           authorAvatar: (data as any).users?.avatar_url || null,
         });
+        
+        // Increment view count
+        if (data.id) {
+          const newViews = (data.views || 0) + 1;
+          await supabase
+            .from('blog_posts')
+            .update({ views: newViews })
+            .eq('id', data.id);
+        }
       } else {
+        console.error('Error fetching blog post:', error);
         setPost(null);
       }
       setLoading(false);
@@ -98,7 +135,7 @@ const BlogPost = () => {
             <div className="flex flex-wrap items-center text-sm text-premium-light/60 mb-4 gap-2">
               <div className="flex items-center">
                 <Clock size={14} className="mr-1" />
-                <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+                <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
               </div>
               {isUserLoggedIn && (
                 <>
@@ -145,7 +182,7 @@ const BlogPost = () => {
       <div className="container mx-auto px-4 mb-10">
         <div className="max-w-3xl mx-auto">
           <div className="rounded-xl overflow-hidden">
-            <img src={post.featuredImage} alt={post.title} className="w-full h-auto" />
+            <img src={post.featured_image} alt={post.title} className="w-full h-auto" />
           </div>
         </div>
       </div>
@@ -160,7 +197,7 @@ const BlogPost = () => {
               {post.tags && post.tags.map((tag: string, index: number) => (
                 <span
                   key={index}
-                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
+                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black transition-colors"
                 >
                   #{tag}
                 </span>

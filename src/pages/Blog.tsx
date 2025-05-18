@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -5,7 +6,27 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/utils/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
+
+// Define the BlogPost interface
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  featured_image: string;
+  summary: string;
+  categories: string[];
+  author_id: string;
+  created_at: string;
+  updated_at: string;
+  published: boolean;
+  users?: {
+    first_name: string | null;
+    last_name: string | null;
+    avatar_url: string | null;
+  };
+}
 
 const Blog = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -18,6 +39,7 @@ const Blog = () => {
       .from('blog_posts')
       .select('*, users:author_id(first_name, last_name, avatar_url)')
       .order('created_at', { ascending: false });
+      
       if (!error && data) {
         // Mapujemy dane, by zachować dotychczasowy format
         setPosts(data.map(post => ({
@@ -25,10 +47,11 @@ const Blog = () => {
           featuredImage: post.featured_image,
           excerpt: post.summary,
           categories: post.categories || [],
-          author: (post as any).users ? `${(post as any).users.first_name} ${(post as any).users.last_name}` : '',
+          author: (post as any).users ? `${(post as any).users.first_name || ''} ${(post as any).users.last_name || ''}`.trim() : '',
           authorAvatar: (post as any).users?.avatar_url || null,
         })));
       } else {
+        console.error('Error fetching blog posts:', error);
         setPosts([]);
       }
       setLoading(false);
@@ -83,9 +106,9 @@ const Blog = () => {
                 
                 <div className="p-6">
                   <div className="flex items-center text-sm text-premium-light/60 mb-3">
-                    <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+                    <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
                     <span className="mx-2">•</span>
-                    <span>{post.categories[0]}</span>
+                    <span>{post.categories[0] || 'SEO'}</span>
                   </div>
                   
                   <Link to={`/blog/${post.slug}`}>

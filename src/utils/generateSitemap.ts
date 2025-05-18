@@ -64,4 +64,4 @@ export async function saveSitemap(baseUrl: string) {
   } catch (error) {
     console.error('Błąd podczas generowania sitemap.xml:', error)
   }
-} 
+}

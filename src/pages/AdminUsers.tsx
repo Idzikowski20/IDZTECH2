@@ -1,516 +1,641 @@
 
-import React, { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/utils/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { Loader2, UserRound, Edit, Trash2, Plus } from 'lucide-react';
-import AdminLayout from '@/components/AdminLayout';
-import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import AdminLayout from '@/components/AdminLayout';
+import { Button } from '@/components/ui/button';
+import { UserPlusIcon, UserIcon, Trash, Edit, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import UserProfileDialog from '@/components/UserProfileDialog';
+import { addUser, updateUserRole, deleteUser } from '@/utils/authIntegration';
+import { User, UserRole } from '@/utils/authTypes';
 
-// Define possible user roles to match Supabase's enum
-type ValidUserRole = 'admin' | 'editor' | 'user';
+// Type for valid database user roles that can be saved to Supabase
+type ValidDbRole = 'admin' | 'editor' | 'user';
 
-interface UserProfile {
-  id: string;
-  email: string;
-  first_name?: string;
-  last_name?: string;
-  avatar_url?: string;
-  role?: ValidUserRole;
-  created_at?: string;
-  updated_at?: string;
-}
+// Function to map app roles to database roles
+const mapToValidDbRole = (role: string): ValidDbRole => {
+  if (role === 'admin') return 'admin';
+  if (role === 'moderator' || role === 'blogger') return 'editor';
+  return 'user';
+};
+
+const formSchema = z.object({
+  email: z.string().email("Wprowadź prawidłowy adres email"),
+  name: z.string().min(2, "Imię musi mieć przynajmniej 2 znaki"),
+  lastName: z.string().optional(),
+  role: z.enum(["admin", "editor", "user", "moderator", "blogger"] as const),
+  password: z.string().min(8, "Hasło musi mieć przynajmniej 8 znaków")
+});
+
+const editRoleSchema = z.object({
+  role: z.enum(["admin", "editor", "user", "moderator", "blogger"] as const)
+});
 
 const AdminUsers = () => {
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { user: currentUser } = useAuth();
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [addUserOpen, setAddUserOpen] = useState(false);
-  const { toast } = useToast();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editRoleDialogOpen, setEditRoleDialogOpen] = useState(false);
+  const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [viewProfileDialogOpen, setViewProfileDialogOpen] = useState(false);
+  
+  const addForm = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      name: "",
+      lastName: "",
+      role: "user",
+      password: ""
+    }
+  });
+
+  const editRoleForm = useForm<z.infer<typeof editRoleSchema>>({
+    resolver: zodResolver(editRoleSchema),
+    defaultValues: {
+      role: "user"
+    }
+  });
   
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch users from Supabase
-        const { data: users, error } = await supabase
-          .from('users')
-          .select('*');
-          
-        if (error) {
-          console.error("Error loading users:", error);
-          toast({
-            title: "Błąd",
-            description: "Nie udało się załadować użytkowników",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        setUsers(users || []);
-      } catch (error) {
-        console.error("Error loading users:", error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się załadować użytkowników",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     
-    loadUsers();
-  }, [toast]);
-
-  const handleDelete = async (userId: string) => {
-    if (confirm("Czy na pewno chcesz usunąć tego użytkownika?")) {
-      try {
-        const { error } = await supabase
-          .from('users')
-          .delete()
-          .eq('id', userId);
+    if (user?.role !== 'admin') {
+      navigate('/admin');
+      toast({
+        title: "Brak dostępu",
+        description: "Nie masz uprawnień do tej strony",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    fetchUsers();
+  }, [isAuthenticated, navigate, user?.role, toast]);
+  
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      // Fetch users from Supabase users table
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
         
-        if (error) {
-          throw error;
-        }
-        
-        // Update local state
-        setUsers(users.filter(user => user.id !== userId));
-        toast({
-          title: "Sukces",
-          description: "Użytkownik został usunięty",
-        });
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        toast({
-          title: "Błąd",
-          description: "Nie udało się usunąć użytkownika",
-          variant: "destructive"
-        });
+      if (error) {
+        throw error;
       }
+      
+      setUsers(data || []);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się pobrać listy użytkowników.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
-
-  const viewUserProfile = (user: UserProfile) => {
-    setSelectedUser(user);
-    setProfileOpen(true);
+  
+  const onAddSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const result = await addUser({
+        email: values.email,
+        name: values.name,
+        lastName: values.lastName || '',
+        role: values.role as UserRole,
+      }, values.password);
+      
+      if (result.success) {
+        toast({
+          title: "Sukces",
+          description: "Użytkownik został dodany."
+        });
+        setAddDialogOpen(false);
+        addForm.reset();
+        fetchUsers();
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się dodać użytkownika.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Wystąpił nieoczekiwany błąd.",
+        variant: "destructive"
+      });
+    }
   };
   
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-premium-purple" />
-        </div>
-      </AdminLayout>
-    );
+  const onEditRoleSubmit = async (values: z.infer<typeof editRoleSchema>) => {
+    if (!selectedUser) return;
+    
+    try {
+      const success = await updateUserRole(selectedUser.id, values.role as UserRole);
+      
+      if (success) {
+        toast({
+          title: "Sukces",
+          description: "Rola użytkownika została zmieniona."
+        });
+        setEditRoleDialogOpen(false);
+        fetchUsers();
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się zmienić roli użytkownika.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Wystąpił nieoczekiwany błąd.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  const handleEditRoleClick = (user: any) => {
+    setSelectedUser(user);
+    editRoleForm.setValue("role", user.role === 'editor' ? 'editor' : user.role);
+    setEditRoleDialogOpen(true);
+  };
+  
+  const handleDeleteClick = (user: any) => {
+    setSelectedUser(user);
+    setConfirmDeleteDialogOpen(true);
+  };
+  
+  const handleViewProfileClick = (user: any) => {
+    setSelectedUser(user);
+    setViewProfileDialogOpen(true);
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      const success = await deleteUser(selectedUser.id);
+      
+      if (success) {
+        toast({
+          title: "Sukces",
+          description: "Użytkownik został usunięty."
+        });
+        setConfirmDeleteDialogOpen(false);
+        fetchUsers();
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się usunąć użytkownika.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Wystąpił nieoczekiwany błąd.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Create a new user directly in Supabase
+  const createUserDirectly = async (userData: any) => {
+    try {
+      // Create auth user with email/password
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          data: {
+            name: userData.name,
+            lastName: userData.lastName,
+            role: userData.role
+          }
+        }
+      });
+      
+      if (authError) throw authError;
+      
+      if (!authData.user) {
+        return { success: false, error: new Error('No user returned from signup') };
+      }
+      
+      // Now create an entry in the users table
+      const dbRole = mapToValidDbRole(userData.role);
+      
+      const { error: insertError } = await supabase.from('users').insert({
+        id: authData.user.id,
+        email: userData.email,
+        first_name: userData.name,
+        last_name: userData.lastName || null,
+        role: dbRole,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+      
+      if (insertError) throw insertError;
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error creating user directly:', error);
+      return { success: false, error };
+    }
+  };
+  
+  // Special handler for adding users when the regular method might not work
+  const handleAddUserDirectly = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const result = await createUserDirectly({
+        email: values.email,
+        name: values.name,
+        lastName: values.lastName,
+        role: values.role,
+        password: values.password
+      });
+      
+      if (result.success) {
+        toast({
+          title: "Sukces",
+          description: "Użytkownik został dodany bezpośrednio."
+        });
+        setAddDialogOpen(false);
+        addForm.reset();
+        fetchUsers();
+      } else {
+        toast({
+          title: "Błąd",
+          description: "Nie udało się dodać użytkownika bezpośrednio.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Błąd",
+        description: "Wystąpił nieoczekiwany błąd.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Format user's role for display
+  const formatRole = (role: string) => {
+    switch(role) {
+      case 'admin': return 'Administrator';
+      case 'editor': return 'Edytor/Moderator';
+      case 'user': return 'Użytkownik';
+      default: return role.charAt(0).toUpperCase() + role.slice(1);
+    }
+  };
+  
+  // Prepare user data for profile display
+  const prepareUserForProfile = (user: any) => {
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.first_name || '',
+      lastName: user.last_name || '',
+      profilePicture: user.avatar_url,
+      role: user.role,
+      created_at: user.created_at,
+      last_login: user.last_login || user.updated_at
+    };
+  };
+  
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return null;
   }
 
   return (
     <AdminLayout>
-      <div className="container mx-auto py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Zarządzaj użytkownikami</h1>
-          <Dialog open={addUserOpen} onOpenChange={setAddUserOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-premium-gradient">
-                <Plus className="mr-2 h-4 w-4" /> Dodaj użytkownika
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Dodaj nowego użytkownika</DialogTitle>
-              </DialogHeader>
-              <UserForm 
-                onSuccess={(newUser) => {
-                  setUsers([...users, newUser]);
-                  setAddUserOpen(false);
-                  toast({
-                    title: "Sukces",
-                    description: "Użytkownik został dodany",
-                  });
-                }}
-              />
-            </DialogContent>
-          </Dialog>
+      <div className="p-6">
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">Zarządzanie Użytkownikami</h1>
+            <Button 
+              onClick={() => setAddDialogOpen(true)}
+              className="bg-premium-gradient hover:bg-premium-gradient-hover"
+            >
+              <UserPlusIcon className="mr-2 h-4 w-4" /> Dodaj Użytkownika
+            </Button>
+          </div>
+          <p className="text-premium-light/70 mt-2">
+            Zarządzaj użytkownikami systemu, ich rolami i uprawnieniami.
+          </p>
         </div>
         
-        <div className="bg-transparent rounded-lg shadow overflow-hidden">
-          <Table>
-            <TableHeader className="bg-gray-900">
-              <TableRow className="border-b border-gray-700">
-                <TableHead className="text-gray-300 uppercase">Nazwa</TableHead>
-                <TableHead className="text-gray-300 uppercase">Email</TableHead>
-                <TableHead className="text-gray-300 uppercase">Rola</TableHead>
-                <TableHead className="text-gray-300 uppercase">Data utworzenia</TableHead>
-                <TableHead className="text-gray-300 uppercase">Ostatnie logowanie</TableHead>
-                <TableHead className="text-gray-300 uppercase text-right">Akcje</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow 
-                  key={user.id} 
-                  className="border-b border-gray-700 hover:bg-gray-700"
-                >
-                  <TableCell className="py-4">
-                    <div className="flex items-center">
-                      {user.avatar_url ? (
-                        <img
-                          className="h-10 w-10 rounded-full object-cover"
-                          src={user.avatar_url}
-                          alt={user.first_name}
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold">
-                          {user.first_name ? user.first_name.charAt(0).toUpperCase() : 'U'}
+        <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-premium-dark/80 border-b border-premium-light/10">
+                <tr>
+                  <th className="py-3 px-4 text-left">Imię i Nazwisko</th>
+                  <th className="py-3 px-4 text-left">Email</th>
+                  <th className="py-3 px-4 text-left">Rola</th>
+                  <th className="py-3 px-4 text-left">Data utworzenia</th>
+                  <th className="py-3 px-4 text-left">Akcje</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-premium-light/10">
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-premium-light/70">
+                      Ładowanie użytkowników...
+                    </td>
+                  </tr>
+                ) : users.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-premium-light/70">
+                      Brak użytkowników do wyświetlenia.
+                    </td>
+                  </tr>
+                ) : (
+                  users.map(user => (
+                    <tr key={user.id} className="hover:bg-premium-light/5">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          {user.avatar_url ? (
+                            <img 
+                              src={user.avatar_url} 
+                              alt={user.first_name} 
+                              className="h-8 w-8 rounded-full object-cover mr-3"
+                            />
+                          ) : (
+                            <div className="h-8 w-8 rounded-full bg-premium-gradient flex items-center justify-center text-white mr-3">
+                              {(user.first_name?.[0] || user.email[0]).toUpperCase()}
+                            </div>
+                          )}
+                          <span>{user.first_name} {user.last_name}</span>
                         </div>
-                      )}
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-white">
-                          {user.first_name} {user.last_name || ''}
+                      </td>
+                      <td className="py-3 px-4">{user.email}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          user.role === 'admin' ? 'bg-purple-500/20 text-purple-300' :
+                          user.role === 'editor' ? 'bg-blue-500/20 text-blue-300' :
+                          'bg-green-500/20 text-green-300'
+                        }`}>
+                          {formatRole(user.role)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-premium-light/70">
+                        {new Date(user.created_at).toLocaleDateString('pl-PL')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewProfileClick(user)}
+                            className="hover:bg-premium-light hover:text-premium-dark"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditRoleClick(user)}
+                            className="hover:bg-premium-light hover:text-premium-dark"
+                          >
+                            <Edit size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteClick(user)}
+                            className="hover:bg-red-500 hover:text-white"
+                            disabled={user.id === current_user?.id}
+                          >
+                            <Trash size={16} />
+                          </Button>
                         </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {user.email}
-                  </TableCell>
-                  <TableCell>
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
-                    }`}>
-                      {user.role || 'user'}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}
-                  </TableCell>
-                  <TableCell className="text-gray-300">
-                    {user.updated_at ? new Date(user.updated_at).toLocaleDateString('pl-PL') : 'Nigdy'}
-                  </TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-transparent text-white hover:bg-white hover:text-black border-none"
-                      onClick={() => viewUserProfile(user)}
-                    >
-                      <UserRound className="h-4 w-4 mr-1" />
-                      Profil
-                    </Button>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="bg-transparent text-white hover:bg-white hover:text-black border-none"
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edytuj
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Edytuj użytkownika</DialogTitle>
-                        </DialogHeader>
-                        <UserForm 
-                          userId={user.id} 
-                          user={user} 
-                          onSuccess={(updatedUser) => {
-                            setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-                            toast({
-                              title: "Sukces",
-                              description: "Użytkownik został zaktualizowany",
-                            });
-                          }} 
-                        />
-                      </DialogContent>
-                    </Dialog>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="bg-transparent text-red-500 hover:bg-red-500 hover:text-white border-none"
-                      onClick={() => handleDelete(user.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Usuń
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {users.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-400">
-                    Brak użytkowników do wyświetlenia
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
-      {/* User Profile Dialog */}
+      
+      {/* Add User Dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Dodaj Nowego Użytkownika</DialogTitle>
+          </DialogHeader>
+          <Form {...addForm}>
+            <form onSubmit={addForm.handleSubmit(onAddSubmit)} className="space-y-4">
+              <FormField
+                control={addForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Imię</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Imię" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addForm.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nazwisko</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nazwisko" {...field} value={field.value || ''} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addForm.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rola</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz rolę" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="admin">Administrator</SelectItem>
+                        <SelectItem value="editor">Edytor</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
+                        <SelectItem value="blogger">Blogger</SelectItem>
+                        <SelectItem value="user">Użytkownik</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={addForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hasło</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Hasło" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="secondary" onClick={() => setAddDialogOpen(false)}>
+                  Anuluj
+                </Button>
+                <Button type="submit" className="bg-premium-gradient ml-2">
+                  Dodaj
+                </Button>
+                <Button type="button" onClick={() => handleAddUserDirectly(addForm.getValues())} variant="outline">
+                  Dodaj Bezpośrednio
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Role Dialog */}
+      <Dialog open={editRoleDialogOpen} onOpenChange={setEditRoleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Zmień rolę użytkownika</DialogTitle>
+          </DialogHeader>
+          <Form {...editRoleForm}>
+            <form onSubmit={editRoleForm.handleSubmit(onEditRoleSubmit)} className="space-y-4">
+              <FormField
+                control={editRoleForm.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rola</FormLabel>
+                    <Select
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Wybierz rolę" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="admin">Administrator</SelectItem>
+                        <SelectItem value="editor">Edytor</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
+                        <SelectItem value="blogger">Blogger</SelectItem>
+                        <SelectItem value="user">Użytkownik</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="pt-4">
+                <Button type="button" variant="secondary" onClick={() => setEditRoleDialogOpen(false)}>
+                  Anuluj
+                </Button>
+                <Button type="submit" className="bg-premium-gradient ml-2">
+                  Zapisz
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Confirm Delete Dialog */}
+      <Dialog open={confirmDeleteDialogOpen} onOpenChange={setConfirmDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Usuń użytkownika</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p>Czy na pewno chcesz usunąć tego użytkownika? Tej operacji nie można cofnąć.</p>
+            {selectedUser && (
+              <div className="mt-4 p-4 bg-premium-light/5 rounded-lg">
+                <div className="flex items-center">
+                  <UserIcon className="h-6 w-6 text-premium-light/70 mr-3" />
+                  <div>
+                    <p className="font-medium">{selectedUser.first_name} {selectedUser.last_name}</p>
+                    <p className="text-sm text-premium-light/70">{selectedUser.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setConfirmDeleteDialogOpen(false)}>
+              Anuluj
+            </Button>
+            <Button 
+              type="button" 
+              onClick={handleConfirmDelete}
+              className="bg-red-600 hover:bg-red-700 ml-2"
+            >
+              Usuń
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* View User Profile Dialog */}
       <UserProfileDialog 
-        user={selectedUser} 
-        open={profileOpen} 
-        onOpenChange={setProfileOpen} 
+        user={selectedUser ? prepareUserForProfile(selectedUser) : null} 
+        open={viewProfileDialogOpen}
+        onOpenChange={setViewProfileDialogOpen}
       />
     </AdminLayout>
-  );
-};
-
-interface UserFormProps {
-  userId?: string;
-  user?: UserProfile;
-  onSuccess?: (user: UserProfile) => void;
-}
-
-const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    first_name: user?.first_name || '',
-    last_name: user?.last_name || '',
-    email: user?.email || '',
-    role: user?.role || 'user' as ValidUserRole,
-    password: '',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      if (userId) {
-        // Update existing user
-        const { error } = await supabase
-          .from('users')
-          .update({
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            role: formData.role as ValidUserRole
-          })
-          .eq('id', userId);
-        
-        if (error) throw error;
-      } else {
-        // Add new user via signup
-        const { data, error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            data: {
-              first_name: formData.first_name,
-              last_name: formData.last_name
-            }
-          }
-        });
-        
-        if (error) throw error;
-        
-        // Create user entry
-        if (data.user) {
-          const { error: userError } = await supabase
-            .from('users')
-            .upsert({
-              id: data.user.id,
-              email: formData.email,
-              first_name: formData.first_name,
-              last_name: formData.last_name,
-              role: formData.role as ValidUserRole,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            });
-            
-          if (userError) throw userError;
-        }
-      }
-      
-      if (onSuccess) {
-        onSuccess({
-          id: userId || Math.random().toString(),
-          email: formData.email,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          role: formData.role as ValidUserRole,
-          created_at: user?.created_at || new Date().toISOString(),
-          updated_at: user?.updated_at || new Date().toISOString()
-        });
-      }
-    } catch (error: any) {
-      console.error("Error submitting form:", error);
-      toast({
-        title: "Błąd",
-        description: userId ? "Nie udało się zaktualizować użytkownika" : "Nie udało się dodać użytkownika",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="first_name">Imię</Label>
-          <Input 
-            id="first_name"
-            name="first_name"
-            value={formData.first_name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="last_name">Nazwisko</Label>
-          <Input 
-            id="last_name"
-            name="last_name"
-            value={formData.last_name}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input 
-          id="email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          disabled={!!userId} // Can't change email for existing user
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="role">Rola</Label>
-        <select 
-          id="role"
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 px-3"
-          required
-        >
-          <option value="user">Użytkownik</option>
-          <option value="admin">Administrator</option>
-          <option value="editor">Redaktor</option>
-        </select>
-      </div>
-      
-      {!userId && (
-        <div className="space-y-2">
-          <Label htmlFor="password">Hasło</Label>
-          <Input 
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            required={!userId}
-          />
-        </div>
-      )}
-      
-      <div className="flex justify-end pt-4">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Przetwarzanie...
-            </>
-          ) : userId ? 'Zapisz zmiany' : 'Dodaj użytkownika'}
-        </Button>
-      </div>
-    </form>
-  );
-};
-
-const UserProfileDialog = ({ user, open, onOpenChange }: { 
-  user: UserProfile | null; 
-  open: boolean; 
-  onOpenChange: (open: boolean) => void;
-}) => {
-  if (!user) return null;
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Profil użytkownika</DialogTitle>
-        </DialogHeader>
-        
-        <div className="flex flex-col items-center py-4">
-          {user.avatar_url ? (
-            <img 
-              src={user.avatar_url} 
-              alt={user.first_name} 
-              className="h-24 w-24 rounded-full object-cover mb-4"
-            />
-          ) : (
-            <div className="h-24 w-24 rounded-full bg-premium-gradient flex items-center justify-center text-white text-xl font-bold mb-4">
-              {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}
-            </div>
-          )}
-          
-          <h3 className="text-xl font-semibold">
-            {user.first_name} {user.last_name}
-          </h3>
-          
-          <span className={`px-3 py-1 mt-2 ${
-            user.role === 'admin' ? 'bg-purple-900 text-purple-100' : 'bg-green-900 text-green-100'
-          } text-xs rounded-full`}>
-            {user.role || 'user'}
-          </span>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-center">
-            <span className="text-muted-foreground w-32">Email:</span>
-            <span>{user.email}</span>
-          </div>
-          
-          <div className="flex items-center">
-            <span className="text-muted-foreground w-32">Data utworzenia:</span>
-            <span>{user.created_at ? new Date(user.created_at).toLocaleDateString('pl-PL') : 'N/A'}</span>
-          </div>
-          
-          <div className="flex items-center">
-            <span className="text-muted-foreground w-32">Ostatnie logowanie:</span>
-            <span>{user.updated_at ? new Date(user.updated_at).toLocaleDateString('pl-PL') : 'Nigdy'}</span>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 };
 
