@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from "@/utils/themeContext";
@@ -9,6 +10,7 @@ import { Toaster } from 'sonner';
 import { UserProfile } from './components/user/UserProfile';
 import { useUsers } from './hooks/useUsers';
 import AdminLayout from './components/AdminLayout';
+import LanguageController from './components/LanguageController';
 
 // Pages
 import Index from './pages/Index';
@@ -35,6 +37,11 @@ import SeoCopywriting from './pages/SeoCopywriting';
 import SeoOptimization from './pages/SeoOptimization';
 import LocalSeo from './pages/LocalSeo';
 import ECommerce from './pages/ECommerce';
+
+// Tool Pages
+import PasswordGenerator from './pages/tools/PasswordGenerator';
+import PrivacyPolicyGenerator from './pages/tools/PrivacyPolicyGenerator';
+import DomainNameCreator from './pages/tools/DomainNameCreator';
 
 // Blog
 import Blog from './pages/Blog';
@@ -75,6 +82,7 @@ function App() {
           <ThemeProvider>
             <AuthProvider>
               <ScrollToTop />
+              <LanguageController />
               <DotAnimation />
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -100,6 +108,10 @@ function App() {
                 <Route path="/optymalizacja-seo" element={<SeoOptimization />} />
                 <Route path="/pozycjonowanie-lokalne" element={<LocalSeo />} />
                 <Route path="/sklepy-internetowe" element={<ECommerce />} />
+                {/* Tool Pages */}
+                <Route path="/password-generator" element={<PasswordGenerator />} />
+                <Route path="/privacy-policy-generator" element={<PrivacyPolicyGenerator />} />
+                <Route path="/domain-creator" element={<DomainNameCreator />} />
                 {/* Blog */}
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
@@ -141,7 +153,6 @@ function App() {
                   }
                 />
                 {/* Przekierowania */}
-                <Route path="/" element={<Navigate to="/blog" replace />} />
                 <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
               </Routes>
               <UIToaster />

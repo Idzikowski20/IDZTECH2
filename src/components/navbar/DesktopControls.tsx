@@ -6,13 +6,18 @@ import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const DesktopControls = () => {
   const { isAuthenticated } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
+  const { t } = useTranslation();
   
   return (
     <div className="hidden md:flex items-center space-x-4">
+      <LanguageSwitcher />
+      
       <Button
         variant="ghost"
         size="sm"
@@ -47,7 +52,7 @@ const DesktopControls = () => {
         <Button 
           className="bg-black text-white hover:bg-black hover:text-white transition-colors"
         >
-          Umów spotkanie
+          {t('buttons.meeting')}
         </Button>
       </Link>
       
@@ -67,7 +72,7 @@ const DesktopControls = () => {
             fill="none"
           />
           <span className="sr-only">
-            {isAuthenticated ? "Panel administracyjny" : "Zaloguj"}
+            {isAuthenticated ? t('buttons.admin') : t('buttons.login')}
           </span>
         </Button>
       </Link>

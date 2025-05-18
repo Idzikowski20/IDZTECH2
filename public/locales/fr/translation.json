@@ -1,0 +1,44 @@
+
+{
+  "navigation": {
+    "start": "Accueil",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "about": "À propos",
+    "blog": "Blog",
+    "contact": "Contact",
+    "tools": "Outils"
+  },
+  "tools": {
+    "passwordGenerator": "Générateur de mot de passe",
+    "privacyPolicyGenerator": "Générateur de politique de confidentialité",
+    "domainCreator": "Créateur de nom de domaine"
+  },
+  "websiteTypes": {
+    "websites": "Sites web",
+    "webDevelopment": "Développement web",
+    "eCommerce": "Développement e-commerce"
+  },
+  "seo": {
+    "title": "Services SEO",
+    "seoServices": "Positionnement de sites web",
+    "localSeo": "SEO local",
+    "seoAudit": "Audit SEO",
+    "seoOptimization": "Optimisation SEO",
+    "seoCopywriting": "Rédaction SEO",
+    "contentPlan": "Plan de contenu"
+  },
+  "buttons": {
+    "login": "Connexion",
+    "admin": "Panneau d'administration",
+    "meeting": "Planifier une réunion",
+    "freeConsultation": "Consultation gratuite",
+    "seeProjects": "Voir nos projets"
+  },
+  "cta": {
+    "startCooperation": "Commençons la coopération",
+    "readyToIncrease": "Prêt à augmenter l'efficacité de votre entreprise en ligne?",
+    "contactUs": "Contactez-nous dès aujourd'hui et découvrez comment nos solutions web peuvent aider votre entreprise à réussir en ligne."
+  },
+  "language": "Langue"
+}

@@ -1,0 +1,44 @@
+
+{
+  "navigation": {
+    "start": "Start",
+    "services": "Usługi",
+    "portfolio": "Portfolio",
+    "about": "O nas",
+    "blog": "Blog",
+    "contact": "Kontakt",
+    "tools": "Narzędzia"
+  },
+  "tools": {
+    "passwordGenerator": "Generator haseł",
+    "privacyPolicyGenerator": "Generator polityki prywatności",
+    "domainCreator": "Kreator nazwy domeny"
+  },
+  "websiteTypes": {
+    "websites": "Strony www",
+    "webDevelopment": "Tworzenie stron www",
+    "eCommerce": "Tworzenie sklepów internetowych"
+  },
+  "seo": {
+    "title": "Pozycjonowanie (SEO)",
+    "seoServices": "Pozycjonowanie stron internetowych",
+    "localSeo": "Pozycjonowanie lokalne",
+    "seoAudit": "Audyt SEO",
+    "seoOptimization": "Optymalizacja SEO",
+    "seoCopywriting": "Copywriting SEO",
+    "contentPlan": "Content Plan"
+  },
+  "buttons": {
+    "login": "Zaloguj",
+    "admin": "Panel administracyjny",
+    "meeting": "Umów spotkanie",
+    "freeConsultation": "Darmowa konsultacja",
+    "seeProjects": "Zobacz nasze realizacje"
+  },
+  "cta": {
+    "startCooperation": "Zaczynamy współpracę",
+    "readyToIncrease": "Gotowy na zwiększenie efektywności swojego biznesu online?",
+    "contactUs": "Skontaktuj się z nami już dziś i odkryj, jak nasze rozwiązania webowe mogą pomóc Twojej firmie osiągnąć sukces w internecie."
+  },
+  "language": "Język"
+}
