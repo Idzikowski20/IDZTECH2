@@ -219,7 +219,8 @@ const DomainNameCreator = () => {
                         <SelectValue placeholder="Wybierz branżę" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Dowolna</SelectItem>
+                        {/* Fix here: Changed empty string to "none" with a non-empty value */}
+                        <SelectItem value="none">Dowolna</SelectItem>
                         {industries.map((ind) => (
                           <SelectItem key={ind.value} value={ind.value}>
                             {ind.label}
