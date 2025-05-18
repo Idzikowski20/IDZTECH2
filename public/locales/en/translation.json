@@ -40,5 +40,61 @@
     "readyToIncrease": "Ready to increase your online business efficiency?",
     "contactUs": "Contact us today and discover how our web solutions can help your company succeed online."
   },
-  "language": "Language"
+  "language": "Language",
+  "domainCreator": {
+    "pageTitle": "Domain Name Creator | IDZTECH",
+    "pageDescription": "Create the perfect domain name for your website or business with our domain name creator.",
+    "title": "Domain Name Creator",
+    "subtitle": "Generate creative and available domain names for your website or business.",
+    "form": {
+      "details": "Enter Details",
+      "description": "Enter keywords or choose an industry to generate domain suggestions",
+      "keywords": "Keywords",
+      "keywordsPlaceholder": "Enter keywords separated by commas",
+      "keywordsExample": "E.g. marketing, internet, websites",
+      "industry": "Industry (optional)",
+      "industryPlaceholder": "Select industry",
+      "anyIndustry": "Any",
+      "extensions": "Domain Extensions",
+      "generating": "Generating...",
+      "generate": "Generate Domains"
+    },
+    "results": {
+      "title": "Generated Domains",
+      "favorites": "Favorite Domains"
+    },
+    "actions": {
+      "copy": "Copy",
+      "addToFavorites": "Add to favorites",
+      "removeFromFavorites": "Remove from favorites"
+    },
+    "errors": {
+      "noInput": "Enter keywords or select an industry"
+    },
+    "copied": "Domain \"{{domain}}\" copied to clipboard!",
+    "tips": {
+      "title": "Domain Selection Tips",
+      "tip1": "Choose short, easy to remember domain names",
+      "tip2": "Avoid hyphens and numbers which can be difficult to communicate verbally",
+      "tip3": "Check domain availability before making a decision",
+      "tip4": "Consider purchasing different extension variants (.com, .org, etc.) for brand protection",
+      "tip5": "Make sure the domain name does not infringe on trademarks",
+      "tip6": "Think about keywords related to your industry for better SEO",
+      "conclusion": "After selecting the perfect domain name, you can register it with domain registrars or contact us to help you with the entire website creation process."
+    },
+    "industries": {
+      "tech": "Technology",
+      "health": "Health",
+      "finance": "Finance",
+      "education": "Education",
+      "food": "Food & Dining",
+      "fashion": "Fashion",
+      "travel": "Travel",
+      "sport": "Sports",
+      "art": "Art & Culture",
+      "beauty": "Beauty",
+      "realestate": "Real Estate",
+      "automotive": "Automotive"
+    }
+  }
 }

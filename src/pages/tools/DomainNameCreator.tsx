@@ -25,43 +25,60 @@ const DomainNameCreator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
 
+  // Translated industry options
   const industries = [
-    { value: 'tech', label: 'Technologia' },
-    { value: 'health', label: 'Zdrowie' },
-    { value: 'finance', label: 'Finanse' },
-    { value: 'education', label: 'Edukacja' },
-    { value: 'food', label: 'Gastronomia' },
-    { value: 'fashion', label: 'Moda' },
-    { value: 'travel', label: 'Podróże' },
-    { value: 'sport', label: 'Sport' },
-    { value: 'art', label: 'Sztuka i Kultura' },
-    { value: 'beauty', label: 'Uroda' },
-    { value: 'realestate', label: 'Nieruchomości' },
-    { value: 'automotive', label: 'Motoryzacja' }
+    { value: 'tech', label: t('domainCreator.industries.tech') },
+    { value: 'health', label: t('domainCreator.industries.health') },
+    { value: 'finance', label: t('domainCreator.industries.finance') },
+    { value: 'education', label: t('domainCreator.industries.education') },
+    { value: 'food', label: t('domainCreator.industries.food') },
+    { value: 'fashion', label: t('domainCreator.industries.fashion') },
+    { value: 'travel', label: t('domainCreator.industries.travel') },
+    { value: 'sport', label: t('domainCreator.industries.sport') },
+    { value: 'art', label: t('domainCreator.industries.art') },
+    { value: 'beauty', label: t('domainCreator.industries.beauty') },
+    { value: 'realestate', label: t('domainCreator.industries.realestate') },
+    { value: 'automotive', label: t('domainCreator.industries.automotive') }
   ];
 
   const tlds = ['com', 'pl', 'eu', 'net', 'org', 'info', 'shop', 'online', 'tech', 'app'];
 
+  // Extended prefixes and vocabulary for more randomization
   const prefixes = {
-    tech: ['tech', 'digital', 'smart', 'cyber', 'web', 'net', 'app'],
-    health: ['health', 'med', 'care', 'vita', 'well', 'cure', 'bio'],
-    finance: ['fin', 'money', 'cash', 'bank', 'wealth', 'invest', 'trade'],
-    education: ['edu', 'learn', 'academy', 'school', 'tutor', 'study', 'wisdom'],
-    food: ['food', 'taste', 'meal', 'cook', 'chef', 'delicious', 'kitchen'],
-    fashion: ['style', 'trend', 'chic', 'fashion', 'wear', 'dress', 'glam'],
-    travel: ['travel', 'trip', 'voyage', 'tour', 'journey', 'explore', 'wander'],
-    sport: ['sport', 'fit', 'active', 'play', 'team', 'athletic', 'win'],
-    art: ['art', 'design', 'create', 'studio', 'gallery', 'craft', 'vision'],
-    beauty: ['beauty', 'glow', 'style', 'shine', 'pretty', 'cosmetic', 'glamour'],
-    realestate: ['home', 'property', 'estate', 'house', 'realty', 'place', 'land'],
-    automotive: ['auto', 'car', 'drive', 'motor', 'wheel', 'ride', 'vehicle']
+    tech: ['tech', 'digital', 'smart', 'cyber', 'web', 'net', 'app', 'pixel', 'byte', 'code', 'dev', 'quantum', 'cloud', 'inno'],
+    health: ['health', 'med', 'care', 'vita', 'well', 'cure', 'bio', 'heal', 'life', 'pulse', 'heart', 'fit', 'zen', 'glow'],
+    finance: ['fin', 'money', 'cash', 'bank', 'wealth', 'invest', 'trade', 'profit', 'gold', 'funds', 'capital', 'equity', 'asset', 'coin'],
+    education: ['edu', 'learn', 'academy', 'school', 'tutor', 'study', 'wisdom', 'skill', 'mentor', 'brain', 'know', 'mind', 'scholar', 'genius'],
+    food: ['food', 'taste', 'meal', 'cook', 'chef', 'delicious', 'kitchen', 'flavor', 'spice', 'eat', 'dish', 'feast', 'grill', 'bite'],
+    fashion: ['style', 'trend', 'chic', 'fashion', 'wear', 'dress', 'glam', 'vogue', 'luxe', 'design', 'couture', 'model', 'elite', 'look'],
+    travel: ['travel', 'trip', 'voyage', 'tour', 'journey', 'explore', 'wander', 'vista', 'global', 'nomad', 'cruise', 'roam', 'quest', 'trek'],
+    sport: ['sport', 'fit', 'active', 'play', 'team', 'athletic', 'win', 'trophy', 'champ', 'score', 'game', 'arena', 'coach', 'jump'],
+    art: ['art', 'design', 'create', 'studio', 'gallery', 'craft', 'vision', 'brush', 'canvas', 'muse', 'color', 'scope', 'image', 'draw'],
+    beauty: ['beauty', 'glow', 'style', 'shine', 'pretty', 'cosmetic', 'glamour', 'radiant', 'charm', 'luxe', 'pure', 'skin', 'aura', 'bloom'],
+    realestate: ['home', 'property', 'estate', 'house', 'realty', 'place', 'land', 'nest', 'villa', 'abode', 'condo', 'space', 'build', 'haven'],
+    automotive: ['auto', 'car', 'drive', 'motor', 'wheel', 'ride', 'vehicle', 'speed', 'turbo', 'gear', 'road', 'fleet', 'race', 'move']
   };
 
-  const suffixes = ['hub', 'spot', 'zone', 'place', 'base', 'center', 'space', 'pro', 'expert', 'group', 'team', 'labs'];
+  // More diverse suffixes
+  const suffixes = [
+    'hub', 'spot', 'zone', 'place', 'base', 'center', 'space', 'pro', 'expert', 'group', 'team', 'labs', 
+    'works', 'point', 'mind', 'peak', 'prime', 'plus', 'max', 'focus', 'craft', 'way', 'vista', 'bridge', 
+    'path', 'gate', 'forge', 'link', 'pulse', 'spark', 'flow', 'wave', 'bold', 'unity', 'edge', 'core'
+  ];
+  
+  // Random connectors for more variations
+  const connectors = ['and', 'with', 'for', 'my', 'our', 'your', 'the', 'go', 'get', 'try', 'now', 'one', 'top', 'best'];
+
+  // Random domain modifiers to increase uniqueness
+  const modifiers = ['active', 'rapid', 'swift', 'easy', 'super', 'mega', 'ultra', 'power', 'prime', 'ace', 'key', 'true', 'pure', 'next'];
+
+  const generateRandomElement = <T extends unknown>(array: T[]): T => {
+    return array[Math.floor(Math.random() * array.length)];
+  };
 
   const generateDomainNames = () => {
     if (!keywords && !industry) {
-      toast.error('Wprowadź słowa kluczowe lub wybierz branżę', {
+      toast.error(t('domainCreator.errors.noInput'), {
         position: 'top-center',
       });
       return;
@@ -80,82 +97,132 @@ const DomainNameCreator = () => {
       const generatedResults: string[] = [];
       const industryPrefixes = industry ? prefixes[industry as keyof typeof prefixes] : [];
       
+      // Maximum domains to generate to prevent overloading
+      const maxDomains = 50;
+      const uniqueResults = new Set<string>();
+      
+      // Helper function to add domain with randomness
+      const addDomain = (domain: string, tld: string) => {
+        // 50% chance to apply random transformation
+        if (uniqueResults.size < maxDomains && Math.random() > 0.5) {
+          uniqueResults.add(`${domain}.${tld}`);
+        }
+        
+        // 25% chance to add a random modifier before domain
+        if (uniqueResults.size < maxDomains && Math.random() > 0.75) {
+          const modifier = generateRandomElement(modifiers);
+          uniqueResults.add(`${modifier}${domain}.${tld}`);
+        }
+        
+        // 25% chance to add a random suffix
+        if (uniqueResults.size < maxDomains && Math.random() > 0.75) {
+          const suffix = generateRandomElement(suffixes);
+          uniqueResults.add(`${domain}${suffix}.${tld}`);
+        }
+      };
+      
       // Generowanie z słów kluczowych
       if (keywordList.length > 0) {
-        // Kombinacje słów kluczowych
+        // Generate for each keyword
         keywordList.forEach(keyword => {
-          // Podstawowe słowo
           includeTld.forEach(tld => {
-            generatedResults.push(`${keyword}.${tld}`);
-          });
-          
-          // Z prefiksem z branży
-          if (industryPrefixes.length > 0) {
-            industryPrefixes.forEach(prefix => {
-              includeTld.forEach(tld => {
-                generatedResults.push(`${prefix}${keyword}.${tld}`);
-                generatedResults.push(`${keyword}${prefix}.${tld}`);
-              });
-            });
-          }
-          
-          // Z sufiksem
-          suffixes.forEach(suffix => {
-            includeTld.forEach(tld => {
-              generatedResults.push(`${keyword}${suffix}.${tld}`);
-            });
+            // Base domain with just the keyword
+            addDomain(keyword, tld);
+            
+            // With industry prefix if available
+            if (industryPrefixes && industryPrefixes.length > 0) {
+              // Pick random prefix from the industry (don't use all)
+              const prefix = generateRandomElement(industryPrefixes);
+              addDomain(`${prefix}${keyword}`, tld);
+              
+              // Sometimes add a dash for readability
+              if (Math.random() > 0.7) {
+                addDomain(`${prefix}-${keyword}`, tld);
+              }
+            }
+            
+            // Random suffix combination
+            const suffix = generateRandomElement(suffixes);
+            addDomain(`${keyword}${suffix}`, tld);
+            
+            // Random connector
+            if (Math.random() > 0.7) {
+              const connector = generateRandomElement(connectors);
+              addDomain(`${keyword}${connector}`, tld);
+            }
           });
         });
         
-        // Kombinacje kilku słów kluczowych
+        // Combine keywords randomly (if multiple keywords)
         if (keywordList.length > 1) {
-          for (let i = 0; i < keywordList.length; i++) {
-            for (let j = 0; j < keywordList.length; j++) {
-              if (i !== j) {
-                includeTld.forEach(tld => {
-                  generatedResults.push(`${keywordList[i]}${keywordList[j]}.${tld}`);
-                });
-              }
+          for (let i = 0; i < Math.min(10, keywordList.length); i++) {
+            const keyword1 = generateRandomElement(keywordList);
+            const keyword2 = generateRandomElement(keywordList.filter(k => k !== keyword1));
+            
+            if (keyword2) {
+              includeTld.forEach(tld => {
+                // Direct combination
+                addDomain(`${keyword1}${keyword2}`, tld);
+                
+                // With separator
+                if (Math.random() > 0.6) {
+                  addDomain(`${keyword1}-${keyword2}`, tld);
+                }
+              });
             }
           }
         }
       } 
       // Generowanie tylko na podstawie branży
       else if (industry) {
-        industryPrefixes.forEach(prefix => {
-          suffixes.forEach(suffix => {
-            includeTld.forEach(tld => {
-              generatedResults.push(`${prefix}${suffix}.${tld}`);
-            });
+        // Generate more creative combinations with industry terms
+        for (let i = 0; i < 15; i++) {
+          const prefix = generateRandomElement(industryPrefixes);
+          const suffix = generateRandomElement(suffixes);
+          includeTld.forEach(tld => {
+            addDomain(`${prefix}${suffix}`, tld);
+            
+            // Add some with random modifiers
+            if (Math.random() > 0.6) {
+              const modifier = generateRandomElement(modifiers);
+              addDomain(`${modifier}${prefix}`, tld);
+            }
           });
-        });
+        }
       }
       
-      // Dodatkowe kombinacje
-      if (industry && keywordList.length > 0) {
-        keywordList.forEach(keyword => {
-          suffixes.forEach(suffix => {
-            includeTld.forEach(tld => {
-              const industryName = industry === 'realestate' ? 'estate' : industry;
-              generatedResults.push(`${keyword}${industryName}.${tld}`);
-              generatedResults.push(`${industryName}${keyword}.${tld}`);
-              generatedResults.push(`${keyword}${suffix}.${tld}`);
-            });
-          });
-        });
+      // Ensure we have enough domains
+      if (uniqueResults.size < 20 && (keywordList.length > 0 || industry)) {
+        // Add some completely random but still relevant combinations
+        for (let i = uniqueResults.size; i < 20; i++) {
+          const elements = [
+            ...(keywordList.length > 0 ? keywordList : []),
+            ...(industryPrefixes || []),
+            ...(Math.random() > 0.7 ? [generateRandomElement(suffixes)] : []),
+            ...(Math.random() > 0.8 ? [generateRandomElement(modifiers)] : [])
+          ];
+          
+          if (elements.length > 1) {
+            const randomElement1 = elements[Math.floor(Math.random() * elements.length)];
+            const randomElement2 = elements[Math.floor(Math.random() * elements.length)];
+            
+            if (randomElement1 !== randomElement2) {
+              const tld = generateRandomElement(includeTld);
+              addDomain(`${randomElement1}${randomElement2}`, tld);
+            }
+          }
+        }
       }
       
-      // Usuwanie duplikatów i limitowanie do 50 wyników
-      const uniqueResults = Array.from(new Set(generatedResults)).slice(0, 50);
-      
-      setGeneratedDomains(uniqueResults);
+      // Convert set to array and limit to maxDomains
+      setGeneratedDomains(Array.from(uniqueResults).slice(0, maxDomains));
       setIsGenerating(false);
     }, 1500);
   };
 
   const copyToClipboard = (domain: string) => {
     navigator.clipboard.writeText(domain);
-    toast.success(`Domena "${domain}" skopiowana do schowka!`, {
+    toast.success(t('domainCreator.copied', { domain }), {
       position: 'top-center',
     });
   };
@@ -179,8 +246,8 @@ const DomainNameCreator = () => {
   return (
     <>
       <Helmet>
-        <title>Kreator Nazwy Domeny | IDZTECH</title>
-        <meta name="description" content="Stwórz idealną nazwę domeny dla swojej strony internetowej lub biznesu za pomocą naszego kreatora nazw domen." />
+        <title>{t('domainCreator.pageTitle')}</title>
+        <meta name="description" content={t('domainCreator.pageDescription')} />
       </Helmet>
       
       <Navbar />
@@ -188,39 +255,38 @@ const DomainNameCreator = () => {
       <main className="pt-24 pb-20">
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-4xl font-bold mb-6 text-center">Kreator Nazwy Domeny</h1>
+            <h1 className="text-4xl font-bold mb-6 text-center">{t('domainCreator.title')}</h1>
             <p className="text-lg mb-10 text-center">
-              Generuj pomysłowe i dostępne nazwy domen dla swojej strony internetowej lub biznesu.
+              {t('domainCreator.subtitle')}
             </p>
             
             <Card className="mb-10">
               <CardHeader>
-                <CardTitle>Podaj szczegóły</CardTitle>
-                <CardDescription>Wprowadź słowa kluczowe lub wybierz branżę, aby wygenerować propozycje domen</CardDescription>
+                <CardTitle>{t('domainCreator.form.details')}</CardTitle>
+                <CardDescription>{t('domainCreator.form.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block mb-2">Słowa kluczowe</label>
+                    <label className="block mb-2">{t('domainCreator.form.keywords')}</label>
                     <Input
                       value={keywords}
                       onChange={(e) => setKeywords(e.target.value)}
-                      placeholder="Wprowadź słowa kluczowe oddzielone przecinkami"
+                      placeholder={t('domainCreator.form.keywordsPlaceholder')}
                     />
                     <p className="text-sm mt-1 opacity-70">
-                      Np. marketing, internet, strony
+                      {t('domainCreator.form.keywordsExample')}
                     </p>
                   </div>
                   
                   <div>
-                    <label className="block mb-2">Branża (opcjonalnie)</label>
+                    <label className="block mb-2">{t('domainCreator.form.industry')}</label>
                     <Select value={industry} onValueChange={setIndustry}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Wybierz branżę" />
+                        <SelectValue placeholder={t('domainCreator.form.industryPlaceholder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Fix here: Changed empty string to "none" with a non-empty value */}
-                        <SelectItem value="none">Dowolna</SelectItem>
+                        <SelectItem value="none">{t('domainCreator.form.anyIndustry')}</SelectItem>
                         {industries.map((ind) => (
                           <SelectItem key={ind.value} value={ind.value}>
                             {ind.label}
@@ -232,7 +298,7 @@ const DomainNameCreator = () => {
                 </div>
                 
                 <div className="mt-6">
-                  <label className="block mb-2">Rozszerzenia domen</label>
+                  <label className="block mb-2">{t('domainCreator.form.extensions')}</label>
                   <div className="flex flex-wrap gap-2">
                     {tlds.map(tld => (
                       <Badge 
@@ -255,11 +321,11 @@ const DomainNameCreator = () => {
                   {isGenerating ? (
                     <span className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Generowanie...
+                      {t('domainCreator.form.generating')}
                     </span>
                   ) : (
                     <span className="flex items-center">
-                      <Search className="mr-2 h-4 w-4" /> Wygeneruj domeny
+                      <Search className="mr-2 h-4 w-4" /> {t('domainCreator.form.generate')}
                     </span>
                   )}
                 </Button>
@@ -272,12 +338,12 @@ const DomainNameCreator = () => {
                   ? 'bg-white shadow-lg border border-gray-100' 
                   : 'bg-premium-dark/70 border border-white/10'
               }`}>
-                <h2 className="text-xl font-bold mb-4">Wygenerowane domeny</h2>
+                <h2 className="text-xl font-bold mb-4">{t('domainCreator.results.title')}</h2>
                 
                 {favorites.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3 flex items-center">
-                      <Star className="h-4 w-4 mr-2 text-yellow-500" /> Ulubione domeny
+                      <Star className="h-4 w-4 mr-2 text-yellow-500" /> {t('domainCreator.results.favorites')}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {favorites.map(domain => (
@@ -297,14 +363,14 @@ const DomainNameCreator = () => {
                             <button
                               onClick={() => copyToClipboard(domain)}
                               className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                              title="Kopiuj"
+                              title={t('domainCreator.actions.copy')}
                             >
                               <Copy className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => toggleFavorite(domain)}
                               className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                              title="Usuń z ulubionych"
+                              title={t('domainCreator.actions.removeFromFavorites')}
                             >
                               <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                             </button>
@@ -335,14 +401,14 @@ const DomainNameCreator = () => {
                           <button
                             onClick={() => copyToClipboard(domain)}
                             className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                            title="Kopiuj"
+                            title={t('domainCreator.actions.copy')}
                           >
                             <Copy className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => toggleFavorite(domain)}
                             className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                            title="Dodaj do ulubionych"
+                            title={t('domainCreator.actions.addToFavorites')}
                           >
                             <Star className="h-4 w-4" />
                           </button>
@@ -358,18 +424,18 @@ const DomainNameCreator = () => {
                 ? 'bg-white shadow-md border border-gray-100' 
                 : 'bg-premium-dark/40 border border-white/10'
             }`}>
-              <h2 className="text-xl font-bold mb-4">Wskazówki dotyczące wyboru domeny</h2>
+              <h2 className="text-xl font-bold mb-4">{t('domainCreator.tips.title')}</h2>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li>Wybieraj krótkie, łatwe do zapamiętania nazwy domen</li>
-                <li>Unikaj myślników i cyfr, które mogą być trudne do przekazania ustnie</li>
-                <li>Sprawdź dostępność domeny przed podjęciem decyzji</li>
-                <li>Rozważ zakup różnych odmian rozszerzeń (.com, .pl, itd.) dla ochrony marki</li>
-                <li>Upewnij się, że nazwa domeny nie narusza znaków towarowych</li>
-                <li>Pomyśl o słowach kluczowych związanych z Twoją branżą dla lepszego SEO</li>
+                <li>{t('domainCreator.tips.tip1')}</li>
+                <li>{t('domainCreator.tips.tip2')}</li>
+                <li>{t('domainCreator.tips.tip3')}</li>
+                <li>{t('domainCreator.tips.tip4')}</li>
+                <li>{t('domainCreator.tips.tip5')}</li>
+                <li>{t('domainCreator.tips.tip6')}</li>
               </ul>
               
               <p>
-                Po wybraniu idealnej nazwy domeny, możesz ją zarejestrować u rejestratorów domen lub skontaktować się z nami, aby pomóc Ci w całym procesie tworzenia strony.
+                {t('domainCreator.tips.conclusion')}
               </p>
             </div>
           </div>

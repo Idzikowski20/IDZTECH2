@@ -20,7 +20,7 @@ const DesktopNavigation = () => {
   const activeClass = 'bg-gray-100 text-black';
 
   const linkClass = cn(
-    "transition-colors duration-300 px-4 py-2 rounded-md",
+    "transition-colors duration-300 px-3 py-2 rounded-md",
     theme === 'light'
       ? 'text-black hover:bg-gray-100 hover:text-black'
       : 'text-white hover:bg-white/10 hover:text-white'
@@ -29,7 +29,7 @@ const DesktopNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="hidden lg:flex items-center gap-1">
+    <div className="hidden lg:flex items-center gap-1 w-full max-w-4xl justify-center">
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
@@ -57,8 +57,8 @@ const DesktopNavigation = () => {
                 </h3>
                 <ul>
                   {[
-                    { path: '/tworzenie-stron-www', label: t('websiteTypes.webDevelopment'), desc: 'Projektujemy i tworzymy profesjonalne strony internetowe' },
-                    { path: '/sklepy-internetowe', label: t('websiteTypes.eCommerce'), desc: 'Kompleksowe rozwiązania e-commerce' },
+                    { path: '/tworzenie-stron-www', label: t('websiteTypes.webDevelopment'), desc: t('websiteTypes.webDevelopment') },
+                    { path: '/sklepy-internetowe', label: t('websiteTypes.eCommerce'), desc: t('websiteTypes.eCommerce') },
                   ].map(item => (
                     <li key={item.path}>
                       <NavigationMenuLink asChild>
@@ -94,12 +94,12 @@ const DesktopNavigation = () => {
                 </h3>
                 <ul>
                   {[
-                    { path: '/pozycjonowanie-stron', label: t('seo.seoServices'), desc: 'Zwiększanie widoczności w wyszukiwarkach' },
-                    { path: '/pozycjonowanie-lokalne', label: t('seo.localSeo'), desc: 'Zwiększanie widoczności w lokalnych wynikach' },
-                    { path: '/audyt-seo', label: t('seo.seoAudit'), desc: 'Analiza strony pod kątem SEO' },
-                    { path: '/optymalizacja-seo', label: t('seo.seoOptimization'), desc: 'Optymalizacja techniczna strony' },
-                    { path: '/copywriting-seo', label: t('seo.seoCopywriting'), desc: 'Tworzenie treści pod SEO' },
-                    { path: '/content-plan', label: t('seo.contentPlan'), desc: 'Strategia tworzenia treści' }
+                    { path: '/pozycjonowanie-stron', label: t('seo.seoServices'), desc: t('seo.seoServices') },
+                    { path: '/pozycjonowanie-lokalne', label: t('seo.localSeo'), desc: t('seo.localSeo') },
+                    { path: '/audyt-seo', label: t('seo.seoAudit'), desc: t('seo.seoAudit') },
+                    { path: '/optymalizacja-seo', label: t('seo.seoOptimization'), desc: t('seo.seoOptimization') },
+                    { path: '/copywriting-seo', label: t('seo.seoCopywriting'), desc: t('seo.seoCopywriting') },
+                    { path: '/content-plan', label: t('seo.contentPlan'), desc: t('seo.contentPlan') }
                   ].map(item => (
                     <li key={item.path}>
                       <NavigationMenuLink asChild>

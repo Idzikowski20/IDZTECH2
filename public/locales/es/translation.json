@@ -40,5 +40,61 @@
     "readyToIncrease": "¿Listo para aumentar la eficiencia de su negocio en línea?",
     "contactUs": "Contáctenos hoy y descubra cómo nuestras soluciones web pueden ayudar a su empresa a tener éxito en línea."
   },
-  "language": "Idioma"
+  "language": "Idioma",
+  "domainCreator": {
+    "pageTitle": "Creador de Nombres de Dominio | IDZTECH",
+    "pageDescription": "Cree el nombre de dominio perfecto para su sitio web o negocio con nuestro creador de nombres de dominio.",
+    "title": "Creador de Nombres de Dominio",
+    "subtitle": "Genere nombres de dominio creativos y disponibles para su sitio web o negocio.",
+    "form": {
+      "details": "Ingrese detalles",
+      "description": "Ingrese palabras clave o elija una industria para generar sugerencias de dominios",
+      "keywords": "Palabras clave",
+      "keywordsPlaceholder": "Ingrese palabras clave separadas por comas",
+      "keywordsExample": "Ej: marketing, internet, sitios web",
+      "industry": "Industria (opcional)",
+      "industryPlaceholder": "Seleccionar industria",
+      "anyIndustry": "Cualquiera",
+      "extensions": "Extensiones de dominio",
+      "generating": "Generando...",
+      "generate": "Generar dominios"
+    },
+    "results": {
+      "title": "Dominios generados",
+      "favorites": "Dominios favoritos"
+    },
+    "actions": {
+      "copy": "Copiar",
+      "addToFavorites": "Añadir a favoritos",
+      "removeFromFavorites": "Eliminar de favoritos"
+    },
+    "errors": {
+      "noInput": "Ingrese palabras clave o seleccione una industria"
+    },
+    "copied": "¡Dominio \"{{domain}}\" copiado al portapapeles!",
+    "tips": {
+      "title": "Consejos para elegir un dominio",
+      "tip1": "Elija nombres de dominio cortos y fáciles de recordar",
+      "tip2": "Evite guiones y números que pueden ser difíciles de comunicar verbalmente",
+      "tip3": "Verifique la disponibilidad del dominio antes de tomar una decisión",
+      "tip4": "Considere comprar diferentes variantes de extensiones (.com, .es, etc.) para protección de marca",
+      "tip5": "Asegúrese de que el nombre de dominio no infrinja marcas comerciales",
+      "tip6": "Piense en palabras clave relacionadas con su industria para un mejor SEO",
+      "conclusion": "Después de seleccionar el nombre de dominio perfecto, puede registrarlo con registradores de dominios o contactarnos para ayudarlo con todo el proceso de creación de sitios web."
+    },
+    "industries": {
+      "tech": "Tecnología",
+      "health": "Salud",
+      "finance": "Finanzas",
+      "education": "Educación",
+      "food": "Gastronomía",
+      "fashion": "Moda",
+      "travel": "Viajes",
+      "sport": "Deportes",
+      "art": "Arte y Cultura",
+      "beauty": "Belleza",
+      "realestate": "Bienes Raíces",
+      "automotive": "Automotriz"
+    }
+  }
 }

@@ -40,5 +40,61 @@
     "readyToIncrease": "Bereit, die Effizienz Ihres Online-Geschäfts zu steigern?",
     "contactUs": "Kontaktieren Sie uns noch heute und entdecken Sie, wie unsere Weblösungen Ihrem Unternehmen zum Online-Erfolg verhelfen können."
   },
-  "language": "Sprache"
+  "language": "Sprache",
+  "domainCreator": {
+    "pageTitle": "Domain-Namen-Creator | IDZTECH",
+    "pageDescription": "Erstellen Sie den perfekten Domainnamen für Ihre Website oder Ihr Unternehmen mit unserem Domain-Namen-Generator.",
+    "title": "Domain-Namen-Creator",
+    "subtitle": "Generieren Sie kreative und verfügbare Domainnamen für Ihre Website oder Ihr Unternehmen.",
+    "form": {
+      "details": "Details eingeben",
+      "description": "Geben Sie Schlüsselwörter ein oder wählen Sie eine Branche, um Domain-Vorschläge zu generieren",
+      "keywords": "Schlüsselwörter",
+      "keywordsPlaceholder": "Schlüsselwörter durch Kommas getrennt eingeben",
+      "keywordsExample": "Z.B. Marketing, Internet, Webseiten",
+      "industry": "Branche (optional)",
+      "industryPlaceholder": "Branche auswählen",
+      "anyIndustry": "Beliebig",
+      "extensions": "Domain-Endungen",
+      "generating": "Generiere...",
+      "generate": "Domains generieren"
+    },
+    "results": {
+      "title": "Generierte Domains",
+      "favorites": "Favorisierte Domains"
+    },
+    "actions": {
+      "copy": "Kopieren",
+      "addToFavorites": "Zu Favoriten hinzufügen",
+      "removeFromFavorites": "Aus Favoriten entfernen"
+    },
+    "errors": {
+      "noInput": "Geben Sie Schlüsselwörter ein oder wählen Sie eine Branche"
+    },
+    "copied": "Domain \"{{domain}}\" in die Zwischenablage kopiert!",
+    "tips": {
+      "title": "Tipps zur Auswahl einer Domain",
+      "tip1": "Wählen Sie kurze, leicht zu merkende Domainnamen",
+      "tip2": "Vermeiden Sie Bindestriche und Zahlen, die mündlich schwer zu kommunizieren sind",
+      "tip3": "Überprüfen Sie die Verfügbarkeit der Domain, bevor Sie eine Entscheidung treffen",
+      "tip4": "Erwägen Sie den Kauf verschiedener Endungsvarianten (.com, .de usw.) zum Schutz der Marke",
+      "tip5": "Stellen Sie sicher, dass der Domainname keine Markenrechte verletzt",
+      "tip6": "Denken Sie an Schlüsselwörter, die mit Ihrer Branche zusammenhängen, für besseres SEO",
+      "conclusion": "Nachdem Sie den perfekten Domainnamen ausgewählt haben, können Sie ihn bei Domain-Registraren registrieren oder uns kontaktieren, um Ihnen beim gesamten Website-Erstellungsprozess zu helfen."
+    },
+    "industries": {
+      "tech": "Technologie",
+      "health": "Gesundheit",
+      "finance": "Finanzen",
+      "education": "Bildung",
+      "food": "Gastronomie",
+      "fashion": "Mode",
+      "travel": "Reisen",
+      "sport": "Sport",
+      "art": "Kunst & Kultur",
+      "beauty": "Schönheit",
+      "realestate": "Immobilien",
+      "automotive": "Automobil"
+    }
+  }
 }

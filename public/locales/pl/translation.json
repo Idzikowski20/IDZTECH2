@@ -40,5 +40,61 @@
     "readyToIncrease": "Gotowy na zwiększenie efektywności swojego biznesu online?",
     "contactUs": "Skontaktuj się z nami już dziś i odkryj, jak nasze rozwiązania webowe mogą pomóc Twojej firmie osiągnąć sukces w internecie."
   },
-  "language": "Język"
+  "language": "Język",
+  "domainCreator": {
+    "pageTitle": "Kreator Nazwy Domeny | IDZTECH",
+    "pageDescription": "Stwórz idealną nazwę domeny dla swojej strony internetowej lub biznesu za pomocą naszego kreatora nazw domen.",
+    "title": "Kreator Nazwy Domeny",
+    "subtitle": "Generuj pomysłowe i dostępne nazwy domen dla swojej strony internetowej lub biznesu.",
+    "form": {
+      "details": "Podaj szczegóły",
+      "description": "Wprowadź słowa kluczowe lub wybierz branżę, aby wygenerować propozycje domen",
+      "keywords": "Słowa kluczowe",
+      "keywordsPlaceholder": "Wprowadź słowa kluczowe oddzielone przecinkami",
+      "keywordsExample": "Np. marketing, internet, strony",
+      "industry": "Branża (opcjonalnie)",
+      "industryPlaceholder": "Wybierz branżę",
+      "anyIndustry": "Dowolna",
+      "extensions": "Rozszerzenia domen",
+      "generating": "Generowanie...",
+      "generate": "Wygeneruj domeny"
+    },
+    "results": {
+      "title": "Wygenerowane domeny",
+      "favorites": "Ulubione domeny"
+    },
+    "actions": {
+      "copy": "Kopiuj",
+      "addToFavorites": "Dodaj do ulubionych",
+      "removeFromFavorites": "Usuń z ulubionych"
+    },
+    "errors": {
+      "noInput": "Wprowadź słowa kluczowe lub wybierz branżę"
+    },
+    "copied": "Domena \"{{domain}}\" skopiowana do schowka!",
+    "tips": {
+      "title": "Wskazówki dotyczące wyboru domeny",
+      "tip1": "Wybieraj krótkie, łatwe do zapamiętania nazwy domen",
+      "tip2": "Unikaj myślników i cyfr, które mogą być trudne do przekazania ustnie",
+      "tip3": "Sprawdź dostępność domeny przed podjęciem decyzji",
+      "tip4": "Rozważ zakup różnych odmian rozszerzeń (.com, .pl, itd.) dla ochrony marki",
+      "tip5": "Upewnij się, że nazwa domeny nie narusza znaków towarowych",
+      "tip6": "Pomyśl o słowach kluczowych związanych z Twoją branżą dla lepszego SEO",
+      "conclusion": "Po wybraniu idealnej nazwy domeny, możesz ją zarejestrować u rejestratorów domen lub skontaktować się z nami, aby pomóc Ci w całym procesie tworzenia strony."
+    },
+    "industries": {
+      "tech": "Technologia",
+      "health": "Zdrowie",
+      "finance": "Finanse",
+      "education": "Edukacja",
+      "food": "Gastronomia",
+      "fashion": "Moda",
+      "travel": "Podróże",
+      "sport": "Sport",
+      "art": "Sztuka i Kultura",
+      "beauty": "Uroda",
+      "realestate": "Nieruchomości",
+      "automotive": "Motoryzacja"
+    }
+  }
 }

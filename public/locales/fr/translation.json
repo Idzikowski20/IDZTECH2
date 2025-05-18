@@ -40,5 +40,61 @@
     "readyToIncrease": "Prêt à augmenter l'efficacité de votre entreprise en ligne?",
     "contactUs": "Contactez-nous dès aujourd'hui et découvrez comment nos solutions web peuvent aider votre entreprise à réussir en ligne."
   },
-  "language": "Langue"
+  "language": "Langue",
+  "domainCreator": {
+    "pageTitle": "Créateur de nom de domaine | IDZTECH",
+    "pageDescription": "Créez le nom de domaine parfait pour votre site web ou entreprise avec notre créateur de noms de domaine.",
+    "title": "Créateur de nom de domaine",
+    "subtitle": "Générez des noms de domaine créatifs et disponibles pour votre site web ou entreprise.",
+    "form": {
+      "details": "Entrer les détails",
+      "description": "Entrez des mots-clés ou choisissez un secteur pour générer des suggestions de domaines",
+      "keywords": "Mots-clés",
+      "keywordsPlaceholder": "Entrez les mots-clés séparés par des virgules",
+      "keywordsExample": "Ex: marketing, internet, sites web",
+      "industry": "Secteur (optionnel)",
+      "industryPlaceholder": "Sélectionnez un secteur",
+      "anyIndustry": "N'importe lequel",
+      "extensions": "Extensions de domaine",
+      "generating": "Génération...",
+      "generate": "Générer des domaines"
+    },
+    "results": {
+      "title": "Domaines générés",
+      "favorites": "Domaines favoris"
+    },
+    "actions": {
+      "copy": "Copier",
+      "addToFavorites": "Ajouter aux favoris",
+      "removeFromFavorites": "Retirer des favoris"
+    },
+    "errors": {
+      "noInput": "Entrez des mots-clés ou sélectionnez un secteur"
+    },
+    "copied": "Domaine \"{{domain}}\" copié dans le presse-papiers!",
+    "tips": {
+      "title": "Conseils pour choisir un domaine",
+      "tip1": "Choisissez des noms de domaine courts et faciles à mémoriser",
+      "tip2": "Évitez les traits d'union et les chiffres qui peuvent être difficiles à communiquer verbalement",
+      "tip3": "Vérifiez la disponibilité du domaine avant de prendre une décision",
+      "tip4": "Envisagez d'acheter différentes variantes d'extension (.com, .fr, etc.) pour la protection de la marque",
+      "tip5": "Assurez-vous que le nom de domaine n'enfreint pas de marques déposées",
+      "tip6": "Pensez aux mots-clés liés à votre secteur pour un meilleur référencement",
+      "conclusion": "Après avoir sélectionné le nom de domaine parfait, vous pouvez l'enregistrer auprès de bureaux d'enregistrement de domaines ou nous contacter pour vous aider dans l'ensemble du processus de création de site web."
+    },
+    "industries": {
+      "tech": "Technologie",
+      "health": "Santé",
+      "finance": "Finance",
+      "education": "Éducation",
+      "food": "Restauration",
+      "fashion": "Mode",
+      "travel": "Voyage",
+      "sport": "Sport",
+      "art": "Art et Culture",
+      "beauty": "Beauté",
+      "realestate": "Immobilier",
+      "automotive": "Automobile"
+    }
+  }
 }
