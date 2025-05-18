@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -35,7 +35,9 @@ import ErrorPage from '@/pages/ErrorPage';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfUse from '@/pages/TermsOfUse';
 import { trackPageView } from '@/utils/analytics';
+import { useEffect } from 'react';
 
+// We'll use this component for page view tracking
 const AppContent = () => {
   const location = useLocation();
 

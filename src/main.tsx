@@ -7,7 +7,7 @@ import { ThemeProvider } from './utils/themeContext.tsx'
 import { AuthProvider } from './utils/AuthProvider.tsx'
 import { HelmetProvider } from 'react-helmet-async'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Toaster } from '@/components/ui/toaster'
+import { UIToaster } from '@/components/ui/toaster'
 import { Toaster as SonnerToaster } from 'sonner'
 import LanguageController from '@/components/LanguageController'
 import './utils/i18n'
@@ -33,7 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <AuthProvider>
             <LanguageController />
             <App />
-            <Toaster />
+            <UIToaster />
             <SonnerToaster 
               position="top-right"
               richColors
