@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -25,11 +26,12 @@ export const integrateAuth = async () => {
         session,
         user: {
           ...session.user,
-          name: profileData?.name || session.user.user_metadata?.name || null,
-          lastName: profileData?.lastName || session.user.user_metadata?.lastName || null,
-          profilePicture: profileData?.profilePicture || session.user.user_metadata?.profilePicture || null,
+          // Map database fields correctly to application fields
+          name: profileData?.first_name || session.user.user_metadata?.name || null,
+          lastName: profileData?.last_name || session.user.user_metadata?.lastName || null,
+          profilePicture: profileData?.avatar_url || session.user.user_metadata?.profilePicture || null,
           bio: profileData?.bio || session.user.user_metadata?.bio || null,
-          jobTitle: profileData?.jobTitle || session.user.user_metadata?.jobTitle || null,
+          jobTitle: profileData?.job_title || session.user.user_metadata?.jobTitle || null,
           role: profileData?.role || session.user.user_metadata?.role || 'user',
           // Needed for compatibility with local auth
           createdAt: profileData?.created_at || session.user.created_at || new Date().toISOString()
@@ -205,14 +207,21 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
       const { data: userData } = await supabase.auth.getUser();
       const email = userData?.user?.email || '';
       
+      // Convert application field names to database field names
+      const dbUserData = {
+        id: userId,
+        email: email,
+        first_name: userData.name,
+        last_name: userData.lastName,
+        avatar_url: userData.profilePicture,
+        // Only include role if it's a valid value for our schema
+        ...(userData.role && ['admin', 'editor', 'user'].includes(userData.role) ? { role: userData.role } : {})
+      };
+      
       // Update Supabase profile
       const { error: profileError } = await supabase
         .from('users')
-        .upsert({
-          id: userId,
-          email: email, // Add required email field
-          ...userData
-        });
+        .upsert(dbUserData);
       
       if (profileError) {
         console.error("Error updating profile:", profileError);
@@ -267,6 +276,11 @@ export const addUser = async (userData: any, password: string) => {
   try {
     console.log('Adding new user:', userData);
     
+    // Map role to valid database enum value
+    const role = 
+      userData.role === 'admin' ? 'admin' : 
+      userData.role === 'editor' ? 'editor' : 'user';
+    
     // Create user in Supabase
     const { data: { user }, error } = await supabase.auth.signUp({
       email: userData.email,
@@ -275,7 +289,7 @@ export const addUser = async (userData: any, password: string) => {
         data: {
           name: userData.name,
           lastName: userData.lastName,
-          role: userData.role
+          role: role
         }
       }
     });
@@ -290,13 +304,12 @@ export const addUser = async (userData: any, password: string) => {
       const { error: profileError } = await supabase.from('users').upsert({
         id: user.id,
         email: userData.email,
-        name: userData.name,
-        lastName: userData.lastName,
-        role: userData.role,
-        jobTitle: userData.jobTitle,
-        profilePicture: userData.profilePicture,
-        bio: userData.bio,
-        created_at: new Date().toISOString()
+        first_name: userData.name,
+        last_name: userData.lastName,
+        role: role,
+        avatar_url: userData.profilePicture,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       });
       
       if (profileError) {
@@ -319,10 +332,15 @@ export const updateUserRole = async (userId: string, role: UserRole) => {
   try {
     console.log('Updating role for user:', userId, 'to', role);
     
+    // Map the role to valid database enum value
+    const dbRole = 
+      role === 'admin' ? 'admin' : 
+      role === 'editor' ? 'editor' : 'user';
+    
     // Update the profile with the new role
     const { error } = await supabase
       .from('users')
-      .update({ role })
+      .update({ role: dbRole })
       .eq('id', userId);
     
     if (error) {

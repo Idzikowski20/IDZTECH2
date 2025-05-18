@@ -1,4 +1,5 @@
-import { supabase } from '../lib/supabase'
+
+import { supabase } from '@/integrations/supabase/client'
 
 export async function generateSitemap(baseUrl: string) {
   // Pobierz wszystkie opublikowane posty

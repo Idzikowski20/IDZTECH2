@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
@@ -25,6 +26,18 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+
+// Define the BlogPost type to fix the TypeScript error
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  views: number;
+  created_at: string;
+  updated_at: string;
+  likes?: string[];
+  comments?: any[];
+}
 
 const Admin = () => {
   const navigate = useNavigate();

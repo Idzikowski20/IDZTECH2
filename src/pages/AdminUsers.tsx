@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -18,13 +19,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+// Define possible user roles to match Supabase's enum
+type ValidUserRole = 'admin' | 'editor' | 'user';
+
 interface UserProfile {
   id: string;
   email: string;
   first_name?: string;
   last_name?: string;
   avatar_url?: string;
-  role?: string;
+  role?: ValidUserRole;
   created_at?: string;
   updated_at?: string;
 }
@@ -287,7 +291,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
     email: user?.email || '',
-    role: user?.role || 'user',
+    role: user?.role || 'user' as ValidUserRole,
     password: '',
   });
 
@@ -308,7 +312,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
           .update({
             first_name: formData.first_name,
             last_name: formData.last_name,
-            role: formData.role
+            role: formData.role as ValidUserRole
           })
           .eq('id', userId);
         
@@ -337,7 +341,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
               email: formData.email,
               first_name: formData.first_name,
               last_name: formData.last_name,
-              role: formData.role,
+              role: formData.role as ValidUserRole,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             });
@@ -349,7 +353,10 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
       if (onSuccess) {
         onSuccess({
           id: userId || Math.random().toString(),
-          ...formData,
+          email: formData.email,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          role: formData.role as ValidUserRole,
           created_at: user?.created_at || new Date().toISOString(),
           updated_at: user?.updated_at || new Date().toISOString()
         });
@@ -416,6 +423,7 @@ const UserForm: React.FC<UserFormProps> = ({ userId, user, onSuccess }) => {
         >
           <option value="user">Użytkownik</option>
           <option value="admin">Administrator</option>
+          <option value="editor">Redaktor</option>
         </select>
       </div>
       
