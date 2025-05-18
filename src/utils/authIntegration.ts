@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -217,8 +216,9 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
     
     if (session && session.user.id === userId) {
       // Get the user email first
-      const { data: userData: userMetaData } = await supabase.auth.getUser();
-      const email = userMetaData?.user?.email || '';
+      const { data } = await supabase.auth.getUser();
+      const userMetaData = data?.user;
+      const email = userMetaData?.email || '';
       
       // Convert application field names to database field names
       const dbUserData = {
@@ -392,4 +392,3 @@ export const deleteUser = async (userId: string) => {
     return false;
   }
 };
-
