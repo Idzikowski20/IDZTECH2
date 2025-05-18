@@ -7,7 +7,6 @@ import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const DesktopControls = () => {
   const { isAuthenticated } = useAuth();
@@ -16,7 +15,6 @@ const DesktopControls = () => {
   
   return (
     <div className="hidden md:flex items-center space-x-4">
-      <LanguageSwitcher />
       
       <Button
         variant="ghost"
@@ -50,9 +48,9 @@ const DesktopControls = () => {
 
       <Link to="/contact" className="hidden md:block">
         <Button 
-          className="bg-black text-white hover:bg-black hover:text-white transition-colors"
+          className="bg-blue text-white hover:bg-black hover:text-white transition-colors"
         >
-          {t('buttons.meeting')}
+          Kontakt
         </Button>
       </Link>
       

@@ -29,7 +29,7 @@ const DesktopNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="hidden lg:flex items-center gap-1 justify-center w-full max-w-5xl">
+    <div className="hidden lg:flex items-center gap-[10] justify-center w-full max-w-5xl">
       <NavigationMenu className="mx-auto">
         <NavigationMenuList className="space-x-1">
           <NavigationMenuItem>
@@ -43,7 +43,7 @@ const DesktopNavigation = () => {
               className={cn(
                 'transition-colors duration-300',
                 theme === 'light'
-                  ? 'text-black hover:bg-gray-100 hover:text-black'
+                  ? 'text-black hover:bg-gray-500 hover:text-black'
                   : 'text-white hover:bg-white/10 hover:text-white'
               )}
             >
@@ -68,11 +68,11 @@ const DesktopNavigation = () => {
                               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
                               theme === 'light'
                                 ? isActive(item.path)
-                                  ? 'bg-gray-100 text-black'
-                                  : 'hover:bg-gray-100 text-black'
+                                  ? 'bg-gray-500 text-black'
+                                  : 'hover:bg-gray-500 text-black'
                                 : isActive(item.path)
-                                  ? 'bg-gray-700 text-black'
-                                  : 'hover:bg-gray-700 text-white'
+                                  ? 'bg-gray-500 text-black'
+                                  : 'hover:bg-gray-500 text-white'
                             )}
                           >
                             <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -112,8 +112,8 @@ const DesktopNavigation = () => {
                                   ? 'bg-gray-100 text-black'
                                   : 'hover:bg-gray-100 text-black'
                                 : isActive(item.path)
-                                  ? 'bg-gray-700 text-black'
-                                  : 'hover:bg-gray-700 text-white'
+                                  ? 'bg-gray-500 text-black'
+                                  : 'hover:bg-gray-500 text-white'
                             )}
                           >
                             <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -162,8 +162,8 @@ const DesktopNavigation = () => {
                                 ? 'bg-gray-100 text-black'
                                 : 'hover:bg-gray-100 text-black'
                               : isActive(item.path)
-                                ? 'bg-gray-700 text-black'
-                                : 'hover:bg-gray-700 text-white'
+                                ? 'bg-gray-500 text-black'
+                                : 'hover:bg-gray-500 text-white'
                           )}
                         >
                           <div className={cn('text-sm font-medium', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -196,11 +196,11 @@ const DesktopNavigation = () => {
             </Link>
           </NavigationMenuItem>
 
-          <NavigationMenuItem>
-            <Link to="/contact" className={cn(linkClass, isActive('/contact') && activeClass)}>
-              {t('navigation.contact')}
-            </Link>
-          </NavigationMenuItem>
+          {/* <NavigationMenuItem>
+              <Link to="/contact" className="rounded-2xl bg-sky-50 text-white hover:bg-black hover:text-white transition-colors md:block">
+                  Kontakt
+              </Link>
+          </NavigationMenuItem> */}
         </NavigationMenuList>
       </NavigationMenu>
     </div>

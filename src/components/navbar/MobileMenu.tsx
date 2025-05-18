@@ -9,7 +9,6 @@ import { trackEvent } from '@/utils/analytics';
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 interface MobileMenuProps {
   isMenuOpen: boolean;
@@ -64,7 +63,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <div className="flex items-center justify-between mb-8">
             <h2 className={`text-xl font-bold ${textColor}`}>Menu</h2>
             <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
               
               <Button 
                 variant="ghost" 

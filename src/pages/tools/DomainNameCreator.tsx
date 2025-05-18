@@ -252,7 +252,7 @@ const DomainNameCreator = () => {
       
       <Navbar />
       
-      <main className="pt-24 pb-20">
+      <main className="pt-24">
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-5xl mx-auto">
             <h1 className="text-4xl font-bold mb-6 text-center">{t('domainCreator.title')}</h1>

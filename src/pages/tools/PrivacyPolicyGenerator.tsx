@@ -159,7 +159,7 @@ Korzystając z naszej Strony, wyrażasz zgodę na warunki niniejszej Polityki Pr
       
       <Navbar />
       
-      <main className="pt-24 pb-20">
+      <main className="pt-24">
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-bold mb-6 text-center">Generator Polityki Prywatności</h1>

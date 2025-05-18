@@ -602,3 +602,21 @@
   background: white !important;
 }
 
+.bg-blue {
+  --tw-bg-opacity: 1;
+  background-color: rgb(63 59 207) !important;
+}
+
+.bg-blue:hover {
+  background-color: rgb(70, 65, 219) !important;
+  scale: 1.05;
+}
+
+.bg-dark-blur {
+  background-color: #00000093 !important;
+  backdrop-filter: blur(5px);
+}
+
+.text-black {
+  color: #000000 !important;
+}
