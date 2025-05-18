@@ -15,7 +15,7 @@ const DesktopControls = () => {
   const { t } = useTranslation();
   
   return (
-    <div className="hidden md:flex items-center space-x-4">
+    <div className="hidden md:flex items-center space-x-5"> {/* Increased spacing */}
       <LanguageSwitcher />
       
       <Button

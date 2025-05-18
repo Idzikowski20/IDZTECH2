@@ -45,7 +45,10 @@ const LanguageSwitcher: React.FC = () => {
               : 'text-white hover:bg-white/10'
           } flex items-center gap-2`}
         >
-          <Globe className="h-[1.2rem] w-[1.2rem]" />
+          <Globe 
+            className="h-[1.2rem] w-[1.2rem]" 
+            stroke={theme === 'light' ? "#000000" : "#FFFFFF"} 
+          />
           <span className="hidden md:inline">{currentLanguage}</span>
         </Button>
       </DropdownMenuTrigger>

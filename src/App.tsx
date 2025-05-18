@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import {
-  createBrowserRouter,
+  BrowserRouter,
   RouterProvider,
   useLocation,
   Routes,
@@ -32,6 +32,7 @@ import NotFound from "@/pages/NotFound";
 import PasswordGenerator from "@/pages/tools/PasswordGenerator";
 import PrivacyPolicyGenerator from "@/pages/tools/PrivacyPolicyGenerator";
 import DomainNameCreator from "@/pages/tools/DomainNameCreator";
+import NameGenerator from "@/pages/tools/NameGenerator";
 import RequireAuth from "@/components/RequireAuth";
 import ErrorPage from '@/pages/ErrorPage';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
@@ -76,6 +77,7 @@ const AppContent = () => {
         <Route path="/password-generator" element={<PasswordGenerator />} />
         <Route path="/privacy-policy-generator" element={<PrivacyPolicyGenerator />} />
         <Route path="/domain-creator" element={<DomainNameCreator />} />
+        <Route path="/name-generator" element={<NameGenerator />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
         <Route path="*" element={<NotFound />} />

@@ -52,18 +52,18 @@ const Navbar = () => {
           : 'py-3 backdrop-blur-md bg-premium-dark/80 shadow-lg'
         : 'py-5'
     }`}>
-      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+      <div className="w-full px-4 md:px-6 lg:px-10 flex items-center justify-between"> {/* Changed from container mx-auto to w-full */}
         {/* Logo on the left */}
         <div className="flex-shrink-0">
           <Brand />
         </div>
         
-        {/* Navigation links centered */}
-        <div className="flex-grow flex justify-center">
+        {/* Navigation links centered with more space */}
+        <div className="flex-grow flex justify-center px-6 md:px-10 lg:px-16"> {/* Added more padding */}
           <DesktopNavigation />
         </div>
 
-        {/* Controls on the right */}
+        {/* Controls on the right with more space */}
         <div className="flex-shrink-0 flex items-center">
           <DesktopControls />
           

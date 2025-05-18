@@ -1,67 +1,61 @@
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { toast } from 'sonner';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-// Define Theme type and export it properly with 'export type'
-export type Theme = 'light' | 'dark' | 'system';
+// Define the theme type
+type Theme = 'light' | 'dark';
 
+// Define the context type
 type ThemeContextType = {
   theme: Theme;
   toggleDarkMode: () => void;
-  setTheme: (theme: Theme) => void;
 };
 
+// Create the theme context
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// Create provider component
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Change the initial state to 'dark' to default to dark mode
+  // Initialize theme state
   const [theme, setTheme] = useState<Theme>('dark');
 
+  // Initialize theme from localStorage on component mount
   useEffect(() => {
-    // Check if there's a saved theme preference in localStorage
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    // If there's a saved preference, use it; otherwise use dark as default
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    // Check if there's a saved theme or if user prefers dark mode
     if (savedTheme) {
       setTheme(savedTheme);
-      document.documentElement.classList.add(savedTheme);
-    } else {
-      // If no saved preference, default to dark mode
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme('dark');
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    if (theme === 'light') {
-      setTheme('dark');
-      document.documentElement.classList.remove('light');
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
       setTheme('light');
       document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
       localStorage.setItem('theme', 'light');
-      
-      // Show toast notification when switching to light mode
-      toast.warning(
-        "⚠️ Tryb jasny jest w trakcie budowy i mogą występować błędy, za które przepraszamy.",
-        {
-          duration: 5000,
-          position: 'top-center'
-        }
-      );
     }
+  }, []);
+
+  // Toggle between light and dark themes
+  const toggleDarkMode = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    
+    // Save to localStorage
+    localStorage.setItem('theme', newTheme);
+    
+    // Don't display alert when toggling theme
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleDarkMode, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleDarkMode }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
+// Create custom hook for using the theme context
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
