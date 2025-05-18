@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -10,17 +9,15 @@ import {
 } from '@/components/ui/navigation-menu';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/utils/themeContext';
-import { useTranslation } from 'react-i18next';
 
 const DesktopNavigation = () => {
   const { theme } = useTheme();
   const location = useLocation();
-  const { t } = useTranslation();
 
   const activeClass = 'bg-gray-100 text-black';
 
   const linkClass = cn(
-    "transition-colors duration-300 px-3 py-2 rounded-md",
+    "transition-colors duration-300 px-4 py-2 rounded-md",
     theme === 'light'
       ? 'text-black hover:bg-gray-100 hover:text-black'
       : 'text-white hover:bg-white/10 hover:text-white'
@@ -29,12 +26,12 @@ const DesktopNavigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="hidden lg:flex items-center gap-1 justify-center w-full max-w-5xl">
-      <NavigationMenu className="mx-auto">
-        <NavigationMenuList className="space-x-1">
+    <div className="hidden lg:flex items-center gap-1">
+      <NavigationMenu>
+        <NavigationMenuList>
           <NavigationMenuItem>
             <Link to="/" className={cn(linkClass, isActive('/') && activeClass)}>
-              {t('navigation.start')}
+              Start
             </Link>
           </NavigationMenuItem>
 
@@ -47,116 +44,23 @@ const DesktopNavigation = () => {
                   : 'text-white hover:bg-white/10 hover:text-white'
               )}
             >
-              {t('navigation.services')}
+              Usługi
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className="grid w-[650px] grid-cols-2 gap-3 p-6 bg-white dark:bg-black/80">
-                <div>
-                  <h3 className={cn('font-medium mb-3 px-3', theme === 'light' ? 'text-black' : 'text-white')}>
-                    {t('websiteTypes.websites')}
-                  </h3>
-                  <ul className="space-y-1">
-                    {[
-                      { path: '/tworzenie-stron-www', label: t('websiteTypes.webDevelopment'), desc: t('websiteTypes.webDevelopment') },
-                      { path: '/sklepy-internetowe', label: t('websiteTypes.eCommerce'), desc: t('websiteTypes.eCommerce') },
-                    ].map(item => (
-                      <li key={item.path}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.path}
-                            className={cn(
-                              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
-                              theme === 'light'
-                                ? isActive(item.path)
-                                  ? 'bg-gray-100 text-black'
-                                  : 'hover:bg-gray-100 text-black'
-                                : isActive(item.path)
-                                  ? 'bg-gray-700 text-black'
-                                  : 'hover:bg-gray-700 text-white'
-                            )}
-                          >
-                            <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
-                              {item.label}
-                            </div>
-                            <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
-                              {item.desc}
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <h3 className={cn('font-medium mb-3 px-3', theme === 'light' ? 'text-black' : 'text-white')}>
-                    {t('seo.title')}
-                  </h3>
-                  <ul className="space-y-1">
-                    {[
-                      { path: '/pozycjonowanie-stron', label: t('seo.seoServices'), desc: t('seo.seoServices') },
-                      { path: '/pozycjonowanie-lokalne', label: t('seo.localSeo'), desc: t('seo.localSeo') },
-                      { path: '/audyt-seo', label: t('seo.seoAudit'), desc: t('seo.seoAudit') },
-                      { path: '/optymalizacja-seo', label: t('seo.seoOptimization'), desc: t('seo.seoOptimization') },
-                      { path: '/copywriting-seo', label: t('seo.seoCopywriting'), desc: t('seo.seoCopywriting') },
-                      { path: '/content-plan', label: t('seo.contentPlan'), desc: t('seo.contentPlan') }
-                    ].map(item => (
-                      <li key={item.path}>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to={item.path}
-                            className={cn(
-                              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
-                              theme === 'light'
-                                ? isActive(item.path)
-                                  ? 'bg-gray-100 text-black'
-                                  : 'hover:bg-gray-100 text-black'
-                                : isActive(item.path)
-                                  ? 'bg-gray-700 text-black'
-                                  : 'hover:bg-gray-700 text-white'
-                            )}
-                          >
-                            <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
-                              {item.label}
-                            </div>
-                            <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
-                              {item.desc}
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-          
-          <NavigationMenuItem>
-            <NavigationMenuTrigger
-              className={cn(
-                'transition-colors duration-300',
-                theme === 'light'
-                  ? 'text-black hover:bg-gray-100 hover:text-black'
-                  : 'text-white hover:bg-white/10 hover:text-white'
-              )}
-            >
-              {t('navigation.tools')}
-            </NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <div className="w-[280px] p-4 bg-white dark:bg-black/80">
-                <ul className="space-y-2">
+            <div className="grid w-[600px] grid-cols-2 gap-3 p-4 bg-white dark:bg-black/80">
+              <div>
+                <h3 className={cn('font-medium mb-2 px-3', theme === 'light' ? 'text-black' : 'text-white')}>Strony www</h3>
+                <ul>
                   {[
-                    { path: '/password-generator', label: t('tools.passwordGenerator') },
-                    { path: '/privacy-policy-generator', label: t('tools.privacyPolicyGenerator') },
-                    { path: '/domain-creator', label: t('tools.domainCreator') }
+                    { path: '/tworzenie-stron-www', label: 'Tworzenie stron www', desc: 'Projektujemy i tworzymy profesjonalne strony internetowe' },
+                    { path: '/sklepy-internetowe', label: 'Tworzenie sklepów internetowych', desc: 'Kompleksowe rozwiązania e-commerce' },
                   ].map(item => (
                     <li key={item.path}>
                       <NavigationMenuLink asChild>
                         <Link
                           to={item.path}
                           className={cn(
-                            'block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
                             theme === 'light'
                               ? isActive(item.path)
                                 ? 'bg-gray-100 text-black'
@@ -166,39 +70,83 @@ const DesktopNavigation = () => {
                                 : 'hover:bg-gray-700 text-white'
                           )}
                         >
-                          <div className={cn('text-sm font-medium', theme === 'light' ? 'text-black' : 'text-white')}>
+                          <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
                             {item.label}
                           </div>
+                          <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
+                            {item.desc}
+                          </p>
                         </Link>
                       </NavigationMenuLink>
                     </li>
                   ))}
                 </ul>
               </div>
-            </NavigationMenuContent>
+
+              <div>
+                <h3 className={cn('font-medium mb-2 px-3', theme === 'light' ? 'text-black' : 'text-white')}>Pozycjonowanie (SEO)</h3>
+                <ul>
+                  {[
+                    { path: '/pozycjonowanie-stron', label: 'Pozycjonowanie stron internetowych', desc: 'Zwiększanie widoczności w wyszukiwarkach' },
+                    { path: '/pozycjonowanie-lokalne', label: 'Pozycjonowanie lokalne', desc: 'Zwiększanie widoczności w lokalnych wynikach' },
+                    { path: '/audyt-seo', label: 'Audyt SEO', desc: 'Analiza strony pod kątem SEO' },
+                    { path: '/optymalizacja-seo', label: 'Optymalizacja SEO', desc: 'Optymalizacja techniczna strony' },
+                    { path: '/copywriting-seo', label: 'Copywriting SEO', desc: 'Tworzenie treści pod SEO' },
+                    { path: '/content-plan', label: 'Content Plan', desc: 'Strategia tworzenia treści' }
+                  ].map(item => (
+                    <li key={item.path}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          to={item.path}
+                          className={cn(
+                            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                            theme === 'light'
+                              ? isActive(item.path)
+                                ? 'bg-gray-100 text-black'
+                                : 'hover:bg-gray-100 text-black'
+                              : isActive(item.path)
+                                ? 'bg-gray-700 text-black'
+                                : 'hover:bg-gray-700 text-white'
+                          )}
+                        >
+                          <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
+                            {item.label}
+                          </div>
+                          <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
+                            {item.desc}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </NavigationMenuContent>
+
           </NavigationMenuItem>
 
           <NavigationMenuItem>
             <Link to="/projects" className={cn(linkClass, isActive('/projects') && activeClass)}>
-              {t('navigation.portfolio')}
+              Portfolio
             </Link>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
             <Link to="/about" className={cn(linkClass, isActive('/about') && activeClass)}>
-              {t('navigation.about')}
+              O nas
             </Link>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
             <Link to="/blog" className={cn(linkClass, isActive('/blog') && activeClass)}>
-              {t('navigation.blog')}
+              Blog
             </Link>
           </NavigationMenuItem>
 
           <NavigationMenuItem>
             <Link to="/contact" className={cn(linkClass, isActive('/contact') && activeClass)}>
-              {t('navigation.contact')}
+              Kontakt
             </Link>
           </NavigationMenuItem>
         </NavigationMenuList>

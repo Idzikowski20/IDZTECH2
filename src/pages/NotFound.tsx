@@ -4,14 +4,12 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LucideHome, ArrowLeft, AlertTriangle } from "lucide-react";
 import { useTheme } from "@/utils/themeContext";
-import { useTranslation } from 'react-i18next';
 
 type ErrorType = "404" | "500" | "403" | "unknown";
 
 const NotFound = () => {
   const location = useLocation();
   const { theme } = useTheme();
-  const { t } = useTranslation();
   
   // Extract error type from location state if available
   const errorType: ErrorType = location.state?.errorType || "404";
@@ -28,27 +26,27 @@ const NotFound = () => {
     switch (errorType) {
       case "404":
         return {
-          title: t('notFound.title'),
-          message: t('notFound.message'),
-          description: t('notFound.description')
+          title: "404",
+          message: "Oops! Strona nie została znaleziona",
+          description: "Przepraszamy, ale strona której szukasz nie istnieje lub została przeniesiona."
         };
       case "500":
         return {
           title: "500",
-          message: t('error.serverError'),
-          description: t('error.serverErrorMsg')
+          message: "Błąd serwera",
+          description: "Przepraszamy, wystąpił wewnętrzny błąd serwera. Spróbuj ponownie później."
         };
       case "403":
         return {
           title: "403",
-          message: t('error.accessDenied'),
-          description: t('error.accessDeniedMsg')
+          message: "Dostęp zabroniony",
+          description: "Nie masz uprawnień do przeglądania tej strony."
         };
       default:
         return {
-          title: t('error.title'),
-          message: t('error.somethingWrong'),
-          description: t('error.unexpectedErrorMsg')
+          title: "Error",
+          message: "Coś poszło nie tak",
+          description: "Przepraszamy, wystąpił nieoczekiwany błąd. Spróbuj ponownie później."
         };
     }
   };
@@ -81,7 +79,7 @@ const NotFound = () => {
               } transition-all duration-300 w-full sm:w-auto`}
             >
               <LucideHome className="mr-2 h-4 w-4" />
-              {t('notFound.backToHome')}
+              Strona główna
             </Button>
           </Link>
           
@@ -91,7 +89,7 @@ const NotFound = () => {
             className={`border-white/10 ${theme === 'light' ? 'text-black hover:bg-black hover:text-white' : 'text-gray-300 hover:bg-white/5'} w-full sm:w-auto`}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('notFound.back')}
+            Wróć
           </Button>
         </div>
       </div>
