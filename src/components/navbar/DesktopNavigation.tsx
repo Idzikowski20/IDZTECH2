@@ -72,7 +72,7 @@ const DesktopNavigation = () => {
                                   : 'hover:bg-gray-100 text-black'
                                 : isActive(item.path)
                                   ? 'bg-gray-700 text-black'
-                                  : 'hover:bg-gray-700 text-white'
+                                  : 'hover:bg-gray-700 hover:text-black'
                             )}
                           >
                             <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -113,7 +113,7 @@ const DesktopNavigation = () => {
                                   : 'hover:bg-gray-100 text-black'
                                 : isActive(item.path)
                                   ? 'bg-gray-700 text-black'
-                                  : 'hover:bg-gray-700 text-white'
+                                  : 'hover:bg-gray-700 hover:text-black'
                             )}
                           >
                             <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -148,6 +148,7 @@ const DesktopNavigation = () => {
                 <ul className="space-y-2">
                   {[
                     { path: '/password-generator', label: t('tools.passwordGenerator') },
+                    { path: '/name-generator', label: t('tools.nameGenerator') },
                     { path: '/privacy-policy-generator', label: t('tools.privacyPolicyGenerator') },
                     { path: '/domain-creator', label: t('tools.domainCreator') }
                   ].map(item => (
@@ -163,7 +164,7 @@ const DesktopNavigation = () => {
                                 : 'hover:bg-gray-100 text-black'
                               : isActive(item.path)
                                 ? 'bg-gray-700 text-black'
-                                : 'hover:bg-gray-700 text-white'
+                                : 'hover:bg-gray-700 hover:text-black'
                           )}
                         >
                           <div className={cn('text-sm font-medium', theme === 'light' ? 'text-black' : 'text-white')}>

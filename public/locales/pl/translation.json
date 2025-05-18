@@ -1,4 +1,3 @@
-
 {
   "navigation": {
     "start": "Start",
@@ -12,7 +11,8 @@
   "tools": {
     "passwordGenerator": "Generator haseł",
     "privacyPolicyGenerator": "Generator polityki prywatności",
-    "domainCreator": "Kreator nazwy domeny"
+    "domainCreator": "Kreator nazwy domeny",
+    "nameGenerator": "Generator nazw"
   },
   "websiteTypes": {
     "websites": "Strony www",
@@ -95,6 +95,71 @@
       "beauty": "Uroda",
       "realestate": "Nieruchomości",
       "automotive": "Motoryzacja"
+    }
+  },
+  "nameGenerator": {
+    "pageTitle": "Generator Nazw | IDZTECH",
+    "pageDescription": "Wygeneruj kreatywne nazwy marek, produktów lub domen dla swojego biznesu.",
+    "title": "Generator Nazw",
+    "subtitle": "Generuj kreatywne nazwy marek, produktów lub domen za pomocą naszego narzędzia AI.",
+    "form": {
+      "details": "Podaj szczegóły",
+      "description": "Wprowadź słowa kluczowe i wybierz opcje, aby wygenerować pomysły na nazwy",
+      "keywords": "Słowa kluczowe",
+      "keywordsPlaceholder": "Wprowadź słowa kluczowe oddzielone przecinkami",
+      "keywordsExample": "Np. tech, cyfrowy, marketing",
+      "type": "Typ nazwy",
+      "typePlaceholder": "Wybierz typ",
+      "mood": "Styl",
+      "moodPlaceholder": "Wybierz styl",
+      "language": "Język",
+      "languagePlaceholder": "Wybierz język",
+      "generating": "Generowanie...",
+      "generate": "Wygeneruj nazwy"
+    },
+    "types": {
+      "business": "Nazwa firmy",
+      "product": "Nazwa produktu",
+      "domain": "Nazwa domeny"
+    },
+    "moods": {
+      "professional": "Profesjonalny",
+      "creative": "Kreatywny",
+      "fun": "Zabawny i żartobliwy",
+      "technical": "Techniczny"
+    },
+    "languages": {
+      "auto": "Auto (Na podstawie słów kluczowych)",
+      "english": "Angielski",
+      "polish": "Polski",
+      "german": "Niemiecki",
+      "french": "Francuski",
+      "spanish": "Hiszpański"
+    },
+    "results": {
+      "title": "Wygenerowane nazwy",
+      "favorites": "Ulubione nazwy"
+    },
+    "favorites": {
+      "empty": "Nie dodałeś jeszcze żadnych nazw do ulubionych."
+    },
+    "actions": {
+      "copy": "Kopiuj",
+      "addToFavorites": "Dodaj do ulubionych",
+      "removeFromFavorites": "Usuń z ulubionych"
+    },
+    "errors": {
+      "noInput": "Proszę wprowadzić co najmniej jedno słowo kluczowe"
+    },
+    "copied": "Nazwa \"{{name}}\" skopiowana do schowka!",
+    "tips": {
+      "title": "Wskazówki dotyczące wyboru dobrej nazwy",
+      "tip1": "Wybierz nazwę, którą łatwo wymówić i zapisać",
+      "tip2": "Upewnij się, że nazwa jest unikalna i nie jest już używana",
+      "tip3": "Sprawdź dostępność domeny, jeśli planujesz używać jej online",
+      "tip4": "Unikaj używania modnych terminów, które mogą szybko stać się nieaktualne",
+      "tip5": "Zastanów się, jak nazwa będzie wyglądać w logo lub materiałach marketingowych",
+      "conclusion": "Po znalezieniu idealnej nazwy możemy pomóc Ci w brandingu, tworzeniu stron internetowych i marketingu, aby zapewnić sukces Twojemu nowemu przedsięwzięciu."
     }
   },
   "notFound": {

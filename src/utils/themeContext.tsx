@@ -1,6 +1,5 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { toast } from 'sonner';
 
 // Define Theme type and export it properly with 'export type'
 export type Theme = 'light' | 'dark' | 'system';
@@ -44,14 +43,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.add('light');
       localStorage.setItem('theme', 'light');
       
-      // Show toast notification when switching to light mode
-      toast.warning(
-        "⚠️ Tryb jasny jest w trakcie budowy i mogą występować błędy, za które przepraszamy.",
-        {
-          duration: 5000,
-          position: 'top-center'
-        }
-      );
+      // Remove the warning toast when switching to light mode
     }
   };
 

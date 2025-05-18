@@ -15,8 +15,8 @@ const TermsOfUse = () => {
       <Navbar />
       <PageDotAnimation />
       
-      <div className="container mx-auto px-4 py-20">
-        <div className={`prose max-w-4xl mx-auto ${theme === 'light' ? 'prose-black' : 'prose-invert'}`}>
+      <div className="container mx-auto px-4 py-28">
+        <div className={`prose max-w-4xl mx-auto text-center ${theme === 'light' ? 'prose-black' : 'prose-invert'}`}>
           <h1 className="text-4xl font-bold mb-8">{t('terms.title')}</h1>
           <p className="mb-4">{t('terms.lastUpdate')}: 18.05.2025</p>
           
@@ -37,7 +37,7 @@ const TermsOfUse = () => {
           
           <h2 className="text-2xl font-semibold mt-8 mb-4">{t('terms.prohibited.title')}</h2>
           <p>{t('terms.prohibited.intro')}</p>
-          <ul>
+          <ul className="text-left">
             <li>{t('terms.prohibited.item1')}</li>
             <li>{t('terms.prohibited.item2')}</li>
             <li>{t('terms.prohibited.item3')}</li>
