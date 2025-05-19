@@ -1,8 +1,7 @@
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from "@/hooks/use-toast";
+import type { User, Session } from "@supabase/supabase-js";
+import { integrateAuth, registerUser, loginUser, updateUserProfile } from "./authIntegration";
 
-import { useAuth as useFirebaseAuth } from './firebaseAuth';
-
-// Re-export the Firebase auth hook as the main auth hook
-export const useAuth = useFirebaseAuth;
-
-// Re-export the AuthProvider component from firebaseAuth to maintain backward compatibility
-export { AuthProvider } from './firebaseAuth';
+// Re-export the auth hook and provider from firebaseAuth
+export { useAuth, AuthProvider } from './firebaseAuth';

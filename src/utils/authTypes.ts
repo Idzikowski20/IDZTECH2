@@ -1,13 +1,39 @@
-
 // Types related to authentication
-import { User as SupabaseUser } from '@supabase/supabase-js';
+import { User as FirebaseUser } from 'firebase/auth';
+
+export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
+
+export interface UserStats {
+  views: number;
+  posts: number;
+  comments: number;
+  likes: number;
+  pointsTotal: number;
+  pointsThisMonth: number;
+  lastUpdated: string;
+}
 
 export interface User {
   id: string;
   email: string;
   name: string;
+  role: UserRole;
+  profilePicture?: string;
+  lastName?: string;
+  bio?: string;
+  jobTitle?: string;
+  postsCreated?: number;
+  totalViews?: number;
   createdAt?: string;
   lastLogin?: string;
+  commentsCount?: number;
+  likesCount?: number;
+  stats: UserStats;
+  user_metadata?: {
+    avatar_url?: string;
+    name?: string;
+    last_name?: string;
+  };
 }
 
 export interface ResetToken {

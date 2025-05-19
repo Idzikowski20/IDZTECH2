@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Eye, Tag, Share2, MessageSquare, Facebook, Twitter, Linkedin } from 'lucide-react';
@@ -96,6 +95,9 @@ const BlogPost = () => {
       });
     }
   }, [post, posts, isLoading, navigate, toast]);
+  
+  // Pobierz wszystkie posty z Firestore
+  const relatedPosts = posts?.filter(p => p.id !== post.id).slice(0, 3); // wyklucz aktualny post
   
   if (isLoading) {
     return (
@@ -222,6 +224,17 @@ const BlogPost = () => {
             )}
             
             {/* Post content */}
+            <section className="mb-8">
+              <h2 className="text-lg font-bold mb-2">Z tego artykułu dowiesz się, że:</h2>
+              <ul className="list-disc pl-6">
+                {tableOfContents.map(heading => (
+                  <li key={heading.id}>
+                    <a href={`#${heading.id}`} className="text-premium-purple hover:underline">{heading.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            
             <article className="prose prose-invert prose-premium max-w-none mb-8">
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </article>
@@ -265,14 +278,6 @@ const BlogPost = () => {
             <Separator className="my-12" />
             
             {/* Comments section */}
-            <div id="comments-section">
-              <CommentSection postId={post.id} />
-            </div>
-          </div>
-          
-          {/* Sidebar */}
-          <aside className="lg:w-1/3">
-            <div className="sticky top-32 space-y-8">
               {/* Author info */}
               <div className="bg-premium-dark/50 border border-premium-light/10 rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-4">
@@ -296,6 +301,12 @@ const BlogPost = () => {
                   Zobacz wszystkie posty
                 </Button>
               </div>
+          </div>
+          
+          {/* Sidebar */}
+          <aside className="lg:w-1/3">
+            <div className="sticky top-32 space-y-8">
+
               
               {/* Table of contents - Desktop */}
               {tableOfContents.length > 0 && (
@@ -327,11 +338,18 @@ const BlogPost = () => {
               )}
               
               {/* Related posts */}
-              <RelatedPosts 
-                currentPostId={post.id} 
-                categories={post.categories || []} 
-                tags={post.tags || []}
-              />
+              <section>
+                <h2>Powiązane artykuły</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {relatedPosts?.map(rp => (
+                    <Link to={`/blog/${rp.slug}`} key={rp.id} className="block">
+                      <img src={rp.featured_image} alt={rp.title} className="rounded-lg w-full h-32 object-cover mb-2" />
+                      <div className="font-semibold">{rp.title}</div>
+                      <div className="text-sm text-gray-400">{rp.excerpt}</div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
               
               {/* CTA Box */}
               <div className="bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
@@ -347,6 +365,7 @@ const BlogPost = () => {
           </aside>
         </div>
       </div>
+      
       
       <Footer />
     </div>

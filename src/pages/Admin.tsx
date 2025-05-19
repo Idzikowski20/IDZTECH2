@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Plus, Edit, Trash2, Eye, Search } from 'lucide-react';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { db } from '@/integrations/firebase/client';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import AdminLayout from '@/components/AdminLayout';
 import { 
   Table,
@@ -34,20 +35,18 @@ interface BlogPost {
   excerpt: string | null;
   published: boolean;
   published_at: string | null;
+  updated_at: string;
 }
 
 const Admin = () => {
   const navigate = useNavigate();
-  const {
-    isAuthenticated,
-    user
-  } = useAuth();
-  
+  const { user } = useAuth();
   const { toast } = useToast();
   
   // State for blog posts
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Pagination state
   const [currentPostsPage, setCurrentPostsPage] = useState(1);
@@ -58,35 +57,32 @@ const Admin = () => {
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    console.log("Admin component mounted");
-    console.log("isAuthenticated:", isAuthenticated);
-    console.log("user:", user);
-    
-    if (!isAuthenticated) {
-      console.log("User not authenticated, redirecting to login page");
+    if (!user) {
       navigate('/login');
+      return;
     }
-  }, [isAuthenticated, navigate, user]);
-  
-  // Fetching posts from Supabase
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setLoadingPosts(true);
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('id, title, slug, created_at, content, featured_image, excerpt, published, published_at')
-        .order('created_at', { ascending: false });
-      
-      if (!error) {
-        setPosts(data || []);
-      } else {
-        console.error("Error fetching blog posts:", error);
-      }
-      setLoadingPosts(false);
-    };
+
     fetchPosts();
-  }, []);
-  
+  }, [user, navigate]);
+
+  const fetchPosts = async () => {
+    try {
+      setLoadingPosts(true);
+      const postsCollection = collection(db, 'blog_posts');
+      const postsSnapshot = await getDocs(postsCollection);
+      const postsList = postsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as BlogPost[];
+      setPosts(postsList);
+    } catch (err) {
+      setError('Błąd podczas pobierania postów');
+      console.error(err);
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
   // Filtering posts by title
   useEffect(() => {
     if (!Array.isArray(posts)) {
@@ -106,14 +102,30 @@ const Admin = () => {
   
   const totalPostsPages = Math.ceil(filteredPosts.length / postsPerPage);
   
-  // Safety check - render loading or null until authenticated
-  if (!isAuthenticated) {
-    console.log("Rendering null because user is not authenticated");
-    return null;
+  const handleDelete = async (postId: string) => {
+    if (!window.confirm('Czy na pewno chcesz usunąć ten post?')) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'blog_posts', postId));
+      setPosts(posts.filter(post => post.id !== postId));
+      toast({ title: 'Usunięto', description: 'Post został usunięty.' });
+    } catch (err) {
+      setError('Błąd podczas usuwania postu');
+      console.error(err);
+      toast({ title: 'Błąd', description: 'Nie udało się usunąć posta.', variant: 'destructive' });
+    }
+  };
+
+  if (loadingPosts) {
+    return <div>Ładowanie...</div>;
   }
-  
-  console.log("Rendering Admin component");
-  
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
   return (
     <AdminLayout>
       <div className="p-6">
@@ -202,17 +214,7 @@ const Admin = () => {
                               variant="outline" 
                               size="sm" 
                               className="text-red-400 hover:text-white hover:bg-red-500 transition-colors" 
-                              onClick={async () => {
-                                if (window.confirm('Czy na pewno chcesz usunąć ten post?')) {
-                                  const { error } = await supabase.from('blog_posts').delete().eq('id', post.id);
-                                  if (!error) {
-                                    setPosts(posts => posts.filter(p => p.id !== post.id));
-                                    toast({ title: 'Usunięto', description: 'Post został usunięty.' });
-                                  } else {
-                                    toast({ title: 'Błąd', description: 'Nie udało się usunąć posta.', variant: 'destructive' });
-                                  }
-                                }
-                              }}
+                              onClick={() => handleDelete(post.id)}
                             >
                               <Trash2 size={14} />
                             </Button>

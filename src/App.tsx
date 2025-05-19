@@ -32,6 +32,7 @@ import RequireAuth from '@/components/RequireAuth';
 import ErrorPage from '@/pages/ErrorPage';
 import Admin from '@/pages/Admin';
 import { Toaster } from 'sonner';
+import AIPostPage from './pages/ai-post';
 
 const App = () => {
   return (
@@ -45,7 +46,7 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:id" element={<BlogPost />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/projects" element={<Projects />} />
@@ -65,6 +66,7 @@ const App = () => {
         <Route path="/terms" element={<TermsOfUse />} />
         
         {/* Admin routes - protected with RequireAuth */}
+        <Route path="/admin/ai-post" element={<RequireAuth><AIPostPage /></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
         <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
         <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />

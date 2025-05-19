@@ -1,79 +1,79 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/client'
-import type { Database } from '@/types/supabase'
+import { useState, useEffect } from 'react';
+import { db } from '@/integrations/firebase/client';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { getAuth, updateProfile } from 'firebase/auth';
 
-type User = Database['public']['Tables']['users']['Row']
-type UserUpdate = Database['public']['Tables']['users']['Update']
+interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  role?: string;
+  createdAt?: string;
+  lastLogin?: string;
+}
 
 export function useUsers() {
-  const queryClient = useQueryClient()
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Pobieranie aktualnego użytkownika
-  const { data: currentUser, isLoading: isLoadingCurrentUser } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      if (!authUser) return null
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authUser.id)
-        .single()
-
-      if (error) throw error
-      return data as User
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const usersCollection = collection(db, 'users');
+      const usersSnapshot = await getDocs(usersCollection);
+      const usersList = usersSnapshot.docs.map(doc => ({
+        uid: doc.id,
+        ...doc.data()
+      })) as User[];
+      setUsers(usersList);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Failed to fetch users');
+    } finally {
+      setLoading(false);
     }
-  })
+  };
 
-  // Aktualizacja profilu użytkownika
-  const updateProfile = useMutation({
-    mutationFn: async (updates: UserUpdate) => {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      if (!authUser) throw new Error('Nie zalogowano')
+  const updateUserProfile = async (userId: string, updates: Partial<User>) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (user && user.uid === userId) {
+        await updateProfile(user, {
+          displayName: updates.displayName || user.displayName,
+          photoURL: updates.photoURL || user.photoURL
+        });
+      }
 
-      const { data, error } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', authUser.id)
-        .select()
-        .single()
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        ...updates,
+        updatedAt: new Date().toISOString()
+      });
 
-      if (error) throw error
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['current-user'] })
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.uid === userId ? { ...user, ...updates } : user
+        )
+      );
+    } catch (err) {
+      console.error('Error updating user:', err);
+      throw new Error('Failed to update user');
     }
-  })
-
-  // Aktualizacja hasła
-  const updatePassword = useMutation({
-    mutationFn: async (newPassword: string) => {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      })
-
-      if (error) throw error
-    }
-  })
-
-  // Wylogowanie
-  const signOut = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.clear()
-    }
-  })
+  };
 
   return {
-    currentUser,
-    isLoadingCurrentUser,
-    updateProfile,
-    updatePassword,
-    signOut
-  }
+    users,
+    loading,
+    error,
+    updateUserProfile,
+    refreshUsers: fetchUsers
+  };
 } 

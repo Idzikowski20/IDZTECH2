@@ -1,24 +1,8 @@
-
 // Utility functions for authentication
-import { User } from './authTypes';
+import { User } from 'firebase/auth';
 
-// Mock user database (will be connected to Supabase)
-export let users: User[] = [
-  {
-    id: '1',
-    email: 'admin@idztech.pl',
-    name: 'Admin',
-    createdAt: '2023-01-01T12:00:00Z',
-    lastLogin: new Date().toISOString()
-  },
-  {
-    id: '2',
-    email: 'patryk.idzikowski@interia.pl',
-    name: 'Patryk',
-    createdAt: '2023-01-01T12:00:00Z',
-    lastLogin: new Date().toISOString()
-  }
-];
+// Mock user database (will be connected to Firebase)
+const users: User[] = [];
 
 // Password map (in a real app, these would be hashed)
 export const passwords: Record<string, string> = {
@@ -33,5 +17,24 @@ export const resetTokens: { email: string; token: string; expires: Date; }[] = [
 
 // Helper to update users array
 export const updateUsersArray = (updatedUsers: User[]) => {
-  users = updatedUsers;
+  users.splice(0, users.length, ...updatedUsers);
+};
+
+export const addUser = (user: User) => {
+  users.push(user);
+};
+
+export const removeUser = (userId: string) => {
+  const index = users.findIndex(user => user.uid === userId);
+  if (index !== -1) {
+    users.splice(index, 1);
+  }
+};
+
+export const getUser = (userId: string) => {
+  return users.find(user => user.uid === userId);
+};
+
+export const getAllUsers = () => {
+  return [...users];
 };
