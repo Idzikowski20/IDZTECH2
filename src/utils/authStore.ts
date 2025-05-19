@@ -9,4 +9,7 @@ export const useAuthStore = () => {
   };
 };
 
+// Export useAuth to prevent errors in components that import it
+export const useAuth = useAuthStore;
+
 export default useAuthStore;
