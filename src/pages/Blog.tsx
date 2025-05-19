@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -7,43 +8,22 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
-// Updated BlogPost interface to match your database structure
+// Updated BlogPost interface to match the database structure
 interface BlogPost {
   id: string;
   title: string;
   slug: string;
   content: string;
   featured_image: string;
-  summary: string | null;
   excerpt: string | null;
   categories: string[] | null;
   tags: string[] | null;
-  author_id: string;
   created_at: string;
   updated_at: string;
-  published: boolean;
-  published_at: string | null;
-  meta_title: string | null;
-  meta_description: string | null;
-  meta_tags: string[] | null;
-  users?: {
-    first_name: string | null;
-    last_name: string | null;
-    avatar_url: string | null;
-  };
-}
-
-// Fixed: Made sure optional properties in BlogPostWithUI don't conflict with required ones in BlogPost
-interface BlogPostWithUI extends Omit<BlogPost, 'excerpt' | 'categories'> {
-  featuredImage?: string;
-  excerpt?: string;
-  categories?: string[];
-  author?: string;
-  authorAvatar?: string | null;
 }
 
 const Blog = () => {
-  const [posts, setPosts] = useState<BlogPostWithUI[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -51,20 +31,11 @@ const Blog = () => {
       setLoading(true);
       const { data, error } = await supabase
       .from('blog_posts')
-      .select('*, users:author_id(first_name, last_name, avatar_url)')
+      .select('id, title, slug, content, featured_image, excerpt, categories, tags, created_at')
       .order('created_at', { ascending: false });
       
       if (!error && data) {
-        // Transform data for UI requirements
-        const transformedPosts: BlogPostWithUI[] = data.map(post => ({
-          ...post,
-          featuredImage: post.featured_image,
-          excerpt: post.summary || post.excerpt || '',
-          categories: post.categories || [],
-          author: (post as any).users ? `${(post as any).users.first_name || ''} ${(post as any).users.last_name || ''}`.trim() : '',
-          authorAvatar: (post as any).users?.avatar_url || null,
-        }));
-        setPosts(transformedPosts);
+        setPosts(data);
       } else {
         console.error('Error fetching blog posts:', error);
         setPosts([]);
@@ -112,7 +83,7 @@ const Blog = () => {
                 <Link to={`/blog/${post.slug}`}>
                   <div className="relative h-52 overflow-hidden">
                     <img 
-                      src={post.featuredImage} 
+                      src={post.featured_image} 
                       alt={post.title} 
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                     />
@@ -123,7 +94,7 @@ const Blog = () => {
                   <div className="flex items-center text-sm text-premium-light/60 mb-3">
                     <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
                     <span className="mx-2">•</span>
-                    <span>{post.categories[0] || 'SEO'}</span>
+                    <span>{post.categories && post.categories[0] || 'SEO'}</span>
                   </div>
                   
                   <Link to={`/blog/${post.slug}`}>

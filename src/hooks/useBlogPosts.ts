@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import type { Database } from '@/types/supabase'
@@ -9,39 +10,39 @@ type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update']
 export function useBlogPosts() {
   const queryClient = useQueryClient()
 
-  // Pobieranie wszystkich postów
+  // Fetch all posts
   const { data: posts, isLoading: isLoadingPosts } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*, users(first_name, last_name)')
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      return data as (BlogPost & { users: { first_name: string | null; last_name: string | null } })[]
+      return data as BlogPost[]
     }
   })
 
-  // Pobieranie pojedynczego posta
+  // Fetch single post by slug
   const getPost = (slug: string) => {
     return useQuery({
       queryKey: ['blog-post', slug],
       queryFn: async () => {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('*, users(first_name, last_name)')
+          .select('*')
           .eq('slug', slug)
           .single()
 
         if (error) throw error
-        return data as BlogPost & { users: { first_name: string | null; last_name: string | null } }
+        return data as BlogPost
       },
       enabled: !!slug
     })
   }
 
-  // Tworzenie nowego posta
+  // Create new post
   const createPost = useMutation({
     mutationFn: async (newPost: BlogPostInsert) => {
       const { data, error } = await supabase
@@ -58,7 +59,7 @@ export function useBlogPosts() {
     }
   })
 
-  // Aktualizacja posta
+  // Update post
   const updatePost = useMutation({
     mutationFn: async ({ id, ...updates }: BlogPostUpdate & { id: string }) => {
       const { data, error } = await supabase
@@ -77,7 +78,7 @@ export function useBlogPosts() {
     }
   })
 
-  // Usuwanie posta
+  // Delete post
   const deletePost = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -100,4 +101,4 @@ export function useBlogPosts() {
     updatePost,
     deletePost
   }
-} 
+}

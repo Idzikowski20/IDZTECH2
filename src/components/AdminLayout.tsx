@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -34,7 +34,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
     navigate('/login');
   };
 
-  // Bezpieczny dostęp do danych użytkownika
+  // Safe access to user data
   const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
   
   return (
@@ -111,14 +111,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
                     Dashboard
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/stats" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Statystyki
                   </Link>
                 </li>
               </ul>
