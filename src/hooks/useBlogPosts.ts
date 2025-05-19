@@ -9,6 +9,7 @@ type BlogPost = {
   slug: string
   content: string
   featured_image: string
+  summary: string | null
   excerpt: string | null
   categories: string[] | null
   tags: string[] | null
@@ -21,15 +22,20 @@ export function useBlogPosts() {
   const queryClient = useQueryClient()
 
   // Fetch all posts
-  const { data: posts, isLoading: isLoadingPosts } = useQuery({
+  const { data: posts, isLoading: isLoadingPosts, error } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
+      console.log('Fetching blog posts...')
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, content, featured_image, excerpt, categories, tags, created_at, published, published_at')
+        .select('id, title, slug, content, featured_image, summary, excerpt, categories, tags, created_at, published, published_at')
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('Error fetching blog posts:', error)
+        throw error
+      }
+      console.log('Blog posts fetched:', data)
       return data as BlogPost[]
     }
   })
@@ -41,7 +47,7 @@ export function useBlogPosts() {
       queryFn: async () => {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('id, title, slug, content, featured_image, excerpt, categories, tags, created_at, published, published_at')
+          .select('id, title, slug, content, featured_image, summary, excerpt, categories, tags, created_at, published, published_at')
           .eq('slug', slug)
           .single()
 
@@ -117,6 +123,7 @@ export function useBlogPosts() {
   return {
     posts,
     isLoadingPosts,
+    error,
     getPost,
     createPost,
     updatePost,

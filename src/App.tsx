@@ -43,8 +43,6 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/new" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
-        <Route path="/blog/edit/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutUs />} />
@@ -66,6 +64,8 @@ const App = () => {
         
         {/* Admin routes - protected with RequireAuth */}
         <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+        <Route path="/admin/new-post" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
+        <Route path="/admin/edit-post/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
         
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
 
 const Blog = () => {
-  const { posts, isLoadingPosts } = useBlogPosts();
+  const { posts, isLoadingPosts, error } = useBlogPosts();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -29,7 +29,7 @@ const Blog = () => {
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Blog SEO</h1>
-            <p className="text-xl text-premium-light/70 mb-8">
+            <p className="text-xl text-gray-300 mb-8">
               Najnowsze informacje, porady i trendy z świata SEO i tworzenia stron internetowych
             </p>
           </div>
@@ -41,9 +41,13 @@ const Blog = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoadingPosts ? (
-              <div className="col-span-3 text-center text-premium-light/70 py-12">Ładowanie postów...</div>
+              <div className="col-span-3 text-center text-gray-400 py-12">Ładowanie postów...</div>
+            ) : error ? (
+              <div className="col-span-3 text-center text-gray-400 py-12">
+                Wystąpił błąd podczas ładowania postów. Spróbuj odświeżyć stronę.
+              </div>
             ) : posts?.length === 0 ? (
-              <div className="col-span-3 text-center text-premium-light/70 py-12">Brak postów do wyświetlenia.</div>
+              <div className="col-span-3 text-center text-gray-400 py-12">Brak postów do wyświetlenia.</div>
             ) : posts?.map((post) => (
               <div 
                 key={post.id} 
@@ -60,7 +64,7 @@ const Blog = () => {
                 </Link>
                 
                 <div className="p-6">
-                  <div className="flex items-center text-sm text-premium-light/60 mb-3">
+                  <div className="flex items-center text-sm text-gray-400 mb-3">
                     <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
                     <span className="mx-2">•</span>
                     <span>{post.categories && post.categories[0] || 'SEO'}</span>
@@ -72,8 +76,8 @@ const Blog = () => {
                     </h3>
                   </Link>
                   
-                  <p className="text-premium-light/70 mb-4 line-clamp-3">
-                    {post.excerpt}
+                  <p className="text-gray-400 mb-4 line-clamp-3">
+                    {post.summary || post.excerpt}
                   </p>
                   
                   <Link to={`/blog/${post.slug}`}>

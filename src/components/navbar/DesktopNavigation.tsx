@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
@@ -49,7 +50,7 @@ const DesktopNavigation = () => {
           : 'font-bold text-premium-purple'
         : theme === 'light'
           ? 'text-black'
-          : 'text-white'
+          : 'text-gray-200'
     }`;
   };
 
@@ -191,6 +192,16 @@ const DesktopNavigation = () => {
             onClick={() => trackEvent('navigation_click', 'menu', 'blog')}
           >
             Blog
+          </Link>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <Link 
+            to="/contact" 
+            className="text-sm flex items-center py-2 px-3 rounded-md bg-black text-white hover:bg-gray-800 transition-colors"
+            onClick={() => trackEvent('navigation_click', 'menu', 'contact')}
+          >
+            Kontakt
           </Link>
         </NavigationMenuItem>
       </NavigationMenuList>

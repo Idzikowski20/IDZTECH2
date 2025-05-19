@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, ArrowLeft, Upload, FileCode } from 'lucide-react';
+import { Save, ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
+import { toast as sonnerToast } from 'sonner';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -49,6 +51,7 @@ const BlogPostEditor = () => {
           if (error) throw error;
           if (data) setExistingPost(data);
         } catch (error) {
+          console.error("Error fetching post:", error);
           toast({
             title: "Błąd",
             description: "Nie udało się załadować posta",
@@ -64,20 +67,20 @@ const BlogPostEditor = () => {
   const form = useForm<FormValues>({
     resolver: zodResolver(blogPostSchema),
     defaultValues: {
-      title: existingPost?.title || '',
-      slug: existingPost?.slug || '',
-      summary: existingPost?.summary || '',
-      content: existingPost?.content || '',
-      categories: existingPost?.categories?.join(', ') || '',
-      tags: existingPost?.tags?.join(', ') || ''
+      title: '',
+      slug: '',
+      summary: '',
+      content: '',
+      categories: '',
+      tags: ''
     },
     values: existingPost ? {
       title: existingPost.title || '',
       slug: existingPost.slug || '',
       summary: existingPost.summary || '',
       content: existingPost.content || '',
-      categories: existingPost.categories?.join(', ') || '',
-      tags: existingPost.tags?.join(', ') || ''
+      categories: Array.isArray(existingPost.categories) ? existingPost.categories.join(', ') : '',
+      tags: Array.isArray(existingPost.tags) ? existingPost.tags.join(', ') : ''
     } : undefined
   });
 
@@ -114,7 +117,7 @@ const BlogPostEditor = () => {
       let imageUrl = existingPost?.featured_image || '';
       if (featuredImage) {
         const reader = new FileReader();
-        imageUrl = await new Promise((resolve) => {
+        imageUrl = await new Promise<string>((resolve) => {
           reader.onload = () => resolve(reader.result as string);
           reader.readAsDataURL(featuredImage);
         });
@@ -133,26 +136,35 @@ const BlogPostEditor = () => {
       };
 
       if (isEditing && id) {
+        console.log("Updating post with ID:", id);
         const { error } = await supabase
           .from('blog_posts')
           .update(postData)
           .eq('id', id);
-        if (error) throw error;
-        toast({ title: "Post zaktualizowany", description: "Post został zaktualizowany." });
+        if (error) {
+          console.error("Error updating post:", error);
+          throw error;
+        }
+        sonnerToast.success("Post zaktualizowany", "Post został zaktualizowany.");
       } else {
+        console.log("Creating new post");
         const { error } = await supabase
           .from('blog_posts')
           .insert({
             ...postData,
-            date: new Date().toISOString(),
+            published: true,
+            published_at: new Date().toISOString(),
             created_at: new Date().toISOString(),
-            views: 0
           });
-        if (error) throw error;
-        toast({ title: "Post dodany", description: "Nowy post został dodany do bloga." });
+        if (error) {
+          console.error("Error creating post:", error);
+          throw error;
+        }
+        sonnerToast.success("Post dodany", "Nowy post został dodany do bloga.");
       }
       navigate('/admin');
     } catch (error) {
+      console.error("Error saving post:", error);
       toast({
         title: "Błąd",
         description: "Wystąpił problem podczas zapisywania posta.",
@@ -217,7 +229,6 @@ const BlogPostEditor = () => {
                               generateSlug();
                             }
                           }} 
-                          className="" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -232,7 +243,7 @@ const BlogPostEditor = () => {
                     <FormItem>
                       <FormLabel>Slug (URL)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="url-posta" className="" />
+                        <Input {...field} placeholder="url-posta" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -247,7 +258,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className="" />
+                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -339,7 +350,7 @@ const BlogPostEditor = () => {
                     <FormItem>
                       <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="" />
+                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -354,7 +365,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" className="" />
+                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -369,7 +380,7 @@ const BlogPostEditor = () => {
                 >
                   {isLoading ? 'Zapisywanie...' : isEditing ? 'Aktualizuj post' : 'Opublikuj post'}
                 </Button>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Post zostanie automatycznie dodany do sitemap.xml dla lepszego indeksowania w Google.
                 </p>
               </div>
