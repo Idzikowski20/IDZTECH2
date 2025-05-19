@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '@/utils/themeContext';
@@ -91,7 +90,7 @@ const DesktopNavigation = () => {
                         className={`block px-3 py-2 rounded-md ${
                           isCurrentPath(link.href) 
                             ? 'bg-premium-light/10 font-medium text-white'
-                            : 'hover:bg-premium-light/10 hover:text-white transition-colors'
+                            : 'hover:bg-gray-200 hover:text-black transition-colors dark:hover:bg-gray-800 dark:hover:text-white'
                         }`}
                         onClick={() => {
                           setOpenMenu(null);
@@ -114,7 +113,7 @@ const DesktopNavigation = () => {
                         className={`block px-3 py-2 rounded-md ${
                           isCurrentPath(link.href) 
                             ? 'bg-premium-light/10 font-medium text-white'
-                            : 'hover:bg-premium-light/10 hover:text-white transition-colors'
+                            : 'hover:bg-gray-200 hover:text-black transition-colors dark:hover:bg-gray-800 dark:hover:text-white'
                         }`}
                         onClick={() => {
                           setOpenMenu(null);
@@ -150,7 +149,7 @@ const DesktopNavigation = () => {
                     className={`block px-3 py-2 rounded-md ${
                       isCurrentPath(link.href) 
                         ? 'bg-premium-light/10 font-medium text-white'
-                        : 'hover:bg-premium-light/10 hover:text-white transition-colors'
+                        : 'hover:bg-gray-200 hover:text-black transition-colors dark:hover:bg-gray-800 dark:hover:text-white'
                     }`}
                     onClick={() => {
                       setOpenMenu(null);
