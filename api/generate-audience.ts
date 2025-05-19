@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     const { topic } = req.body;
     // Tu możesz podpiąć AI, na razie zwracamy przykładowe słowa kluczowe
     res.status(200).json({
-      keywords: "seo,pozycjonowanie,strona internetowa,marketing"
+      audience: "właściciele firm, marketerzy, przedsiębiorcy"
     });
   }
    
