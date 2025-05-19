@@ -10,11 +10,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/firebaseAuth';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
-import { supabase } from '@/integrations/supabase/client';
+import { doc, getDoc, collection } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
 import { toast } from 'sonner';
+import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -32,6 +34,7 @@ const BlogPostEditor = () => {
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
   const { user } = useAuth();
+  const { createPost, updatePost } = useFirebaseBlogPosts();
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -43,16 +46,15 @@ const BlogPostEditor = () => {
     const fetchPost = async () => {
       if (id) {
         try {
-          const { data, error } = await supabase
-            .from('blog_posts')
-            .select('*')
-            .eq('id', id)
-            .single();
+          const postRef = doc(db, 'blog_posts', id);
+          const postSnap = await getDoc(postRef);
           
-          if (error) throw error;
-          if (data) {
+          if (postSnap.exists()) {
+            const data = postSnap.data();
             console.log("Fetched post data:", data);
-            setExistingPost(data);
+            setExistingPost({ id: postSnap.id, ...data });
+          } else {
+            throw new Error("Post not found");
           }
         } catch (error) {
           console.error("Error fetching post:", error);
@@ -137,44 +139,34 @@ const BlogPostEditor = () => {
         summary: values.summary,
         content: values.content,
         featured_image: imageUrl,
-        author_id: user.id,
+        author_id: user.uid,
         categories: values.categories.split(',').map(cat => cat.trim()),
         tags: values.tags.split(',').map(tag => tag.trim()),
-        updated_at: new Date().toISOString()
       };
 
       console.log("Post data to be submitted:", postData);
 
       if (isEditing && id) {
         console.log("Updating post with ID:", id);
-        const { error } = await supabase
-          .from('blog_posts')
-          .update(postData)
-          .eq('id', id);
-          
-        if (error) {
-          console.error("Error updating post:", error);
-          throw error;
-        }
+        await updatePost({
+          id,
+          ...postData,
+          published: existingPost?.published || true,
+          published_at: existingPost?.published_at || new Date().toISOString(),
+          created_at: existingPost?.created_at || new Date().toISOString(),
+        });
         
         toast.success("Post zaktualizowany", {
           description: "Post został zaktualizowany."
         });
       } else {
         console.log("Creating new post");
-        const { error } = await supabase
-          .from('blog_posts')
-          .insert({
-            ...postData,
-            published: true,
-            published_at: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-          });
-          
-        if (error) {
-          console.error("Error creating post:", error);
-          throw error;
-        }
+        await createPost({
+          ...postData,
+          published: true,
+          published_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+        });
         
         toast.success("Post dodany", {
           description: "Nowy post został dodany do bloga."

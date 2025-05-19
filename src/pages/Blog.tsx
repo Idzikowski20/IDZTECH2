@@ -6,11 +6,11 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { useBlogPosts } from '@/hooks/useBlogPosts';
+import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const Blog = () => {
-  const { posts, isLoadingPosts, error } = useBlogPosts();
+  const { posts, isLoadingPosts, error } = useFirebaseBlogPosts();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -42,8 +42,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
       localStorage.setItem('theme', 'light');
-      
-      // Removed the toast warning for light mode
     }
   };
 
