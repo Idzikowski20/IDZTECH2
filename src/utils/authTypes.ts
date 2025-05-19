@@ -12,10 +12,23 @@ export interface UserStats {
   lastUpdated: string;
 }
 
+// Define UserRole type
+export type UserRole = 'admin' | 'moderator' | 'user';
+
 export interface User {
   id: string;
   email: string;
   name: string;
+  lastName?: string;
+  profilePicture?: string;
+  role?: UserRole;
+  bio?: string;
+  jobTitle?: string;
+  postsCreated?: number;
+  totalViews?: number;
+  commentsCount?: number;
+  likesCount?: number;
+  createdAt?: string;
   lastLogin?: string;
   stats?: UserStats;
   user_metadata?: {

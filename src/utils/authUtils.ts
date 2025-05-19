@@ -1,6 +1,6 @@
 
 // Utility functions for authentication
-import { UserRole, User, UserStats } from './authTypes';
+import { User, UserRole, UserStats } from './authTypes';
 
 // Calculate user points based on activity
 export const calculatePoints = (views: number, posts: number, comments: number, likes: number): number => {

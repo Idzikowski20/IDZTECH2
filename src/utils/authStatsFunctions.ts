@@ -1,111 +1,139 @@
+import { User, UserStats } from './authTypes';
 
-// Functions related to user statistics
-import { User } from './authTypes';
-import { useBlogStore } from './blog';
-import { users } from './authUtils';
-import { calculatePoints } from './authUtils';
-
-export const refreshUserStats = (): void => {
-  // Get blog posts from store to calculate real statistics
-  const blogStore = useBlogStore.getState();
-  const posts = blogStore.posts || []; // Add fallback to empty array if posts is undefined
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
-  
-  // Calculate statistics for each user
-  users.forEach(user => {
-    // Get user-authored posts
-    const userPosts = posts.filter(post => post.author === user.name);
-    
-    // Count posts
-    const postsCount = userPosts.length;
-    
-    // Sum up total views from all user's posts
-    const viewsCount = userPosts.reduce((sum, post) => sum + post.views, 0);
-    
-    // Count comments made by this user (across all posts)
-    const commentsCount = posts.reduce((sum, post) => {
-      // Check if post.comments exists before trying to filter it
-      return sum + (post.comments && Array.isArray(post.comments) 
-        ? post.comments.filter(comment => comment.userId === user.id).length 
-        : 0);
-    }, 0);
-    
-    // Count likes given by this user (across all posts)
-    const likesCount = posts.reduce((sum, post) => {
-      // Check if post.likes exists before trying to check if it includes user.id
-      return sum + (post.likes && Array.isArray(post.likes) 
-        ? (post.likes.includes(user.id) ? 1 : 0)
-        : 0);
-    }, 0);
-    
-    // Calculate monthly stats
-    let pointsThisMonth = 0;
-    posts.forEach(post => {
-      const postDate = new Date(post.date);
-      
-      // Only count posts from current month
-      if (postDate.getMonth() === currentMonth && postDate.getFullYear() === currentYear) {
-        // Count contributions from this month
-        if (post.author === user.name) {
-          pointsThisMonth += 50; // Points for creating a post this month
-        }
-        
-        // Count views from this month's posts
-        if (post.author === user.name) {
-          pointsThisMonth += post.views;
-        }
-        
-        // Count comments from this month
-        if (post.comments && Array.isArray(post.comments)) {
-          post.comments.forEach(comment => {
-            if (comment.userId === user.id) {
-              const commentDate = new Date(comment.date);
-              if (commentDate.getMonth() === currentMonth && commentDate.getFullYear() === currentYear) {
-                pointsThisMonth += 10;
-              }
-            }
-          });
-        }
-        
-        // Count likes from this month
-        if (post.likes && Array.isArray(post.likes) && post.likes.includes(user.id)) {
-          pointsThisMonth += 5;
-        }
-      }
-    });
-    
-    // Calculate total points
-    const pointsTotal = calculatePoints(viewsCount, postsCount, commentsCount, likesCount);
-    
-    // Update user stats
-    user.postsCreated = postsCount;
-    user.totalViews = viewsCount;
-    user.commentsCount = commentsCount;
-    user.likesCount = likesCount;
-    user.stats = {
-      views: viewsCount,
-      posts: postsCount,
-      comments: commentsCount,
-      likes: likesCount,
-      pointsTotal: pointsTotal,
-      pointsThisMonth: pointsThisMonth,
-      lastUpdated: new Date().toISOString()
-    };
+// Mock function to simulate saving user data to a database
+const saveUserToDb = async (user: User): Promise<User> => {
+  // Simulate a database save operation
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("User data saved to database:", user);
+      resolve(user);
+    }, 500);
   });
 };
 
-export const getTopUser = async (): Promise<User | undefined> => {
-  if (users.length === 0) return undefined;
-  return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal)[0];
+// Update user statistics with activity data
+export const updateUserStats = async (user: User, activityData: {
+  views?: number;
+  posts?: number;
+  comments?: number;
+  likes?: number;
+}) => {
+  if (user && user.stats) {
+    const stats = { ...user.stats };
+    
+    if (activityData.views) stats.views += activityData.views;
+    if (activityData.posts) stats.posts += activityData.posts;
+    if (activityData.comments) stats.comments += activityData.comments;
+    if (activityData.likes) stats.likes += activityData.likes;
+    
+    const pointsTotal = calculatePoints(stats);
+    stats.pointsTotal = pointsTotal;
+    
+    // Update monthly points
+    const now = new Date();
+    const lastUpdated = new Date(stats.lastUpdated);
+    const isNewMonth = lastUpdated.getMonth() !== now.getMonth() || 
+                      lastUpdated.getFullYear() !== now.getFullYear();
+    
+    if (isNewMonth) {
+      stats.pointsThisMonth = 0; // Reset monthly points on new month
+    }
+    
+    stats.pointsThisMonth += calculatePoints({
+      views: activityData.views || 0,
+      posts: activityData.posts || 0,
+      comments: activityData.comments || 0,
+      likes: activityData.likes || 0
+    });
+    
+    stats.lastUpdated = now.toISOString();
+    
+    // Also update the user model properties if they exist
+    if (activityData.posts && user.postsCreated !== undefined) {
+      user.postsCreated += activityData.posts;
+    }
+    if (activityData.views && user.totalViews !== undefined) {
+      user.totalViews += activityData.views;
+    }
+    if (activityData.comments && user.commentsCount !== undefined) {
+      user.commentsCount += activityData.comments;
+    }
+    if (activityData.likes && user.likesCount !== undefined) {
+      user.likesCount += activityData.likes;
+    }
+    
+    user.stats = stats;
+    
+    // Here in a real app, you would save user to the database
+    // return saveUserToDb(user);
+    
+    return user;
+  }
+  
+  return user;
 };
 
-export const getTopUserOfMonth = async (): Promise<User | undefined> => {
-  if (users.length === 0) return undefined;
-  return [...users].sort((a, b) => b.stats.pointsThisMonth - a.stats.pointsThisMonth)[0];
+// Calculate total points from stats
+export const calculatePoints = (stats: {
+  views: number;
+  posts: number;
+  comments: number;
+  likes: number;
+}): number => {
+  return (stats.views * 1) + (stats.posts * 50) + (stats.comments * 10) + (stats.likes * 5);
 };
 
+// Mock function to simulate fetching user ranking
 export const getUserRanking = async (): Promise<User[]> => {
-  return [...users].sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal);
+  // In a real application, this would fetch users from a database
+  // and sort them by total points
+  
+  // Mock data for demonstration
+  const mockUsers: User[] = [
+    {
+      id: '1',
+      email: 'user1@example.com',
+      name: 'User One',
+      stats: {
+        views: 100,
+        posts: 10,
+        comments: 50,
+        likes: 25,
+        pointsTotal: 1000,
+        pointsThisMonth: 150,
+        lastUpdated: new Date().toISOString()
+      }
+    } as User,
+    {
+      id: '2',
+      email: 'user2@example.com',
+      name: 'User Two',
+      stats: {
+        views: 150,
+        posts: 5,
+        comments: 75,
+        likes: 30,
+        pointsTotal: 900,
+        pointsThisMonth: 120,
+        lastUpdated: new Date().toISOString()
+      }
+    } as User,
+    {
+      id: '3',
+      email: 'user3@example.com',
+      name: 'User Three',
+      stats: {
+        views: 200,
+        posts: 2,
+        comments: 100,
+        likes: 40,
+        pointsTotal: 800,
+        pointsThisMonth: 100,
+        lastUpdated: new Date().toISOString()
+      }
+    } as User,
+  ];
+  
+  // Sort users by points (descending)
+  return mockUsers.sort((a, b) => b.stats.pointsTotal - a.stats.pointsTotal);
 };

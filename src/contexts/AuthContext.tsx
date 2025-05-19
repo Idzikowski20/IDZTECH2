@@ -1,3 +1,4 @@
+
 import React from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { UserRole } from "@/utils/authTypes";
@@ -9,21 +10,21 @@ export interface ExtendedUserProfile {
   profilePicture?: string | null;
   bio?: string | null;
   jobTitle?: string | null;
-  role?: UserRole | null; // Changed from string to UserRole
+  role?: UserRole | null;
 }
 
 export interface AuthContextType {
   user: (User & ExtendedUserProfile) | null;
   session: Session | null;
   loading: boolean;
-  isLoading: boolean; // Added this property to fix the error
+  isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (email: string, password: string, remember?: boolean) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
   updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
-  refreshUserStats: () => void; // Added the missing property
+  refreshUserStats: () => void;
 }
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);

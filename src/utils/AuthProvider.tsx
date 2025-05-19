@@ -5,11 +5,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { signIn, signOut, resetPassword, updatePassword, refreshUser } from './authIntegration';
 import { useNavigate } from 'react-router-dom';
+import { UserRole } from './authTypes';
 
 // Define extended user profile interface
 export interface ExtendedUserProfile {
   name?: string | null;
+  lastName?: string | null;
   profilePicture?: string | null;
+  bio?: string | null;
+  jobTitle?: string | null;
+  role?: UserRole | null;
 }
 
 interface AuthContextProps {

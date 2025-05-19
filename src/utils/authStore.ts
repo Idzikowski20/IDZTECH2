@@ -1,11 +1,8 @@
-
 // This file defines the local auth store as a backup for when Supabase auth is disabled
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabaseUpdateUserRole } from './authSupabaseIntegration';
-import type { User, UserRole } from './authTypes';
-// Remove the incorrect import
-// import { Password } from './passwordValidation';
+import { User, UserRole, UserStats } from './authTypes';
 
 // Initial users
 let users: User[] = [
@@ -61,13 +58,18 @@ let users: User[] = [
   }
 ];
 
-// Store for user passwords (in a real app, this would use proper hashing)
+// Password map (in a real app, these would be hashed)
 export const passwords: { [email: string]: string } = {
   'admin@example.com': 'Password123!',
-  'patryk.idzikowski@interia.pl': 'Pl123456'
+  'patryk.idzikowski@interia.pl': 'Pl123456',
+  'mod@idztech.pl': 'mod123',
+  'blogger@idztech.pl': 'blog123',
 };
 
-// Helper to update users array and return the new array
+// Mock reset token storage
+export const resetTokens: { email: string; token: string; expires: Date; }[] = [];
+
+// Helper to update users array
 export const updateUsersArray = (updatedUsers: User[]) => {
   users = updatedUsers;
   return users;
@@ -95,7 +97,16 @@ export const updateUserRole = async (userId: string, role: UserRole): Promise<bo
     
     // Always update in local store
     const updatedUsers = [...users];
-    updatedUsers[userIndex].role = role;
+    if (updatedUsers[userIndex].role !== undefined) {
+      updatedUsers[userIndex].role = role;
+    } else {
+      // Add role if it doesn't exist
+      updatedUsers[userIndex] = {
+        ...updatedUsers[userIndex],
+        role: role
+      };
+    }
+    
     updateUsersArray(updatedUsers);
     
     return true;
@@ -105,11 +116,11 @@ export const updateUserRole = async (userId: string, role: UserRole): Promise<bo
   }
 };
 
-// Local Auth Store
+// Local Auth Store interface
 interface AuthStore {
   currentUserId: string | null;
   isAuthenticated: boolean;
-  user: User | null; // Add user property
+  user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   register: (email: string, name: string, password: string) => Promise<boolean>;
@@ -119,10 +130,10 @@ interface AuthStore {
   deleteUser: (userId: string) => Promise<boolean>;
   getUsers: () => User[];
   getCurrentUser: () => User | null;
-  getUserRanking: () => Promise<User[]>; // Add missing methods
-  refreshUserStats: () => void; // Add missing methods
-  updateUserRole: (userId: string, role: UserRole) => Promise<boolean>; // Add missing method
-  addUser: (userData: Partial<User>, password: string) => Promise<boolean>; // Add missing method
+  getUserRanking: () => Promise<User[]>;
+  refreshUserStats: () => void;
+  updateUserRole: (userId: string, role: UserRole) => Promise<boolean>;
+  addUser: (userData: Partial<User>, password: string) => Promise<boolean>;
 }
 
 // Create the auth store
@@ -131,7 +142,7 @@ export const useAuth = create<AuthStore>()(
     (set, get) => ({
       currentUserId: null,
       isAuthenticated: false,
-      user: null, // Initialize user property
+      user: null,
       
       // Login
       login: async (email: string, password: string) => {
@@ -354,12 +365,12 @@ export const useAuth = create<AuthStore>()(
             return false;
           }
           
-          // Create new user
+          // Create new user with all required properties
           const newUser: User = {
             id: `local-${Date.now()}`,
             email: userData.email.toLowerCase(),
             name: userData.name || 'User',
-            role: userData.role || 'user',
+            role: userData.role as UserRole || 'user',
             lastName: userData.lastName || '',
             profilePicture: userData.profilePicture || '',
             bio: userData.bio || '',

@@ -101,9 +101,15 @@ export const updateProfile = async (data: any) => {
     
     if (!user) throw new Error('No user is currently logged in');
     
+    // Process the role to ensure it's a valid UserRole enum value if present
+    const processedData = { ...data };
+    if (data.role !== undefined) {
+      processedData.role = ensureValidRole(data.role);
+    }
+    
     // Now update the metadata
     await supabase.auth.updateUser({
-      data: data
+      data: processedData
     });
     
     // After updating the profile, refresh the user
