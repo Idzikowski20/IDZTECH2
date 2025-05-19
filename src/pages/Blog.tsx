@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -8,7 +7,7 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
-// Updated BlogPost interface to match the database structure
+// Updated BlogPost interface to remove updated_at and author_id
 interface BlogPost {
   id: string;
   title: string;
@@ -19,7 +18,6 @@ interface BlogPost {
   categories: string[] | null;
   tags: string[] | null;
   created_at: string;
-  updated_at: string;
 }
 
 const Blog = () => {

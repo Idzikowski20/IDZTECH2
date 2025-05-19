@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Plus, Edit, Trash2, Eye, Search } from 'lucide-react';
@@ -30,11 +29,9 @@ interface BlogPost {
   title: string;
   slug: string;
   created_at: string;
-  updated_at: string;
   content: string;
   featured_image: string;
   excerpt: string | null;
-  author_id: string;
   published: boolean;
   published_at: string | null;
 }
@@ -77,7 +74,7 @@ const Admin = () => {
       setLoadingPosts(true);
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('id, title, slug, created_at, content, featured_image, excerpt, author_id, published, published_at')
+        .select('id, title, slug, created_at, content, featured_image, excerpt, published, published_at')
         .order('created_at', { ascending: false });
       
       if (!error) {

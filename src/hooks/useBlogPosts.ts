@@ -3,20 +3,21 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
 import type { Database } from '@/types/supabase'
 
-type BlogPost = Database['public']['Tables']['blog_posts']['Row']
-type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert']
-type BlogPostUpdate = Database['public']['Tables']['blog_posts']['Update']
+// Update the type definitions to remove updated_at and author_id
+type BlogPost = Omit<Database['public']['Tables']['blog_posts']['Row'], 'updated_at' | 'author_id'>
+type BlogPostInsert = Omit<Database['public']['Tables']['blog_posts']['Insert'], 'updated_at' | 'author_id'>
+type BlogPostUpdate = Omit<Database['public']['Tables']['blog_posts']['Update'], 'updated_at' | 'author_id'>
 
 export function useBlogPosts() {
   const queryClient = useQueryClient()
 
-  // Fetch all posts
+  // Fetch all posts - removing author_id and updated_at from the select
   const { data: posts, isLoading: isLoadingPosts } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select('*')
+        .select('id, title, slug, content, featured_image, excerpt, categories, tags, created_at, published, published_at')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -24,14 +25,14 @@ export function useBlogPosts() {
     }
   })
 
-  // Fetch single post by slug
+  // Fetch single post by slug - removing author_id and updated_at from the select
   const getPost = (slug: string) => {
     return useQuery({
       queryKey: ['blog-post', slug],
       queryFn: async () => {
         const { data, error } = await supabase
           .from('blog_posts')
-          .select('*')
+          .select('id, title, slug, content, featured_image, excerpt, categories, tags, created_at, published, published_at')
           .eq('slug', slug)
           .single()
 
@@ -42,7 +43,7 @@ export function useBlogPosts() {
     })
   }
 
-  // Create new post
+  // Create new post - no need to send author_id
   const createPost = useMutation({
     mutationFn: async (newPost: BlogPostInsert) => {
       const { data, error } = await supabase
@@ -59,7 +60,7 @@ export function useBlogPosts() {
     }
   })
 
-  // Update post
+  // Update post - omit updated_at (it's handled by supabase) and author_id
   const updatePost = useMutation({
     mutationFn: async ({ id, ...updates }: BlogPostUpdate & { id: string }) => {
       const { data, error } = await supabase
