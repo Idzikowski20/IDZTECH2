@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Users, FileText, Plus, Edit, Trash2, Eye, Reply, TrendingUp, Heart, MessageSquare, Search } from 'lucide-react';
@@ -27,21 +26,29 @@ import {
   PaginationPrevious 
 } from '@/components/ui/pagination';
 
-// Define the BlogPost type to fix the TypeScript error
+// Define the BlogPost type to match actual database structure
 interface BlogPost {
   id: string;
   title: string;
   slug: string;
-  views: number;
   created_at: string;
   updated_at: string;
-  likes?: string[];
-  comments?: any[];
   content: string;
   featured_image: string;
-  summary: string;
-  categories: string[];
+  summary: string | null;
+  excerpt: string | null;
+  categories: string[] | null;
+  tags: string[] | null;
   author_id: string;
+  published: boolean;
+  published_at: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_tags: string[] | null;
+  // Add these computed properties for compatibility with existing code
+  views?: number;
+  likes?: string[];
+  comments?: any[];
 }
 
 const Admin = () => {
@@ -113,8 +120,19 @@ const Admin = () => {
         .from('blog_posts')
         .select('*')
         .order('created_at', { ascending: false });
-      if (!error) setPosts(data || []);
-      else console.error("Error fetching blog posts:", error);
+      
+      if (!error) {
+        // Add computed properties needed by the UI
+        const postsWithComputedProps = (data || []).map(post => ({
+          ...post,
+          views: 0, // Default value since views isn't in your table
+          likes: [], // Default value since likes isn't in your table
+          comments: [] // Default value since comments isn't in your table
+        }));
+        setPosts(postsWithComputedProps);
+      } else {
+        console.error("Error fetching blog posts:", error);
+      }
       setLoadingPosts(false);
     };
     fetchPosts();

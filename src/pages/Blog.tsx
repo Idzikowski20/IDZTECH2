@@ -8,19 +8,25 @@ import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
-// Define the BlogPost interface
+// Updated BlogPost interface to match your database structure
 interface BlogPost {
   id: string;
   title: string;
   slug: string;
   content: string;
   featured_image: string;
-  summary: string;
-  categories: string[];
+  summary: string | null;
+  excerpt: string | null;
+  categories: string[] | null;
+  tags: string[] | null;
   author_id: string;
   created_at: string;
   updated_at: string;
   published: boolean;
+  published_at: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_tags: string[] | null;
   users?: {
     first_name: string | null;
     last_name: string | null;
@@ -28,8 +34,16 @@ interface BlogPost {
   };
 }
 
+interface BlogPostWithUI extends BlogPost {
+  featuredImage?: string;
+  excerpt?: string;
+  categories?: string[];
+  author?: string;
+  authorAvatar?: string | null;
+}
+
 const Blog = () => {
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<BlogPostWithUI[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,15 +55,16 @@ const Blog = () => {
       .order('created_at', { ascending: false });
       
       if (!error && data) {
-        // Mapujemy dane, by zachować dotychczasowy format
-        setPosts(data.map(post => ({
+        // Transform data for UI requirements
+        const transformedPosts: BlogPostWithUI[] = data.map(post => ({
           ...post,
           featuredImage: post.featured_image,
-          excerpt: post.summary,
+          excerpt: post.summary || post.excerpt || '',
           categories: post.categories || [],
           author: (post as any).users ? `${(post as any).users.first_name || ''} ${(post as any).users.last_name || ''}`.trim() : '',
           authorAvatar: (post as any).users?.avatar_url || null,
-        })));
+        }));
+        setPosts(transformedPosts);
       } else {
         console.error('Error fetching blog posts:', error);
         setPosts([]);

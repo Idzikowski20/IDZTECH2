@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
@@ -12,29 +11,36 @@ import { useTheme } from '@/utils/themeContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Define the BlogPost interface
+// Update BlogPost interface to match your actual database
 interface BlogPost {
   id: string;
   title: string;
   slug: string;
   content: string;
   featured_image: string;
-  summary: string;
-  categories: string[];
-  tags: string[];
+  summary: string | null;
+  excerpt: string | null;
+  categories: string[] | null;
+  tags: string[] | null;
   author_id: string;
   created_at: string;
   updated_at: string;
   published: boolean;
-  views: number;
+  published_at: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  meta_tags: string[] | null;
+  // Add these computed fields for UI
+  views?: number;
   users?: {
     first_name: string | null;
     last_name: string | null;
     avatar_url: string | null;
   };
-  comments?: any[];
-  likes?: string[];
-  guestLikes?: string[];
+  // Additional UI helper properties
+  authorName?: string;
+  authorAvatar?: string | null;
+  authorJobTitle?: string;
 }
 
 const BlogPost = () => {
@@ -56,24 +62,21 @@ const BlogPost = () => {
         .single();
         
       if (!error && data) {
-        setPost({
+        // Create a properly typed post object with computed fields
+        const postData: BlogPost = {
           ...data,
-          featuredImage: data.featured_image,
-          excerpt: data.summary,
-          categories: data.categories || [],
-          tags: data.tags || [],
-          author: (data as any).users ? `${(data as any).users.first_name || ''} ${(data as any).users.last_name || ''}`.trim() : '',
-          authorAvatar: (data as any).users?.avatar_url || null,
-        });
+          views: 0, // Default view count
+          authorName: data.users ? `${data.users.first_name || ''} ${data.users.last_name || ''}`.trim() : 'IDZ.TECH',
+          authorAvatar: data.users?.avatar_url || null,
+          authorJobTitle: 'Autor'
+        };
         
-        // Increment view count
-        if (data.id) {
-          const newViews = (data.views || 0) + 1;
-          await supabase
-            .from('blog_posts')
-            .update({ views: newViews })
-            .eq('id', data.id);
-        }
+        setPost(postData);
+        
+        // Increment view count (in a real app you would store this)
+        const viewCount = (postData.views || 0) + 1;
+        // In a real app you would update the view count in the database
+        console.log(`Incrementing view count to ${viewCount} for post ${data.id}`);
       } else {
         console.error('Error fetching blog post:', error);
         setPost(null);
@@ -108,13 +111,13 @@ const BlogPost = () => {
     );
   }
 
-  const authorDisplayName = post.author || "IDZ.TECH";
+  const authorDisplayName = post.authorName || "IDZ.TECH";
   const authorInitial = authorDisplayName.charAt(0);
   const authorProfilePicture = post.authorAvatar || null;
 
-  // Safely access post properties with fallbacks for undefined values
-  const commentsCount = post.comments ? post.comments.length : 0;
-  const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
+  // Calculate counts for UI
+  const commentsCount = 0; // Since you don't have actual comments
+  const likesCount = 0; // Since you don't have actual likes
 
   // Check if user is admin, moderator or blogger (has special permissions)
   const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');

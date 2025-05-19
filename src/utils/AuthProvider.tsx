@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, createContext, useContext, useRef } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +11,7 @@ export interface ExtendedUserProfile {
   profilePicture?: string | null;
   bio?: string | null;
   jobTitle?: string | null;
+  role?: string;  // Add this line to include role in the type
 }
 
 // Define auth context type
@@ -71,7 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   lastName: currentSession.user.user_metadata?.lastName || null,
                   profilePicture: currentSession.user.user_metadata?.profilePicture || null,
                   bio: currentSession.user.user_metadata?.bio || null,
-                  jobTitle: currentSession.user.user_metadata?.jobTitle || null
+                  jobTitle: currentSession.user.user_metadata?.jobTitle || null,
+                  role: currentSession.user.user_metadata?.role || null
                 };
                 
                 setUser(userData);
@@ -151,7 +152,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             lastName: session.user.user_metadata?.lastName || null,
             profilePicture: session.user.user_metadata?.profilePicture || null,
             bio: session.user.user_metadata?.bio || null,
-            jobTitle: session.user.user_metadata?.jobTitle || null
+            jobTitle: session.user.user_metadata?.jobTitle || null,
+            role: session.user.user_metadata?.role || null
           };
           
           setUser(userData);
