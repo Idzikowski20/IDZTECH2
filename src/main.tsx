@@ -11,7 +11,7 @@ import { UIToaster } from '@/components/ui/toaster'
 import { Toaster as SonnerToaster } from 'sonner'
 import { initGA } from './utils/analytics'
 import ScrollToTop from '@/components/ScrollToTop'
-import { AuthProvider } from './utils/firebaseAuth.tsx' // Use the Firebase AuthProvider instead
+import { AuthProvider } from './utils/firebaseAuth.tsx' // Use the Firebase AuthProvider
 
 // Initialize Google Analytics
 initGA();

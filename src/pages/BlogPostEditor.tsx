@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -137,6 +136,8 @@ const BlogPostEditor = () => {
         title: values.title,
         slug: values.slug,
         summary: values.summary,
+        // Add excerpt field - use summary if no excerpt is available
+        excerpt: values.summary,
         content: values.content,
         featured_image: imageUrl,
         author_id: user.uid,
