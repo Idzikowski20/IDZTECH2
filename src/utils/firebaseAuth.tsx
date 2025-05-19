@@ -75,18 +75,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Attempting to sign in:", email);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
-      toast({
-        title: "Zalogowano pomyślnie",
+      toast.success("Zalogowano pomyślnie", {
         description: "Witamy z powrotem!"
       });
       
       return { data: userCredential, error: null };
     } catch (error: any) {
       console.error("Sign in error:", error.message);
-      toast({
-        title: "Błąd logowania",
-        description: error.message || "Nieprawidłowy email lub hasło",
-        variant: "destructive"
+      toast.error("Błąd logowania", {
+        description: error.message || "Nieprawidłowy email lub hasło"
       });
       return { error };
     }
@@ -97,18 +94,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      toast({
-        title: "Konto utworzone",
+      toast.success("Konto utworzone", {
         description: "Możesz się teraz zalogować"
       });
       
       return { data: userCredential, error: null };
     } catch (error: any) {
       console.error("Sign up error:", error.message);
-      toast({
-        title: "Błąd rejestracji",
-        description: error.message,
-        variant: "destructive"
+      toast.error("Błąd rejestracji", {
+        description: error.message
       });
       return { error };
     }
@@ -118,9 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
-      toast({
-        title: "Wylogowano pomyślnie"
-      });
+      toast.success("Wylogowano pomyślnie");
     } catch (error) {
       console.error('Sign out error:', error);
     }
@@ -130,17 +122,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetPassword = async (email: string) => {
     try {
       await sendPasswordResetEmail(auth, email);
-      toast({
-        title: "Email został wysłany",
+      toast.success("Email został wysłany", {
         description: "Sprawdź swoją skrzynkę pocztową, aby zresetować hasło"
       });
       return { error: null };
     } catch (error) {
       console.error("Password reset error:", error);
-      toast({
-        title: "Błąd resetowania hasła",
-        description: "Nie udało się wysłać emaila z resetowaniem hasła",
-        variant: "destructive"
+      toast.error("Błąd resetowania hasła", {
+        description: "Nie udało się wysłać emaila z resetowaniem hasła"
       });
       return { error };
     }
@@ -154,17 +143,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       await firebaseUpdatePassword(auth.currentUser, newPassword);
-      toast({
-        title: "Hasło zaktualizowane",
+      toast.success("Hasło zaktualizowane", {
         description: "Twoje hasło zostało pomyślnie zmienione"
       });
       return { error: null };
     } catch (error) {
       console.error("Password update error:", error);
-      toast({
-        title: "Błąd aktualizacji hasła",
-        description: "Nie udało się zmienić hasła",
-        variant: "destructive"
+      toast.error("Błąd aktualizacji hasła", {
+        description: "Nie udało się zmienić hasła"
       });
       return { error };
     }

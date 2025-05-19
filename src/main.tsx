@@ -5,13 +5,13 @@ import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from './utils/themeContext.tsx'
 import { BrowserRouter } from 'react-router-dom'
-import { AuthProvider } from './utils/AuthProvider.tsx'
 import { HelmetProvider } from 'react-helmet-async'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { UIToaster } from '@/components/ui/toaster'
 import { Toaster as SonnerToaster } from 'sonner'
 import { initGA } from './utils/analytics'
 import ScrollToTop from '@/components/ScrollToTop'
+import { AuthProvider } from './utils/firebaseAuth.tsx' // Use the Firebase AuthProvider instead
 
 // Initialize Google Analytics
 initGA();
@@ -28,9 +28,9 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HelmetProvider>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
+      <BrowserRouter>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <ScrollToTop />
               <App />
@@ -42,9 +42,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 theme="dark"
               />
             </AuthProvider>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ThemeProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </HelmetProvider>
   </React.StrictMode>,
 )

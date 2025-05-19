@@ -1,6 +1,6 @@
 
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/utils/AuthProvider";
+import { useAuth } from "@/utils/firebaseAuth";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
@@ -9,7 +9,7 @@ interface RequireAuthProps {
 }
 
 const RequireAuth = ({ children }: RequireAuthProps) => {
-  const { user, isLoading } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const [isInitialized, setIsInitialized] = useState(false);
   const redirected = useRef(false);
@@ -33,7 +33,7 @@ const RequireAuth = ({ children }: RequireAuthProps) => {
   }, [user, location.pathname, isInitialized]);
   
   // Show loading screen until we're sure about auth state
-  if (isLoading || !isInitialized) {
+  if (loading || !isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-premium-dark">
         <div className="text-center">

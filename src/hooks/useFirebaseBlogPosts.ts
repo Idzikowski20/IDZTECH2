@@ -13,7 +13,7 @@ type BlogPost = {
   content: string
   featured_image: string
   summary: string | null
-  excerpt: string | null
+  excerpt: string | null  // Make sure this is included
   categories: string[] | null
   tags: string[] | null
   created_at: string
@@ -97,7 +97,7 @@ export function useFirebaseBlogPosts() {
             content: data.content || '',
             featured_image: data.featured_image || '',
             summary: data.summary || null,
-            excerpt: data.excerpt || null,
+            excerpt: data.excerpt || data.summary || null, // Use summary as fallback if excerpt is missing
             categories: data.categories || null,
             tags: data.tags || null,
             created_at: data.created_at || new Date().toISOString(),
@@ -165,7 +165,7 @@ export function useFirebaseBlogPosts() {
             content: data.content || '',
             featured_image: data.featured_image || '',
             summary: data.summary || null,
-            excerpt: data.excerpt || null,
+            excerpt: data.excerpt || data.summary || null, // Use summary as fallback
             categories: data.categories || null,
             tags: data.tags || null,
             created_at: data.created_at || new Date().toISOString(),
@@ -209,6 +209,7 @@ export function useFirebaseBlogPosts() {
 
       const postData = {
         ...newPost,
+        excerpt: newPost.excerpt || newPost.summary, // Ensure excerpt exists
         featured_image: imageUrl,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -248,6 +249,7 @@ export function useFirebaseBlogPosts() {
       const postRef = doc(db, 'blog_posts', id);
       const postData = {
         ...updates,
+        excerpt: updates.excerpt || updates.summary, // Ensure excerpt exists
         featured_image: imageUrl,
         updated_at: new Date().toISOString(),
       };
