@@ -32,7 +32,6 @@ export default function AIPostPage() {
   const [thumbnail, setThumbnail] = useState('');
   const [loadingThumb, setLoadingThumb] = useState(false);
   const [editorValue, setEditorValue] = useState('');
-  const [aiPost, setAiPost] = useState<any>(null);
 
   React.useEffect(() => {
     if (!loading && !isAuthenticated) navigate('/login');
@@ -60,14 +59,12 @@ export default function AIPostPage() {
     setLoadingAI(true);
     setShowConfetti(false);
     setEditorValue('');
-    setAiPost(null);
     const res = await fetch('/api/generate-blog-post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic, keywords, style, length, audience, cta, meta, questions, summary, links, language }),
     });
     const data = await res.json();
-    setAiPost(data);
     setEditorValue(
       `<h1>${data.title}</h1><p>${data.lead}</p>` +
       data.sections.map(s => `<h2>${s.heading}</h2><p>${s.content}</p>`).join('') +
@@ -131,7 +128,7 @@ export default function AIPostPage() {
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center">AI Kreator Postów Blogowych</h1>
         <p className="text-gray-300 text-lg text-center mb-6">Wpisz temat, wybierz opcje i wygeneruj gotowy post!</p>
       </div>
-      <form onSubmit={handleGenerate} className="z-10 flex flex-col md:flex-row items-center gap-8 w-full max-w-4xl bg-[#18181c] rounded-2xl shadow-2xl p-8">
+      <form onSubmit={handleGenerate} className="z-10 flex flex-col md:flex-row items-center gap-8 w-full max-w-4xl  rounded-2xl ">
         <div className="flex-1 flex flex-col gap-4 w-full">
           <input
             type="text"
@@ -222,30 +219,6 @@ export default function AIPostPage() {
         </div>
       </form>
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={300} recycle={false} />}
-      {aiPost && (
-        <div className="mt-8 w-full max-w-4xl bg-[#22222a] rounded-xl p-6 text-white shadow-lg">
-          <h2 className="text-2xl font-bold mb-2">{aiPost.title}</h2>
-          {aiPost.meta && <div className="text-sm text-gray-400 mb-2">{aiPost.meta}</div>}
-          <p className="mb-4">{aiPost.lead}</p>
-          {aiPost.sections && aiPost.sections.map((section, idx) => (
-            <div key={idx} className="mb-4">
-              <h3 className="text-xl font-semibold mb-1">{section.heading}</h3>
-              <p>{section.content}</p>
-            </div>
-          ))}
-          {aiPost.summary && (
-            <div className="mt-4">
-              <h4 className="text-lg font-semibold">Podsumowanie</h4>
-              <p>{aiPost.summary}</p>
-            </div>
-          )}
-          {aiPost.cta && (
-            <div className="mt-4 p-4 bg-gradient-to-r from-purple-700 to-fuchsia-700 rounded-lg text-center font-bold">
-              {aiPost.cta}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
