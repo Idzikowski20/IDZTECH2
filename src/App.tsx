@@ -30,6 +30,7 @@ import TermsOfUse from '@/pages/TermsOfUse';
 import LanguageController from './components/LanguageController';
 import RequireAuth from '@/components/RequireAuth';
 import ErrorPage from '@/pages/ErrorPage';
+import Admin from '@/pages/Admin';
 
 const App = () => {
   return (
@@ -62,6 +63,10 @@ const App = () => {
         <Route path="/domain-creator" element={<DomainNameCreator />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
+        
+        {/* Admin routes - protected with RequireAuth */}
+        <Route path="/admin" element={<RequireAuth><Admin /></RequireAuth>} />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

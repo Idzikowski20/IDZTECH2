@@ -127,7 +127,7 @@ export const useAuthState = () => {
       subscription.unsubscribe();
       authInProgress.current = false;
     };
-  }, [navigate, toast, location.pathname]);
+  }, [toast, location.pathname]);
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {
