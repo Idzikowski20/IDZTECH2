@@ -1,25 +1,29 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import * as authStore from './authStore';
-import { ExtendedUserProfile } from '@/contexts/AuthContext';
-import { UserRole } from './authTypes';
 import { ensureValidRole } from './roleUtils';
 
-// Type for valid database user roles
-type ValidUserRole = 'admin' | 'user' | 'moderator' | 'blogger';
-
-// Map between the UserRole type in our app and the database roles
-const mapRoleToDbRole = (role: UserRole): UserRole => {
-  return role;
+// Function to get the current session
+export const getCurrentSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error("Error getting session:", error.message);
+    return {
+      session: null,
+      user: null
+    };
+  }
+  return {
+    session: session,
+    user: session?.user || null
+  };
 };
 
 // Function to sign in
-export const signIn = async (email: string, password: string, remember?: boolean): Promise<{ error: any }> => {
+export const signIn = async (email: string, password: string, remember?: boolean) => {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
-      password: password,
+      password: password
     });
 
     if (error) {
@@ -27,11 +31,12 @@ export const signIn = async (email: string, password: string, remember?: boolean
       return { error: error.message };
     }
 
-    if (remember) {
+    if (remember && data) {
       // Set the session to be persisted "forever"
       supabase.auth.setSession(data.session);
     }
-    return { error: null };
+    
+    return { data, error: null };
   } catch (err: any) {
     console.error("Unexpected sign-in error:", err.message);
     return { error: err.message };
@@ -39,7 +44,7 @@ export const signIn = async (email: string, password: string, remember?: boolean
 };
 
 // Function to sign out
-export const signOut = async (): Promise<void> => {
+export const signOut = async () => {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -51,7 +56,7 @@ export const signOut = async (): Promise<void> => {
 };
 
 // Function to reset password
-export const resetPassword = async (email: string): Promise<{ error: any }> => {
+export const resetPassword = async (email: string) => {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/update-password`,
@@ -70,7 +75,7 @@ export const resetPassword = async (email: string): Promise<{ error: any }> => {
 };
 
 // Function to update password
-export const updatePassword = async (newPassword: string): Promise<{ error: any }> => {
+export const updatePassword = async (newPassword: string) => {
   try {
     const { data, error } = await supabase.auth.updateUser({
       password: newPassword,
@@ -88,26 +93,20 @@ export const updatePassword = async (newPassword: string): Promise<{ error: any 
   }
 };
 
-// Update the updateProfile function to handle the role type conversion
-export const updateProfile = async (data: Partial<ExtendedUserProfile>): Promise<void> => {
+// Function to update profile
+export const updateProfile = async (data: any) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const user = session?.user;
     
     if (!user) throw new Error('No user is currently logged in');
     
-    // Process the role to ensure it's a valid UserRole enum value
-    const processedData: Partial<ExtendedUserProfile> = { ...data };
-    if (data.role !== undefined) {
-      processedData.role = ensureValidRole(data.role);
-    }
-    
-    // Now update the metadata with properly typed data
+    // Now update the metadata
     await supabase.auth.updateUser({
-      data: processedData
+      data: data
     });
     
-    // After updating the profile, refresh the user stats
+    // After updating the profile, refresh the user
     await refreshUser();
   } catch (error) {
     console.error('Error updating profile:', error);
@@ -116,7 +115,7 @@ export const updateProfile = async (data: Partial<ExtendedUserProfile>): Promise
 };
 
 // Function to refresh user data
-export const refreshUser = async (): Promise<void> => {
+export const refreshUser = async () => {
   try {
     const { data, error } = await supabase.auth.getUser();
     if (error) {

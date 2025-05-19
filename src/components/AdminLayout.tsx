@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Settings, User } from 'lucide-react';
+import { Home, LogOut } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,14 +36,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
 
   // Bezpieczny dostęp do danych użytkownika
   const displayName = user?.name || (user?.email ? user.email.split('@')[0] : 'User');
-  // Get full name if lastName exists
-  const fullName = user?.lastName ? `${displayName} ${user.lastName}` : displayName;
-  // Get user role for display
-  const userRole = user?.role || 'user';
   
-  // Bezpiecznie pobieramy avatar
-  const userAvatar = user?.profilePicture || '';
-
   return (
     <div className="min-h-screen bg-premium-dark">
       <header className="p-4 border-b border-premium-light/10 flex justify-between items-center relative">
@@ -74,32 +68,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
-                    {userAvatar ? (
-                      <AvatarImage src={userAvatar} alt={fullName} />
-                    ) : (
-                      <AvatarFallback className="bg-premium-gradient text-white">
-                        {fullName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    )}
+                    <AvatarFallback className="bg-premium-gradient text-white">
+                      {displayName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end">
                 <DropdownMenuLabel>
                   <div className="flex flex-col">
-                    <span>{fullName}</span>
-                    <span className="text-xs text-muted-foreground">{userRole}</span>
+                    <span>{displayName}</span>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/admin/profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profil</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Ustawienia</span>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleLogout}
@@ -139,30 +119,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
                     className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/stats' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
                   >
                     Statystyki
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/profile" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/profile' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Profil
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/users" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/users' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Użytkownicy
-                  </Link>
-                </li>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin/settings" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin/settings' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Ustawienia
                   </Link>
                 </li>
               </ul>

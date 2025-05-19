@@ -3,22 +3,29 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { signIn, signOut, resetPassword, updatePassword, updateProfile, refreshUser } from './authIntegration';
-import { ExtendedUserProfile } from '@/contexts/AuthContext';
+import { signIn, signOut, resetPassword, updatePassword, refreshUser } from './authIntegration';
 import { useNavigate } from 'react-router-dom';
+
+// Define extended user profile interface
+export interface ExtendedUserProfile {
+  name?: string | null;
+  profilePicture?: string | null;
+}
 
 interface AuthContextProps {
   user: (User & ExtendedUserProfile) | null;
   session: Session | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  loading: boolean;
   signIn: typeof signIn;
   signOut: typeof signOut;
   resetPassword: typeof resetPassword;
   updatePassword: typeof updatePassword;
-  updateProfile: typeof updateProfile;
+  updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
   getCurrentUser: () => (User & ExtendedUserProfile) | null;
   refreshUser: typeof refreshUser;
+  register?: (email: string, password: string, name: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -82,11 +89,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user;
   };
 
+  const updateProfile = async (data: Partial<ExtendedUserProfile>): Promise<void> => {
+    try {
+      await supabase.auth.updateUser({
+        data: data
+      });
+      
+      await refreshUser();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
+  // Simple registration function for consistency
+  const register = async (email: string, password: string, name: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name }
+        }
+      });
+      
+      return { error };
+    } catch (error: any) {
+      return { error };
+    }
+  };
+
   const authContextValue: AuthContextProps = {
     user,
     session,
     isAuthenticated: !!user,
     isLoading,
+    loading: isLoading,
     signIn,
     signOut,
     resetPassword,
@@ -94,6 +132,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     updateProfile,
     getCurrentUser,
     refreshUser,
+    register
   };
 
   return (
