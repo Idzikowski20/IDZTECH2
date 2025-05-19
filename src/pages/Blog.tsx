@@ -1,14 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Clock } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatDate, formatReadingTime } from '@/utils/dateUtils';
+import { formatDate } from '@/utils/dateUtils';
 import { Helmet } from 'react-helmet-async';
 
 const BlogCategories = () => {
@@ -25,7 +25,7 @@ const BlogCategories = () => {
           onClick={() => setActiveCategory(category)}
           className={activeCategory === category 
             ? "bg-premium-purple hover:bg-purple-700 hover:text-white" 
-            : "hover:bg-premium-light/10 hover:text-white"}
+            : "hover:bg-premium-light/10 hover:text-black dark:hover:text-white"}
         >
           {category}
         </Button>
@@ -94,12 +94,12 @@ const Blog = () => {
           ) : posts && posts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post) => (
-                <article key={post.id} className="group flex flex-col">
-                  <Link to={`/blog/${post.slug}`} className="block overflow-hidden rounded-xl mb-4">
+                <article key={post.id} className="group bg-transparent">
+                  <Link to={`/blog/${post.slug}`} className="block overflow-hidden rounded-2xl mb-4">
                     <img 
                       src={post.featured_image || '/placeholder.svg'} 
                       alt={post.title} 
-                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-64 object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder.svg';
@@ -107,11 +107,9 @@ const Blog = () => {
                     />
                   </Link>
                   
-                  <div className="text-sm text-gray-400 mb-2">
-                    <span className="flex items-center">
-                      <Calendar size={14} className="mr-1" />
-                      {formatDate(post.created_at)}
-                    </span>
+                  <div className="flex items-center text-sm text-gray-400 mb-2">
+                    <Calendar size={14} className="mr-1" />
+                    {formatDate(post.created_at)}
                   </div>
                   
                   <Link to={`/blog/${post.slug}`}>
@@ -123,14 +121,6 @@ const Blog = () => {
                   <p className="text-gray-400 mb-3 line-clamp-2">
                     {post.excerpt || post.summary || 'Brak opisu'}
                   </p>
-                  
-                  <Link 
-                    to={`/blog/${post.slug}`} 
-                    className="mt-auto inline-flex items-center text-premium-purple font-medium group/link"
-                  >
-                    <span className="group-hover/link:underline">Czytaj więcej</span>
-                    <ArrowRight size={16} className="ml-2 transition-transform group-hover/link:translate-x-1" />
-                  </Link>
                 </article>
               ))}
             </div>

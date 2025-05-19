@@ -91,10 +91,10 @@ const DesktopNavigation = () => {
                         to={link.href} 
                         className={`block px-3 py-2 rounded-md ${
                           isCurrentPath(link.href) 
-                            ? 'bg-premium-light/10 font-medium text-white'
+                            ? 'bg-premium-light/10 font-medium text-premium-purple'
                             : theme === 'light'
-                              ? 'hover:bg-gray-200 hover:text-black transition-colors'
-                              : 'hover:bg-gray-800/50 hover:text-white transition-colors'
+                              ? 'hover:text-black transition-colors'
+                              : 'hover:text-white transition-colors'
                         }`}
                         onClick={() => {
                           setOpenMenu(null);
@@ -116,10 +116,10 @@ const DesktopNavigation = () => {
                         to={link.href} 
                         className={`block px-3 py-2 rounded-md ${
                           isCurrentPath(link.href) 
-                            ? 'bg-premium-light/10 font-medium text-white'
+                            ? 'bg-premium-light/10 font-medium text-premium-purple'
                             : theme === 'light'
-                              ? 'hover:bg-gray-200 hover:text-black transition-colors'
-                              : 'hover:bg-gray-800/50 hover:text-white transition-colors'
+                              ? 'hover:text-black transition-colors'
+                              : 'hover:text-white transition-colors'
                         }`}
                         onClick={() => {
                           setOpenMenu(null);
@@ -155,10 +155,10 @@ const DesktopNavigation = () => {
                     to={link.href} 
                     className={`block px-3 py-2 rounded-md ${
                       isCurrentPath(link.href) 
-                        ? 'bg-premium-light/10 font-medium text-white'
+                        ? 'bg-premium-light/10 font-medium text-premium-purple'
                         : theme === 'light'
-                          ? 'hover:bg-gray-200 hover:text-black transition-colors'
-                          : 'hover:bg-gray-800/50 hover:text-white transition-colors'
+                          ? 'hover:text-black transition-colors'
+                          : 'hover:text-white transition-colors'
                     }`}
                     onClick={() => {
                       setOpenMenu(null);
