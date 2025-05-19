@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
@@ -86,11 +85,7 @@ const DomainNameCreator = () => {
     
     // Symulacja opóźnienia jak przy prawdziwym generowaniu domen
     setTimeout(() => {
-      const keywordList = keywords
-        .toLowerCase()
-        .split(',')
-        .map(k => k.trim())
-        .filter(k => k !== '');
+      const keywordList = (keywords || '').toLowerCase().split(',').map(k => k.trim()).filter(k => k !== '');
       
       const generatedResults: string[] = [];
       const industryPrefixes = industry ? prefixes[industry as keyof typeof prefixes] : [];

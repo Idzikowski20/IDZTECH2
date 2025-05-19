@@ -132,7 +132,7 @@ const Admin = () => {
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
           <p className="text-premium-light/70">
-            Witaj, {user?.name || user?.email?.split('@')[0] || 'Użytkowniku'}! Zarządzaj treściami swojej strony.
+            Witaj, {user?.name || (user?.email ? user.email.split('@')[0] : 'Użytkowniku')}! Zarządzaj treściami swojej strony.
           </p>
         </div>
 

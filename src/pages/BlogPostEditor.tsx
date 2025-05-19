@@ -141,8 +141,8 @@ const BlogPostEditor = () => {
         content: values.content,
         featured_image: imageUrl,
         author_id: user.uid,
-        categories: values.categories.split(',').map(cat => cat.trim()),
-        tags: values.tags.split(',').map(tag => tag.trim()),
+        categories: (values.categories || '').split(',').map(cat => cat.trim()),
+        tags: (values.tags || '').split(',').map(tag => tag.trim()),
       };
 
       console.log("Post data to be submitted:", postData);

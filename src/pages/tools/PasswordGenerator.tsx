@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,7 +204,7 @@ const PasswordGenerator: React.FC = () => {
     }
     
     // Shuffle the result to make it more random
-    return result.split('').sort(() => 0.5 - Math.random()).join('');
+    return (result || '').split('').sort(() => 0.5 - Math.random()).join('');
   };
 
   const generatePassword = () => {
