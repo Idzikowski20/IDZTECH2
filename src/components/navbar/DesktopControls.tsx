@@ -46,7 +46,7 @@ const DesktopControls = () => {
 
       <Link to="/contact" className="hidden md:block">
         <Button 
-          className="bg-blue text-white hover:bg-black hover:text-white transition-colors"
+          className="bg-black text-white hover:bg-black/80 transition-colors"
         >
           Kontakt
         </Button>

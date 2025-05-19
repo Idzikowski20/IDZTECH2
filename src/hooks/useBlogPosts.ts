@@ -78,9 +78,14 @@ export function useBlogPosts() {
   // Update post - no need for author_id
   const updatePost = useMutation({
     mutationFn: async ({ id, ...updates }: BlogPost) => {
+      const postWithAuthorId = {
+        ...updates,
+        author_id: '00000000-0000-0000-0000-000000000000' // Dummy ID for compatibility
+      }
+      
       const { data, error } = await supabase
         .from('blog_posts')
-        .update(updates)
+        .update(postWithAuthorId)
         .eq('id', id)
         .select()
         .single()

@@ -4,13 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Check } from "lucide-react";
 import PageDotAnimation from "@/components/PageDotAnimation";
 import PasswordStrengthIndicator from "@/components/ui/PasswordStrengthIndicator";
-import { useTranslation } from 'react-i18next';
 
 // List of common syllables to create pronounceable passwords
 const SYLLABLES = [
@@ -36,10 +35,10 @@ const WORD_PARTS = [
 
 // List of common words to include in passwords
 const COMMON_WORDS = [
-  "time", "year", "team", "work", "life", "good", "blue", "book", "home", 
-  "view", "card", "lock", "file", "safe", "port", "code", "note", "link",
-  "plan", "key", "pass", "word", "user", "path", "sign", "door", "net",
-  "web", "site", "flow", "task", "form", "line", "goal", "mind", "idea"
+  "czas", "rok", "team", "praca", "życie", "dobry", "niebieski", "książka", "dom", 
+  "widok", "karta", "zamek", "plik", "sejf", "port", "kod", "notatka", "link",
+  "plan", "klucz", "hasło", "słowo", "user", "ścieżka", "znak", "drzwi", "sieć",
+  "web", "strona", "przepływ", "zadanie", "forma", "linia", "cel", "umysł", "idea"
 ];
 
 const PASSWORD_TYPES = {
@@ -56,7 +55,6 @@ const PasswordGenerator: React.FC = () => {
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [copied, setCopied] = useState(false);
   const [passwordType, setPasswordType] = useState(PASSWORD_TYPES.MEMORABLE);
-  const { t } = useTranslation();
   
   // Generate password on mount and when options change
   useEffect(() => {
@@ -235,12 +233,12 @@ const PasswordGenerator: React.FC = () => {
     navigator.clipboard.writeText(password)
       .then(() => {
         setCopied(true);
-        toast.success("Password copied to clipboard");
+        toast.success("Hasło skopiowane do schowka");
         setTimeout(() => setCopied(false), 2000);
       })
       .catch(err => {
         console.error('Failed to copy: ', err);
-        toast.error("Failed to copy password");
+        toast.error("Nie udało się skopiować hasła");
       });
   };
 
@@ -251,10 +249,10 @@ const PasswordGenerator: React.FC = () => {
 
       <div className="container px-4 max-w-4xl mx-auto py-24">
         <div className="text-center mb-12">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-6">Password Generator</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-6">Generator Haseł</h1>
           <p className="text-premium-light/70 text-lg max-w-2xl mx-auto">
-            Create secure and customizable passwords for your accounts. 
-            Choose between memorable, pronounceable, or completely random passwords.
+            Stwórz bezpieczne i konfigurowalne hasła dla swoich kont. 
+            Wybierz między łatwymi do zapamiętania, łatwymi do wymówienia lub całkowicie losowymi hasłami.
           </p>
         </div>
 
@@ -273,7 +271,7 @@ const PasswordGenerator: React.FC = () => {
                 className="min-w-[100px] bg-premium-gradient hover:opacity-90 transition-opacity"
               >
                 {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
-                {copied ? "Copied!" : "Copy"}
+                {copied ? "Skopiowano!" : "Kopiuj"}
               </Button>
               <Button
                 onClick={generatePassword}
@@ -281,7 +279,7 @@ const PasswordGenerator: React.FC = () => {
                 className="border-white/20 hover:bg-white hover:text-black"
               >
                 <RefreshCw className="h-4 w-4" />
-                <span className="sr-only">Generate</span>
+                <span className="sr-only">Wygeneruj</span>
               </Button>
             </div>
           </div>
@@ -293,7 +291,7 @@ const PasswordGenerator: React.FC = () => {
           <div className="space-y-8">
             {/* Password Type Selection */}
             <div>
-              <h2 className="text-lg font-medium mb-4">Password Type</h2>
+              <h2 className="text-lg font-medium mb-4">Rodzaj hasła</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Button
                   onClick={() => setPasswordType(PASSWORD_TYPES.MEMORABLE)}
@@ -304,7 +302,7 @@ const PasswordGenerator: React.FC = () => {
                       : "border-white/20 hover:bg-white/10"
                   }`}
                 >
-                  Memorable
+                  Łatwe do zapamiętania
                 </Button>
                 <Button
                   onClick={() => setPasswordType(PASSWORD_TYPES.PRONOUNCEABLE)}
@@ -315,7 +313,7 @@ const PasswordGenerator: React.FC = () => {
                       : "border-white/20 hover:bg-white/10"
                   }`}
                 >
-                  Pronounceable
+                  Łatwe do wymówienia
                 </Button>
                 <Button
                   onClick={() => setPasswordType(PASSWORD_TYPES.RANDOM)}
@@ -326,7 +324,7 @@ const PasswordGenerator: React.FC = () => {
                       : "border-white/20 hover:bg-white/10"
                   }`}
                 >
-                  Random
+                  Losowe
                 </Button>
               </div>
             </div>
@@ -334,8 +332,8 @@ const PasswordGenerator: React.FC = () => {
             {/* Password Length */}
             <div>
               <div className="flex justify-between mb-2">
-                <h2 className="text-lg font-medium">Password Length</h2>
-                <span className="text-premium-light/70">{length} characters</span>
+                <h2 className="text-lg font-medium">Długość hasła</h2>
+                <span className="text-premium-light/70">{length} znaków</span>
               </div>
               <Slider 
                 value={[length]}
@@ -349,24 +347,24 @@ const PasswordGenerator: React.FC = () => {
 
             {/* Options */}
             <div>
-              <h2 className="text-lg font-medium mb-4">Options</h2>
+              <h2 className="text-lg font-medium mb-4">Opcje</h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-premium-light/70">Include Uppercase Letters</label>
+                  <label className="text-premium-light/70">Wielkie litery</label>
                   <Switch 
                     checked={includeUppercase}
                     onCheckedChange={setIncludeUppercase}
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="text-premium-light/70">Include Numbers</label>
+                  <label className="text-premium-light/70">Cyfry</label>
                   <Switch 
                     checked={includeNumbers}
                     onCheckedChange={setIncludeNumbers}
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label className="text-premium-light/70">Include Symbols</label>
+                  <label className="text-premium-light/70">Znaki specjalne</label>
                   <Switch 
                     checked={includeSymbols}
                     onCheckedChange={setIncludeSymbols}
@@ -378,22 +376,22 @@ const PasswordGenerator: React.FC = () => {
         </div>
 
         <div className="bg-premium-dark/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 shadow-xl">
-          <h2 className="text-2xl font-bold mb-4">Password Tips</h2>
+          <h2 className="text-2xl font-bold mb-4">Wskazówki dotyczące haseł</h2>
           <ul className="space-y-2 text-premium-light/70">
             <li className="flex items-start">
-              <span className="text-purple-400 mr-2">•</span> Use a unique password for each account
+              <span className="text-purple-400 mr-2">•</span> Używaj unikalnego hasła dla każdego konta
             </li>
             <li className="flex items-start">
-              <span className="text-purple-400 mr-2">•</span> Consider using a password manager to store your passwords securely
+              <span className="text-purple-400 mr-2">•</span> Rozważ użycie menedżera haseł do bezpiecznego przechowywania haseł
             </li>
             <li className="flex items-start">
-              <span className="text-purple-400 mr-2">•</span> The longer your password, the more secure it will be
+              <span className="text-purple-400 mr-2">•</span> Im dłuższe hasło, tym będzie bezpieczniejsze
             </li>
             <li className="flex items-start">
-              <span className="text-purple-400 mr-2">•</span> Avoid using personal information in your passwords
+              <span className="text-purple-400 mr-2">•</span> Unikaj używania danych osobowych w hasłach
             </li>
             <li className="flex items-start">
-              <span className="text-purple-400 mr-2">•</span> Enable two-factor authentication when available for additional security
+              <span className="text-purple-400 mr-2">•</span> Włącz uwierzytelnianie dwuskładnikowe, gdy jest dostępne, dla dodatkowego bezpieczeństwa
             </li>
           </ul>
         </div>

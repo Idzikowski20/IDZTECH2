@@ -11,13 +11,11 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/utils/themeContext';
 import { Search, Copy, Globe, Star } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import CTA from '@/components/CTA';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const DomainNameCreator = () => {
   const { theme } = useTheme();
-  const { t } = useTranslation();
   const [keywords, setKeywords] = useState('');
   const [industry, setIndustry] = useState('');
   const [includeTld, setIncludeTld] = useState(['com', 'pl']);
@@ -25,20 +23,20 @@ const DomainNameCreator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
 
-  // Translated industry options
+  // Industry options in Polish
   const industries = [
-    { value: 'tech', label: t('domainCreator.industries.tech') },
-    { value: 'health', label: t('domainCreator.industries.health') },
-    { value: 'finance', label: t('domainCreator.industries.finance') },
-    { value: 'education', label: t('domainCreator.industries.education') },
-    { value: 'food', label: t('domainCreator.industries.food') },
-    { value: 'fashion', label: t('domainCreator.industries.fashion') },
-    { value: 'travel', label: t('domainCreator.industries.travel') },
-    { value: 'sport', label: t('domainCreator.industries.sport') },
-    { value: 'art', label: t('domainCreator.industries.art') },
-    { value: 'beauty', label: t('domainCreator.industries.beauty') },
-    { value: 'realestate', label: t('domainCreator.industries.realestate') },
-    { value: 'automotive', label: t('domainCreator.industries.automotive') }
+    { value: 'tech', label: 'Technologia' },
+    { value: 'health', label: 'Zdrowie' },
+    { value: 'finance', label: 'Finanse' },
+    { value: 'education', label: 'Edukacja' },
+    { value: 'food', label: 'Żywność' },
+    { value: 'fashion', label: 'Moda' },
+    { value: 'travel', label: 'Podróże' },
+    { value: 'sport', label: 'Sport' },
+    { value: 'art', label: 'Sztuka' },
+    { value: 'beauty', label: 'Uroda' },
+    { value: 'realestate', label: 'Nieruchomości' },
+    { value: 'automotive', label: 'Motoryzacja' }
   ];
 
   const tlds = ['com', 'pl', 'eu', 'net', 'org', 'info', 'shop', 'online', 'tech', 'app'];
@@ -78,7 +76,7 @@ const DomainNameCreator = () => {
 
   const generateDomainNames = () => {
     if (!keywords && !industry) {
-      toast.error(t('domainCreator.errors.noInput'), {
+      toast.error("Wprowadź słowa kluczowe lub wybierz branżę, aby wygenerować nazwy domen", {
         position: 'top-center',
       });
       return;
@@ -222,7 +220,7 @@ const DomainNameCreator = () => {
 
   const copyToClipboard = (domain: string) => {
     navigator.clipboard.writeText(domain);
-    toast.success(t('domainCreator.copied', { domain }), {
+    toast.success(`Skopiowano domenę: ${domain}`, {
       position: 'top-center',
     });
   };
@@ -246,8 +244,8 @@ const DomainNameCreator = () => {
   return (
     <>
       <Helmet>
-        <title>{t('domainCreator.pageTitle')}</title>
-        <meta name="description" content={t('domainCreator.pageDescription')} />
+        <title>Kreator nazwy domeny | IDZ.TECH</title>
+        <meta name="description" content="Stwórz idealną nazwę domeny dla swojego biznesu lub projektu - szybko i łatwo." />
       </Helmet>
       
       <Navbar />
@@ -255,38 +253,38 @@ const DomainNameCreator = () => {
       <main className="pt-24">
         <section className="container mx-auto px-4 py-16">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-4xl font-bold mb-6 text-center">{t('domainCreator.title')}</h1>
+            <h1 className="text-4xl font-bold mb-6 text-center">Kreator nazwy domeny</h1>
             <p className="text-lg mb-10 text-center">
-              {t('domainCreator.subtitle')}
+              Szybko wygeneruj interesujące i dostępne nazwy domen na podstawie słów kluczowych i branży.
             </p>
             
             <Card className="mb-10">
               <CardHeader>
-                <CardTitle>{t('domainCreator.form.details')}</CardTitle>
-                <CardDescription>{t('domainCreator.form.description')}</CardDescription>
+                <CardTitle>Szczegóły</CardTitle>
+                <CardDescription>Wprowadź słowa kluczowe i wybierz branżę, aby wygenerować pasujące nazwy domen.</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block mb-2">{t('domainCreator.form.keywords')}</label>
+                    <label className="block mb-2">Słowa kluczowe</label>
                     <Input
                       value={keywords}
                       onChange={(e) => setKeywords(e.target.value)}
-                      placeholder={t('domainCreator.form.keywordsPlaceholder')}
+                      placeholder="Wprowadź słowa kluczowe oddzielone przecinkami"
                     />
                     <p className="text-sm mt-1 opacity-70">
-                      {t('domainCreator.form.keywordsExample')}
+                      np. marketing, agencja, digital, projekt
                     </p>
                   </div>
                   
                   <div>
-                    <label className="block mb-2">{t('domainCreator.form.industry')}</label>
+                    <label className="block mb-2">Branża</label>
                     <Select value={industry} onValueChange={setIndustry}>
                       <SelectTrigger>
-                        <SelectValue placeholder={t('domainCreator.form.industryPlaceholder')} />
+                        <SelectValue placeholder="Wybierz branżę" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">{t('domainCreator.form.anyIndustry')}</SelectItem>
+                        <SelectItem value="none">Dowolna branża</SelectItem>
                         {industries.map((ind) => (
                           <SelectItem key={ind.value} value={ind.value}>
                             {ind.label}
@@ -298,7 +296,7 @@ const DomainNameCreator = () => {
                 </div>
                 
                 <div className="mt-6">
-                  <label className="block mb-2">{t('domainCreator.form.extensions')}</label>
+                  <label className="block mb-2">Rozszerzenia domen</label>
                   <div className="flex flex-wrap gap-2">
                     {tlds.map(tld => (
                       <Badge 
@@ -321,11 +319,11 @@ const DomainNameCreator = () => {
                   {isGenerating ? (
                     <span className="flex items-center">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {t('domainCreator.form.generating')}
+                      Generowanie...
                     </span>
                   ) : (
                     <span className="flex items-center">
-                      <Search className="mr-2 h-4 w-4" /> {t('domainCreator.form.generate')}
+                      <Search className="mr-2 h-4 w-4" /> Generuj domeny
                     </span>
                   )}
                 </Button>
@@ -338,12 +336,12 @@ const DomainNameCreator = () => {
                   ? 'bg-white shadow-lg border border-gray-100' 
                   : 'bg-premium-dark/70 border border-white/10'
               }`}>
-                <h2 className="text-xl font-bold mb-4">{t('domainCreator.results.title')}</h2>
+                <h2 className="text-xl font-bold mb-4">Wyniki wyszukiwania</h2>
                 
                 {favorites.length > 0 && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-3 flex items-center">
-                      <Star className="h-4 w-4 mr-2 text-yellow-500" /> {t('domainCreator.results.favorites')}
+                      <Star className="h-4 w-4 mr-2 text-yellow-500" /> Ulubione domeny
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {favorites.map(domain => (
@@ -363,14 +361,14 @@ const DomainNameCreator = () => {
                             <button
                               onClick={() => copyToClipboard(domain)}
                               className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                              title={t('domainCreator.actions.copy')}
+                              title="Kopiuj"
                             >
                               <Copy className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => toggleFavorite(domain)}
                               className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                              title={t('domainCreator.actions.removeFromFavorites')}
+                              title="Usuń z ulubionych"
                             >
                               <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                             </button>
@@ -401,14 +399,14 @@ const DomainNameCreator = () => {
                           <button
                             onClick={() => copyToClipboard(domain)}
                             className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                            title={t('domainCreator.actions.copy')}
+                            title="Kopiuj"
                           >
                             <Copy className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => toggleFavorite(domain)}
                             className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                            title={t('domainCreator.actions.addToFavorites')}
+                            title="Dodaj do ulubionych"
                           >
                             <Star className="h-4 w-4" />
                           </button>
@@ -424,18 +422,18 @@ const DomainNameCreator = () => {
                 ? 'bg-white shadow-md border border-gray-100' 
                 : 'bg-premium-dark/40 border border-white/10'
             }`}>
-              <h2 className="text-xl font-bold mb-4">{t('domainCreator.tips.title')}</h2>
+              <h2 className="text-xl font-bold mb-4">Wskazówki dotyczące wybierania nazwy domeny</h2>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li>{t('domainCreator.tips.tip1')}</li>
-                <li>{t('domainCreator.tips.tip2')}</li>
-                <li>{t('domainCreator.tips.tip3')}</li>
-                <li>{t('domainCreator.tips.tip4')}</li>
-                <li>{t('domainCreator.tips.tip5')}</li>
-                <li>{t('domainCreator.tips.tip6')}</li>
+                <li>Wybieraj krótkie, łatwe do zapamiętania i zapisania nazwy</li>
+                <li>Unikaj używania myślników i cyfr, jeśli to możliwe</li>
+                <li>Sprawdź, czy nazwa nie narusza znaków towarowych</li>
+                <li>Wybieraj rozszerzenia pasujące do Twojej działalności i lokalizacji</li>
+                <li>Upewnij się, że nazwa jest łatwa do wymówienia i przekazania przez telefon</li>
+                <li>Sprawdź dostępność nazwy w mediach społecznościowych</li>
               </ul>
               
               <p>
-                {t('domainCreator.tips.conclusion')}
+                Pamiętaj, że dobra nazwa domeny może znacząco wpłynąć na rozpoznawalność Twojej marki i łatwość znalezienia Twojej strony w internecie.
               </p>
             </div>
           </div>
