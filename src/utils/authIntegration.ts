@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -249,15 +250,20 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
         return { success: false, error: profileError };
       }
       
-      // Also update user metadata - convert userData to correct User type
-      const typedUserData: Partial<User> = {
-        ...userData,
-        // Make sure role is correctly typed as UserRole
-        role: userData.role ? safeUserRole(userData.role) : undefined
-      };
+      // Also update user metadata in Supabase Auth
+      // Fix the type mismatch by explicitly defining the user metadata shape
+      const userMetadata: Record<string, any> = {};
+      
+      // Copy allowed properties to user metadata object 
+      if (userData.name !== undefined) userMetadata.name = userData.name;
+      if (userData.lastName !== undefined) userMetadata.lastName = userData.lastName;
+      if (userData.profilePicture !== undefined) userMetadata.profilePicture = userData.profilePicture;
+      if (userData.bio !== undefined) userMetadata.bio = userData.bio;
+      if (userData.jobTitle !== undefined) userMetadata.jobTitle = userData.jobTitle;
+      if (userData.role !== undefined) userMetadata.role = safeUserRole(userData.role);
       
       const { error } = await supabase.auth.updateUser({
-        data: typedUserData
+        data: userMetadata
       });
       
       return { success: !error, error };
