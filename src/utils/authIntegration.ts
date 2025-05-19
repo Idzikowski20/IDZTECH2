@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
-import { ExtendedUserProfile } from '@/utils/AuthProvider';
+import { ExtendedUserProfile } from '@/contexts/AuthContext';
 import { User, UserRole } from './authTypes';
 
 // Type for valid database user roles
@@ -237,7 +237,7 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
         last_name: userData.lastName,
         avatar_url: userData.profilePicture,
         // Only include role if it's a valid value for our schema
-        ...(userData.role ? { role: mapRoleToDbRole(safeUserRole(userData.role)) } : {})
+        ...(userData.role ? { role: mapRoleToDbRole(safeUserRole(userData.role as string)) } : {})
       };
       
       // Update Supabase profile
@@ -260,7 +260,7 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
       if (userData.profilePicture !== undefined) userMetadata.profilePicture = userData.profilePicture;
       if (userData.bio !== undefined) userMetadata.bio = userData.bio;
       if (userData.jobTitle !== undefined) userMetadata.jobTitle = userData.jobTitle;
-      if (userData.role !== undefined) userMetadata.role = safeUserRole(userData.role);
+      if (userData.role !== undefined) userMetadata.role = safeUserRole(userData.role as string);
       
       const { error } = await supabase.auth.updateUser({
         data: userMetadata
