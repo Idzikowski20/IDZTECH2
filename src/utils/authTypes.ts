@@ -1,4 +1,3 @@
-
 // Types related to authentication
 import { User as SupabaseUser } from '@supabase/supabase-js';
 

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
@@ -6,16 +5,11 @@ import { ExtendedUserProfile } from '@/contexts/AuthContext';
 import { User, UserRole } from './authTypes';
 
 // Type for valid database user roles
-type ValidUserRole = 'admin' | 'editor' | 'user';
+type ValidUserRole = 'admin' | 'user' | 'moderator' | 'blogger';
 
 // Map between the UserRole type in our app and the database roles
-const mapRoleToDbRole = (role: UserRole): ValidUserRole => {
-  switch(role) {
-    case 'admin': return 'admin';
-    case 'moderator': 
-    case 'blogger': return 'editor'; // Map moderator and blogger to editor
-    default: return 'user';
-  }
+const mapRoleToDbRole = (role: UserRole): UserRole => {
+  return role;
 };
 
 // Fixed: Function to safely convert string to UserRole
