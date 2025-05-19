@@ -10,9 +10,11 @@ export default defineConfig({
     allowedHosts: ["ed5802a5-ff62-4e35-931f-7618080152a4.lovableproject.com"],
     proxy: {
       '/api': {
-        target: 'https://premium-digital-harvest-virid.vercel.app',
+        target: process.env.NODE_ENV === 'production' 
+          ? 'https://premium-digital-harvest-virid.vercel.app' 
+          : 'http://localhost:3000',
         changeOrigin: true,
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
       },
     },
   },
