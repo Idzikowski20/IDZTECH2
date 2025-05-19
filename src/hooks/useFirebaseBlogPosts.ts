@@ -80,38 +80,46 @@ export function useFirebaseBlogPosts() {
         console.log('Fetching blog posts from Firebase...');
         const postsRef = collection(db, 'blog_posts');
         const q = query(postsRef, orderBy('created_at', 'desc'));
-        const querySnapshot = await getDocs(q);
         
-        if (querySnapshot.empty) {
-          console.log('No posts found, using fallback data');
+        try {
+          const querySnapshot = await getDocs(q);
+          
+          if (querySnapshot.empty) {
+            console.log('No posts found, using fallback data');
+            setPosts(fallbackPosts);
+            return;
+          }
+          
+          const fetchedPosts = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              title: data.title || '',
+              slug: data.slug || '',
+              content: data.content || '',
+              featured_image: data.featured_image || '',
+              summary: data.summary || null,
+              excerpt: data.excerpt || data.summary || null, // Use summary as fallback if excerpt is missing
+              categories: data.categories || null,
+              tags: data.tags || null,
+              created_at: data.created_at || new Date().toISOString(),
+              published: data.published || false,
+              published_at: data.published_at || null
+            } as BlogPost;
+          });
+          
+          console.log('Blog posts fetched:', fetchedPosts);
+          setPosts(fetchedPosts.length > 0 ? fetchedPosts : fallbackPosts);
+        } catch (firestoreError) {
+          console.error('Error fetching blog posts from Firestore:', firestoreError);
+          // Immediately use fallback data on Firestore error
+          console.log('Using fallback data due to Firestore error');
           setPosts(fallbackPosts);
-          return;
         }
-        
-        const fetchedPosts = querySnapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            title: data.title || '',
-            slug: data.slug || '',
-            content: data.content || '',
-            featured_image: data.featured_image || '',
-            summary: data.summary || null,
-            excerpt: data.excerpt || data.summary || null, // Use summary as fallback if excerpt is missing
-            categories: data.categories || null,
-            tags: data.tags || null,
-            created_at: data.created_at || new Date().toISOString(),
-            published: data.published || false,
-            published_at: data.published_at || null
-          } as BlogPost;
-        });
-        
-        console.log('Blog posts fetched:', fetchedPosts);
-        setPosts(fetchedPosts.length > 0 ? fetchedPosts : fallbackPosts);
       } catch (err) {
         console.error('Error fetching blog posts:', err);
         setError(err instanceof Error ? err : new Error(String(err)));
-        toast.error('Błąd podczas pobierania postów, używam danych lokalnych');
+        console.log('Using fallback data due to general error');
         setPosts(fallbackPosts);
       } finally {
         setIsLoadingPosts(false);
@@ -135,11 +143,14 @@ export function useFirebaseBlogPosts() {
         }
 
         setIsLoading(true);
+        
+        // Always check fallback posts first for reliability
+        const fallbackPost = fallbackPosts.find(p => p.slug === slug);
+        
         try {
           console.log(`Fetching blog post with slug: ${slug}`);
           
-          // Check fallback posts first
-          const fallbackPost = fallbackPosts.find(p => p.slug === slug);
+          // If we have a fallback post, use it immediately for faster loading
           if (fallbackPost) {
             console.log('Found fallback post:', fallbackPost);
             setPost(fallbackPost);
@@ -147,49 +158,45 @@ export function useFirebaseBlogPosts() {
             return;
           }
           
-          // Query Firestore
-          const postsRef = collection(db, 'blog_posts');
-          const q = query(postsRef, where('slug', '==', slug));
-          const querySnapshot = await getDocs(q);
-          
-          if (querySnapshot.empty) {
-            console.log(`Post with slug ${slug} not found in Firebase`);
+          // Try to fetch from Firestore
+          try {
+            const postsRef = collection(db, 'blog_posts');
+            const q = query(postsRef, where('slug', '==', slug));
+            const querySnapshot = await getDocs(q);
             
-            // Check fallback posts again as a last resort
-            const lastResortPost = fallbackPosts.find(p => p.slug === slug);
-            if (lastResortPost) {
-              setPost(lastResortPost);
-            } else {
+            if (querySnapshot.empty) {
               throw new Error(`Post with slug ${slug} not found`);
+            } else {
+              const postDoc = querySnapshot.docs[0];
+              const data = postDoc.data();
+              
+              const fetchedPost = {
+                id: postDoc.id,
+                title: data.title || '',
+                slug: data.slug || '',
+                content: data.content || '',
+                featured_image: data.featured_image || '',
+                summary: data.summary || null,
+                excerpt: data.excerpt || data.summary || null, // Use summary as fallback
+                categories: data.categories || null,
+                tags: data.tags || null,
+                created_at: data.created_at || new Date().toISOString(),
+                published: data.published || false,
+                published_at: data.published_at || null
+              } as BlogPost;
+              
+              setPost(fetchedPost);
+              console.log('Fetched post from Firebase:', fetchedPost);
             }
-          } else {
-            const postDoc = querySnapshot.docs[0];
-            const data = postDoc.data();
-            
-            const fetchedPost = {
-              id: postDoc.id,
-              title: data.title || '',
-              slug: data.slug || '',
-              content: data.content || '',
-              featured_image: data.featured_image || '',
-              summary: data.summary || null,
-              excerpt: data.excerpt || data.summary || null, // Use summary as fallback
-              categories: data.categories || null,
-              tags: data.tags || null,
-              created_at: data.created_at || new Date().toISOString(),
-              published: data.published || false,
-              published_at: data.published_at || null
-            } as BlogPost;
-            
-            setPost(fetchedPost);
-            console.log('Fetched post from Firebase:', fetchedPost);
+          } catch (firestoreError) {
+            console.error('Firestore error fetching post:', firestoreError);
+            throw firestoreError;
           }
         } catch (err) {
           console.error('Error fetching blog post:', err);
           setError(err instanceof Error ? err : new Error(String(err)));
           
-          // Double-check fallback posts if there's an error
-          const fallbackPost = fallbackPosts.find(p => p.slug === slug);
+          // As a last resort, try to find a fallback post again
           if (fallbackPost) {
             console.log('Using fallback post after error:', fallbackPost);
             setPost(fallbackPost);

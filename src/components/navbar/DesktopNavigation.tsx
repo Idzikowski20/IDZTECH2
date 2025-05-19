@@ -54,6 +54,17 @@ const DesktopNavigation = () => {
     }`;
   };
 
+  // Define submenu item classes
+  const submenuItemClass = (isActive: boolean) => {
+    if (isActive) {
+      return 'bg-premium-light/10 font-medium text-premium-purple';
+    }
+    // No background change on hover, only text color
+    return theme === 'light' 
+      ? 'hover:text-black transition-colors' 
+      : 'hover:text-white transition-colors';
+  };
+
   return (
     <NavigationMenu className="hidden md:flex">
       <NavigationMenuList>
@@ -89,13 +100,7 @@ const DesktopNavigation = () => {
                     <li key={link.href}>
                       <Link 
                         to={link.href} 
-                        className={`block px-3 py-2 rounded-md ${
-                          isCurrentPath(link.href) 
-                            ? 'bg-premium-light/10 font-medium text-premium-purple'
-                            : theme === 'light'
-                              ? 'hover:text-black transition-colors'
-                              : 'hover:text-white transition-colors'
-                        }`}
+                        className={`block px-3 py-2 rounded-md ${submenuItemClass(isCurrentPath(link.href))}`}
                         onClick={() => {
                           setOpenMenu(null);
                           trackEvent('navigation_click', 'services_menu', link.title);
@@ -114,13 +119,7 @@ const DesktopNavigation = () => {
                     <li key={link.href}>
                       <Link 
                         to={link.href} 
-                        className={`block px-3 py-2 rounded-md ${
-                          isCurrentPath(link.href) 
-                            ? 'bg-premium-light/10 font-medium text-premium-purple'
-                            : theme === 'light'
-                              ? 'hover:text-black transition-colors'
-                              : 'hover:text-white transition-colors'
-                        }`}
+                        className={`block px-3 py-2 rounded-md ${submenuItemClass(isCurrentPath(link.href))}`}
                         onClick={() => {
                           setOpenMenu(null);
                           trackEvent('navigation_click', 'services_menu', link.title);
@@ -153,13 +152,7 @@ const DesktopNavigation = () => {
                 <li key={link.href}>
                   <Link 
                     to={link.href} 
-                    className={`block px-3 py-2 rounded-md ${
-                      isCurrentPath(link.href) 
-                        ? 'bg-premium-light/10 font-medium text-premium-purple'
-                        : theme === 'light'
-                          ? 'hover:text-black transition-colors'
-                          : 'hover:text-white transition-colors'
-                    }`}
+                    className={`block px-3 py-2 rounded-md ${submenuItemClass(isCurrentPath(link.href))}`}
                     onClick={() => {
                       setOpenMenu(null);
                       trackEvent('navigation_click', 'tools_menu', link.title);

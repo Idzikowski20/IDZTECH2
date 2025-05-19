@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Calendar } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
@@ -36,6 +36,7 @@ const BlogCategories = () => {
 
 const Blog = () => {
   const { posts, isLoadingPosts, error } = useFirebaseBlogPosts();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -47,6 +48,10 @@ const Blog = () => {
       console.log("Posts in component:", posts);
     }
   }, [posts]);
+
+  const handlePostClick = (slug) => {
+    navigate(`/blog/${slug}`);
+  };
 
   return (
     <div className="min-h-screen bg-premium-dark">
@@ -94,29 +99,31 @@ const Blog = () => {
           ) : posts && posts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post) => (
-                <article key={post.id} className="group bg-transparent">
-                  <Link to={`/blog/${post.slug}`} className="block overflow-hidden rounded-2xl mb-4">
+                <article 
+                  key={post.id} 
+                  className="group bg-transparent cursor-pointer"
+                  onClick={() => handlePostClick(post.slug)}
+                >
+                  <div className="block overflow-hidden rounded-2xl mb-4">
                     <img 
                       src={post.featured_image || '/placeholder.svg'} 
                       alt={post.title} 
-                      className="w-full h-64 object-cover"
+                      className="w-full h-64 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder.svg';
                       }}
                     />
-                  </Link>
+                  </div>
                   
                   <div className="flex items-center text-sm text-gray-400 mb-2">
                     <Calendar size={14} className="mr-1" />
                     {formatDate(post.created_at)}
                   </div>
                   
-                  <Link to={`/blog/${post.slug}`}>
-                    <h3 className="text-xl font-semibold mb-2 group-hover:text-premium-purple group-hover:underline transition-colors">
-                      {post.title}
-                    </h3>
-                  </Link>
+                  <h3 className="text-xl font-semibold mb-2 group-hover:text-premium-purple group-hover:underline transition-colors">
+                    {post.title}
+                  </h3>
                   
                   <p className="text-gray-400 mb-3 line-clamp-2">
                     {post.excerpt || post.summary || 'Brak opisu'}
