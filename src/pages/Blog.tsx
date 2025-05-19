@@ -13,7 +13,14 @@ const Blog = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    console.log("Blog component mounted");
   }, []);
+
+  useEffect(() => {
+    if (posts) {
+      console.log("Posts in component:", posts);
+    }
+  }, [posts]);
 
   return (
     <div className="min-h-screen bg-premium-dark">
@@ -45,6 +52,9 @@ const Blog = () => {
             ) : error ? (
               <div className="col-span-3 text-center text-gray-400 py-12">
                 Wystąpił błąd podczas ładowania postów. Spróbuj odświeżyć stronę.
+                <pre className="mt-4 text-xs text-left bg-premium-dark/50 p-4 rounded-lg border border-red-500/30 overflow-auto">
+                  {JSON.stringify(error, null, 2)}
+                </pre>
               </div>
             ) : posts?.length === 0 ? (
               <div className="col-span-3 text-center text-gray-400 py-12">Brak postów do wyświetlenia.</div>
@@ -56,9 +66,13 @@ const Blog = () => {
                 <Link to={`/blog/${post.slug}`}>
                   <div className="relative h-52 overflow-hidden">
                     <img 
-                      src={post.featured_image} 
+                      src={post.featured_image || '/placeholder.svg'} 
                       alt={post.title} 
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.svg';
+                      }}
                     />
                   </div>
                 </Link>
@@ -77,7 +91,7 @@ const Blog = () => {
                   </Link>
                   
                   <p className="text-gray-400 mb-4 line-clamp-3">
-                    {post.summary || post.excerpt}
+                    {post.summary || post.excerpt || 'Brak opisu'}
                   </p>
                   
                   <Link to={`/blog/${post.slug}`}>

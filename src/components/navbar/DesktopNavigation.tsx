@@ -74,8 +74,9 @@ const DesktopNavigation = () => {
               ['/tworzenie-stron-www', '/sklepy-internetowe', '/pozycjonowanie-stron', 
                '/pozycjonowanie-lokalne', '/audyt-seo', '/optymalizacja-seo', 
                '/copywriting-seo', '/content-plan'].includes(pathname)
-            )} data-state=${openMenu === 'services' ? 'open' : 'closed'}`}
+            )}`}
             onClick={() => setOpenMenu(openMenu === 'services' ? null : 'services')}
+            data-state={openMenu === 'services' ? 'open' : 'closed'}
           >
             Usługi
           </NavigationMenuTrigger>
@@ -136,8 +137,9 @@ const DesktopNavigation = () => {
           <NavigationMenuTrigger 
             className={`${linkClass(
               ['/password-generator', '/privacy-policy-generator', '/domain-creator'].includes(pathname)
-            )} data-state=${openMenu === 'tools' ? 'open' : 'closed'}`}
+            )}`}
             onClick={() => setOpenMenu(openMenu === 'tools' ? null : 'tools')}
+            data-state={openMenu === 'tools' ? 'open' : 'closed'}
           >
             Narzędzia
           </NavigationMenuTrigger>
@@ -194,11 +196,11 @@ const DesktopNavigation = () => {
             Blog
           </Link>
         </NavigationMenuItem>
-
+        
         <NavigationMenuItem>
           <Link 
             to="/contact" 
-            className="text-sm flex items-center py-2 px-3 rounded-md bg-black text-white hover:bg-gray-800 transition-colors"
+            className={linkClass(isCurrentPath('/contact'))}
             onClick={() => trackEvent('navigation_click', 'menu', 'contact')}
           >
             Kontakt

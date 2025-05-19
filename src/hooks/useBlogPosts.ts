@@ -1,6 +1,6 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/client'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define a simpler type for blog posts without author_id and updated_at
 type BlogPost = {
@@ -19,44 +19,51 @@ type BlogPost = {
 }
 
 export function useBlogPosts() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   // Fetch all posts
   const { data: posts, isLoading: isLoadingPosts, error } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
-      console.log('Fetching blog posts...')
+      console.log('Fetching blog posts...');
       const { data, error } = await supabase
         .from('blog_posts')
         .select('id, title, slug, content, featured_image, summary, excerpt, categories, tags, created_at, published, published_at')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching blog posts:', error)
-        throw error
+        console.error('Error fetching blog posts:', error);
+        throw error;
       }
-      console.log('Blog posts fetched:', data)
-      return data as BlogPost[]
+      
+      console.log('Blog posts fetched:', data);
+      return data as BlogPost[];
     }
-  })
+  });
 
   // Fetch single post by slug
   const getPost = (slug: string) => {
     return useQuery({
       queryKey: ['blog-post', slug],
       queryFn: async () => {
+        console.log(`Fetching blog post with slug: ${slug}`);
         const { data, error } = await supabase
           .from('blog_posts')
           .select('id, title, slug, content, featured_image, summary, excerpt, categories, tags, created_at, published, published_at')
           .eq('slug', slug)
-          .single()
+          .single();
 
-        if (error) throw error
-        return data as BlogPost
+        if (error) {
+          console.error('Error fetching blog post:', error);
+          throw error;
+        }
+        
+        console.log('Blog post fetched:', data);
+        return data as BlogPost;
       },
       enabled: !!slug
-    })
-  }
+    });
+  };
 
   // Create new post - adding a hardcoded author_id for compatibility
   const createPost = useMutation({
@@ -65,21 +72,21 @@ export function useBlogPosts() {
       const postWithAuthorId = {
         ...newPost,
         author_id: '00000000-0000-0000-0000-000000000000' // Dummy ID
-      }
+      };
 
       const { data, error } = await supabase
         .from('blog_posts')
         .insert(postWithAuthorId)
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blog-posts'] })
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
     }
-  })
+  });
 
   // Update post - no need for author_id
   const updatePost = useMutation({
@@ -87,23 +94,23 @@ export function useBlogPosts() {
       const postWithAuthorId = {
         ...updates,
         author_id: '00000000-0000-0000-0000-000000000000' // Dummy ID for compatibility
-      }
+      };
       
       const { data, error } = await supabase
         .from('blog_posts')
         .update(postWithAuthorId)
         .eq('id', id)
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['blog-posts'] })
-      queryClient.invalidateQueries({ queryKey: ['blog-post', data.slug] })
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['blog-post', data.slug] });
     }
-  })
+  });
 
   // Delete post
   const deletePost = useMutation({
@@ -111,14 +118,14 @@ export function useBlogPosts() {
       const { error } = await supabase
         .from('blog_posts')
         .delete()
-        .eq('id', id)
+        .eq('id', id);
 
-      if (error) throw error
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blog-posts'] })
+      queryClient.invalidateQueries({ queryKey: ['blog-posts'] });
     }
-  })
+  });
 
   return {
     posts,
@@ -128,5 +135,5 @@ export function useBlogPosts() {
     createPost,
     updatePost,
     deletePost
-  }
+  };
 }

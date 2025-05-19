@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -47,8 +48,12 @@ const BlogPostEditor = () => {
             .select('*')
             .eq('id', id)
             .single();
+          
           if (error) throw error;
-          if (data) setExistingPost(data);
+          if (data) {
+            console.log("Fetched post data:", data);
+            setExistingPost(data);
+          }
         } catch (error) {
           console.error("Error fetching post:", error);
           uiToast({
@@ -59,6 +64,7 @@ const BlogPostEditor = () => {
         }
       }
     };
+    
     fetchPost();
   }, [id, uiToast]);
 
@@ -113,7 +119,10 @@ const BlogPostEditor = () => {
 
     setIsLoading(true);
     try {
+      console.log("Form values:", values);
+      
       let imageUrl = existingPost?.featured_image || '';
+      
       if (featuredImage) {
         const reader = new FileReader();
         imageUrl = await new Promise<string>((resolve) => {
@@ -134,16 +143,20 @@ const BlogPostEditor = () => {
         updated_at: new Date().toISOString()
       };
 
+      console.log("Post data to be submitted:", postData);
+
       if (isEditing && id) {
         console.log("Updating post with ID:", id);
         const { error } = await supabase
           .from('blog_posts')
           .update(postData)
           .eq('id', id);
+          
         if (error) {
           console.error("Error updating post:", error);
           throw error;
         }
+        
         toast.success("Post zaktualizowany", {
           description: "Post został zaktualizowany."
         });
@@ -157,14 +170,17 @@ const BlogPostEditor = () => {
             published_at: new Date().toISOString(),
             created_at: new Date().toISOString(),
           });
+          
         if (error) {
           console.error("Error creating post:", error);
           throw error;
         }
+        
         toast.success("Post dodany", {
           description: "Nowy post został dodany do bloga."
         });
       }
+      
       navigate('/admin');
     } catch (error) {
       console.error("Error saving post:", error);
@@ -342,7 +358,7 @@ const BlogPostEditor = () => {
                 <div className="space-y-2">
                   <FormLabel>Autor</FormLabel>
                   <div className="border transition-colors rounded-lg px-4 py-2 flex items-center">
-                    {user?.name || 'Nieznany autor'}
+                    {user?.email || 'Nieznany autor'}
                   </div>
                 </div>
                 

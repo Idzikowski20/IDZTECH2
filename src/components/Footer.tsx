@@ -146,9 +146,9 @@ const Footer = () => {
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
             © 2025 IDZ.TECH - Wszelkie prawa zastrzeżone
           </p>
-          <div className="flex space-x-4 text-sm text-gray-500">
-            <Link to="/privacy" className="hover:text-white transition-colors">Polityka prywatności</Link>
-            <Link to="/terms" className="hover:text-white transition-colors">Warunki korzystania</Link>
+          <div className="flex space-x-4 text-sm">
+            <Link to="/privacy" className="text-gray-500 hover:text-white transition-colors">Polityka prywatności</Link>
+            <Link to="/terms" className="text-gray-500 hover:text-white transition-colors">Warunki korzystania</Link>
           </div>
         </div>
       </div>
