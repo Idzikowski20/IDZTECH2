@@ -24,6 +24,10 @@ export const ensureValidRole = (role: string | UserRole | null | undefined): Use
       return UserRole.EDITOR;
     case 'guest':
       return UserRole.GUEST;
+    case 'moderator':
+      return UserRole.MODERATOR;
+    case 'blogger':
+      return UserRole.BLOGGER;
     case 'user':
     default:
       return UserRole.USER;

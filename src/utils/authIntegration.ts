@@ -1,8 +1,9 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import * as authStore from './authStore';
 import { ExtendedUserProfile } from '@/contexts/AuthContext';
-import { User, UserRole } from './authTypes';
+import { UserRole } from './authTypes';
 import { ensureValidRole } from './roleUtils';
 
 // Type for valid database user roles

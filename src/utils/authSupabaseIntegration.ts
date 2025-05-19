@@ -2,7 +2,31 @@
 // Supabase specific integration for authentication
 import { supabase } from '@/utils/supabaseClient';
 import { users, updateUsersArray, passwords } from './authUtils';
-import { User, UserRole } from './authTypes';
+import { UserRole, UserStats } from './authTypes';
+import { ensureValidRole } from './roleUtils';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  profilePicture?: string;
+  lastName?: string;
+  bio?: string;
+  jobTitle?: string;
+  postsCreated?: number;
+  totalViews?: number;
+  createdAt?: string;
+  lastLogin?: string;
+  commentsCount?: number;
+  likesCount?: number;
+  stats: UserStats;
+  user_metadata?: {
+    avatar_url?: string;
+    name?: string;
+    last_name?: string;
+  };
+}
 
 export const fetchSupabaseUsers = async (): Promise<void> => {
   try {
@@ -19,7 +43,7 @@ export const fetchSupabaseUsers = async (): Promise<void> => {
       
       if (existingUserIndex === -1) {
         // If user doesn't exist locally, add them
-        const role: UserRole = user.email === 'patryk.idzikowski@interia.pl' ? 'admin' : 'user';
+        const role: UserRole = user.email === 'patryk.idzikowski@interia.pl' ? UserRole.ADMIN : UserRole.USER;
         
         const newUser: User = {
           id: user.id,

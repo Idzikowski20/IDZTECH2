@@ -1,7 +1,15 @@
+
 // Types related to authentication
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
-export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+  MODERATOR = 'moderator',
+  BLOGGER = 'blogger',
+  EDITOR = 'editor',
+  GUEST = 'guest'
+}
 
 export interface UserStats {
   views: number;

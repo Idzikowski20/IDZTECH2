@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/utils/AuthProvider';
@@ -6,7 +7,25 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileSection from '@/components/profile/ProfileSection';
 import { ExtendedUserProfile } from '@/utils/AuthProvider';
 import { User as SupabaseUser } from '@supabase/supabase-js';
-import { User } from '@/utils/authTypes';
+import { UserStats } from '@/utils/authTypes';
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  profilePicture?: string;
+  lastName?: string;
+  bio?: string;
+  jobTitle?: string;
+  postsCreated?: number;
+  totalViews?: number;
+  createdAt?: string;
+  lastLogin?: string;
+  commentsCount?: number;
+  likesCount?: number;
+  stats: UserStats;
+}
 
 const Profile = () => {
   const { user, getCurrentUser } = useAuth();
