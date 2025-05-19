@@ -1,4 +1,3 @@
-
 import React from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { UserRole } from "@/utils/authTypes";
@@ -10,7 +9,7 @@ export interface ExtendedUserProfile {
   profilePicture?: string | null;
   bio?: string | null;
   jobTitle?: string | null;
-  role?: UserRole | string | null; // Added role property with proper typing
+  role?: UserRole | null; // Changed from string to UserRole
 }
 
 export interface AuthContextType {

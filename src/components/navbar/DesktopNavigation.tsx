@@ -43,7 +43,7 @@ const DesktopNavigation = () => {
               className={cn(
                 'transition-colors duration-300',
                 theme === 'light'
-                  ? 'text-black hover:bg-gray-500 hover:text-black'
+                  ? 'text-black hover:bg-gray-100 hover:text-black'
                   : 'text-white hover:bg-white/10 hover:text-white'
               )}
             >
