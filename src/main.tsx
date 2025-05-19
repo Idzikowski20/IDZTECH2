@@ -4,12 +4,12 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from './utils/themeContext.tsx'
+import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './utils/AuthProvider.tsx'
 import { HelmetProvider } from 'react-helmet-async'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { UIToaster } from '@/components/ui/toaster'
 import { Toaster as SonnerToaster } from 'sonner'
-import { BrowserRouter } from 'react-router-dom'
 import './utils/i18n'
 import { initGA } from './utils/analytics'
 
@@ -30,8 +30,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <HelmetProvider>
       <ThemeProvider>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <BrowserRouter>
+          <BrowserRouter>
+            <AuthProvider>
               <App />
               <UIToaster />
               <SonnerToaster 
@@ -40,8 +40,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 closeButton
                 theme="dark"
               />
-            </BrowserRouter>
-          </AuthProvider>
+            </AuthProvider>
+          </BrowserRouter>
         </QueryClientProvider>
       </ThemeProvider>
     </HelmetProvider>

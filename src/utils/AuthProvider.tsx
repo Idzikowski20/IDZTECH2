@@ -1,15 +1,11 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthState } from "@/hooks/useAuthState";
 import { AuthContextType, ExtendedUserProfile } from "@/contexts/AuthContext";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  
   const {
     user,
     session,
@@ -19,7 +15,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signOut,
     resetPassword,
     updatePassword
-  } = useAuthState(navigate, location);
+  } = useAuthState();
   
   const value = {
     user,

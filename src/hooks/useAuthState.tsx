@@ -4,8 +4,11 @@ import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ExtendedUserProfile } from "@/contexts/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 
-export const useAuthState = (navigate: any, location: any) => {
+export const useAuthState = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<(User & ExtendedUserProfile) | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
