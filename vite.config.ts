@@ -10,7 +10,7 @@ export default defineConfig({
     allowedHosts: ["ed5802a5-ff62-4e35-931f-7618080152a4.lovableproject.com"],
     proxy: {
       '/api': {
-        target: 'premium-digital-harvest-p89j.vercel.app',
+        target: 'https://premium-digital-harvest-p89j.vercel.app',
         changeOrigin: true,
         secure: true,
       },
