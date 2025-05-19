@@ -16,16 +16,9 @@ const Footer = () => {
     <footer className="bg-black text-white pt-16 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Column 1 - Logo & About */}
+          {/* Column 1 - About */}
           <div>
-            <Link to="/" className="flex items-center mb-6">
-              <img 
-                src="/logo.png" 
-                alt="IDZ.TECH Logo" 
-                className="h-10 w-auto"
-              />
-              <span className="ml-2 text-xl font-bold">IDZ.TECH</span>
-            </Link>
+            <h3 className="text-lg font-bold mb-4">IDZ.TECH</h3>
             <p className="text-gray-400 mb-6">
               Tworzymy skuteczne strony internetowe i zapewniamy kompleksowe rozwiązania SEO dla klientów w całej Polsce.
             </p>
@@ -59,7 +52,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/sklepy-internetowe" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/sklepy-internetowe" className="text-gray-400 hover:text-white transition-colors whitespace-nowrap">
                   Tworzenie sklepów internetowych
                 </Link>
               </li>

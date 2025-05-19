@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useBlogPosts } from '@/hooks/useBlogPosts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Blog = () => {
   const { posts, isLoadingPosts, error } = useBlogPosts();
@@ -46,66 +47,83 @@ const Blog = () => {
       {/* Blog posts grid */}
       <section className="pb-24">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {isLoadingPosts ? (
-              <div className="col-span-3 text-center text-gray-400 py-12">Ładowanie postów...</div>
-            ) : error ? (
-              <div className="col-span-3 text-center text-gray-400 py-12">
-                Wystąpił błąd podczas ładowania postów. Spróbuj odświeżyć stronę.
-                <pre className="mt-4 text-xs text-left bg-premium-dark/50 p-4 rounded-lg border border-red-500/30 overflow-auto">
-                  {JSON.stringify(error, null, 2)}
-                </pre>
-              </div>
-            ) : posts?.length === 0 ? (
-              <div className="col-span-3 text-center text-gray-400 py-12">Brak postów do wyświetlenia.</div>
-            ) : posts?.map((post) => (
-              <div 
-                key={post.id} 
-                className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"
-              >
-                <Link to={`/blog/${post.slug}`}>
-                  <div className="relative h-52 overflow-hidden">
-                    <img 
-                      src={post.featured_image || '/placeholder.svg'} 
-                      alt={post.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder.svg';
-                      }}
-                    />
+          {isLoadingPosts ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
+                  <Skeleton className="h-52 w-full" />
+                  <div className="p-6">
+                    <Skeleton className="h-4 w-32 mb-3" />
+                    <Skeleton className="h-6 w-full mb-3" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-3/4 mb-4" />
+                    <Skeleton className="h-8 w-32" />
                   </div>
-                </Link>
-                
-                <div className="p-6">
-                  <div className="flex items-center text-sm text-gray-400 mb-3">
-                    <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
-                    <span className="mx-2">•</span>
-                    <span>{post.categories && post.categories[0] || 'SEO'}</span>
-                  </div>
-                  
-                  <Link to={`/blog/${post.slug}`}>
-                    <h3 className="text-xl font-bold mb-3 hover:text-premium-purple transition-colors">
-                      {post.title}
-                    </h3>
-                  </Link>
-                  
-                  <p className="text-gray-400 mb-4 line-clamp-3">
-                    {post.summary || post.excerpt || 'Brak opisu'}
-                  </p>
-                  
-                  <Link to={`/blog/${post.slug}`}>
-                    <Button 
-                      variant="ghost" 
-                      className="p-0 hover:bg-transparent text-premium-purple hover:text-premium-purple/80"
-                    >
-                      Czytaj więcej <ArrowRight size={16} className="ml-2" />
-                    </Button>
-                  </Link>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center text-gray-400 py-12">
+              <p className="text-xl mb-4">Wystąpił błąd podczas ładowania postów.</p>
+              <p className="mb-4">Spróbuj odświeżyć stronę lub sprawdź połączenie internetowe.</p>
+              <Button onClick={() => window.location.reload()} variant="outline">Odśwież stronę</Button>
+            </div>
+          ) : posts && posts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post) => (
+                <div 
+                  key={post.id} 
+                  className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"
+                >
+                  <Link to={`/blog/${post.slug}`}>
+                    <div className="relative h-52 overflow-hidden">
+                      <img 
+                        src={post.featured_image || '/placeholder.svg'} 
+                        alt={post.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
+                  </Link>
+                  
+                  <div className="p-6">
+                    <div className="flex items-center text-sm text-gray-400 mb-3">
+                      <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
+                      <span className="mx-2">•</span>
+                      <span>{post.categories && post.categories[0] || 'SEO'}</span>
+                    </div>
+                    
+                    <Link to={`/blog/${post.slug}`}>
+                      <h3 className="text-xl font-bold mb-3 hover:text-premium-purple transition-colors">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    
+                    <p className="text-gray-400 mb-4 line-clamp-3">
+                      {post.summary || post.excerpt || 'Brak opisu'}
+                    </p>
+                    
+                    <Link to={`/blog/${post.slug}`}>
+                      <Button 
+                        variant="ghost" 
+                        className="p-0 hover:bg-transparent text-premium-purple hover:text-premium-purple/80"
+                      >
+                        Czytaj więcej <ArrowRight size={16} className="ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-gray-400 py-12">
+              <p className="text-xl mb-4">Brak postów do wyświetlenia.</p>
+              <p>Wróć później, gdy pojawią się nowe artykuły.</p>
+            </div>
+          )}
         </div>
       </section>
       

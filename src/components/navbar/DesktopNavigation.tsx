@@ -92,7 +92,9 @@ const DesktopNavigation = () => {
                         className={`block px-3 py-2 rounded-md ${
                           isCurrentPath(link.href) 
                             ? 'bg-premium-light/10 font-medium text-white'
-                            : 'hover:bg-gray-200 hover:text-black transition-colors dark:hover:bg-gray-800 dark:hover:text-white'
+                            : theme === 'light'
+                              ? 'hover:bg-gray-200 hover:text-black transition-colors'
+                              : 'hover:bg-gray-800/50 hover:text-white transition-colors'
                         }`}
                         onClick={() => {
                           setOpenMenu(null);
@@ -115,7 +117,9 @@ const DesktopNavigation = () => {
                         className={`block px-3 py-2 rounded-md ${
                           isCurrentPath(link.href) 
                             ? 'bg-premium-light/10 font-medium text-white'
-                            : 'hover:bg-gray-200 hover:text-black transition-colors dark:hover:bg-gray-800 dark:hover:text-white'
+                            : theme === 'light'
+                              ? 'hover:bg-gray-200 hover:text-black transition-colors'
+                              : 'hover:bg-gray-800/50 hover:text-white transition-colors'
                         }`}
                         onClick={() => {
                           setOpenMenu(null);
@@ -152,7 +156,9 @@ const DesktopNavigation = () => {
                     className={`block px-3 py-2 rounded-md ${
                       isCurrentPath(link.href) 
                         ? 'bg-premium-light/10 font-medium text-white'
-                        : 'hover:bg-gray-200 hover:text-black transition-colors dark:hover:bg-gray-800 dark:hover:text-white'
+                        : theme === 'light'
+                          ? 'hover:bg-gray-200 hover:text-black transition-colors'
+                          : 'hover:bg-gray-800/50 hover:text-white transition-colors'
                     }`}
                     onClick={() => {
                       setOpenMenu(null);
