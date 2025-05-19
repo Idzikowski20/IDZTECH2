@@ -1,25 +1,26 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
-import type { Database } from '@/types/supabase'
 
-// Update the type definitions to remove updated_at and author_id
-type BlogPost = Pick<Database['public']['Tables']['blog_posts']['Row'], 
-  'id' | 'title' | 'slug' | 'content' | 'featured_image' | 
-  'excerpt' | 'categories' | 'tags' | 'created_at' | 'published' | 'published_at'>
-
-type BlogPostInsert = Pick<Database['public']['Tables']['blog_posts']['Insert'], 
-  'id' | 'title' | 'slug' | 'content' | 'featured_image' | 
-  'excerpt' | 'categories' | 'tags' | 'created_at' | 'published' | 'published_at'>
-
-type BlogPostUpdate = Pick<Database['public']['Tables']['blog_posts']['Update'], 
-  'id' | 'title' | 'slug' | 'content' | 'featured_image' | 
-  'excerpt' | 'categories' | 'tags' | 'created_at' | 'published' | 'published_at'>
+// Define a simpler type for blog posts without author_id and updated_at
+type BlogPost = {
+  id: string
+  title: string
+  slug: string
+  content: string
+  featured_image: string
+  excerpt: string | null
+  categories: string[] | null
+  tags: string[] | null
+  created_at: string
+  published: boolean
+  published_at: string | null
+}
 
 export function useBlogPosts() {
   const queryClient = useQueryClient()
 
-  // Fetch all posts - removing author_id and updated_at from the select
+  // Fetch all posts
   const { data: posts, isLoading: isLoadingPosts } = useQuery({
     queryKey: ['blog-posts'],
     queryFn: async () => {
@@ -33,7 +34,7 @@ export function useBlogPosts() {
     }
   })
 
-  // Fetch single post by slug - removing author_id and updated_at from the select
+  // Fetch single post by slug
   const getPost = (slug: string) => {
     return useQuery({
       queryKey: ['blog-post', slug],
@@ -51,26 +52,18 @@ export function useBlogPosts() {
     })
   }
 
-  // Create new post - no need to send author_id
+  // Create new post - adding a hardcoded author_id for compatibility
   const createPost = useMutation({
-    mutationFn: async (newPost: BlogPostInsert) => {
-      // Create a new post record with only the allowed fields
-      const postToInsert = {
-        title: newPost.title,
-        slug: newPost.slug,
-        content: newPost.content,
-        featured_image: newPost.featured_image,
-        excerpt: newPost.excerpt,
-        categories: newPost.categories,
-        tags: newPost.tags,
-        created_at: newPost.created_at,
-        published: newPost.published,
-        published_at: newPost.published_at
-      };
+    mutationFn: async (newPost: Omit<BlogPost, 'id'>) => {
+      // Create a post object with author_id for compatibility with Supabase
+      const postWithAuthorId = {
+        ...newPost,
+        author_id: '00000000-0000-0000-0000-000000000000' // Dummy ID
+      }
 
       const { data, error } = await supabase
         .from('blog_posts')
-        .insert(postToInsert)
+        .insert(postWithAuthorId)
         .select()
         .single()
 
@@ -82,25 +75,12 @@ export function useBlogPosts() {
     }
   })
 
-  // Update post - omit updated_at (it's handled by supabase) and author_id
+  // Update post - no need for author_id
   const updatePost = useMutation({
-    mutationFn: async ({ id, ...updates }: BlogPostUpdate & { id: string }) => {
-      // Create an update object with only the allowed fields
-      const postUpdates = {
-        title: updates.title,
-        slug: updates.slug,
-        content: updates.content,
-        featured_image: updates.featured_image,
-        excerpt: updates.excerpt,
-        categories: updates.categories,
-        tags: updates.tags,
-        published: updates.published,
-        published_at: updates.published_at
-      };
-
+    mutationFn: async ({ id, ...updates }: BlogPost) => {
       const { data, error } = await supabase
         .from('blog_posts')
-        .update(postUpdates)
+        .update(updates)
         .eq('id', id)
         .select()
         .single()

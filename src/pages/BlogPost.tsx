@@ -1,11 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { useBlogStore } from '@/utils/blog';
 import { formatDate, formatReadingTime } from '@/utils/dateUtils';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
@@ -15,59 +14,24 @@ import ShareButtons from '@/components/blog/ShareButtons';
 import RelatedPosts from '@/components/blog/RelatedPosts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet-async';
+import { useBlogPosts } from '@/hooks/useBlogPosts';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [userType, setUserType] = useState<string>('user');
   
-  // Get blog state and actions
-  const { 
-    posts, 
-    incrementView, 
-    toggleLike, 
-    getPostComments,
-    hasUserLiked
-  } = useBlogStore();
+  // Get blog data
+  const { posts, getPost } = useBlogPosts();
+  const { data: post, isLoading } = getPost(slug || '');
   
-  // Find the post by slug
-  const post = posts.find(p => p.slug === slug);
-  
-  // State for loading and interactions
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
+  // States for interactions
   const [commentsCount, setCommentsCount] = useState(0);
   
-  // Check if post exists and load data
+  // Redirect if post not found
   useEffect(() => {
-    if (post) {
-      setIsLoading(false);
-      
-      // Increment view count
-      if (post.id) {
-        incrementView(post.id);
-      }
-      
-      // Set initial like state
-      if (user && post.id) {
-        setIsLiked(hasUserLiked(post.id, user.id));
-      }
-      
-      // Set likes count
-      if (post.likes) {
-        setLikesCount(post.likes.length);
-      }
-      
-      // Get comments count
-      if (post.id) {
-        const comments = getPostComments(post.id);
-        setCommentsCount(comments.length);
-      }
-    } else if (posts.length > 0 && !isLoading) {
-      // If posts are loaded but this post doesn't exist
+    if (!isLoading && !post && posts?.length > 0) {
       navigate('/blog');
       toast({
         title: "Post nie istnieje",
@@ -75,25 +39,7 @@ const BlogPost = () => {
         variant: "destructive"
       });
     }
-  }, [post, posts, isLoading, incrementView, hasUserLiked, getPostComments, navigate, toast, user]);
-  
-  const handleLikeToggle = () => {
-    if (!user) {
-      toast({
-        title: "Wymagane logowanie",
-        description: "Musisz być zalogowany, aby polubić post",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    if (post) {
-      const newLikeState = !isLiked;
-      setIsLiked(newLikeState);
-      setLikesCount(prev => newLikeState ? prev + 1 : prev - 1);
-      toggleLike(post.id, user.id);
-    }
-  };
+  }, [post, posts, isLoading, navigate, toast]);
   
   if (isLoading) {
     return (
@@ -118,13 +64,12 @@ const BlogPost = () => {
     <>
       <Helmet>
         <title>{post.title} | IDZ.TECH Blog</title>
-        <meta name="description" content={post.excerpt} />
+        <meta name="description" content={post.excerpt || ''} />
         <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.excerpt} />
-        {post.featuredImage && <meta property="og:image" content={post.featuredImage} />}
+        <meta property="og:description" content={post.excerpt || ''} />
+        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
         <meta property="og:type" content="article" />
-        <meta property="article:published_time" content={post.date} />
-        <meta property="article:author" content="IDZ.TECH" />
+        <meta property="article:published_time" content={post.created_at} />
         {post.tags?.map(tag => (
           <meta property="article:tag" content={tag} key={tag} />
         ))}
@@ -150,7 +95,7 @@ const BlogPost = () => {
           <div className="flex flex-wrap items-center gap-4 text-premium-light/70 mb-6">
             <div className="flex items-center">
               <Calendar size={16} className="mr-2" />
-              <span>{formatDate(post.date)}</span>
+              <span>{formatDate(post.created_at)}</span>
             </div>
             
             <div className="flex items-center">
@@ -160,19 +105,19 @@ const BlogPost = () => {
             
             <div className="flex items-center">
               <Eye size={16} className="mr-2" />
-              <span>{post.views || 0} wyświetleń</span>
+              <span>0 wyświetleń</span>
             </div>
           </div>
           
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
               <AvatarFallback className="bg-premium-gradient">
-                {post.author?.charAt(0) || 'A'}
+                A
               </AvatarFallback>
             </Avatar>
             
             <div>
-              <div className="font-medium">{post.author || 'Autor'}</div>
+              <div className="font-medium">Autor</div>
               <div className="text-sm text-premium-light/70">
                 IDZ.TECH
               </div>
@@ -181,10 +126,10 @@ const BlogPost = () => {
         </header>
         
         {/* Featured image */}
-        {post.featuredImage && (
+        {post.featured_image && (
           <div className="mb-8">
             <img 
-              src={post.featuredImage} 
+              src={post.featured_image} 
               alt={post.title} 
               className="w-full h-auto rounded-lg object-cover max-h-[500px]" 
             />
@@ -202,35 +147,13 @@ const BlogPost = () => {
             <h3 className="text-lg font-medium mb-2">Tagi</h3>
             <div className="flex flex-wrap gap-2">
               {post.tags.map(tag => (
-                <Badge key={tag} variant="outline" className="bg-premium-light/5 hover:bg-premium-light/10">
+                <Badge key={tag} variant="outline" className="bg-premium-light/5 hover:bg-premium-light/10 hover:text-white">
                   {tag}
                 </Badge>
               ))}
             </div>
           </div>
         )}
-        
-        {/* Interactions */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant={isLiked ? "default" : "outline"} 
-            size="sm"
-            className={isLiked ? "bg-premium-gradient hover:bg-white hover:text-black" : ""}
-            onClick={handleLikeToggle}
-          >
-            <ThumbsUp size={16} className="mr-2" />
-            {isLiked ? 'Polubiono' : 'Polub'} ({likesCount})
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' })}
-          >
-            <MessageSquare size={16} className="mr-2" />
-            Komentarze ({commentsCount})
-          </Button>
-        </div>
         
         <Separator className="my-8" />
         

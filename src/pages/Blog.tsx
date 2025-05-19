@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -5,42 +6,12 @@ import { ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-
-// Updated BlogPost interface to remove updated_at and author_id
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  featured_image: string;
-  excerpt: string | null;
-  categories: string[] | null;
-  tags: string[] | null;
-  created_at: string;
-}
+import { useBlogPosts } from '@/hooks/useBlogPosts';
 
 const Blog = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { posts, isLoadingPosts } = useBlogPosts();
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-      .from('blog_posts')
-      .select('id, title, slug, content, featured_image, excerpt, categories, tags, created_at')
-      .order('created_at', { ascending: false });
-      
-      if (!error && data) {
-        setPosts(data);
-      } else {
-        console.error('Error fetching blog posts:', error);
-        setPosts([]);
-      }
-      setLoading(false);
-    };
-    fetchPosts();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -69,11 +40,11 @@ const Blog = () => {
       <section className="pb-24">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loading ? (
+            {isLoadingPosts ? (
               <div className="col-span-3 text-center text-premium-light/70 py-12">Ładowanie postów...</div>
-            ) : posts.length === 0 ? (
+            ) : posts?.length === 0 ? (
               <div className="col-span-3 text-center text-premium-light/70 py-12">Brak postów do wyświetlenia.</div>
-            ) : posts.map((post) => (
+            ) : posts?.map((post) => (
               <div 
                 key={post.id} 
                 className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"
