@@ -10,7 +10,6 @@ import { HelmetProvider } from 'react-helmet-async'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { UIToaster } from '@/components/ui/toaster'
 import { Toaster as SonnerToaster } from 'sonner'
-import './utils/i18n'
 import { initGA } from './utils/analytics'
 
 // Initialize Google Analytics

@@ -4,9 +4,17 @@ import { supabase } from '@/integrations/supabase/client'
 import type { Database } from '@/types/supabase'
 
 // Update the type definitions to remove updated_at and author_id
-type BlogPost = Omit<Database['public']['Tables']['blog_posts']['Row'], 'updated_at' | 'author_id'>
-type BlogPostInsert = Omit<Database['public']['Tables']['blog_posts']['Insert'], 'updated_at' | 'author_id'>
-type BlogPostUpdate = Omit<Database['public']['Tables']['blog_posts']['Update'], 'updated_at' | 'author_id'>
+type BlogPost = Pick<Database['public']['Tables']['blog_posts']['Row'], 
+  'id' | 'title' | 'slug' | 'content' | 'featured_image' | 
+  'excerpt' | 'categories' | 'tags' | 'created_at' | 'published' | 'published_at'>
+
+type BlogPostInsert = Pick<Database['public']['Tables']['blog_posts']['Insert'], 
+  'id' | 'title' | 'slug' | 'content' | 'featured_image' | 
+  'excerpt' | 'categories' | 'tags' | 'created_at' | 'published' | 'published_at'>
+
+type BlogPostUpdate = Pick<Database['public']['Tables']['blog_posts']['Update'], 
+  'id' | 'title' | 'slug' | 'content' | 'featured_image' | 
+  'excerpt' | 'categories' | 'tags' | 'created_at' | 'published' | 'published_at'>
 
 export function useBlogPosts() {
   const queryClient = useQueryClient()
@@ -46,9 +54,23 @@ export function useBlogPosts() {
   // Create new post - no need to send author_id
   const createPost = useMutation({
     mutationFn: async (newPost: BlogPostInsert) => {
+      // Create a new post record with only the allowed fields
+      const postToInsert = {
+        title: newPost.title,
+        slug: newPost.slug,
+        content: newPost.content,
+        featured_image: newPost.featured_image,
+        excerpt: newPost.excerpt,
+        categories: newPost.categories,
+        tags: newPost.tags,
+        created_at: newPost.created_at,
+        published: newPost.published,
+        published_at: newPost.published_at
+      };
+
       const { data, error } = await supabase
         .from('blog_posts')
-        .insert(newPost)
+        .insert(postToInsert)
         .select()
         .single()
 
@@ -63,9 +85,22 @@ export function useBlogPosts() {
   // Update post - omit updated_at (it's handled by supabase) and author_id
   const updatePost = useMutation({
     mutationFn: async ({ id, ...updates }: BlogPostUpdate & { id: string }) => {
+      // Create an update object with only the allowed fields
+      const postUpdates = {
+        title: updates.title,
+        slug: updates.slug,
+        content: updates.content,
+        featured_image: updates.featured_image,
+        excerpt: updates.excerpt,
+        categories: updates.categories,
+        tags: updates.tags,
+        published: updates.published,
+        published_at: updates.published_at
+      };
+
       const { data, error } = await supabase
         .from('blog_posts')
-        .update(updates)
+        .update(postUpdates)
         .eq('id', id)
         .select()
         .single()

@@ -6,12 +6,10 @@ import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
-import { useTranslation } from 'react-i18next';
 
 const DesktopControls = () => {
   const { isAuthenticated } = useAuth();
   const { theme, toggleDarkMode } = useTheme();
-  const { t } = useTranslation();
   
   return (
     <div className="hidden md:flex items-center space-x-4">
@@ -43,14 +41,14 @@ const DesktopControls = () => {
         ) : (
           <Sun className="h-[1.2rem] w-[1.2rem]" stroke="currentColor" />
         )}
-        <span className="sr-only">Toggle theme</span>
+        <span className="sr-only">Przełącz motyw</span>
       </Button>
 
       <Link to="/contact" className="hidden md:block">
         <Button 
           className="bg-blue text-white hover:bg-black hover:text-white transition-colors"
         >
-          {t('buttons.contact') || 'Kontakt'}
+          Kontakt
         </Button>
       </Link>
       
@@ -70,7 +68,7 @@ const DesktopControls = () => {
             fill="none"
           />
           <span className="sr-only">
-            {isAuthenticated ? t('buttons.admin') : t('buttons.login')}
+            {isAuthenticated ? "Panel administracyjny" : "Zaloguj"}
           </span>
         </Button>
       </Link>
