@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
@@ -34,7 +33,8 @@ interface BlogPost {
   };
 }
 
-interface BlogPostWithUI extends BlogPost {
+// Fixed: Made sure optional properties in BlogPostWithUI don't conflict with required ones in BlogPost
+interface BlogPostWithUI extends Omit<BlogPost, 'excerpt' | 'categories'> {
   featuredImage?: string;
   excerpt?: string;
   categories?: string[];

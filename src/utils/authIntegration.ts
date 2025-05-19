@@ -17,6 +17,14 @@ const mapRoleToDbRole = (role: UserRole): ValidUserRole => {
   }
 };
 
+// Fixed: Function to safely convert string to UserRole
+const safeUserRole = (role: string | undefined | null): UserRole => {
+  if (role === 'admin' || role === 'moderator' || role === 'blogger' || role === 'user') {
+    return role as UserRole;
+  }
+  return 'user';
+};
+
 // Check which authentication method is available and use it
 export const integrateAuth = async () => {
   try {
@@ -228,7 +236,7 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
         last_name: userData.lastName,
         avatar_url: userData.profilePicture,
         // Only include role if it's a valid value for our schema
-        ...(userData.role && mapRoleToDbRole(userData.role) ? { role: mapRoleToDbRole(userData.role) } : {})
+        ...(userData.role ? { role: mapRoleToDbRole(safeUserRole(userData.role)) } : {})
       };
       
       // Update Supabase profile
@@ -241,9 +249,15 @@ export const updateUserProfile = async (userId: string, userData: Partial<Extend
         return { success: false, error: profileError };
       }
       
-      // Also update user metadata
+      // Also update user metadata - convert userData to correct User type
+      const typedUserData: Partial<User> = {
+        ...userData,
+        // Make sure role is correctly typed as UserRole
+        role: userData.role ? safeUserRole(userData.role) : undefined
+      };
+      
       const { error } = await supabase.auth.updateUser({
-        data: userData
+        data: typedUserData
       });
       
       return { success: !error, error };

@@ -11,7 +11,7 @@ import { useTheme } from '@/utils/themeContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Update BlogPost interface to match your actual database
+// Update BlogPost interface to match your actual database and include UI fields
 interface BlogPost {
   id: string;
   title: string;
@@ -30,17 +30,17 @@ interface BlogPost {
   meta_title: string | null;
   meta_description: string | null;
   meta_tags: string[] | null;
-  // Add these computed fields for UI
+  // UI helper fields
   views?: number;
+  authorName?: string;
+  authorAvatar?: string | null;
+  authorJobTitle?: string;
+  // Join with users table
   users?: {
     first_name: string | null;
     last_name: string | null;
     avatar_url: string | null;
   };
-  // Additional UI helper properties
-  authorName?: string;
-  authorAvatar?: string | null;
-  authorJobTitle?: string;
 }
 
 const BlogPost = () => {
@@ -74,9 +74,7 @@ const BlogPost = () => {
         setPost(postData);
         
         // Increment view count (in a real app you would store this)
-        const viewCount = (postData.views || 0) + 1;
-        // In a real app you would update the view count in the database
-        console.log(`Incrementing view count to ${viewCount} for post ${data.id}`);
+        console.log(`Incrementing view count for post ${data.id}`);
       } else {
         console.error('Error fetching blog post:', error);
         setPost(null);
