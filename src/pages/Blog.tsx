@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Calendar } from 'lucide-react';
@@ -10,29 +9,6 @@ import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDate } from '@/utils/dateUtils';
 import { Helmet } from 'react-helmet-async';
-
-const BlogCategories = () => {
-  const categories = ["Wszystkie", "SEO", "Web Development", "Marketing", "E-commerce", "Hosting"];
-  const [activeCategory, setActiveCategory] = useState("Wszystkie");
-  
-  return (
-    <div className="flex items-center space-x-2 mb-8 overflow-x-auto pb-2">
-      {categories.map(category => (
-        <Button
-          key={category}
-          variant={activeCategory === category ? "default" : "outline"}
-          size="sm"
-          onClick={() => setActiveCategory(category)}
-          className={activeCategory === category 
-            ? "bg-premium-purple hover:bg-purple-700 hover:text-white" 
-            : "hover:bg-premium-light/10 hover:text-black dark:hover:text-white"}
-        >
-          {category}
-        </Button>
-      ))}
-    </div>
-  );
-};
 
 const Blog = () => {
   const { posts, isLoadingPosts, error } = useFirebaseBlogPosts();
@@ -70,8 +46,6 @@ const Blog = () => {
             <p className="text-xl text-gray-300 mb-8 max-w-3xl">
               Najnowsze informacje, porady i trendy z świata SEO i tworzenia stron internetowych
             </p>
-            
-            <BlogCategories />
           </div>
         </div>
       </section>
@@ -141,7 +115,7 @@ const Blog = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border-t border-b border-premium-light/10">
+      <section className="py-16 bg-gradient-to-r border-t border-b border-premium-light/10">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">Potrzebujesz profesjonalnych usług SEO?</h2>
           <p className="text-gray-300 mb-8 max-w-2xl mx-auto">

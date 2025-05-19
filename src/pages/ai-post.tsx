@@ -3,6 +3,8 @@ import { useAuth } from '@/utils/firebaseAuth';
 import { useNavigate } from 'react-router-dom';
 import dynamic from 'next/dynamic';
 import Confetti from 'react-confetti';
+import { db } from '@/integrations/firebase/client';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import 'react-quill/dist/quill.snow.css';
@@ -12,6 +14,18 @@ const shimmer = {
   backgroundSize: '200% 100%',
   animation: 'shimmer 1.5s infinite',
 };
+
+const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:10000';
+
+function slugify(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
 
 export default function AIPostPage() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -31,7 +45,14 @@ export default function AIPostPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [thumbnail, setThumbnail] = useState('');
   const [loadingThumb, setLoadingThumb] = useState(false);
-  const [editorValue, setEditorValue] = useState('');
+  const [aiPost, setAiPost] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedPost, setEditedPost] = useState('');
+  const [accepted, setAccepted] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [tags, setTags] = useState('');
+  const [status, setStatus] = useState('published');
 
   React.useEffect(() => {
     if (!loading && !isAuthenticated) navigate('/login');
@@ -52,66 +73,129 @@ export default function AIPostPage() {
     else if (name === 'questions') setQuestions(checked);
     else if (name === 'summary') setSummary(checked);
     else if (name === 'links') setLinks(checked);
+    else if (name === 'tags') setTags(value);
+    else if (name === 'status') setStatus(value);
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingAI(true);
     setShowConfetti(false);
-    setEditorValue('');
-    const res = await fetch('http://localhost:3000/api/generate-blog-post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic, keywords, style, length, audience, cta, meta, questions, summary, links, language }),
-    });
-    const data = await res.json();
-    setEditorValue(
-      `<h1>${data.title}</h1><p>${data.lead}</p>` +
-      data.sections.map(s => `<h2>${s.heading}</h2><p>${s.content}</p>`).join('') +
-      (data.summary ? `<h3>Podsumowanie</h3><p>${data.summary}</p>` : '')
-    );
-    setLoadingAI(false);
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
+    setAccepted(false);
+    setIsEditing(false);
+    setAiPost(null);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch(`${API_BASE}/api/generate-blog-post`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, keywords, style, length, audience, cta, meta, questions, summary, links, language }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setError(err.error || 'Błąd generowania posta przez AI');
+        setLoadingAI(false);
+        return;
+      }
+      const data = await res.json();
+      setAiPost(data);
+      setEditedPost(
+        `<h1>${data.title || ''}</h1><p>${data.lead || ''}</p>` +
+        (Array.isArray(data.sections) ? data.sections.map(s => `<h2>${s.heading}</h2><p>${s.content}</p>`).join('') : '') +
+        (data.summary ? `<h3>Podsumowanie</h3><p>${data.summary}</p>` : '')
+      );
+      setLoadingAI(false);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+    } catch (e) {
+      setError('Błąd połączenia z API');
+      setLoadingAI(false);
+    }
   };
 
   const handleGenerateThumbnail = async () => {
     setLoadingThumb(true);
     setThumbnail('');
-    const res = await fetch('http://localhost:3000/api/generate-thumbnail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: topic, keywords }),
-    });
-    const data = await res.json();
-    setThumbnail(data.imageUrl);
+    try {
+      const res = await fetch(`${API_BASE}/api/generate-thumbnail`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: topic, keywords }),
+      });
+      const data = await res.json();
+      setThumbnail(data.imageUrl);
+    } catch (e) {
+      setThumbnail('');
+    }
     setLoadingThumb(false);
   };
 
   const handleGenerateKeywords = async () => {
     if (!topic) return;
     setLoadingAI(true);
-    const res = await fetch('http://localhost:3000/api/generate-keywords', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic })
-    });
-    const data = await res.json();
-    setKeywords(data.keywords || '');
+    try {
+      const res = await fetch(`${API_BASE}/api/generate-keywords`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic })
+      });
+      const data = await res.json();
+      setKeywords(data.keywords || '');
+    } catch (e) {}
     setLoadingAI(false);
   };
 
   const handleGenerateAudience = async () => {
     if (!topic) return;
     setLoadingAI(true);
-    const res = await fetch('http://localhost:3000/api/generate-audience', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic })
-    });
-    const data = await res.json();
-    setAudience(data.audience || '');
+    try {
+      const res = await fetch(`${API_BASE}/api/generate-audience`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic })
+      });
+      const data = await res.json();
+      setAudience(data.audience || '');
+    } catch (e) {}
     setLoadingAI(false);
+  };
+
+  const handleEdit = () => setIsEditing(true);
+
+  const handleAccept = async () => {
+    setAccepted(true);
+    setIsEditing(false);
+    setError('');
+    setSuccess('');
+    if (!aiPost) return;
+    try {
+      await addDoc(collection(db, "blogPosts"), {
+        title: aiPost.title,
+        lead: aiPost.lead,
+        sections: aiPost.sections,
+        summary: aiPost.summary,
+        tags: aiPost.tags || [],
+        created_at: serverTimestamp(),
+        slug: aiPost.title ? slugify(aiPost.title) : '',
+        featured_image: thumbnail || '',
+        excerpt: aiPost.lead || '',
+        author: user?.email || "anonim",
+        status: status,
+        content: isEditing ? editedPost : null
+      });
+      setSuccess('Post zapisany w bazie!');
+    } catch (e) {
+      setError('Błąd zapisu do bazy: ' + (e.message || e));
+    }
+  };
+
+  const handleReject = () => {
+    setAiPost(null);
+    setIsEditing(false);
+    setAccepted(false);
+    setError('');
+    setSuccess('');
   };
 
   return (
@@ -169,6 +253,14 @@ export default function AIPostPage() {
             value={audience}
             onChange={handleChange}
           />
+          <input
+            type="text"
+            className="bg-black text-white placeholder-gray-400 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none"
+            placeholder="Tagi (przecinek)"
+            name="tags"
+            value={tags}
+            onChange={handleChange}
+          />
           <div className="flex gap-2">
             <select
               className="flex-1 bg-black text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none"
@@ -207,6 +299,15 @@ export default function AIPostPage() {
             <label className="flex items-center gap-1"><input type="checkbox" checked={summary} onChange={handleChange} name="summary" /> Podsumowanie</label>
             <label className="flex items-center gap-1"><input type="checkbox" checked={links} onChange={handleChange} name="links" /> Linki do sekcji</label>
           </div>
+          <select
+            className="bg-black text-white border border-gray-700 rounded-lg px-4 py-2 focus:outline-none"
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+            name="status"
+          >
+            <option value="published">Opublikowany</option>
+            <option value="draft">Szkic</option>
+          </select>
         </div>
         <div className="flex flex-col items-center gap-4 w-full md:w-72">
           <button
@@ -218,6 +319,48 @@ export default function AIPostPage() {
           </button>
         </div>
       </form>
+      {error && <div className="mt-4 text-red-500 font-bold">{error}</div>}
+      {success && <div className="mt-4 text-green-600 font-bold">{success}</div>}
+      {aiPost && !accepted && (
+        <div className="mt-8 w-full max-w-3xl bg-white rounded-xl shadow-lg p-6">
+          <h2 className="text-xl font-bold mb-4">Podgląd wygenerowanego posta</h2>
+          {isEditing ? (
+            <ReactQuill
+              className="w-full h-64 mb-4 bg-white"
+              theme="snow"
+              value={editedPost}
+              onChange={setEditedPost}
+            />
+          ) : (
+            <div>
+              <h3 className="text-2xl font-bold mb-2">{aiPost.title}</h3>
+              <p className="mb-4">{aiPost.lead}</p>
+              {Array.isArray(aiPost.sections) && aiPost.sections.map((s, i) => (
+                <div key={i}>
+                  <h4 className="font-semibold mt-4">{s.heading}</h4>
+                  <p>{s.content}</p>
+                </div>
+              ))}
+              {aiPost.summary && (
+                <>
+                  <h4 className="font-semibold mt-4">Podsumowanie</h4>
+                  <p>{aiPost.summary}</p>
+                </>
+              )}
+            </div>
+          )}
+          <div className="flex gap-4 mt-6">
+            {!isEditing && <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleEdit}>Edytuj</button>}
+            {isEditing && <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={handleAccept}>Akceptuj</button>}
+            <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleReject}>Odrzuć</button>
+            <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={handleGenerateThumbnail} disabled={loadingThumb}>Generuj miniaturę</button>
+          </div>
+          {thumbnail && <img src={thumbnail} alt="Miniatura" className="mt-4 rounded-lg w-full max-w-md mx-auto" />}
+        </div>
+      )}
+      {accepted && (
+        <div className="mt-8 text-green-700 font-bold">Post zaakceptowany i zapisany w bazie!</div>
+      )}
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={300} recycle={false} />}
     </div>
   );
