@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
@@ -25,10 +26,10 @@ const BlogPost = () => {
   // Get blog state and actions
   const { 
     posts, 
-    incrementViews, 
+    incrementView, 
     toggleLike, 
     getPostComments,
-    isPostLikedByUser
+    hasUserLiked
   } = useBlogStore();
   
   // Find the post by slug
@@ -46,15 +47,25 @@ const BlogPost = () => {
       setIsLoading(false);
       
       // Increment view count
-      incrementViews(post.id);
+      if (post.id) {
+        incrementView(post.id);
+      }
       
       // Set initial like state
-      setIsLiked(isPostLikedByUser(post.id));
-      setLikesCount(post.likes || 0);
+      if (user && post.id) {
+        setIsLiked(hasUserLiked(post.id, user.id));
+      }
+      
+      // Set likes count
+      if (post.likes) {
+        setLikesCount(post.likes.length);
+      }
       
       // Get comments count
-      const comments = getPostComments(post.id);
-      setCommentsCount(comments.length);
+      if (post.id) {
+        const comments = getPostComments(post.id);
+        setCommentsCount(comments.length);
+      }
     } else if (posts.length > 0 && !isLoading) {
       // If posts are loaded but this post doesn't exist
       navigate('/blog');
@@ -64,7 +75,7 @@ const BlogPost = () => {
         variant: "destructive"
       });
     }
-  }, [post, posts, isLoading, incrementViews, isPostLikedByUser, getPostComments, navigate, toast]);
+  }, [post, posts, isLoading, incrementView, hasUserLiked, getPostComments, navigate, toast, user]);
   
   const handleLikeToggle = () => {
     if (!user) {
@@ -80,16 +91,7 @@ const BlogPost = () => {
       const newLikeState = !isLiked;
       setIsLiked(newLikeState);
       setLikesCount(prev => newLikeState ? prev + 1 : prev - 1);
-      toggleLike(post.id);
-    }
-  };
-  
-  const checkUserRole = () => {
-    // Example function where the comparison would occur
-    if (userType === 'user') {
-      console.log('Regular user');
-    } else if (userType === 'blogger') {
-      console.log('Blogger user');
+      toggleLike(post.id, user.id);
     }
   };
   
@@ -116,10 +118,10 @@ const BlogPost = () => {
     <>
       <Helmet>
         <title>{post.title} | IDZ.TECH Blog</title>
-        <meta name="description" content={post.summary} />
+        <meta name="description" content={post.excerpt} />
         <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.summary} />
-        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+        <meta property="og:description" content={post.excerpt} />
+        {post.featuredImage && <meta property="og:image" content={post.featuredImage} />}
         <meta property="og:type" content="article" />
         <meta property="article:published_time" content={post.date} />
         <meta property="article:author" content="IDZ.TECH" />
@@ -172,17 +174,17 @@ const BlogPost = () => {
             <div>
               <div className="font-medium">{post.author || 'Autor'}</div>
               <div className="text-sm text-premium-light/70">
-                {post.author_title || 'IDZ.TECH'}
+                IDZ.TECH
               </div>
             </div>
           </div>
         </header>
         
         {/* Featured image */}
-        {post.featured_image && (
+        {post.featuredImage && (
           <div className="mb-8">
             <img 
-              src={post.featured_image} 
+              src={post.featuredImage} 
               alt={post.title} 
               className="w-full h-auto rounded-lg object-cover max-h-[500px]" 
             />

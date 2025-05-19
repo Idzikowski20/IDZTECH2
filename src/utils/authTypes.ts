@@ -21,10 +21,8 @@ export interface AuthState {
   isAuthenticated: boolean;
   rememberMe: boolean;
   loading: boolean;
-  login: (email: string, password: string, remember?: boolean) => Promise<boolean>;
-  register: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
   signIn: (email: string, password: string, remember?: boolean) => Promise<boolean>;
+  logout: () => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (email: string, token: string, newPassword: string) => Promise<boolean>;

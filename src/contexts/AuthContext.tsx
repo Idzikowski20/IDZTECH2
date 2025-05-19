@@ -2,6 +2,7 @@
 import React from "react";
 import { User, Session } from "@supabase/supabase-js";
 
+// Export this interface so it can be used elsewhere
 export interface ExtendedUserProfile {
   name?: string | null;
 }

@@ -51,7 +51,8 @@ interface BlogStore {
   addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes' | 'guestLikes' | 'deviceLikes'>) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
-  incrementView: (id: string) => void;
+  incrementView: (id: string) => void; 
+  incrementViews: (id: string) => void; // Alias for incrementView
   resetStats: () => void;
   getPostBySlug: (slug: string) => BlogPost | undefined;
   addComment: (postId: string, userId: string, userName: string, userAvatar: string | undefined, content: string) => void;
@@ -67,6 +68,7 @@ interface BlogStore {
   getTotalLikes: () => number;
   getPostComments: (postId: string) => BlogComment[];
   hasUserLiked: (postId: string, userId: string) => boolean;
+  isPostLikedByUser: (postId: string) => boolean; // Simplified version
 }
 
 // Generate a unique device ID
@@ -181,6 +183,15 @@ export const useBlogStore = create<BlogStore>()(
       },
       
       incrementView: (id) => {
+        set((state) => ({
+          posts: state.posts.map((post) => 
+            post.id === id ? { ...post, views: post.views + 1 } : post
+          )
+        }));
+      },
+      
+      // Alias for incrementView to handle renamed method
+      incrementViews: (id) => {
         set((state) => ({
           posts: state.posts.map((post) => 
             post.id === id ? { ...post, views: post.views + 1 } : post
@@ -421,6 +432,13 @@ export const useBlogStore = create<BlogStore>()(
         const post = posts.find(p => p.id === postId);
         // Add null check before accessing post.likes
         return post && post.likes ? post.likes.includes(userId) : false;
+      },
+      
+      // Simplified version that just returns false for compatibility
+      isPostLikedByUser: (postId) => {
+        const { posts, deviceId } = get();
+        const post = posts.find(p => p.id === postId);
+        return post?.deviceLikes ? post.deviceLikes.includes(deviceId) : false;
       }
     }),
     {

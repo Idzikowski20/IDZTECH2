@@ -6,7 +6,6 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
-import Profile from '@/pages/Profile';
 import Blog from '@/pages/Blog';
 import BlogPostEditor from '@/pages/BlogPostEditor';
 import BlogPost from '@/pages/BlogPost';
@@ -42,7 +41,6 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/new" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />
         <Route path="/blog/edit/:id" element={<RequireAuth><BlogPostEditor /></RequireAuth>} />

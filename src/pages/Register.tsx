@@ -32,7 +32,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isPassCompromised, setIsPassCompromised] = useState(false);
-  const { register } = useAuth();
+  const { signIn } = useAuth();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -101,34 +101,14 @@ const Register = () => {
         return;
       } else if (error) {
         console.error("Supabase registration error:", error);
-        
-        // Fall back to local auth if Supabase fails
-        const success = await register(values.email, values.name, values.password);
-        
-        if (success) {
-          toast({
-            title: "Rejestracja udana",
-            description: "Teraz możesz się zalogować"
-          });
-          navigate('/login');
-        } else {
-          toast({
-            title: "Błąd rejestracji",
-            description: "Użytkownik o podanym adresie email już istnieje lub wystąpił inny błąd",
-            variant: "destructive"
-          });
-        }
+        toast({
+          title: "Błąd rejestracji",
+          description: error.message || "Spróbuj ponownie później",
+          variant: "destructive"
+        });
       } else {
         // Supabase registration succeeded
         console.log("Supabase registration successful:", data);
-        
-        // Create profile record
-        await supabase.from('users').upsert({
-          id: data.user?.id,
-          email: values.email,
-          name: values.name,
-          created_at: new Date().toISOString()
-        });
         
         toast({
           title: "Rejestracja udana",

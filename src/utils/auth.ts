@@ -1,7 +1,7 @@
 
-// Re-export everything from the modular files
+// Simplified auth utilities with only the minimal necessary imports
 export * from './authTypes';
-export * from './authStore';
 
 // This file now just serves as a central import point
-// to maintain backward compatibility
+// for authentication related utilities
+
