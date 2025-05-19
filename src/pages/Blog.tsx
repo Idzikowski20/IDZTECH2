@@ -71,21 +71,17 @@ const Blog = () => {
         </div>
       </section>
       
-      {/* Blog posts grid - CyberFolks style */}
+      {/* Blog posts grid - Updated design matching reference image */}
       <section className="pb-24">
         <div className="container mx-auto px-4">
           {isLoadingPosts ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
-                  <Skeleton className="h-52 w-full" />
-                  <div className="p-6">
-                    <Skeleton className="h-4 w-32 mb-3" />
-                    <Skeleton className="h-6 w-full mb-3" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-3/4 mb-4" />
-                    <Skeleton className="h-8 w-32" />
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="flex flex-col">
+                  <Skeleton className="h-52 w-full rounded-xl mb-4" />
+                  <Skeleton className="h-4 w-24 mb-2" />
+                  <Skeleton className="h-6 w-full mb-2" />
+                  <Skeleton className="h-4 w-3/4" />
                 </div>
               ))}
             </div>
@@ -96,58 +92,46 @@ const Blog = () => {
               <Button onClick={() => window.location.reload()} variant="outline">Odśwież stronę</Button>
             </div>
           ) : posts && posts.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {posts.map((post) => (
-                <div 
-                  key={post.id} 
-                  className="group flex flex-col bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden hover:border-premium-light/30 transition-all duration-300"
-                >
-                  <Link to={`/blog/${post.slug}`} className="overflow-hidden relative block aspect-[16/9]">
+                <article key={post.id} className="group flex flex-col">
+                  <Link to={`/blog/${post.slug}`} className="block overflow-hidden rounded-xl mb-4">
                     <img 
                       src={post.featured_image || '/placeholder.svg'} 
                       alt={post.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.src = '/placeholder.svg';
                       }}
                     />
-                    
-                    {post.categories && post.categories[0] && (
-                      <span className="absolute top-4 left-4 bg-premium-purple text-white text-xs px-3 py-1 rounded-full">
-                        {post.categories[0]}
-                      </span>
-                    )}
                   </Link>
                   
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex items-center text-xs text-gray-400 mb-3 space-x-4">
-                      <span className="flex items-center">
-                        <Calendar size={14} className="mr-1" />
-                        {formatDate(post.created_at)}
-                      </span>
-                      <span className="flex items-center">
-                        <Clock size={14} className="mr-1" />
-                        {formatReadingTime(post.content)}
-                      </span>
-                    </div>
-                    
-                    <Link to={`/blog/${post.slug}`}>
-                      <h3 className="text-xl font-bold mb-3 group-hover:text-premium-purple transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    
-                    <p className="text-gray-400 mb-4 line-clamp-3 flex-grow">
-                      {post.summary || post.excerpt || 'Brak opisu'}
-                    </p>
-                    
-                    <Link to={`/blog/${post.slug}`} className="group/link inline-flex items-center text-premium-purple font-medium">
-                      <span className="group-hover/link:underline">Czytaj więcej</span>
-                      <ArrowRight size={16} className="ml-2 transition-transform group-hover/link:translate-x-1" />
-                    </Link>
+                  <div className="text-sm text-gray-400 mb-2">
+                    <span className="flex items-center">
+                      <Calendar size={14} className="mr-1" />
+                      {formatDate(post.created_at)}
+                    </span>
                   </div>
-                </div>
+                  
+                  <Link to={`/blog/${post.slug}`}>
+                    <h3 className="text-xl font-semibold mb-2 group-hover:text-premium-purple group-hover:underline transition-colors">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  
+                  <p className="text-gray-400 mb-3 line-clamp-2">
+                    {post.excerpt || post.summary || 'Brak opisu'}
+                  </p>
+                  
+                  <Link 
+                    to={`/blog/${post.slug}`} 
+                    className="mt-auto inline-flex items-center text-premium-purple font-medium group/link"
+                  >
+                    <span className="group-hover/link:underline">Czytaj więcej</span>
+                    <ArrowRight size={16} className="ml-2 transition-transform group-hover/link:translate-x-1" />
+                  </Link>
+                </article>
               ))}
             </div>
           ) : (

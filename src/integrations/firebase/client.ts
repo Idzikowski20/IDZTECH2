@@ -4,14 +4,15 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
-// Firebase configuration - replace with your own project details
+// Firebase configuration with the correct API key
 const firebaseConfig = {
-  apiKey: "AIzaSyC5vfBaB3y2sFgdd3vEtSm_kP6QHdDvShk",
-  authDomain: "premiumdigital-2ae43.firebaseapp.com",
-  projectId: "premiumdigital-2ae43",
-  storageBucket: "premiumdigital-2ae43.appspot.com",
-  messagingSenderId: "1073430273022",
-  appId: "1:1073430273022:web:43d143d0b3a77ce8bcd48a"
+  apiKey: "AIzaSyBGBbWqNBsSzAPvoX7gY2062V-nOJif6IA",
+  authDomain: "idztech-bfeef.firebaseapp.com",
+  projectId: "idztech-bfeef",
+  storageBucket: "idztech-bfeef.appspot.com",
+  messagingSenderId: "535192245227",
+  appId: "1:535192245227:web:680958b5cc3bd3d1903fae",
+  measurementId: "G-SNPV2N8124"
 };
 
 // Initialize Firebase
