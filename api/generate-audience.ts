@@ -7,4 +7,4 @@ export default async function handler(req, res) {
       keywords: "seo,pozycjonowanie,strona internetowa,marketing"
     });
   }
-  
+   
