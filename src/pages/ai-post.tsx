@@ -59,7 +59,7 @@ export default function AIPostPage() {
     setLoadingAI(true);
     setShowConfetti(false);
     setEditorValue('');
-    const res = await fetch('/api/generate-blog-post', {
+    const res = await fetch('http://localhost:3000/api/generate-blog-post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic, keywords, style, length, audience, cta, meta, questions, summary, links, language }),
@@ -78,7 +78,7 @@ export default function AIPostPage() {
   const handleGenerateThumbnail = async () => {
     setLoadingThumb(true);
     setThumbnail('');
-    const res = await fetch('/api/generate-thumbnail', {
+    const res = await fetch('http://localhost:3000/api/generate-thumbnail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: topic, keywords }),
@@ -91,7 +91,7 @@ export default function AIPostPage() {
   const handleGenerateKeywords = async () => {
     if (!topic) return;
     setLoadingAI(true);
-    const res = await fetch('/api/generate-keywords', {
+    const res = await fetch('http://localhost:3000/api/generate-keywords', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic })
@@ -104,7 +104,7 @@ export default function AIPostPage() {
   const handleGenerateAudience = async () => {
     if (!topic) return;
     setLoadingAI(true);
-    const res = await fetch('/api/generate-audience', {
+    const res = await fetch('http://localhost:3000/api/generate-audience', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic })
