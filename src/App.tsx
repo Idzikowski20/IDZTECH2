@@ -31,11 +31,13 @@ import LanguageController from './components/LanguageController';
 import RequireAuth from '@/components/RequireAuth';
 import ErrorPage from '@/pages/ErrorPage';
 import Admin from '@/pages/Admin';
+import { Toaster } from 'sonner';
 
 const App = () => {
   return (
     <>
       <LanguageController />
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Index />} errorElement={<ErrorPage />} />
         <Route path="/login" element={<Login />} />

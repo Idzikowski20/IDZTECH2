@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -14,7 +13,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
 import { supabase } from '@/integrations/supabase/client';
-import { toast as sonnerToast } from 'sonner';
+import { toast } from 'sonner';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -30,7 +29,7 @@ type FormValues = z.infer<typeof blogPostSchema>;
 const BlogPostEditor = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
@@ -52,7 +51,7 @@ const BlogPostEditor = () => {
           if (data) setExistingPost(data);
         } catch (error) {
           console.error("Error fetching post:", error);
-          toast({
+          uiToast({
             title: "Błąd",
             description: "Nie udało się załadować posta",
             variant: "destructive"
@@ -61,7 +60,7 @@ const BlogPostEditor = () => {
       }
     };
     fetchPost();
-  }, [id, toast]);
+  }, [id, uiToast]);
 
   // Set up form with default values
   const form = useForm<FormValues>({
@@ -104,7 +103,7 @@ const BlogPostEditor = () => {
 
   const onSubmit = async (values: FormValues) => {
     if (!user) {
-      toast({
+      uiToast({
         title: "Błąd",
         description: "Musisz być zalogowany, aby dodać lub edytować post.",
         variant: "destructive"
@@ -145,7 +144,9 @@ const BlogPostEditor = () => {
           console.error("Error updating post:", error);
           throw error;
         }
-        sonnerToast.success("Post zaktualizowany", "Post został zaktualizowany.");
+        toast.success("Post zaktualizowany", {
+          description: "Post został zaktualizowany."
+        });
       } else {
         console.log("Creating new post");
         const { error } = await supabase
@@ -160,12 +161,14 @@ const BlogPostEditor = () => {
           console.error("Error creating post:", error);
           throw error;
         }
-        sonnerToast.success("Post dodany", "Nowy post został dodany do bloga.");
+        toast.success("Post dodany", {
+          description: "Nowy post został dodany do bloga."
+        });
       }
       navigate('/admin');
     } catch (error) {
       console.error("Error saving post:", error);
-      toast({
+      uiToast({
         title: "Błąd",
         description: "Wystąpił problem podczas zapisywania posta.",
         variant: "destructive"
