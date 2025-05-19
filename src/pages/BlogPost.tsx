@@ -1,214 +1,257 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
-
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { ArrowLeft, Calendar, Clock, Eye, MessageSquare, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { useBlogStore } from '@/utils/blog';
+import { formatDate, formatReadingTime } from '@/utils/dateUtils';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/utils/AuthProvider';
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useTheme } from '@/utils/themeContext';
-import { supabase } from '@/integrations/supabase/client';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-// Update BlogPost interface to match your actual database and include UI fields
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  featured_image: string;
-  summary: string | null;
-  excerpt: string | null;
-  categories: string[] | null;
-  tags: string[] | null;
-  author_id: string;
-  created_at: string;
-  updated_at: string;
-  published: boolean;
-  published_at: string | null;
-  meta_title: string | null;
-  meta_description: string | null;
-  meta_tags: string[] | null;
-  // UI helper fields
-  views?: number;
-  authorName?: string;
-  authorAvatar?: string | null;
-  authorJobTitle?: string;
-  // Join with users table
-  users?: {
-    first_name: string | null;
-    last_name: string | null;
-    avatar_url: string | null;
-  };
-}
+import CommentSection from '@/components/blog/CommentSection';
+import ShareButtons from '@/components/blog/ShareButtons';
+import RelatedPosts from '@/components/blog/RelatedPosts';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Helmet } from 'react-helmet-async';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const { theme } = useTheme();
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  const [userType, setUserType] = useState<string>('user');
+  
+  // Get blog state and actions
+  const { 
+    posts, 
+    incrementViews, 
+    toggleLike, 
+    getPostComments,
+    isPostLikedByUser
+  } = useBlogStore();
+  
+  // Find the post by slug
+  const post = posts.find(p => p.slug === slug);
+  
+  // State for loading and interactions
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [commentsCount, setCommentsCount] = useState(0);
+  
+  // Check if post exists and load data
   useEffect(() => {
-    const fetchPost = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('blog_posts')
-        .select('*, users:author_id(first_name, last_name, avatar_url)')
-        .eq('slug', slug)
-        .single();
-        
-      if (!error && data) {
-        // Create a properly typed post object with computed fields
-        const postData: BlogPost = {
-          ...data,
-          views: 0, // Default view count
-          authorName: data.users ? `${data.users.first_name || ''} ${data.users.last_name || ''}`.trim() : 'IDZ.TECH',
-          authorAvatar: data.users?.avatar_url || null,
-          authorJobTitle: 'Autor'
-        };
-        
-        setPost(postData);
-        
-        // Increment view count (in a real app you would store this)
-        console.log(`Incrementing view count for post ${data.id}`);
-      } else {
-        console.error('Error fetching blog post:', error);
-        setPost(null);
-      }
-      setLoading(false);
-    };
-    if (slug) fetchPost();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [slug]);
-
-  if (loading) {
+    if (post) {
+      setIsLoading(false);
+      
+      // Increment view count
+      incrementViews(post.id);
+      
+      // Set initial like state
+      setIsLiked(isPostLikedByUser(post.id));
+      setLikesCount(post.likes || 0);
+      
+      // Get comments count
+      const comments = getPostComments(post.id);
+      setCommentsCount(comments.length);
+    } else if (posts.length > 0 && !isLoading) {
+      // If posts are loaded but this post doesn't exist
+      navigate('/blog');
+      toast({
+        title: "Post nie istnieje",
+        description: "Nie znaleziono posta o podanym adresie URL",
+        variant: "destructive"
+      });
+    }
+  }, [post, posts, isLoading, incrementViews, isPostLikedByUser, getPostComments, navigate, toast]);
+  
+  const handleLikeToggle = () => {
+    if (!user) {
+      toast({
+        title: "Wymagane logowanie",
+        description: "Musisz być zalogowany, aby polubić post",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (post) {
+      const newLikeState = !isLiked;
+      setIsLiked(newLikeState);
+      setLikesCount(prev => newLikeState ? prev + 1 : prev - 1);
+      toggleLike(post.id);
+    }
+  };
+  
+  const checkUserRole = () => {
+    // Example function where the comparison would occur
+    if (userType === 'user') {
+      console.log('Regular user');
+    } else if (userType === 'blogger') {
+      console.log('Blogger user');
+    }
+  };
+  
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-premium-dark flex items-center justify-center">
-        <span className="text-premium-light/70 text-lg">Ładowanie posta...</span>
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        <Skeleton className="h-12 w-3/4 mb-4" />
+        <Skeleton className="h-6 w-1/2 mb-8" />
+        <Skeleton className="h-[400px] w-full mb-8" />
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-full" />
+          <Skeleton className="h-6 w-full" />
+          <Skeleton className="h-6 w-3/4" />
+        </div>
       </div>
     );
   }
-
+  
   if (!post) {
-    return (
-      <div className="min-h-screen bg-premium-dark">
-        <Navbar />
-        <div className="container mx-auto px-4 pt-40 pb-24 text-center">
-          <h1 className="text-3xl font-bold mb-6">Post nie został znaleziony</h1>
-          <p className="mb-8 text-premium-light/70">Przepraszamy, ale szukany post nie istnieje.</p>
-          <Button onClick={() => navigate('/blog')} className="bg-premium-gradient">
-            Wróć do bloga
+    return null; // Will redirect in useEffect
+  }
+  
+  return (
+    <>
+      <Helmet>
+        <title>{post.title} | IDZ.TECH Blog</title>
+        <meta name="description" content={post.summary} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={post.summary} />
+        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+        <meta property="og:type" content="article" />
+        <meta property="article:published_time" content={post.date} />
+        <meta property="article:author" content="IDZ.TECH" />
+        {post.tags?.map(tag => (
+          <meta property="article:tag" content={tag} key={tag} />
+        ))}
+      </Helmet>
+      
+      <div className="container max-w-4xl mx-auto px-4 py-8">
+        {/* Back button */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/blog')}
+            className="text-premium-light/70 hover:text-white hover:bg-premium-light/10"
+          >
+            <ArrowLeft size={16} className="mr-2" />
+            Wróć do listy postów
           </Button>
         </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  const authorDisplayName = post.authorName || "IDZ.TECH";
-  const authorInitial = authorDisplayName.charAt(0);
-  const authorProfilePicture = post.authorAvatar || null;
-
-  // Calculate counts for UI
-  const commentsCount = 0; // Since you don't have actual comments
-  const likesCount = 0; // Since you don't have actual likes
-
-  // Check if user is admin, moderator or blogger (has special permissions)
-  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
-  const isUserLoggedIn = !!user;
-
-  return (
-    <div className="min-h-screen bg-premium-dark">
-      <Navbar />
-      {/* Hero section */}
-      <section className="pt-32 pb-10">
-        <div className="container mx-auto px-4">
-          <Link to="/blog">
-            <Button variant="ghost" className={`mb-6 hover:bg-premium-light/5 hover:text-white ${theme === 'light' ? 'text-black hover:text-white' : ''}`}>
-              <ArrowLeft size={18} className="mr-2" /> Wróć do bloga
-            </Button>
-          </Link>
-          <div className="max-w-3xl mx-auto">
-            <div className="flex flex-wrap items-center text-sm text-premium-light/60 mb-4 gap-2">
-              <div className="flex items-center">
-                <Clock size={14} className="mr-1" />
-                <span>{new Date(post.created_at).toLocaleDateString('pl-PL')}</span>
-              </div>
-              {isUserLoggedIn && (
-                <>
-                  <span className="mx-2">•</span>
-                  <span>{post.categories.join(', ')}</span>
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Eye size={14} className="mr-1" />
-                    <span>{post.views} wyświetleń</span>
-                  </div>
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <MessageCircle size={14} className="mr-1" />
-                    <span>{commentsCount} komentarzy</span>
-                  </div>
-                  <span className="mx-2">•</span>
-                  <div className="flex items-center">
-                    <Heart size={14} className="mr-1" />
-                    <span>{likesCount} polubień</span>
-                  </div>
-                </>
-              )}
+        
+        {/* Post header */}
+        <header className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
+          
+          <div className="flex flex-wrap items-center gap-4 text-premium-light/70 mb-6">
+            <div className="flex items-center">
+              <Calendar size={16} className="mr-2" />
+              <span>{formatDate(post.date)}</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
-            <div className="flex items-center mb-4">
-              {/* Używamy avatara z profilem z Supabase */}
-              <Avatar className="h-10 w-10 border">
-                <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
-                <AvatarFallback className="bg-premium-gradient text-white">
-                  {authorInitial}
-                </AvatarFallback>
-              </Avatar>
-              <div className="ml-3">
-                <div className="font-medium">{authorDisplayName}</div>
-                <div className="text-sm text-premium-light/60">
-                  {post.authorJobTitle || "Autor"}
-                </div>
+            
+            <div className="flex items-center">
+              <Clock size={16} className="mr-2" />
+              <span>{formatReadingTime(post.content)}</span>
+            </div>
+            
+            <div className="flex items-center">
+              <Eye size={16} className="mr-2" />
+              <span>{post.views || 0} wyświetleń</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarFallback className="bg-premium-gradient">
+                {post.author?.charAt(0) || 'A'}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div>
+              <div className="font-medium">{post.author || 'Autor'}</div>
+              <div className="text-sm text-premium-light/70">
+                {post.author_title || 'IDZ.TECH'}
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* Featured Image */}
-      <div className="container mx-auto px-4 mb-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="rounded-xl overflow-hidden">
-            <img src={post.featured_image} alt={post.title} className="w-full h-auto" />
+        </header>
+        
+        {/* Featured image */}
+        {post.featured_image && (
+          <div className="mb-8">
+            <img 
+              src={post.featured_image} 
+              alt={post.title} 
+              className="w-full h-auto rounded-lg object-cover max-h-[500px]" 
+            />
           </div>
-        </div>
-      </div>
-      {/* Post Content */}
-      <section className="pb-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
-          </div>
-          <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
+        )}
+        
+        {/* Post content */}
+        <article className="prose prose-invert prose-premium max-w-none mb-8">
+          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        </article>
+        
+        {/* Tags */}
+        {post.tags && post.tags.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-lg font-medium mb-2">Tagi</h3>
             <div className="flex flex-wrap gap-2">
-              {post.tags && post.tags.map((tag: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black transition-colors"
-                >
-                  #{tag}
-                </span>
+              {post.tags.map(tag => (
+                <Badge key={tag} variant="outline" className="bg-premium-light/5 hover:bg-premium-light/10">
+                  {tag}
+                </Badge>
               ))}
             </div>
           </div>
+        )}
+        
+        {/* Interactions */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button 
+            variant={isLiked ? "default" : "outline"} 
+            size="sm"
+            className={isLiked ? "bg-premium-gradient hover:bg-white hover:text-black" : ""}
+            onClick={handleLikeToggle}
+          >
+            <ThumbsUp size={16} className="mr-2" />
+            {isLiked ? 'Polubiono' : 'Polub'} ({likesCount})
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            <MessageSquare size={16} className="mr-2" />
+            Komentarze ({commentsCount})
+          </Button>
         </div>
-      </section>
-      <Footer />
-    </div>
+        
+        <Separator className="my-8" />
+        
+        {/* Share buttons */}
+        <ShareButtons title={post.title} />
+        
+        <Separator className="my-8" />
+        
+        {/* Comments section */}
+        <div id="comments-section">
+          <CommentSection postId={post.id} />
+        </div>
+        
+        <Separator className="my-8" />
+        
+        {/* Related posts */}
+        <RelatedPosts 
+          currentPostId={post.id} 
+          categories={post.categories || []} 
+          tags={post.tags || []}
+        />
+      </div>
+    </>
   );
 };
 

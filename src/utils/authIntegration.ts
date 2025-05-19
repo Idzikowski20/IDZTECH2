@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { ensureValidRole } from './roleUtils';
 
 // Function to get the current session
 export const getCurrentSession = async () => {
@@ -90,33 +89,6 @@ export const updatePassword = async (newPassword: string) => {
   } catch (err: any) {
     console.error("Unexpected password update error:", err.message);
     return { error: err.message };
-  }
-};
-
-// Function to update profile
-export const updateProfile = async (data: any) => {
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    const user = session?.user;
-    
-    if (!user) throw new Error('No user is currently logged in');
-    
-    // Process the role to ensure it's a valid UserRole enum value if present
-    const processedData = { ...data };
-    if (data.role !== undefined) {
-      processedData.role = ensureValidRole(data.role);
-    }
-    
-    // Now update the metadata
-    await supabase.auth.updateUser({
-      data: processedData
-    });
-    
-    // After updating the profile, refresh the user
-    await refreshUser();
-  } catch (error) {
-    console.error('Error updating profile:', error);
-    throw error;
   }
 };
 

@@ -1,16 +1,9 @@
 
 import React from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { UserRole } from "@/utils/authTypes";
 
-// Extended user profile interface to include additional fields
 export interface ExtendedUserProfile {
   name?: string | null;
-  lastName?: string | null;
-  profilePicture?: string | null;
-  bio?: string | null;
-  jobTitle?: string | null;
-  role?: UserRole | null;
 }
 
 export interface AuthContextType {
@@ -23,8 +16,6 @@ export interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updatePassword: (newPassword: string) => Promise<{ error: any }>;
-  updateProfile: (data: Partial<ExtendedUserProfile>) => Promise<void>;
-  refreshUserStats: () => void;
 }
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);

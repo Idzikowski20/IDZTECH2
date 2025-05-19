@@ -44,11 +44,7 @@ export const useAuthState = (navigate: any, location: any) => {
                   const userData = {
                     ...currentSession.user,
                     name: currentSession.user.user_metadata?.name || null,
-                    lastName: currentSession.user.user_metadata?.lastName || null,
-                    profilePicture: currentSession.user.user_metadata?.profilePicture || null,
-                    bio: currentSession.user.user_metadata?.bio || null,
-                    jobTitle: currentSession.user.user_metadata?.jobTitle || null
-                  };
+                  } as User & ExtendedUserProfile;
                   
                   setUser(userData);
                   setIsAuthenticated(true);
@@ -99,11 +95,7 @@ export const useAuthState = (navigate: any, location: any) => {
           const userData = {
             ...currentSession.user,
             name: currentSession.user.user_metadata?.name || null,
-            lastName: currentSession.user.user_metadata?.lastName || null,
-            profilePicture: currentSession.user.user_metadata?.profilePicture || null,
-            bio: currentSession.user.user_metadata?.bio || null,
-            jobTitle: currentSession.user.user_metadata?.jobTitle || null
-          };
+          } as User & ExtendedUserProfile;
           
           setUser(userData);
           setIsAuthenticated(true);
