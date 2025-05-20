@@ -31,7 +31,7 @@ const Hero = () => {
         </>
       )}
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="mt-80 container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
           {/* Hero content on the left */}
           <div className="w-full lg:w-1/2 xl:w-5/12">            

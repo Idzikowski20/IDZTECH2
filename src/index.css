@@ -692,3 +692,13 @@ input:-internal-autofill-selected {
   display: none !important;
 }
 
+@media (max-width: 768px) {
+  section {
+      padding-top: 0rem !important;
+      padding-bottom: 0rem !important;
+  }
+}
+
+.mt-80 {
+  margin-top: 80px !important;
+}
