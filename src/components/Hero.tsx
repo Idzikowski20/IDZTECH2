@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
@@ -35,7 +36,9 @@ const Hero = () => {
         <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
           {/* Hero content on the left */}
           <div className="w-full lg:w-1/2 xl:w-5/12">            
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
+            <h1
+              className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 font-aeonik transition-opacity duration-500 ${showContent ? 'opacity-100' : 'opacity-0'}`}
+            >
               Tworzymy najlepsze strony internetowe<BlinkingUnderscore />
             </h1>
             
