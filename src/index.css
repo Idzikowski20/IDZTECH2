@@ -594,6 +594,11 @@
     overflow-x: hidden;
   }
   
+  /* Better spacing on mobile */
+  section {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
   
   /* Fix for iOS momentum scrolling */
   .overflow-y-auto,

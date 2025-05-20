@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn, Menu } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
-import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface MobileMenuProps {
@@ -56,8 +57,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
         </Button>
       </DrawerTrigger>
       <DrawerContent className={`h-[85vh] neo-blur ${theme === 'light' ? 'bg-white/80' : 'bg-black/80'} backdrop-blur-md border-t ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
-        <DrawerTitle className="sr-only">Menu nawigacji</DrawerTitle>
-        <DrawerDescription className="sr-only">W tym panelu znajdziesz wszystkie linki nawigacyjne do serwisu.</DrawerDescription>
         <div className="px-6 py-8 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
             <h2 className={`text-xl font-bold ${textColor}`}>Menu</h2>
