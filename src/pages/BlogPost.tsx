@@ -165,15 +165,6 @@ const BlogPost = () => {
               </Button>
             </div>
             
-            {/* Categories */}
-            {post.categories && post.categories.length > 0 && (
-              <div className="mb-3 space-x-2">
-                {post.categories.map(category => (
-                  <Badge key={category} className="bg-premium-purple hover:bg-premium-purple/80">{category}</Badge>
-                ))}
-              </div>
-            )}
-            
             {/* Post header */}
             <header className="mb-10">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
@@ -289,7 +280,10 @@ const BlogPost = () => {
                 <p className="text-sm text-gray-300 mb-4">
                   Skorzystaj z naszych usług profesjonalnego pozycjonowania stron internetowych
                 </p>
-                <Button className="bg-premium-gradient hover:bg-premium-purple hover:text-white">
+                <Button 
+                  className="bg-premium-gradient hover:bg-premium-purple hover:text-white"
+                  onClick={() => navigate('/contact')}
+                >
                   Skontaktuj się z nami
                 </Button>
               </div>

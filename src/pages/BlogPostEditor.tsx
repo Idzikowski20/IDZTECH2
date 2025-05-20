@@ -16,13 +16,14 @@ import { doc, getDoc, collection } from 'firebase/firestore';
 import { db } from '@/integrations/firebase/client';
 import { toast } from 'sonner';
 import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { BlogPost } from '@/types/blog';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
   slug: z.string().min(5, 'Slug musi mieć co najmniej 5 znaków').regex(/^[a-z0-9-]+$/, 'Slug może zawierać tylko małe litery, cyfry i myślniki'),
   summary: z.string().min(10, 'Zajawka musi mieć co najmniej 10 znaków'),
   content: z.string().min(50, 'Treść musi mieć co najmniej 50 znaków'),
-  categories: z.string().min(2, 'Kategorie są wymagane'),
   tags: z.string().min(2, 'Tagi są wymagane')
 });
 
@@ -77,7 +78,6 @@ const BlogPostEditor = () => {
       slug: '',
       summary: '',
       content: '',
-      categories: '',
       tags: ''
     },
     values: existingPost ? {
@@ -85,7 +85,6 @@ const BlogPostEditor = () => {
       slug: existingPost.slug || '',
       summary: existingPost.summary || '',
       content: existingPost.content || '',
-      categories: Array.isArray(existingPost.categories) ? existingPost.categories.join(', ') : '',
       tags: Array.isArray(existingPost.tags) ? existingPost.tags.join(', ') : ''
     } : undefined
   });
@@ -98,13 +97,16 @@ const BlogPostEditor = () => {
   }, [existingPost]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files && e.target.files[0];
+    if (file) {
       setFeaturedImage(file);
-      
-      // Create a preview URL for the image
-      const fileUrl = URL.createObjectURL(file);
-      setImagePreview(fileUrl);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (typeof e.target?.result === 'string') {
+          setImagePreview(e.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -120,35 +122,21 @@ const BlogPostEditor = () => {
 
     setIsLoading(true);
     try {
-      console.log("Form values:", values);
-      
-      let imageUrl = existingPost?.featured_image || '';
-      
-      if (featuredImage) {
-        const reader = new FileReader();
-        imageUrl = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(featuredImage);
-        });
-      }
+      let imageUrl = imagePreview || existingPost?.featured_image || '';
 
       const postData = {
         title: values.title,
         slug: values.slug,
         summary: values.summary,
-        // Add excerpt field - use summary if no excerpt is available
         excerpt: values.summary,
         content: values.content,
         featured_image: imageUrl,
         author_id: user.uid,
-        categories: (values.categories || '').split(',').map(cat => cat.trim()),
         tags: (values.tags || '').split(',').map(tag => tag.trim()),
+        updated_at: new Date().toISOString(),
       };
 
-      console.log("Post data to be submitted:", postData);
-
       if (isEditing && id) {
-        console.log("Updating post with ID:", id);
         await updatePost({
           id,
           ...postData,
@@ -156,24 +144,20 @@ const BlogPostEditor = () => {
           published_at: existingPost?.published_at || new Date().toISOString(),
           created_at: existingPost?.created_at || new Date().toISOString(),
         });
-        
         toast.success("Post zaktualizowany", {
           description: "Post został zaktualizowany."
         });
       } else {
-        console.log("Creating new post");
         await createPost({
           ...postData,
           published: true,
           published_at: new Date().toISOString(),
           created_at: new Date().toISOString(),
         });
-        
         toast.success("Post dodany", {
           description: "Nowy post został dodany do bloga."
         });
       }
-      
       navigate('/admin');
     } catch (error) {
       console.error("Error saving post:", error);
@@ -354,20 +338,6 @@ const BlogPostEditor = () => {
                     {user?.email || 'Nieznany autor'}
                   </div>
                 </div>
-                
-                <FormField 
-                  control={form.control} 
-                  name="categories" 
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} 
-                />
               </div>
               
               <FormField 

@@ -1,24 +1,9 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '@/integrations/firebase/client';
+import { db } from '@/integrations/firebase/client';
 import { toast } from 'sonner';
-
-// Define a simpler type for blog posts
-type BlogPost = {
-  id: string
-  title: string
-  slug: string
-  content: string
-  featured_image: string
-  summary: string | null
-  excerpt: string | null
-  categories: string[] | null
-  tags: string[] | null
-  created_at: string
-  published: boolean
-  published_at: string | null
-}
+import { saveSitemap } from '@/utils/generateSitemap';
+import { BlogPost } from '@/types/blog';
 
 // Sample fallback data - used when Firebase connection fails
 const fallbackPosts: BlogPost[] = [
@@ -30,9 +15,9 @@ const fallbackPosts: BlogPost[] = [
     featured_image: '/lovable-uploads/97ac4bd6-784a-468e-8520-021492b8878d.png',
     summary: 'Podstawy SEO i jego wpływ na marketing internetowy',
     excerpt: 'Podstawy SEO i jego wpływ na marketing internetowy',
-    categories: ['SEO', 'Marketing'],
     tags: ['pozycjonowanie', 'google', 'marketing cyfrowy'],
     created_at: '2025-01-15T10:00:00Z',
+    updated_at: '2025-01-15T10:00:00Z',
     published: true,
     published_at: '2025-01-15T10:00:00Z'
   },
@@ -44,9 +29,9 @@ const fallbackPosts: BlogPost[] = [
     featured_image: '/lovable-uploads/af7b17cd-510f-468f-a8b1-5b0c5be88c9f.png',
     summary: 'Jak projektować strony przyjazne urządzeniom mobilnym',
     excerpt: 'Jak projektować strony przyjazne urządzeniom mobilnym',
-    categories: ['UX/UI', 'Web Development'],
     tags: ['mobile', 'responsywność', 'ux'],
     created_at: '2025-02-20T14:30:00Z',
+    updated_at: '2025-02-20T14:30:00Z',
     published: true,
     published_at: '2025-02-20T14:30:00Z'
   },
@@ -58,9 +43,9 @@ const fallbackPosts: BlogPost[] = [
     featured_image: '/lovable-uploads/4eaa25a8-fb84-4c19-ae4f-8536407401c1.png',
     summary: 'Jak tworzyć treści, które pozycjonują się w Google',
     excerpt: 'Jak tworzyć treści, które pozycjonują się w Google',
-    categories: ['Content Marketing', 'SEO'],
     tags: ['treści', 'blog', 'content marketing'],
     created_at: '2025-03-10T09:15:00Z',
+    updated_at: '2025-03-10T09:15:00Z',
     published: true,
     published_at: '2025-03-10T09:15:00Z'
   }
@@ -99,12 +84,16 @@ export function useFirebaseBlogPosts() {
               featured_image: data.featured_image || '',
               summary: data.summary || null,
               excerpt: data.excerpt || data.summary || null, // Use summary as fallback if excerpt is missing
-              categories: data.categories || null,
               tags: data.tags || null,
               created_at: data.created_at && typeof data.created_at.toDate === 'function'
                 ? data.created_at.toDate().toISOString()
                 : (typeof data.created_at === 'string'
                     ? data.created_at
+                    : new Date().toISOString()),
+              updated_at: data.updated_at && typeof data.updated_at.toDate === 'function'
+                ? data.updated_at.toDate().toISOString()
+                : (typeof data.updated_at === 'string'
+                    ? data.updated_at
                     : new Date().toISOString()),
               published: data.published || false,
               published_at: data.published_at && typeof data.published_at.toDate === 'function'
@@ -185,12 +174,16 @@ export function useFirebaseBlogPosts() {
                 featured_image: data.featured_image || '',
                 summary: data.summary || null,
                 excerpt: data.excerpt || data.summary || null, // Use summary as fallback
-                categories: data.categories || null,
                 tags: data.tags || null,
                 created_at: data.created_at && typeof data.created_at.toDate === 'function'
                   ? data.created_at.toDate().toISOString()
                   : (typeof data.created_at === 'string'
                       ? data.created_at
+                      : new Date().toISOString()),
+                updated_at: data.updated_at && typeof data.updated_at.toDate === 'function'
+                  ? data.updated_at.toDate().toISOString()
+                  : (typeof data.updated_at === 'string'
+                      ? data.updated_at
                       : new Date().toISOString()),
                 published: data.published || false,
                 published_at: data.published_at && typeof data.published_at.toDate === 'function'
@@ -232,18 +225,10 @@ export function useFirebaseBlogPosts() {
   // Create post
   const createPost = async (newPost: Omit<BlogPost, 'id'>) => {
     try {
-      // Handle image if it's a data URL (from editor)
-      let imageUrl = newPost.featured_image;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        const storageRef = ref(storage, `blog_images/${Date.now()}`);
-        const uploadTask = await uploadString(storageRef, imageUrl, 'data_url');
-        imageUrl = await getDownloadURL(uploadTask.ref);
-      }
-
       const postData = {
         ...newPost,
         excerpt: newPost.excerpt || newPost.summary, // Ensure excerpt exists
-        featured_image: imageUrl,
+        // featured_image to base64 (data URL) przekazane z edytora
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -259,6 +244,9 @@ export function useFirebaseBlogPosts() {
         ];
         return newPosts;
       });
+
+      // Aktualizuj sitemap po dodaniu posta
+      await saveSitemap();
       
       return { id: docRef.id, ...postData };
     } catch (err) {
@@ -271,19 +259,11 @@ export function useFirebaseBlogPosts() {
   // Update post
   const updatePost = async ({ id, ...updates }: BlogPost) => {
     try {
-      // Handle image if it's a data URL (from editor)
-      let imageUrl = updates.featured_image;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        const storageRef = ref(storage, `blog_images/${Date.now()}`);
-        const uploadTask = await uploadString(storageRef, imageUrl, 'data_url');
-        imageUrl = await getDownloadURL(uploadTask.ref);
-      }
-
       const postRef = doc(db, 'blog_posts', id);
       const postData = {
         ...updates,
         excerpt: updates.excerpt || updates.summary, // Ensure excerpt exists
-        featured_image: imageUrl,
+        // featured_image to base64 (data URL) przekazane z edytora
         updated_at: new Date().toISOString(),
       };
       
@@ -297,6 +277,9 @@ export function useFirebaseBlogPosts() {
           post.id === id ? { ...post, ...postData } : post
         );
       });
+
+      // Aktualizuj sitemap po edycji posta
+      await saveSitemap();
       
       return { id, ...postData };
     } catch (err) {
@@ -317,6 +300,9 @@ export function useFirebaseBlogPosts() {
         if (!prevPosts) return prevPosts;
         return prevPosts.filter(post => post.id !== id);
       });
+
+      // Aktualizuj sitemap po usunięciu posta
+      await saveSitemap();
     } catch (err) {
       console.error('Error deleting post:', err);
       toast.error('Błąd podczas usuwania postu');
