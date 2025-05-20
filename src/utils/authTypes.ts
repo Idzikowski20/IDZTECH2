@@ -1,5 +1,6 @@
+
 // Types related to authentication
-import { User as FirebaseUser } from 'firebase/auth';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export type UserRole = 'admin' | 'user' | 'moderator' | 'blogger';
 
@@ -47,10 +48,23 @@ export interface AuthState {
   isAuthenticated: boolean;
   rememberMe: boolean;
   loading: boolean;
-  signIn: (email: string, password: string, remember?: boolean) => Promise<boolean>;
+  login: (email: string, password: string, remember?: boolean) => Promise<boolean>;
+  register: (email: string, name: string, password: string) => Promise<boolean>;
   logout: () => void;
+  signIn: (email: string, password: string, remember?: boolean) => Promise<boolean>;
+  updateProfile: (data: Partial<User>) => void;
   updatePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
+  getUsers: () => Promise<User[]>;
+  addUser: (userData: Omit<User, 'id' | 'createdAt' | 'lastLogin' | 'postsCreated' | 'totalViews' | 'commentsCount' | 'likesCount' | 'stats'>, password: string) => Promise<boolean>;
+  updateUserRole: (userId: string, role: UserRole) => Promise<boolean>;
+  getUserById: (userId: string) => Promise<User | undefined>;
+  getTopUser: () => Promise<User | undefined>;
+  getTopUserOfMonth: () => Promise<User | undefined>;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (email: string, token: string, newPassword: string) => Promise<boolean>;
+  deleteUser: (userId: string) => Promise<boolean>;
+  refreshUserStats: () => void;
+  getUserRanking: () => Promise<User[]>;
   signOut: () => void;
+  fetchSupabaseUsers: () => Promise<void>;
 }

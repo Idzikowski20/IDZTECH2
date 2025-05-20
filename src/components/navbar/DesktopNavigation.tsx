@@ -1,213 +1,168 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTheme } from '@/utils/themeContext';
-import { trackEvent } from '@/utils/analytics';
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger
-} from "@/components/ui/navigation-menu";
+} from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/utils/themeContext';
 
 const DesktopNavigation = () => {
-  const { pathname } = useLocation();
   const { theme } = useTheme();
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const location = useLocation();
 
-  const isCurrentPath = (path: string) => path === pathname;
-  
-  // Services links configuration
-  const serviceLinks = {
-    web: [
-      { title: "Tworzenie stron www", href: "/tworzenie-stron-www" },
-      { title: "Tworzenie sklepów internetowych", href: "/sklepy-internetowe" }
-    ],
-    seo: [
-      { title: "Pozycjonowanie stron internetowych", href: "/pozycjonowanie-stron" },
-      { title: "Pozycjonowanie lokalne", href: "/pozycjonowanie-lokalne" },
-      { title: "Audyt SEO", href: "/audyt-seo" },
-      { title: "Optymalizacja SEO", href: "/optymalizacja-seo" },
-      { title: "Copywriting SEO", href: "/copywriting-seo" },
-      { title: "Content Plan", href: "/content-plan" }
-    ]
-  };
+  const activeClass = 'bg-gray-100 text-black';
 
-  // Tools links
-  const toolLinks = [
-    { title: "Generator haseł", href: "/password-generator" },
-    { title: "Generator polityki prywatności", href: "/privacy-policy-generator" },
-    { title: "Kreator nazwy domeny", href: "/domain-creator" }
-  ];
+  const linkClass = cn(
+    "transition-colors duration-300 px-4 py-2 rounded-md",
+    theme === 'light'
+      ? 'text-black hover:bg-gray-100 hover:text-black'
+      : 'text-white hover:bg-white/10 hover:text-white'
+  );
 
-  const linkClass = (isActive: boolean) => {
-    return `text-sm flex items-center hover:text-purple-400 transition-colors py-2 px-3 rounded-md ${
-      isActive 
-        ? theme === 'light' 
-          ? 'font-bold text-premium-purple' 
-          : 'font-bold text-premium-purple'
-        : theme === 'light'
-          ? 'text-black'
-          : 'text-gray-200'
-    }`;
-  };
-
-  // Define submenu item classes
-  const submenuItemClass = (isActive: boolean) => {
-    if (isActive) {
-      return 'bg-premium-light/10 font-medium text-premium-purple';
-    }
-    // No background change on hover, only text color
-    return theme === 'light' 
-      ? 'hover:text-black transition-colors' 
-      : 'hover:text-white transition-colors';
-  };
+  const isActive = (path: string) => location.pathname === path;
 
   return (
-    <NavigationMenu className="hidden md:flex">
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <Link 
-            to="/" 
-            className={linkClass(isCurrentPath('/'))}
-            onClick={() => trackEvent('navigation_click', 'menu', 'home')}
-          >
-            Start
-          </Link>
-        </NavigationMenuItem>
-        
-        {/* Usługi dropdown */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger 
-            className={`${linkClass(
-              ['/tworzenie-stron-www', '/sklepy-internetowe', '/pozycjonowanie-stron', 
-               '/pozycjonowanie-lokalne', '/audyt-seo', '/optymalizacja-seo', 
-               '/copywriting-seo', '/content-plan'].includes(pathname)
-            )}`}
-            onClick={() => setOpenMenu(openMenu === 'services' ? null : 'services')}
-            data-state={openMenu === 'services' ? 'open' : 'closed'}
-          >
-            Usługi
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <div className="w-[600px] grid grid-cols-2 gap-2 p-4">
+    <div className="hidden lg:flex items-center gap-1">
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <Link to="/" className={cn(linkClass, isActive('/') && activeClass)}>
+              Start
+            </Link>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <NavigationMenuTrigger
+              className={cn(
+                'transition-colors duration-300',
+                theme === 'light'
+                  ? 'text-black hover:bg-gray-100 hover:text-black'
+                  : 'text-white hover:bg-white/10 hover:text-white'
+              )}
+            >
+              Usługi
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+            <div className="grid w-[600px] grid-cols-2 gap-3 p-4 bg-white dark:bg-black/80">
               <div>
-                <h3 className="font-medium mb-2 px-3">Strony www</h3>
-                <ul className="space-y-1">
-                  {serviceLinks.web.map((link) => (
-                    <li key={link.href}>
-                      <Link 
-                        to={link.href} 
-                        className={`block px-3 py-2 rounded-md ${submenuItemClass(isCurrentPath(link.href))}`}
-                        onClick={() => {
-                          setOpenMenu(null);
-                          trackEvent('navigation_click', 'services_menu', link.title);
-                        }}
-                      >
-                        {link.title}
-                      </Link>
+                <h3 className={cn('font-medium mb-2 px-3', theme === 'light' ? 'text-black' : 'text-white')}>Strony www</h3>
+                <ul>
+                  {[
+                    { path: '/tworzenie-stron-www', label: 'Tworzenie stron www', desc: 'Projektujemy i tworzymy profesjonalne strony internetowe' },
+                    { path: '/sklepy-internetowe', label: 'Tworzenie sklepów internetowych', desc: 'Kompleksowe rozwiązania e-commerce' },
+                  ].map(item => (
+                    <li key={item.path}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          to={item.path}
+                          className={cn(
+                            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                            theme === 'light'
+                              ? isActive(item.path)
+                                ? 'bg-gray-100 text-black'
+                                : 'hover:bg-gray-100 text-black'
+                              : isActive(item.path)
+                                ? 'bg-gray-700 text-black'
+                                : 'hover:bg-gray-700 text-white'
+                          )}
+                        >
+                          <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
+                            {item.label}
+                          </div>
+                          <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
+                            {item.desc}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
                     </li>
                   ))}
                 </ul>
               </div>
+
               <div>
-                <h3 className="font-medium mb-2 px-3">Pozycjonowanie (SEO)</h3>
-                <ul className="space-y-1">
-                  {serviceLinks.seo.map((link) => (
-                    <li key={link.href}>
-                      <Link 
-                        to={link.href} 
-                        className={`block px-3 py-2 rounded-md ${submenuItemClass(isCurrentPath(link.href))}`}
-                        onClick={() => {
-                          setOpenMenu(null);
-                          trackEvent('navigation_click', 'services_menu', link.title);
-                        }}
-                      >
-                        {link.title}
-                      </Link>
+                <h3 className={cn('font-medium mb-2 px-3', theme === 'light' ? 'text-black' : 'text-white')}>Pozycjonowanie (SEO)</h3>
+                <ul>
+                  {[
+                    { path: '/pozycjonowanie-stron', label: 'Pozycjonowanie stron internetowych', desc: 'Zwiększanie widoczności w wyszukiwarkach' },
+                    { path: '/pozycjonowanie-lokalne', label: 'Pozycjonowanie lokalne', desc: 'Zwiększanie widoczności w lokalnych wynikach' },
+                    { path: '/audyt-seo', label: 'Audyt SEO', desc: 'Analiza strony pod kątem SEO' },
+                    { path: '/optymalizacja-seo', label: 'Optymalizacja SEO', desc: 'Optymalizacja techniczna strony' },
+                    { path: '/copywriting-seo', label: 'Copywriting SEO', desc: 'Tworzenie treści pod SEO' },
+                    { path: '/content-plan', label: 'Content Plan', desc: 'Strategia tworzenia treści' }
+                  ].map(item => (
+                    <li key={item.path}>
+                      <NavigationMenuLink asChild>
+                        <Link
+                          to={item.path}
+                          className={cn(
+                            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+                            theme === 'light'
+                              ? isActive(item.path)
+                                ? 'bg-gray-100 text-black'
+                                : 'hover:bg-gray-100 text-black'
+                              : isActive(item.path)
+                                ? 'bg-gray-700 text-black'
+                                : 'hover:bg-gray-700 text-white'
+                          )}
+                        >
+                          <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
+                            {item.label}
+                          </div>
+                          <p className={cn('line-clamp-2 text-sm leading-snug', theme === 'light' ? 'text-gray-600' : 'text-gray-400')}>
+                            {item.desc}
+                          </p>
+                        </Link>
+                      </NavigationMenuLink>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
           </NavigationMenuContent>
-        </NavigationMenuItem>
 
-        {/* Narzędzia dropdown */}
-        <NavigationMenuItem>
-          <NavigationMenuTrigger 
-            className={`${linkClass(
-              ['/password-generator', '/privacy-policy-generator', '/domain-creator'].includes(pathname)
-            )}`}
-            onClick={() => setOpenMenu(openMenu === 'tools' ? null : 'tools')}
-            data-state={openMenu === 'tools' ? 'open' : 'closed'}
-          >
-            Narzędzia
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="w-[220px] p-4 space-y-1">
-              {toolLinks.map((link) => (
-                <li key={link.href}>
-                  <Link 
-                    to={link.href} 
-                    className={`block px-3 py-2 rounded-md ${submenuItemClass(isCurrentPath(link.href))}`}
-                    onClick={() => {
-                      setOpenMenu(null);
-                      trackEvent('navigation_click', 'tools_menu', link.title);
-                    }}
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
+          </NavigationMenuItem>
 
-        <NavigationMenuItem>
-          <Link 
-            to="/projects" 
-            className={linkClass(isCurrentPath('/projects'))}
-            onClick={() => trackEvent('navigation_click', 'menu', 'portfolio')}
-          >
-            Portfolio
-          </Link>
-        </NavigationMenuItem>
-        
-        <NavigationMenuItem>
-          <Link 
-            to="/about" 
-            className={linkClass(isCurrentPath('/about'))}
-            onClick={() => trackEvent('navigation_click', 'menu', 'about')}
-          >
-            O nas
-          </Link>
-        </NavigationMenuItem>
-        
-        <NavigationMenuItem>
-          <Link 
-            to="/blog" 
-            className={linkClass(isCurrentPath('/blog'))}
-            onClick={() => trackEvent('navigation_click', 'menu', 'blog')}
-          >
-            Blog
-          </Link>
-        </NavigationMenuItem>
-        
-        <NavigationMenuItem>
-          <Link 
-            to="/contact" 
-            className={linkClass(isCurrentPath('/contact'))}
-            onClick={() => trackEvent('navigation_click', 'menu', 'contact')}
-          >
-            Kontakt
-          </Link>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+          <NavigationMenuItem>
+            <Link to="/projects" className={cn(linkClass, isActive('/projects') && activeClass)}>
+              Portfolio
+            </Link>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <Link to="/about" className={cn(linkClass, isActive('/about') && activeClass)}>
+              O nas
+            </Link>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <Link to="/blog" className={cn(linkClass, isActive('/blog') && activeClass)}>
+              Blog
+            </Link>
+          </NavigationMenuItem>
+
+          <NavigationMenuItem>
+            <Link to="/contact" className={cn(linkClass, isActive('/contact') && activeClass)}>
+              Kontakt
+            </Link>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </div>
   );
 };
 
 export default DesktopNavigation;
+
+// TypeScript interface for the NavigationMenuLink component
+interface NavigationMenuLinkProps {
+  asChild?: boolean;
+  children: React.ReactNode;
+}
+
+const NavigationMenuLink: React.FC<NavigationMenuLinkProps> = ({ asChild, children }) => {
+  return <>{children}</>;
+};

@@ -1,10 +1,9 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
@@ -23,7 +22,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
   const { signIn } = useAuth();
   const { toast } = useToast();
   const { theme } = useTheme();
-  const redirected = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,37 +38,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
     setIsLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
+      const { data, error } = await signIn(email, password);
       
       if (error) {
         console.error("Login error:", error);
-        
         toast({
           title: "Błąd logowania",
-          description: error.toString() || "Nieprawidłowy email lub hasło",
+          description: error.message || "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
         setIsLoading(false);
         return;
       }
       
-      toast({
-        title: "Zalogowano pomyślnie",
-        description: "Witamy z powrotem!"
-      });
-      
+      // If onSuccess callback was provided, run it
       if (onSuccess) {
         onSuccess();
       } else {
-        console.log("Login successful, redirecting...");
-        // Opóźnij przekierowanie, aby stan autoryzacji miał czas się zaktualizować
-        setTimeout(() => {
-          if (!redirected.current) {
-            redirected.current = true;
-            setIsLoading(false);
-            navigate('/admin');
-          }
-        }, 1000);
+        // Otherwise, redirect to admin page
+        navigate('/admin');
       }
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
@@ -79,6 +65,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
         description: "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -140,7 +127,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className="text-premium-purple p-0 hover:text-white dark:hover:text-white"
+            className="text-premium-purple p-0 hover:text-white"
             onClick={() => navigate('/forgot-password')}
           >
             Nie pamiętasz hasła?
@@ -167,7 +154,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
           <Button
             variant="link"
             type="button"
-            className="p-0 hover:text-white dark:hover:text-white"
+            className="p-0 hover:text-white"
             onClick={() => navigate('/register')}
           >
             Zarejestruj się

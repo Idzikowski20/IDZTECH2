@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/AuthContext';
 import { useTheme } from '@/utils/themeContext';
 import { Moon, Sun, LogIn, Menu } from 'lucide-react';
 import { trackEvent } from '@/utils/analytics';
@@ -61,7 +61,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
           <div className="flex items-center justify-between mb-8">
             <h2 className={`text-xl font-bold ${textColor}`}>Menu</h2>
             <div className="flex items-center space-x-4">
-              
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -75,7 +74,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   <Moon className="h-[1.2rem] w-[1.2rem] text-black" /> : 
                   <Sun className="h-[1.2rem] w-[1.2rem] text-white" />
                 }
-                <span className="sr-only">Przełącz motyw</span>
+                <span className="sr-only">Toggle theme</span>
               </Button>
               
               <Link to={isAuthenticated ? "/admin" : "/login"} onClick={() => {
@@ -110,13 +109,11 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="offer" className={theme === 'light' ? 'border-gray-200' : 'border-white/10'}>
                 <AccordionTrigger className={`${textColor} text-lg px-3 py-2 ${(isActive('/tworzenie-stron-www') || isActive('/sklepy-internetowe') || isActive('/pozycjonowanie-stron') || isActive('/pozycjonowanie-lokalne') || isActive('/audyt-seo') || isActive('/optymalizacja-seo') || isActive('/copywriting-seo') || isActive('/content-plan')) ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}>
-                  Usługi
+                  Oferta
                 </AccordionTrigger>
                 <AccordionContent className="max-h-[250px] overflow-y-auto">
                   <div className="space-y-2 pl-2">
-                    <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-2`}>
-                      Strony www
-                    </h3>
+                    <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-2`}>Strony www</h3>
                     <Link to="/tworzenie-stron-www" 
                       className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/tworzenie-stron-www') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
                       onClick={() => setIsMenuOpen(false)}
@@ -130,9 +127,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                       Tworzenie sklepów internetowych
                     </Link>
                   
-                    <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-4`}>
-                      Pozycjonowanie (SEO)
-                    </h3>
+                    <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-4`}>Pozycjonowanie (SEO)</h3>
                     <Link to="/pozycjonowanie-stron" 
                       className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-stron') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
                       onClick={() => setIsMenuOpen(false)}
@@ -168,34 +163,6 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Content Plan
-                    </Link>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-              
-              <AccordionItem value="tools" className={theme === 'light' ? 'border-gray-200' : 'border-white/10'}>
-                <AccordionTrigger className={`${textColor} text-lg px-3 py-2 ${(isActive('/password-generator') || isActive('/privacy-policy-generator') || isActive('/domain-creator')) ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}>
-                  Narzędzia
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-2 pl-2">
-                    <Link to="/password-generator" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/password-generator') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Generator haseł
-                    </Link>
-                    <Link to="/privacy-policy-generator" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/privacy-policy-generator') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Generator polityki prywatności
-                    </Link>
-                    <Link to="/domain-creator" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/domain-creator') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Kreator nazwy domeny
                     </Link>
                   </div>
                 </AccordionContent>
