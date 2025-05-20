@@ -1,9 +1,7 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { User } from "firebase/auth";
 import { auth } from "@/integrations/firebase/client";
 import { toast } from "sonner";
-import { ExtendedUserProfile } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export const useAuthState = () => {

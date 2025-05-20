@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Plus, Edit, Trash2, Eye, Search } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/utils/firebaseAuth';
 import { Button } from '@/components/ui/button';
 import { db } from '@/integrations/firebase/client';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';

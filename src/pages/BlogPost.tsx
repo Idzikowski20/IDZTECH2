@@ -175,7 +175,7 @@ const BlogPost = () => {
             )}
             
             {/* Post header */}
-            <header className="mb-8">
+            <header className="mb-10">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
               
               <div className="flex flex-wrap items-center gap-4 text-premium-light/70 mb-6">
@@ -188,17 +188,12 @@ const BlogPost = () => {
                   <Clock size={16} className="mr-2" />
                   <span>{formatReadingTime(post.content)}</span>
                 </div>
-                
-                <div className="flex items-center">
-                  <Eye size={16} className="mr-2" />
-                  <span>0 wyświetleń</span>
-                </div>
               </div>
             </header>
             
             {/* Featured image */}
             {post.featured_image && (
-              <div className="mb-8">
+              <div className="mb-10">
                 <img 
                   src={post.featured_image} 
                   alt={post.title} 
@@ -237,7 +232,8 @@ const BlogPost = () => {
             )}
             
             {/* Post content */}
-            <section className="mb-8">
+            <section className="mb-10">
+            <div className="mt-10 bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 ">
               <h2 className="text-lg font-bold mb-2">Z tego artykułu dowiesz się, że:</h2>
               <ul className="list-disc pl-6">
                 {tableOfContents.map(heading => (
@@ -246,9 +242,10 @@ const BlogPost = () => {
                   </li>
                 ))}
               </ul>
+              </div>
             </section>
             
-            <article className="prose prose-invert prose-premium max-w-none mb-8">
+            <article className="prose prose-invert prose-premium max-w-none mb-10">
               <div dangerouslySetInnerHTML={{ __html: formattedContent || post.content }} />
             </article>
             
@@ -270,7 +267,7 @@ const BlogPost = () => {
             )}
             
             {/* Share section */}
-            <div className="mb-12">
+            <div className="mb-10">
               <div className="flex items-center gap-2 mb-3">
                 <Share2 size={16} />
                 <span className="font-medium">Udostępnij:</span>
@@ -287,7 +284,7 @@ const BlogPost = () => {
                 </Button>
               </div>
                    {/* CTA Box */}
-                  <div className="mt-[10px] bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
+                  <div className="mt-10 bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
                 <h3 className="font-semibold text-lg mb-3">Potrzebujesz pomocy z SEO?</h3>
                 <p className="text-sm text-gray-300 mb-4">
                   Skorzystaj z naszych usług profesjonalnego pozycjonowania stron internetowych
