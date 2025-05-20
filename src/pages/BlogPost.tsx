@@ -97,7 +97,7 @@ const BlogPost = () => {
   }, [post, posts, isLoading, navigate, toast]);
   
   // Pobierz wszystkie posty z Firestore
-  const relatedPosts = posts?.filter(p => p.id !== post.id).slice(0, 3); // wyklucz aktualny post
+  const relatedPosts = post && posts ? posts.filter(p => p.id !== post.id).slice(0, 3) : [];
   
   if (isLoading) {
     return (
@@ -290,7 +290,7 @@ const BlogPost = () => {
                   <div>
                     <div className="font-medium">Autor</div>
                     <div className="text-sm text-premium-light/70">
-                      IDZ.TECH
+                      {post['author_id'] ? post['author_id'] : "Brak autora"}
                     </div>
                   </div>
                 </div>

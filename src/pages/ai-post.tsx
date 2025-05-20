@@ -58,6 +58,34 @@ export default function AIPostPage() {
     if (!loading && !isAuthenticated) navigate('/login');
   }, [isAuthenticated, loading, navigate]);
 
+  // Dodaj efekt do automatycznego pobierania słów kluczowych i grupy docelowej na podstawie tytułu
+  React.useEffect(() => {
+    if (!topic) {
+      setKeywords('');
+      setAudience('');
+      return;
+    }
+    const timeout = setTimeout(() => {
+      // Pobierz słowa kluczowe
+      fetch(`${API_BASE}/api/generate-keywords`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic })
+      })
+        .then(res => res.json())
+        .then(data => setKeywords(data.keywords || ''));
+      // Pobierz grupę docelową
+      fetch(`${API_BASE}/api/generate-audience`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic })
+      })
+        .then(res => res.json())
+        .then(data => setAudience(data.audience || ''));
+    }, 500); // 500ms opóźnienia
+    return () => clearTimeout(timeout);
+  }, [topic]);
+
   if (loading || !isAuthenticated) return <div className="min-h-screen flex items-center justify-center bg-black text-white">Ładowanie...</div>;
 
   const handleChange = e => {
@@ -161,6 +189,21 @@ export default function AIPostPage() {
     setLoadingAI(false);
   };
 
+  const handleGenerateTags = async () => {
+    if (!topic) return;
+    setLoadingAI(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/generate-tags`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic })
+      });
+      const data = await res.json();
+      setTags(data.tags || '');
+    } catch (e) {}
+    setLoadingAI(false);
+  };
+
   const handleEdit = () => setIsEditing(true);
 
   const handleAccept = async () => {
@@ -169,24 +212,32 @@ export default function AIPostPage() {
     setError('');
     setSuccess('');
     if (!aiPost) return;
+    if (!user || !user.uid) {
+      setError('Musisz być zalogowany, aby zapisać post!');
+      return;
+    }
     try {
-      await addDoc(collection(db, "blogPosts"), {
-        title: aiPost.title,
-        lead: aiPost.lead,
-        sections: aiPost.sections,
-        summary: aiPost.summary,
-        tags: aiPost.tags || [],
+      await addDoc(collection(db, "blog_posts"), {
+        title: aiPost?.title || "",
+        lead: typeof aiPost?.lead === 'string' ? aiPost.lead : "",
+        sections: Array.isArray(aiPost?.sections) ? aiPost.sections : [],
+        summary: typeof aiPost?.summary === 'string' ? aiPost.summary : "",
+        tags: Array.isArray(aiPost?.tags) ? aiPost.tags : [],
         created_at: serverTimestamp(),
-        slug: aiPost.title ? slugify(aiPost.title) : '',
+        slug: aiPost?.title ? slugify(aiPost.title) : '',
         featured_image: thumbnail || '',
-        excerpt: aiPost.lead || '',
+        excerpt: typeof aiPost?.lead === 'string' ? aiPost.lead : "",
         author: user?.email || "anonim",
+        author_id: user?.uid || "",
         status: status,
-        content: isEditing ? editedPost : null
+        content: isEditing ? editedPost : null,
+        published: true
       });
       setSuccess('Post zapisany w bazie!');
     } catch (e) {
       setError('Błąd zapisu do bazy: ' + (e.message || e));
+      // Dodatkowo loguj błąd do konsoli
+      console.error('Błąd zapisu do Firestore:', e);
     }
   };
 
@@ -200,11 +251,6 @@ export default function AIPostPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-black via-[#18181c] to-[#1a1333] relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute w-96 h-96 bg-purple-700 opacity-30 blur-3xl rounded-full top-[-10%] left-[-10%] animate-pulse" />
-        <div className="absolute w-80 h-80 bg-blue-400 opacity-20 blur-2xl rounded-full bottom-[-10%] right-[-10%] animate-pulse" />
-        <div className="absolute w-60 h-60 bg-fuchsia-500 opacity-20 blur-2xl rounded-full top-[60%] left-[60%] animate-pulse" />
-      </div>
       <div className="z-10 flex flex-col items-center mb-6">
         <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center mb-4 shadow-lg">
           <span className="text-5xl">🤖</span>
@@ -236,6 +282,12 @@ export default function AIPostPage() {
               onClick={handleGenerateAudience}
               disabled={loadingAI}
             >🎯 Grupa docelowa</button>
+            <button
+              type="button"
+              className="bg-gradient-to-r from-pink-700 to-black text-white rounded-lg px-4 py-2 flex items-center gap-2 hover:from-pink-500 transition"
+              onClick={handleGenerateTags}
+              disabled={loadingAI}
+            >🏷️ Tagi</button>
           </div>
           <input
             type="text"
@@ -322,11 +374,11 @@ export default function AIPostPage() {
       {error && <div className="mt-4 text-red-500 font-bold">{error}</div>}
       {success && <div className="mt-4 text-green-600 font-bold">{success}</div>}
       {aiPost && !accepted && (
-        <div className="mt-8 w-full max-w-3xl bg-white rounded-xl shadow-lg p-6">
+        <div className="mt-8 w-full max-w-3xl  rounded-xl shadow-lg p-6">
           <h2 className="text-xl font-bold mb-4">Podgląd wygenerowanego posta</h2>
           {isEditing ? (
             <ReactQuill
-              className="w-full h-64 mb-4 bg-white"
+              className="w-full h-64 mb-4 "
               theme="snow"
               value={editedPost}
               onChange={setEditedPost}

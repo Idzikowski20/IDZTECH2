@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
@@ -102,9 +101,17 @@ export function useFirebaseBlogPosts() {
               excerpt: data.excerpt || data.summary || null, // Use summary as fallback if excerpt is missing
               categories: data.categories || null,
               tags: data.tags || null,
-              created_at: data.created_at || new Date().toISOString(),
+              created_at: data.created_at && typeof data.created_at.toDate === 'function'
+                ? data.created_at.toDate().toISOString()
+                : (typeof data.created_at === 'string'
+                    ? data.created_at
+                    : new Date().toISOString()),
               published: data.published || false,
-              published_at: data.published_at || null
+              published_at: data.published_at && typeof data.published_at.toDate === 'function'
+                ? data.published_at.toDate().toISOString()
+                : (typeof data.published_at === 'string'
+                    ? data.published_at
+                    : null)
             } as BlogPost;
           });
           
@@ -180,9 +187,17 @@ export function useFirebaseBlogPosts() {
                 excerpt: data.excerpt || data.summary || null, // Use summary as fallback
                 categories: data.categories || null,
                 tags: data.tags || null,
-                created_at: data.created_at || new Date().toISOString(),
+                created_at: data.created_at && typeof data.created_at.toDate === 'function'
+                  ? data.created_at.toDate().toISOString()
+                  : (typeof data.created_at === 'string'
+                      ? data.created_at
+                      : new Date().toISOString()),
                 published: data.published || false,
-                published_at: data.published_at || null
+                published_at: data.published_at && typeof data.published_at.toDate === 'function'
+                  ? data.published_at.toDate().toISOString()
+                  : (typeof data.published_at === 'string'
+                      ? data.published_at
+                      : null)
               } as BlogPost;
               
               setPost(fetchedPost);
@@ -211,7 +226,7 @@ export function useFirebaseBlogPosts() {
       fetchPost();
     }, [slug]);
 
-    return { post, isLoading, error };
+    return { post: post || undefined, isLoading, error };
   };
 
   // Create post
@@ -318,4 +333,12 @@ export function useFirebaseBlogPosts() {
     updatePost,
     deletePost
   };
+}
+
+export function formatDate(date) {
+  if (!date) return '';
+  if (typeof date === 'string') return new Date(date).toLocaleDateString('pl-PL');
+  if (date.toDate) return date.toDate().toLocaleDateString('pl-PL');
+  if (date.seconds) return new Date(date.seconds * 1000).toLocaleDateString('pl-PL');
+  return '';
 }
