@@ -688,3 +688,7 @@ input:-internal-autofill-selected {
   color: fieldtext !important;
 }
 
+.display-none {
+  display: none !important;
+}
+

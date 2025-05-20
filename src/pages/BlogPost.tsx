@@ -167,7 +167,7 @@ const BlogPost = () => {
             
             {/* Categories */}
             {post.categories && post.categories.length > 0 && (
-              <div className="mb-3 space-x-2">
+              <div className="display-none mb-3 space-x-2">
                 {post.categories.map(category => (
                   <Badge key={category} className="bg-premium-purple hover:bg-premium-purple/80">{category}</Badge>
                 ))}
