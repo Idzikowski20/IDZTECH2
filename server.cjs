@@ -31,16 +31,20 @@ async function fetchFromLLM({ prompt, system, extractJson = false, extractLine =
         })
       });
       const data = await response.json();
+      console.log('[AI RAW DATA]', data);
       const text = data.choices?.[0]?.message?.content || '';
+      let cleanText = text.replace(/```json|```/g, '').trim();
+      // Zamień znaki nowej linii i tabulatory w stringach na spacje
+      cleanText = cleanText.replace(/\\n|\\t|\\r/g, ' ');
       if (extractJson) {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('Nie znaleziono fragmentu JSON w odpowiedzi Groq');
         return JSON.parse(jsonMatch[0]);
       }
       if (extractLine) {
-        return text.replace(/\n/g, '').trim();
+        return cleanText;
       }
-      return text;
+      return cleanText;
     } catch (e) {
       console.error('[AI Fallback] Błąd Groq:', e);
       // Próbuj dalej
@@ -56,16 +60,20 @@ async function fetchFromLLM({ prompt, system, extractJson = false, extractLine =
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
       const data = await response.json();
+      console.log('[AI RAW DATA]', data);
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      let cleanText = text.replace(/```json|```/g, '').trim();
+      // Zamień znaki nowej linii i tabulatory w stringach na spacje
+      cleanText = cleanText.replace(/\\n|\\t|\\r/g, ' ');
       if (extractJson) {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('Nie znaleziono fragmentu JSON w odpowiedzi Gemini');
         return JSON.parse(jsonMatch[0]);
       }
       if (extractLine) {
-        return text.replace(/\n/g, '').trim();
+        return cleanText;
       }
-      return text;
+      return cleanText;
     } catch (e) {
       console.error('[AI Fallback] Błąd Gemini:', e);
       // Próbuj dalej
@@ -91,16 +99,20 @@ async function fetchFromLLM({ prompt, system, extractJson = false, extractLine =
         })
       });
       const data = await response.json();
+      console.log('[AI RAW DATA]', data);
       const text = data.choices?.[0]?.message?.content || '';
+      let cleanText = text.replace(/```json|```/g, '').trim();
+      // Zamień znaki nowej linii i tabulatory w stringach na spacje
+      cleanText = cleanText.replace(/\\n|\\t|\\r/g, ' ');
       if (extractJson) {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('Nie znaleziono fragmentu JSON w odpowiedzi OpenAI');
         return JSON.parse(jsonMatch[0]);
       }
       if (extractLine) {
-        return text.replace(/\n/g, '').trim();
+        return cleanText;
       }
-      return text;
+      return cleanText;
     } catch (e) {
       console.error('[AI Fallback] Błąd OpenAI:', e);
       // Próbuj dalej
@@ -136,8 +148,32 @@ app.post('/api/generate-audience', async (req, res) => {
 
 // --- /api/generate-blog-post ---
 app.post('/api/generate-blog-post', async (req, res) => {
-  const { topic, keywords, style, length, audience, cta, meta, questions, summary, links, language } = req.body;
-  const prompt = `\nNapisz ekspercki artykuł blogowy na temat: "${topic}".\nUżyj słów kluczowych: ${keywords}.\nStyl: ${style}. Długość: ${length}.\nGrupa docelowa: ${audience}.\n${cta ? 'Dodaj sekcję z wezwaniem do działania.' : ''}\n${meta ? 'Dodaj meta description.' : ''}\n${questions ? 'Dodaj listę pytań, które artykuł odpowiada.' : ''}\n${summary ? 'Dodaj podsumowanie na końcu.' : ''}\n${links ? 'Na początku artykułu wygeneruj listę sekcji (h2) z linkami do nich.' : ''}\nJęzyk: ${language || 'polski'}.\nZwróć wynik w formacie JSON: { "title": "...", "meta": "...", "lead": "...", "sections": [{ "heading": "...", "content": "..." }], "summary": "...", "cta": "...", "tags": ["..."] }\n`;
+  const { topic, keywords, style, length, audience, cta, meta, questions, summary, links, language, lengthPrompt } = req.body;
+  const prompt = `
+Napisz ekspercki artykuł blogowy na temat: "${topic}".
+Użyj słów kluczowych: ${keywords}.
+Styl: ${style}.
+${lengthPrompt ? lengthPrompt : `Długość: ${length}.`}
+Grupa docelowa: ${audience}.
+${cta ? 'Dodaj sekcję z wezwaniem do działania.' : ''}
+${meta ? 'Dodaj meta description.' : ''}
+${questions ? 'Dodaj listę pytań, które artykuł odpowiada.' : ''}
+${summary ? 'Dodaj podsumowanie na końcu.' : ''}
+${links ? 'Na początku artykułu wygeneruj listę sekcji (h2) z linkami do nich.' : ''}
+Język: ${language || 'polski'}.
+Artykuł ma być zoptymalizowany pod SEO, dobierz słowa i frazy pod wybrane słowa kluczowe, tak aby uzyskać SEO rating score 65-90.
+Odpowiedz TYLKO poprawnym JSON, bez żadnych wyjaśnień, komentarzy, tekstu przed ani po. Nie dodawaj żadnych słów poza JSON-em!
+Format odpowiedzi:
+{
+  "title": "...",
+  "meta": "...",
+  "lead": "...",
+  "sections": [{ "heading": "...", "content": "..." }],
+  "summary": "...",
+  "cta": "...",
+  "tags": ["..."]
+}
+`;
   try {
     const result = await fetchFromLLM({ prompt, system: 'Jesteś ekspertem od blogowania i SEO.', extractJson: true });
     res.status(200).json(result);

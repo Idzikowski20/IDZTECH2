@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, Eye, Tag, Share2, MessageSquare, Facebook, Twitter, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,17 +31,29 @@ const BlogPost = () => {
   // States
   const [tableOfContents, setTableOfContents] = useState<{id: string, text: string, level: number}[]>([]);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [formattedContent, setFormattedContent] = useState('');
   
   // Extract headings for table of contents
   useEffect(() => {
     if (post?.content) {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = post.content;
-      
+
+      // Dodaj styl i id do h2 oraz odstępy do p
+      tempDiv.querySelectorAll('h2').forEach((h2, i) => {
+        h2.classList.add('text-2xl', 'font-bold', 'mt-10', 'mb-4', 'scroll-mt-24');
+        if (!h2.id && h2.textContent) {
+          h2.id = h2.textContent.toLowerCase().replace(/\s+/g, '-');
+        }
+      });
+      tempDiv.querySelectorAll('p').forEach(p => {
+        p.classList.add('mb-6', 'text-base');
+      });
+
+      // Spis treści
       const headings = Array.from(tempDiv.querySelectorAll('h2, h3'));
       const toc = headings.map(heading => {
         const id = heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, '-') || '';
-        // If no ID, add one to the actual content
         if (!heading.id && heading.textContent) {
           heading.id = id;
         }
@@ -51,8 +63,9 @@ const BlogPost = () => {
           level: heading.tagName === 'H2' ? 2 : 3
         };
       });
-      
       setTableOfContents(toc);
+      // Ustaw sformatowaną treść
+      setFormattedContent(tempDiv.innerHTML);
     }
   }, [post?.content]);
   
@@ -136,9 +149,9 @@ const BlogPost = () => {
       
       <div className="pt-32 pb-20">
         {/* Main content */}
-        <div className="container mx-auto px-4 flex flex-col lg:flex-row gap-10">
+        <div className="mx-auto max-w-3xl px-4 flex flex-col gap-10">
           {/* Article content */}
-          <div className="lg:w-2/3">
+          <div className="w-full">
             {/* Back button */}
             <div className="mb-6">
               <Button 
@@ -236,7 +249,7 @@ const BlogPost = () => {
             </section>
             
             <article className="prose prose-invert prose-premium max-w-none mb-8">
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              <div dangerouslySetInnerHTML={{ __html: formattedContent || post.content }} />
             </article>
             
             {/* Tags */}
@@ -273,86 +286,8 @@ const BlogPost = () => {
                   <Linkedin size={18} />
                 </Button>
               </div>
-            </div>
-            
-            <Separator className="my-12" />
-            
-            {/* Comments section */}
-              {/* Author info */}
-              <div className="bg-premium-dark/50 border border-premium-light/10 rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback className="bg-premium-gradient">
-                      A
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  <div>
-                    <div className="font-medium">Autor</div>
-                    <div className="text-sm text-premium-light/70">
-                      {post['author_id'] ? post['author_id'] : "Brak autora"}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-400 mb-4">
-                  Agencja SEO i tworzenia stron internetowych z wieloletnim doświadczeniem w branży.
-                </p>
-                <Button variant="outline" size="sm" className="w-full hover:bg-white hover:text-black dark:hover:bg-white dark:hover:text-black">
-                  Zobacz wszystkie posty
-                </Button>
-              </div>
-          </div>
-          
-          {/* Sidebar */}
-          <aside className="lg:w-1/3">
-            <div className="sticky top-32 space-y-8">
-
-              
-              {/* Table of contents - Desktop */}
-              {tableOfContents.length > 0 && (
-                <div className="hidden lg:block bg-premium-dark/50 border border-premium-light/10 rounded-lg p-6">
-                  <h3 className="font-semibold mb-4">Spis treści</h3>
-                  <ul className="space-y-3">
-                    {tableOfContents.map(heading => (
-                      <li 
-                        key={heading.id}
-                        className={cn(
-                          "transition-colors",
-                          heading.level === 3 ? "ml-3 text-sm" : "font-medium",
-                          activeSection === heading.id ? "text-premium-purple" : "text-gray-400"
-                        )}
-                      >
-                        <a 
-                          href={`#${heading.id}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          {heading.text}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {/* Related posts */}
-              <section>
-                <h2>Powiązane artykuły</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {relatedPosts?.map(rp => (
-                    <Link to={`/blog/${rp.slug}`} key={rp.id} className="block">
-                      <img src={rp.featured_image} alt={rp.title} className="rounded-lg w-full h-32 object-cover mb-2" />
-                      <div className="font-semibold">{rp.title}</div>
-                      <div className="text-sm text-gray-400">{rp.excerpt}</div>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-              
-              {/* CTA Box */}
-              <div className="bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
+                   {/* CTA Box */}
+                  <div className="mt-[10px] bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
                 <h3 className="font-semibold text-lg mb-3">Potrzebujesz pomocy z SEO?</h3>
                 <p className="text-sm text-gray-300 mb-4">
                   Skorzystaj z naszych usług profesjonalnego pozycjonowania stron internetowych
@@ -362,8 +297,19 @@ const BlogPost = () => {
                 </Button>
               </div>
             </div>
-          </aside>
+            
+            <Separator className="my-12" />
+            
+          </div>
+         
         </div>
+        {/* Powiązane artykuły - slider */}
+        {relatedPosts && relatedPosts.length > 0 && (
+          <section className="mt-16 mx-auto max-w-3xl w-full">
+            <h2 className="text-xl font-bold mb-6">Powiązane artykuły</h2>
+            <RelatedSlider posts={relatedPosts} />
+          </section>
+        )}
       </div>
       
       
@@ -371,5 +317,64 @@ const BlogPost = () => {
     </div>
   );
 };
+
+function RelatedSlider({ posts }) {
+  const sliderRef = useRef(null);
+
+  const scroll = (dir) => {
+    if (!sliderRef.current) return;
+    const width = sliderRef.current.offsetWidth;
+    sliderRef.current.scrollBy({ left: dir * (width * 0.8), behavior: 'smooth' });
+  };
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => scroll(-1)}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-premium-dark/80 hover:bg-premium-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+        aria-label="Poprzedni"
+        style={{ left: '-20px' }}
+      >
+        &#8592;
+      </button>
+      <div
+        ref={sliderRef}
+        className="flex gap-6 overflow-x-auto scrollbar-hide py-2 px-1"
+        style={{ scrollSnapType: 'x mandatory' }}
+      >
+        {posts.map((rp) => (
+          <a
+            key={rp.id}
+            href={`/blog/${rp.slug}`}
+            className="min-w-[320px] max-w-[320px] w-[320px]  rounded-2xl flex-shrink-0 flex flex-col items-center p-4 transition hover:scale-105 hover:shadow-xl duration-200"
+            style={{ scrollSnapAlign: 'start' }}
+          >
+            {rp.featured_image && (
+              <img
+                src={rp.featured_image}
+                alt={rp.title}
+                className="rounded-xl w-full h-32 object-cover mb-3"
+              />
+            )}
+            <div className="font-semibold text-lg text-center mb-2 line-clamp-2">{rp.title}</div>
+            <div className="text-sm text-gray-400 text-center mb-2">
+              {rp.excerpt && rp.excerpt.length > 100
+                ? rp.excerpt.slice(0, 100).replace(/\s+\S*$/, '') + '...'
+                : rp.excerpt}
+            </div>
+          </a>
+        ))}
+      </div>
+      <button
+        onClick={() => scroll(1)}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-premium-dark/80 hover:bg-premium-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
+        aria-label="Następny"
+        style={{ right: '-20px' }}
+      >
+        &#8594;
+      </button>
+    </div>
+  );
+}
 
 export default BlogPost;
