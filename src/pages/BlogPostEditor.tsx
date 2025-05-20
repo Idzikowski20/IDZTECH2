@@ -1,19 +1,21 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Save, ArrowLeft, Upload, FileCode } from 'lucide-react';
+import { Save, ArrowLeft, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { createPost, updatePost, getPostBySlug, BlogPost } from '@/services/blogService';
-import { useAuth } from '@/utils/AuthProvider';
+import { useAuth } from '@/utils/firebaseAuth';
 import AdminLayout from '@/components/AdminLayout';
 import RichTextEditor from '@/components/RichTextEditor';
+import { doc, getDoc, collection } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
+import { toast } from 'sonner';
+import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -21,39 +23,41 @@ const blogPostSchema = z.object({
   summary: z.string().min(10, 'Zajawka musi mieć co najmniej 10 znaków'),
   content: z.string().min(50, 'Treść musi mieć co najmniej 50 znaków'),
   categories: z.string().min(2, 'Kategorie są wymagane'),
-  tags: z.string().min(2, 'Tagi są wymagane'),
-  meta_title: z.string().optional(),
-  meta_description: z.string().optional(),
-  meta_tags: z.string().optional(),
+  tags: z.string().min(2, 'Tagi są wymagane')
 });
 
 type FormValues = z.infer<typeof blogPostSchema>;
 
 const BlogPostEditor = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
   const { user } = useAuth();
+  const { createPost, updatePost } = useFirebaseBlogPosts();
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
-  const [existingPost, setExistingPost] = useState<BlogPost | null>(null);
-  const isEditing = !!slug;
+  const [existingPost, setExistingPost] = useState<any>(null);
+  const isEditing = !!id;
 
-  // Fetch post if editing
+  // Fetch post from database if editing
   useEffect(() => {
     const fetchPost = async () => {
-      if (slug) {
+      if (id) {
         try {
-          const data = await getPostBySlug(slug);
-          setExistingPost(data);
+          const postRef = doc(db, 'blog_posts', id);
+          const postSnap = await getDoc(postRef);
           
-          if (data?.featured_image) {
-            setImagePreview(data.featured_image);
+          if (postSnap.exists()) {
+            const data = postSnap.data();
+            console.log("Fetched post data:", data);
+            setExistingPost({ id: postSnap.id, ...data });
+          } else {
+            throw new Error("Post not found");
           }
         } catch (error) {
-          console.error('Error fetching post:', error);
-          toast({
+          console.error("Error fetching post:", error);
+          uiToast({
             title: "Błąd",
             description: "Nie udało się załadować posta",
             variant: "destructive"
@@ -63,7 +67,7 @@ const BlogPostEditor = () => {
     };
     
     fetchPost();
-  }, [slug, toast]);
+  }, [id, uiToast]);
 
   // Set up form with default values
   const form = useForm<FormValues>({
@@ -74,23 +78,24 @@ const BlogPostEditor = () => {
       summary: '',
       content: '',
       categories: '',
-      tags: '',
-      meta_title: '',
-      meta_description: '',
-      meta_tags: '',
+      tags: ''
     },
     values: existingPost ? {
       title: existingPost.title || '',
       slug: existingPost.slug || '',
       summary: existingPost.summary || '',
       content: existingPost.content || '',
-      categories: existingPost.categories?.join(', ') || '',
-      tags: existingPost.tags?.join(', ') || '',
-      meta_title: existingPost.meta_title || '',
-      meta_description: existingPost.meta_description || '',
-      meta_tags: existingPost.meta_tags || '',
+      categories: Array.isArray(existingPost.categories) ? existingPost.categories.join(', ') : '',
+      tags: Array.isArray(existingPost.tags) ? existingPost.tags.join(', ') : ''
     } : undefined
   });
+
+  // Initialize image preview if we're editing a post with an existing image
+  useEffect(() => {
+    if (existingPost?.featured_image) {
+      setImagePreview(existingPost.featured_image);
+    }
+  }, [existingPost]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -105,7 +110,7 @@ const BlogPostEditor = () => {
 
   const onSubmit = async (values: FormValues) => {
     if (!user) {
-      toast({
+      uiToast({
         title: "Błąd",
         description: "Musisz być zalogowany, aby dodać lub edytować post.",
         variant: "destructive"
@@ -115,57 +120,64 @@ const BlogPostEditor = () => {
 
     setIsLoading(true);
     try {
-      // Convert image to base64 if we have a new image
+      console.log("Form values:", values);
+      
       let imageUrl = existingPost?.featured_image || '';
       
       if (featuredImage) {
-        imageUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
+        const reader = new FileReader();
+        imageUrl = await new Promise<string>((resolve) => {
           reader.onload = () => resolve(reader.result as string);
           reader.readAsDataURL(featuredImage);
         });
       }
 
-      // Prepare data for database
       const postData = {
         title: values.title,
         slug: values.slug,
         summary: values.summary,
+        // Add excerpt field - use summary if no excerpt is available
+        excerpt: values.summary,
         content: values.content,
         featured_image: imageUrl,
-        author_id: user.id,
-        categories: values.categories.split(',').map(cat => cat.trim()),
-        tags: values.tags.split(',').map(tag => tag.trim()),
-        date: existingPost?.date || new Date().toISOString(),
-        meta_title: values.meta_title || values.title,
-        meta_description: values.meta_description || values.summary,
-        meta_tags: values.meta_tags || values.tags,
+        author_id: user.uid,
+        categories: (values.categories || '').split(',').map(cat => cat.trim()),
+        tags: (values.tags || '').split(',').map(tag => tag.trim()),
       };
 
-      let result;
-      
-      if (isEditing && existingPost?.id) {
-        // Update existing post
-        result = await updatePost(existingPost.id, postData);
+      console.log("Post data to be submitted:", postData);
+
+      if (isEditing && id) {
+        console.log("Updating post with ID:", id);
+        await updatePost({
+          id,
+          ...postData,
+          published: existingPost?.published || true,
+          published_at: existingPost?.published_at || new Date().toISOString(),
+          created_at: existingPost?.created_at || new Date().toISOString(),
+        });
         
-        toast({
-          title: "Post zaktualizowany",
-          description: "Post został pomyślnie zaktualizowany."
+        toast.success("Post zaktualizowany", {
+          description: "Post został zaktualizowany."
         });
       } else {
-        // Add new post
-        result = await createPost(postData);
+        console.log("Creating new post");
+        await createPost({
+          ...postData,
+          published: true,
+          published_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+        });
         
-        toast({
-          title: "Post dodany",
+        toast.success("Post dodany", {
           description: "Nowy post został dodany do bloga."
         });
       }
       
       navigate('/admin');
     } catch (error) {
-      console.error('Error saving post:', error);
-      toast({
+      console.error("Error saving post:", error);
+      uiToast({
         title: "Błąd",
         description: "Wystąpił problem podczas zapisywania posta.",
         variant: "destructive"
@@ -203,9 +215,6 @@ const BlogPostEditor = () => {
             </h1>
           </div>
           <div className="flex gap-3">
-            <Button onClick={() => form.setValue('content', form.getValues('content') + '<h2>Nagłówek H2</h2>')} className="bg-gray-700">
-              <FileCode size={18} className="mr-2" /> Dodaj H2
-            </Button>
             <Button onClick={form.handleSubmit(onSubmit)} className="bg-premium-gradient" disabled={isLoading}>
               <Save size={18} className="mr-2" />
               {isLoading ? 'Zapisywanie...' : 'Zapisz post'}
@@ -231,13 +240,7 @@ const BlogPostEditor = () => {
                             if (!isEditing && !form.getValues('slug')) {
                               generateSlug();
                             }
-                            
-                            // Ustaw meta_title jeśli pusty
-                            if (!form.getValues('meta_title')) {
-                              form.setValue('meta_title', field.value);
-                            }
                           }} 
-                          className="bg-slate-950" 
                         />
                       </FormControl>
                       <FormMessage />
@@ -252,7 +255,7 @@ const BlogPostEditor = () => {
                     <FormItem>
                       <FormLabel>Slug (URL)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="url-posta" className="bg-slate-950" />
+                        <Input {...field} placeholder="url-posta" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -267,18 +270,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        {...field} 
-                        placeholder="Krótki opis posta (będzie widoczny na liście postów)" 
-                        rows={2} 
-                        className="bg-slate-950"
-                        onBlur={() => {
-                          // Ustaw meta_description jeśli pusty
-                          if (!form.getValues('meta_description')) {
-                            form.setValue('meta_description', field.value);
-                          }
-                        }}
-                      />
+                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,16 +283,8 @@ const BlogPostEditor = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
-                    <div className="mb-2 flex gap-2">
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h1>Nagłówek H1</h1>')}>H1</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h2>Nagłówek H2</h2>')}>H2</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<h3>Nagłówek H3</h3>')}>H3</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<p>Paragraf</p>')}>P</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<strong>Pogrubienie</strong>')}>Bold</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<em>Kursywa</em>')}>Italic</Button>
-                      <Button type="button" size="sm" onClick={() => field.onChange(field.value + '<ul>\n<li>Element listy</li>\n<li>Element listy</li>\n</ul>')}>Lista</Button>
-                    </div>
-                    <FormControl>
+                    <FormControl
+                    className='ql-editor-white'>
                       <RichTextEditor 
                         value={field.value}
                         onChange={field.onChange}
@@ -312,55 +296,6 @@ const BlogPostEditor = () => {
                   </FormItem>
                 )} 
               />
-              
-              {/* SEO section */}
-              <div className="mt-10 border-t border-premium-light/10 pt-6">
-                <h3 className="text-xl font-semibold mb-4">SEO</h3>
-                
-                <div className="space-y-4">
-                  <FormField 
-                    control={form.control} 
-                    name="meta_title" 
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Meta Title</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Meta tytuł (SEO)" className="bg-slate-950" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} 
-                  />
-                  
-                  <FormField 
-                    control={form.control} 
-                    name="meta_description" 
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Meta Description</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} placeholder="Meta opis (SEO)" className="bg-slate-950" rows={2} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} 
-                  />
-                  
-                  <FormField 
-                    control={form.control} 
-                    name="meta_tags" 
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Meta Tags</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Meta tagi oddzielone przecinkami (SEO)" className="bg-slate-950" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} 
-                  />
-                </div>
-              </div>
               
               {/* Featured Image Upload */}
               <div className="space-y-2">
@@ -415,8 +350,8 @@ const BlogPostEditor = () => {
                 {/* Author information display (not editable) */}
                 <div className="space-y-2">
                   <FormLabel>Autor</FormLabel>
-                  <div className="bg-slate-950 border border-premium-light/10 rounded-md px-4 py-2 text-premium-light/80">
-                    {user?.name || user?.email?.split('@')[0] || 'Nieznany autor'}
+                  <div className="border transition-colors rounded-lg px-4 py-2 flex items-center">
+                    {user?.email || 'Nieznany autor'}
                   </div>
                 </div>
                 
@@ -427,7 +362,7 @@ const BlogPostEditor = () => {
                     <FormItem>
                       <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className="bg-slate-950" />
+                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -442,17 +377,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
                     <FormControl>
-                      <Input 
-                        {...field} 
-                        placeholder="pozycjonowanie, SEO, Google" 
-                        className="bg-slate-950"
-                        onBlur={() => {
-                          // Ustaw meta_tags jeśli pusty
-                          if (!form.getValues('meta_tags')) {
-                            form.setValue('meta_tags', field.value);
-                          }
-                        }}
-                      />
+                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -467,7 +392,7 @@ const BlogPostEditor = () => {
                 >
                   {isLoading ? 'Zapisywanie...' : isEditing ? 'Aktualizuj post' : 'Opublikuj post'}
                 </Button>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Post zostanie automatycznie dodany do sitemap.xml dla lepszego indeksowania w Google.
                 </p>
               </div>

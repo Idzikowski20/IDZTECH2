@@ -1,7 +1,8 @@
-
+import React, { Suspense } from "react";
 import { useState, useEffect } from 'react';
-import Spline from '@splinetool/react-spline';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+const Spline = React.lazy(() => import('@splinetool/react-spline'));
 
 const HeroImage = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,15 +27,17 @@ const HeroImage = () => {
         className={`w-full h-full transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         style={{ minHeight: '300px', height: '100%' }}
       >
-        <Spline 
-          scene={splineScene}
-          onLoad={handleSplineLoad}
-          style={{ 
-            width: '100%', 
-            height: '100%',
-            maxHeight: '500px'
-          }}
-        />
+        <Suspense fallback={<div>Ładowanie...</div>}>
+          <Spline 
+            scene={splineScene}
+            onLoad={handleSplineLoad}
+            style={{ 
+              width: '100%', 
+              height: '100%',
+              maxHeight: '500px'
+            }}
+          />
+        </Suspense>
       </div>
     </div>
   );

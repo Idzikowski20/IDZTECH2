@@ -1,23 +1,94 @@
 
-import React from 'react';
-import { useNavigate, useLocation, Navigate } from 'react-router-dom';
-import LoginForm from '@/components/LoginForm';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/utils/AuthProvider';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/utils/themeContext';
-import { useAuth } from '@/utils/AuthContext';
+
+interface LocationState {
+  from?: {
+    pathname: string;
+  };
+}
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
+  const { signIn, isAuthenticated, user } = useAuth();
   const { theme } = useTheme();
-  const { user, loading } = useAuth();
-  
-  // If user is already logged in, redirect to admin
-  if (user && !loading) {
-    return <Navigate to="/admin" replace />;
-  }
-  
+  const redirected = useRef(false);
+
+  const state = location.state as LocationState;
+  const from = state?.from?.pathname || '/admin';
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    // Prevent redirect loop with ref
+    if (isAuthenticated && user && !redirected.current) {
+      console.log("User is authenticated in Login page, redirecting to:", from);
+      redirected.current = true;
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from, user]);
+
+  // Login handler
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      toast({
+        title: "Błąd",
+        description: "Proszę wypełnić wszystkie pola",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        console.error("Login error:", error);
+        toast({
+          title: "Błąd logowania",
+          description: error.message || "Niepoprawny email lub hasło",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      toast({
+        title: "Zalogowano pomyślnie",
+        description: "Witamy z powrotem!"
+      });
+      
+      // We don't need to navigate here
+      // Authentication state change will trigger the useEffect above
+    } catch (error: any) {
+      console.error("Unexpected error during login:", error);
+      toast({
+        title: "Błąd logowania",
+        description: error.message || "Wystąpił nieoczekiwany błąd",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className={theme === 'light' ? "min-h-screen bg-white" : "min-h-screen bg-premium-dark"}>
       <Navbar />
@@ -25,11 +96,105 @@ const Login = () => {
         <div className={`max-w-md w-full ${theme === 'light' ? "bg-white" : "bg-black"} p-6 md:p-8 rounded-xl border ${theme === 'light' ? "border-gray-200" : "border-gray-700"} shadow-lg`}>
           <div className="flex items-center justify-center mb-6">
             <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="text-white" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <Lock className="text-white" size={24} />
             </div>
           </div>
           
-          <LoginForm onSuccess={() => navigate('/admin')} />
+          <h1 className={`text-2xl font-bold text-center mb-6 ${theme === 'light' ? "text-black" : "text-white"}`}>
+            Logowanie
+          </h1>
+          
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div className="space-y-2">
+              <Label 
+                htmlFor="email" 
+                className={theme === 'light' ? "text-gray-700" : "text-gray-300"}
+              >
+                Email
+              </Label>
+              <Input 
+                id="email"
+                type="email"
+                placeholder="nazwa@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+                className={`${theme === 'light' ? "bg-white border-gray-300" : "bg-gray-900 border-gray-700"} h-11`}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label 
+                  htmlFor="password" 
+                  className={theme === 'light' ? "text-gray-700" : "text-gray-300"}
+                >
+                  Hasło
+                </Label>
+                <Button 
+                  variant="link" 
+                  className={`p-0 h-auto ${theme === 'light' ? "text-premium-purple hover:text-black" : "text-premium-purple hover:text-white"}`}
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  disabled={isLoading}
+                >
+                  Nie pamiętasz hasła?
+                </Button>
+              </div>
+              
+              <div className="relative">
+                <Input 
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  className={`${theme === 'light' ? "bg-white border-gray-300" : "bg-gray-900 border-gray-700"} h-11 pr-10`}
+                />
+                <button 
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+              </div>
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white h-11 text-base"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Logowanie...
+                </span>
+              ) : "Zaloguj się"}
+            </Button>
+            
+            <div className="text-center mt-4">
+              <span className={`text-sm ${theme === 'light' ? "text-gray-600" : "text-gray-400"}`}>
+                Nie masz jeszcze konta?{" "}
+              </span>
+              <Button
+                variant="link"
+                type="button"
+                className={`p-0 text-sm ${theme === 'light' ? "text-premium-purple hover:text-black" : "text-premium-purple hover:text-white"}`}
+                onClick={() => navigate('/register')}
+              >
+                Zarejestruj się
+              </Button>
+            </div>
+          </form>
         </div>
       </div>
       <Footer />

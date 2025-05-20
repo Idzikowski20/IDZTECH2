@@ -1,17 +1,16 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { User } from "firebase/auth";
+import { auth } from "@/integrations/firebase/client";
+import { toast } from "sonner";
+import { useNavigate, useLocation } from "react-router-dom";
 
-import { useState, useEffect, useRef } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { ExtendedUserProfile } from "@/contexts/AuthContext";
-import { fetchUserProfile } from "@/utils/profileUtils";
-
-export const useAuthState = (navigate: any, location: any) => {
+export const useAuthState = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<(User & ExtendedUserProfile) | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { toast } = useToast();
   const authInProgress = useRef(false);
 
   console.log("useAuthState initialized, current path:", location.pathname);
@@ -24,52 +23,43 @@ export const useAuthState = (navigate: any, location: any) => {
     const abortController = new AbortController();
 
     // First set up auth state listener (before checking session)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log("Auth state changed:", event);
+    const unsubscribe = auth.onAuthStateChanged(
+      async (currentUser) => {
+        console.log("Auth state changed:", currentUser ? "User logged in" : "User logged out");
         
         if (processingAuth) return;
         processingAuth = true;
         
         try {
-          if (currentSession) {
+          if (currentUser) {
+            // Create a basic session object for compatibility
+            const currentSession = {
+              user: currentUser,
+              access_token: await currentUser.getIdToken()
+            };
+            
             setSession(currentSession);
             
-            if (currentSession?.user) {
-              // Use setTimeout to avoid potential Supabase auth deadlock
-              setTimeout(async () => {
-                try {
-                  if (abortController.signal.aborted) return;
-                  
-                  // Fetch additional profile data if user is logged in
-                  const profileData = await fetchUserProfile(currentSession.user.id);
-                  
-                  // Merge Supabase user with profile data
-                  setUser({
-                    ...currentSession.user,
-                    name: profileData?.name || null,
-                    lastName: profileData?.lastName || null,
-                    profilePicture: profileData?.profilePicture || null,
-                    bio: profileData?.bio || null,
-                    jobTitle: profileData?.jobTitle || null
-                  });
-                  
-                  setIsAuthenticated(true);
-                  
-                  // Handle login redirection after a delay to prevent loops
-                  if (event === 'SIGNED_IN') {
-                    console.log("Sign-in event detected");
-                    // Don't auto-redirect from the login page to prevent loops
-                    authInProgress.current = false;
-                  }
-                } catch (error) {
-                  console.error("Error processing auth state change:", error);
-                } finally {
-                  processingAuth = false;
-                  setLoading(false);
-                }
-              }, 0);
-            }
+            // Use setTimeout to avoid potential auth deadlock
+            setTimeout(async () => {
+              try {
+                if (abortController.signal.aborted) return;
+                
+                // Create extended user profile
+                const userData = {
+                  ...currentUser,
+                  name: currentUser.displayName || null,
+                } as User & ExtendedUserProfile;
+                
+                setUser(userData);
+                setIsAuthenticated(true);
+              } catch (error) {
+                console.error("Error processing auth state change:", error);
+              } finally {
+                processingAuth = false;
+                setLoading(false);
+              }
+            }, 0);
           } else {
             setUser(null);
             setIsAuthenticated(false);
@@ -85,124 +75,93 @@ export const useAuthState = (navigate: any, location: any) => {
       }
     );
 
-    // Check for existing session
-    const checkSession = async () => {
-      if (authInProgress.current) return;
-      authInProgress.current = true;
-      
-      try {
-        console.log("Getting session");
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        console.log("Session data:", currentSession ? "Session exists" : "No session");
-        
-        if (currentSession?.user) {
-          setSession(currentSession);
-          
-          // Fetch additional profile data if user is logged in
-          const profileData = await fetchUserProfile(currentSession.user.id);
-          
-          // Merge Supabase user with profile data
-          setUser({
-            ...currentSession.user,
-            name: profileData?.name || null,
-            lastName: profileData?.lastName || null,
-            profilePicture: profileData?.profilePicture || null,
-            bio: profileData?.bio || null,
-            jobTitle: profileData?.jobTitle || null
-          });
-          
-          setIsAuthenticated(true);
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-      } finally {
-        authInProgress.current = false;
-        setLoading(false);
-      }
-    };
-    
-    // Add a slight delay before checking session to ensure proper initialization
-    const timer = setTimeout(() => {
-      if (!abortController.signal.aborted) {
-        checkSession();
-      }
-    }, 100);
-
     return () => {
       abortController.abort();
-      clearTimeout(timer);
-      subscription.unsubscribe();
+      unsubscribe();
       authInProgress.current = false;
     };
-  }, [navigate, toast, location.pathname]);
+  }, []);
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {
       console.log("Attempting to sign in:", email);
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password
-      });
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
       
-      if (error) {
-        console.error("Sign in error:", error.message);
-        toast({
-          title: "Błąd logowania",
-          description: error.message || "Nieprawidłowy email lub hasło",
-          variant: "destructive"
-        });
-        return { error };
-      } 
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
-      // Successful login
-      toast({
-        title: "Zalogowano pomyślnie",
+      toast.success("Zalogowano pomyślnie", {
         description: "Witamy z powrotem!"
       });
       
-      return { data, error: null };
-    } catch (error) {
-      console.error("Sign in error:", error);
+      return { data: userCredential, error: null };
+    } catch (error: any) {
+      console.error("Sign in error:", error.message);
+      toast.error("Błąd logowania", {
+        description: error.message || "Nieprawidłowy email lub hasło"
+      });
       return { error };
     }
   };
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
-      await supabase.auth.signOut();
+      const { signOut: firebaseSignOut } = await import('firebase/auth');
+      await firebaseSignOut(auth);
       setUser(null);
       setSession(null);
       setIsAuthenticated(false);
       
-      toast({
-        title: "Wylogowano pomyślnie"
-      });
+      toast.success("Wylogowano pomyślnie");
       
       navigate('/');
     } catch (error) {
       console.error('Sign out error:', error);
     }
-  };
+  }, [navigate]);
 
   const resetPassword = async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      const { sendPasswordResetEmail } = await import('firebase/auth');
+      await sendPasswordResetEmail(auth, email);
+      
+      toast.success("Email został wysłany", {
+        description: "Sprawdź swoją skrzynkę pocztową, aby zresetować hasło"
       });
-      return { error };
+      
+      return { error: null };
     } catch (error) {
+      console.error("Password reset error:", error);
+      
+      toast.error("Błąd resetowania hasła", {
+        description: "Nie udało się wysłać emaila z resetowaniem hasła"
+      });
+      
       return { error };
     }
   };
 
   const updatePassword = async (newPassword: string) => {
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      return { error };
+      const { updatePassword: firebaseUpdatePassword } = await import('firebase/auth');
+      
+      if (!auth.currentUser) {
+        throw new Error("No user is currently logged in");
+      }
+      
+      await firebaseUpdatePassword(auth.currentUser, newPassword);
+      
+      toast.success("Hasło zaktualizowane", {
+        description: "Twoje hasło zostało pomyślnie zmienione"
+      });
+      
+      return { error: null };
     } catch (error) {
+      console.error("Password update error:", error);
+      
+      toast.error("Błąd aktualizacji hasła", {
+        description: "Nie udało się zmienić hasła"
+      });
+      
       return { error };
     }
   };
