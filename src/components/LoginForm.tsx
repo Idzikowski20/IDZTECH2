@@ -40,14 +40,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ hideHeader = false, onSuccess }) 
     setIsLoading(true);
     
     try {
-      const { data, error } = await signIn(email, password);
+      const { error } = await signIn(email, password);
       
       if (error) {
         console.error("Login error:", error);
         
         toast({
           title: "Błąd logowania",
-          description: error.message || "Nieprawidłowy email lub hasło",
+          description: error.toString() || "Nieprawidłowy email lub hasło",
           variant: "destructive"
         });
         setIsLoading(false);

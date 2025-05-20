@@ -1,9 +1,10 @@
+
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { Check, ChevronRight, ShoppingCart, CreditCard, Truck, Package, BarChart, Shield, Share2, Search } from "lucide-react";
+import { Check, ChevronRight, ShoppingCart, CreditCard, Truck, Package, BarChart, Shield } from "lucide-react";
 import { WooCommerceIcon, ShopifyIcon, MagentoIcon } from "@/components/ECommerceIcons";
 
 const ECommerce = () => {
@@ -28,7 +29,7 @@ const ECommerce = () => {
                 <ChevronRight className="h-4 w-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/services">Usługi</BreadcrumbLink>
+                <span className="cursor-default">Usługi</span>
               </BreadcrumbItem>
               <BreadcrumbSeparator>
                 <ChevronRight className="h-4 w-4" />
@@ -42,7 +43,7 @@ const ECommerce = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
               <span className="text-premium-blue font-medium">E-commerce</span>
-              <h1 className="text-4xl lg:text-5xl font-bold mt-4 mb-6">Tworzenie sklepów internetowych</h1>
+              <h1 className="text-4xl lg:text-5xl font-bold mt-4 mb-6 text-white">Tworzenie sklepów internetowych</h1>
               <p className="text-premium-light/70 text-lg mb-8">
                 Projektujemy i wdrażamy profesjonalne sklepy internetowe, które zwiększają sprzedaż 
                 i zapewniają doskonałe doświadczenia zakupowe dla Twoich klientów.
@@ -50,7 +51,7 @@ const ECommerce = () => {
               <div className="flex flex-wrap gap-4">
                 <Button 
                   size="lg" 
-                  className="bg-premium-gradient hover:opacity-90 transition-opacity group relative overflow-hidden"
+                  className="bg-premium-gradient hover:bg-white hover:text-black transition-colors group relative overflow-hidden"
                 >
                   <span className="relative z-10">Darmowa wycena</span>
                   <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
@@ -58,7 +59,7 @@ const ECommerce = () => {
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white/10 hover:bg-white/5 text-gray-50 group"
+                  className="border-white/10 hover:bg-white hover:text-black text-gray-50 group"
                 >
                   <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz realizacje</span>
                 </Button>
@@ -68,7 +69,7 @@ const ECommerce = () => {
             <div className="relative animate-slide-up">
               <div className="w-full h-auto overflow-hidden rounded-lg">
                 <img 
-                  src="/lovable-uploads/2b029775-9244-410f-a9c5-b9b1e5f16c59.png" 
+                  src="/lovable-uploads/6eb584a3-25d1-4841-9431-fc42bf17168e.png" 
                   alt="Sklep internetowy - mockup" 
                   className="w-full h-auto object-contain rounded-lg"
                 />
@@ -244,7 +245,7 @@ const ECommerce = () => {
       </section>
       
       {/* Platforms Section */}
-      <section className="py-16 bg-premium-dark/40">
+      <section className="py-16">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-premium-blue font-medium">Platformy</span>

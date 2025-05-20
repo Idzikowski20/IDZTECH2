@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { UserPlus, Loader2, Eye, EyeOff } from 'lucide-react';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '@/integrations/firebase/client';
+import { useToast } from '@/components/ui/use-toast';
 import Navbar from '@/components/navbar';
 import Footer from '@/components/Footer';
 import { Link } from 'react-router-dom';
@@ -15,137 +11,77 @@ import PageDotAnimation from '@/components/PageDotAnimation';
 import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 import { isPasswordCompromised, passwordSchema } from '@/utils/passwordValidation';
 import { useAuth } from '@/utils/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
 
-// Enhanced register schema with custom password validation
-const registerSchema = z.object({
-  name: z.string().min(2, 'Imię musi mieć co najmniej 2 znaki'),
-  email: z.string().email('Wprowadź poprawny adres email'),
-  password: passwordSchema
-});
-
-type RegisterFormData = z.infer<typeof registerSchema>;
-
-const Register = () => {
+export default function Register() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isPassCompromised, setIsPassCompromised] = useState(false);
-  const { register } = useAuth();
+  const { signIn } = useAuth();
 
-  const form = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: ''
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const auth = getAuth();
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update user profile
+      await updateProfile(user, {
+        displayName: name
+      });
+
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        displayName: name,
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        role: 'user'
+      });
+
+      toast({
+        title: 'Rejestracja udana',
+        description: 'Możesz się teraz zalogować.'
+      });
+
+      navigate('/login');
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
+      toast({
+        title: 'Błąd rejestracji',
+        description: 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
   // Check password against compromised list when it changes
-  const password = form.watch('password');
+  const passwordCheck = password && password.length >= 4 ? isPasswordCompromised(password) : false;
   
   // Effect to check password security
-  useEffect(() => {
+  if (password && password.length >= 4) {
     const checkPassword = async () => {
-      if (password && password.length >= 4) {
-        const compromised = await isPasswordCompromised(password);
-        setIsPassCompromised(compromised);
-        
-        if (compromised) {
-          form.setError('password', { 
-            type: 'manual', 
-            message: 'To hasło jest zbyt popularne i znane. Wybierz bezpieczniejsze hasło.' 
-          });
-        }
+      const compromised = await passwordCheck;
+      setIsPassCompromised(compromised);
+      
+      if (compromised) {
+        setError('To hasło jest zbyt popularne i znane. Wybierz bezpieczniejsze hasło.');
       }
     };
     
     checkPassword();
-  }, [password, form]);
-
-  const onSubmit = async (values: RegisterFormData) => {
-    if (isPassCompromised) {
-      toast({
-        title: "Hasło zagrożone",
-        description: "To hasło znajduje się na liście wyciekniętych haseł. Wybierz inne hasło.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    try {
-      console.log("Attempting to register user:", values.email);
-      
-      // First try to register with Supabase directly
-      const { data, error } = await supabase.auth.signUp({
-        email: values.email,
-        password: values.password,
-        options: {
-          data: {
-            name: values.name,
-            full_name: values.name
-          }
-        }
-      });
-      
-      if (error && error.message === "User already registered") {
-        toast({
-          title: "Użytkownik już istnieje",
-          description: "Adres email jest już zarejestrowany w systemie",
-          variant: "destructive"
-        });
-        setIsLoading(false);
-        return;
-      } else if (error) {
-        console.error("Supabase registration error:", error);
-        
-        // Fall back to local auth if Supabase fails
-        const success = await register(values.email, values.name, values.password);
-        
-        if (success) {
-          toast({
-            title: "Rejestracja udana",
-            description: "Teraz możesz się zalogować"
-          });
-          navigate('/login');
-        } else {
-          toast({
-            title: "Błąd rejestracji",
-            description: "Użytkownik o podanym adresie email już istnieje lub wystąpił inny błąd",
-            variant: "destructive"
-          });
-        }
-      } else {
-        // Supabase registration succeeded
-        console.log("Supabase registration successful:", data);
-        
-        // Create profile record
-        await supabase.from('profiles').upsert({
-          id: data.user?.id,
-          email: values.email,
-          name: values.name,
-          created_at: new Date().toISOString()
-        });
-        
-        toast({
-          title: "Rejestracja udana",
-          description: "Teraz możesz się zalogować"
-        });
-        navigate('/login');
-      }
-    } catch (error: any) {
-      toast({
-        title: "Błąd rejestracji",
-        description: error.message || "Spróbuj ponownie później",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-premium-dark">
@@ -160,72 +96,85 @@ const Register = () => {
           </div>
           <h1 className="text-2xl font-bold text-center mb-6 text-white">Rejestracja</h1>
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField 
-                control={form.control} 
-                name="name" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Imię</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Jan Kowalski" className="bg-slate-950" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} 
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="name" className="sr-only">
+                Imię i nazwisko
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Imię i nazwisko"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
-              <FormField 
-                control={form.control} 
-                name="email" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="nazwa@example.com" className="bg-slate-950" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} 
+            </div>
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Adres email
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Adres email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
-              <FormField 
-                control={form.control} 
-                name="password" 
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hasło</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input 
-                          type={showPassword ? "text" : "password"} 
-                          placeholder="••••••••" 
-                          className="bg-slate-950 pr-10" 
-                          {...field} 
-                        />
-                        <button 
-                          type="button"
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </FormControl>
-                    <PasswordStrengthIndicator password={field.value} />
-                    <FormMessage />
-                  </FormItem>
-                )} 
-              />
-              <Button type="submit" className="w-full bg-premium-gradient hover:bg-premium-purple hover:text-white" disabled={isLoading}>
-                {isLoading ? (
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Hasło
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Hasło"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-red-500 text-sm text-center">{error}</div>
+            )}
+
+            <PasswordStrengthIndicator password={password} />
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading || isPassCompromised}
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-premium-gradient hover:bg-premium-purple focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-premium-purple"
+              >
+                {loading ? (
                   <span className="flex items-center justify-center">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Rejestracja...
                   </span>
                 ) : "Zarejestruj się"}
-              </Button>
-            </form>
-          </Form>
+              </button>
+            </div>
+          </form>
           
           <div className="mt-6 text-center">
             <p className="text-sm text-premium-light/70">
@@ -240,6 +189,4 @@ const Register = () => {
       <Footer />
     </div>
   );
-};
-
-export default Register;
+}
