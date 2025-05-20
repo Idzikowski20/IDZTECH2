@@ -1,53 +1,39 @@
 
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/utils/AuthContext";
+import { useAuth } from "@/utils/firebaseAuth";
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState, useRef } from "react";
 
 interface RequireAuthProps {
   children: JSX.Element;
-  requiredRole?: string;
 }
 
-const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
+const RequireAuth = ({ children }: RequireAuthProps) => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [accessChecked, setAccessChecked] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const redirected = useRef(false);
   
-  // Only fetch role once when user is available
+  // Initialize auth check with a short timer to ensure auth state is loaded
   useEffect(() => {
-    const checkUserRole = async () => {
-      if (!user) {
-        setAccessChecked(true);
-        return;
-      }
-      
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-          
-        setUserRole(data?.role || null);
-      } catch (err) {
-        console.error("Error fetching user role:", err);
-      } finally {
-        setAccessChecked(true);
-      }
-    };
+    const timer = setTimeout(() => {
+      setIsInitialized(true);
+      console.log("Auth initialized, user:", user);
+    }, 500);
     
-    if (user && !userRole) {
-      checkUserRole();
-    } else {
-      setAccessChecked(true);
-    }
+    return () => clearTimeout(timer);
   }, [user]);
   
-  // Show loading screen until auth is checked
-  if (loading || !accessChecked) {
+  // Handle redirect to admin if already authenticated and on login page
+  useEffect(() => {
+    if (user && location.pathname === "/login" && isInitialized && !redirected.current) {
+      console.log("User is authenticated on login page, redirecting to /admin");
+      redirected.current = true;
+    }
+  }, [user, location.pathname, isInitialized]);
+  
+  // Show loading screen until we're sure about auth state
+  if (loading || !isInitialized) {
     return (
       <div className="flex items-center justify-center h-screen bg-premium-dark">
         <div className="text-center">
@@ -60,25 +46,12 @@ const RequireAuth = ({ children, requiredRole }: RequireAuthProps) => {
   
   // Redirect to login if not authenticated
   if (!user) {
+    console.log("No user, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
-  // If role check is required and user doesn't have required role
-  if (requiredRole && userRole && userRole !== requiredRole && 
-      userRole !== 'admin' && userRole !== 'administrator') {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-premium-dark">
-        <div className="bg-gray-800 p-8 rounded-xl shadow-lg max-w-md text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Brak uprawnień</h2>
-          <p className="text-gray-300 mb-6">
-            Nie posiadasz wymaganych uprawnień, aby zobaczyć tę stronę.
-          </p>
-        </div>
-      </div>
-    );
-  }
-  
-  // User is authenticated and has required role
+  // User is authenticated - render the children directly
+  console.log("User is authenticated, rendering children");
   return children;
 };
 

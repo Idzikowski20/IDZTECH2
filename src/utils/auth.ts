@@ -1,6 +1,7 @@
 
-// Re-export everything from AuthContext to maintain backward compatibility
-export * from './AuthContext';
+// Simplified auth utilities with only the minimal necessary imports
+export * from './authTypes';
 
 // This file now just serves as a central import point
-// to maintain backward compatibility
+// for authentication related utilities
+

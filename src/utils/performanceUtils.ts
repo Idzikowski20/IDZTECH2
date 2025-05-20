@@ -1,4 +1,3 @@
-
 // Mobile touch optimization
 export const optimizeForMobile = () => {
   // Touch optimization
@@ -142,30 +141,81 @@ export const eliminateRenderBlocking = () => {
   document.head.appendChild(style);
 };
 
-// Preconnect to origins
-export const addPreconnects = () => {
-  const origins = [
-    'https://supabase.co',
-    'https://web.cmp.usercentrics.eu',
-    'https://fonts.googleapis.com',
-    'https://fonts.gstatic.com'
-  ];
-  
-  origins.forEach(origin => {
-    if (!document.querySelector(`link[rel="preconnect"][href="${origin}"]`)) {
-      const link = document.createElement('link');
-      link.rel = 'preconnect';
-      link.href = origin;
-      link.crossOrigin = 'anonymous';
-      document.head.prepend(link);
-    }
+// Lista domen do wstępnego połączenia
+export const preconnectDomains = [
+  'https://fonts.googleapis.com',
+  'https://fonts.gstatic.com',
+  'https://firebase.googleapis.com',
+  'https://firestore.googleapis.com',
+  'https://identitytoolkit.googleapis.com'
+];
+
+// Funkcja do wstępnego połączenia z domenami
+export const preconnectToDomains = () => {
+  preconnectDomains.forEach(domain => {
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = domain;
+    link.crossOrigin = 'anonymous';
+    document.head.appendChild(link);
   });
+};
+
+// Funkcja do mierzenia wydajności ładowania strony
+export const measurePageLoadPerformance = () => {
+  if (window.performance && window.performance.timing) {
+    const timing = window.performance.timing;
+    const pageLoadTime = timing.loadEventEnd - timing.navigationStart;
+    console.log(`Czas ładowania strony: ${pageLoadTime}ms`);
+    return pageLoadTime;
+  }
+  return null;
+};
+
+// Funkcja do mierzenia wydajności renderowania
+export const measureRenderPerformance = () => {
+  if (window.performance && window.performance.now) {
+    const startTime = window.performance.now();
+    return () => {
+      const endTime = window.performance.now();
+      const renderTime = endTime - startTime;
+      console.log(`Czas renderowania: ${renderTime}ms`);
+      return renderTime;
+    };
+  }
+  return null;
+};
+
+// Funkcja do optymalizacji obrazów
+export const optimizeImage = (url: string, width: number) => {
+  // Tutaj można dodać logikę optymalizacji obrazów
+  return url;
+};
+
+// Funkcja do lazy loadingu obrazów
+export const lazyLoadImage = (imgElement: HTMLImageElement) => {
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target as HTMLImageElement;
+          img.src = img.dataset.src || '';
+          observer.unobserve(img);
+        }
+      });
+    });
+
+    observer.observe(imgElement);
+  } else {
+    // Fallback dla przeglądarek bez wsparcia dla IntersectionObserver
+    imgElement.src = imgElement.dataset.src || '';
+  }
 };
 
 // Apply all optimizations
 export const applyMobileOptimizations = () => {
   // Add preconnects first for faster resource loading
-  addPreconnects();
+  preconnectToDomains();
   
   // Optimize critical rendering path
   eliminateRenderBlocking();
