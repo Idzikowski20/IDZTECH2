@@ -65,7 +65,7 @@ const SeoCopywriting = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto rounded-3xl">
+      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto bg-premium-dark/50 rounded-3xl">
         <h2 className="text-3xl font-bold text-center mb-12">Rodzaje tekstów SEO</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {[{
@@ -86,7 +86,7 @@ const SeoCopywriting = () => {
         }, {
           title: "Treści contentowe na linkbuilding",
           description: "Artykuły sponsorowane i gościnne optymalizowane pod linkowanie."
-        }].map((service, index) => <Card key={index} className="border border-premium-dark/10  transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{
+        }].map((service, index) => <Card key={index} className="border border-premium-light/10 bg-premium-dark/70 hover:bg-premium-dark/90 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{
           animationDelay: `${0.5 + index * 0.2}s`
         }}>
               <CardContent className="p-8">

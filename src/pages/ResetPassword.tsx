@@ -1,124 +1,187 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, updatePassword } from 'firebase/auth';
-import { useToast } from '@/components/ui/use-toast';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Lock, Loader2 } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import Navbar from '@/components/navbar';
+import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
+import PageDotAnimation from '@/components/PageDotAnimation';
 
-export default function ResetPassword() {
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const resetPasswordSchema = z.object({
+  password: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków'),
+  confirmPassword: z.string().min(6, 'Hasło musi mieć co najmniej 6 znaków')
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Hasła nie są identyczne",
+  path: ["confirmPassword"],
+});
+
+const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: '',
+      confirmPassword: ''
+    }
+  });
+
+  // Check if user arrived here from a password reset link (hash in URL)
+  const [validResetToken, setValidResetToken] = useState(false);
+  
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = auth.onAuthStateChange((user) => {
-      if (!user) {
-        navigate('/login');
+    const handleAuthStateChange = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        // Check if we have query params that indicate PKCE flow
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('type') === 'recovery') {
+          setValidResetToken(true);
+        }
+      }
+    };
+    
+    handleAuthStateChange();
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setValidResetToken(true);
       }
     });
+    
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
-    return () => unsubscribe();
-  }, [navigate]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    if (newPassword !== confirmPassword) {
-      setError('Hasła nie są identyczne');
-      setLoading(false);
-      return;
-    }
-
+  const onSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
+    setIsLoading(true);
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
-
-      if (!user) {
-        throw new Error('Nie znaleziono użytkownika');
-      }
-
-      await updatePassword(user, newPassword);
-
-      toast({
-        title: 'Hasło zaktualizowane',
-        description: 'Twoje hasło zostało pomyślnie zmienione.'
+      const { error } = await supabase.auth.updateUser({ 
+        password: values.password
       });
-
-      navigate('/login');
-    } catch (err) {
-      console.error('Error resetting password:', err);
-      setError('Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.');
+      
+      if (error) {
+        toast({
+          title: "Wystąpił błąd",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Hasło zresetowane",
+          description: "Możesz się teraz zalogować używając nowego hasła."
+        });
+        navigate('/login');
+      }
+    } catch (error: any) {
       toast({
-        title: 'Błąd resetowania hasła',
-        description: 'Wystąpił błąd podczas resetowania hasła. Spróbuj ponownie.',
-        variant: 'destructive'
+        title: "Wystąpił błąd",
+        description: error.message || "Nie udało się zresetować hasła. Spróbuj ponownie.",
+        variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Resetuj hasło
-          </h2>
+  if (!validResetToken) {
+    return (
+      <div className="min-h-screen bg-premium-dark">
+        <Navbar />
+        <PageDotAnimation />
+        <div className="container mx-auto pt-32 pb-20">
+          <div className="max-w-md mx-auto bg-black p-8 rounded-xl shadow-lg text-center border border-gray-700">
+            <h1 className="text-2xl font-bold mb-6 text-white">Nieprawidłowy link</h1>
+            <p className="text-gray-300 mb-6">
+              Link do resetowania hasła jest nieprawidłowy lub wygasł.
+            </p>
+            <Button onClick={() => navigate('/forgot-password')} className="bg-premium-gradient">
+              Wyślij nowy link
+            </Button>
+          </div>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="new-password" className="sr-only">
-                Nowe hasło
-              </label>
-              <input
-                id="new-password"
-                name="new-password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Nowe hasło"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" className="sr-only">
-                Potwierdź hasło
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Potwierdź hasło"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {loading ? 'Resetowanie...' : 'Resetuj hasło'}
-            </button>
-          </div>
-        </form>
+        <Footer />
       </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-premium-dark">
+      <Navbar />
+      <PageDotAnimation />
+      <div className="container mx-auto pt-32 pb-20">
+        <div className="max-w-md mx-auto bg-black p-8 rounded-xl shadow-lg border border-gray-700">
+          <div className="flex items-center justify-center mb-6">
+            <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center">
+              <Lock className="text-white" size={24} />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-center mb-6 text-white">Ustaw nowe hasło</h1>
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField 
+                control={form.control} 
+                name="password" 
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Nowe hasło</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} 
+              />
+
+              <FormField 
+                control={form.control} 
+                name="confirmPassword" 
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-300">Potwierdź hasło</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} 
+              />
+              
+              <Button type="submit" className="w-full bg-premium-gradient" disabled={isLoading}>
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Przetwarzanie...
+                  </span>
+                ) : "Ustaw nowe hasło"}
+              </Button>
+            </form>
+          </Form>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
-}
+};
+
+export default ResetPassword;

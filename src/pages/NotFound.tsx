@@ -27,26 +27,26 @@ const NotFound = () => {
       case "404":
         return {
           title: "404",
-          message: "Strona nie została znaleziona",
+          message: "Oops! Strona nie została znaleziona",
           description: "Przepraszamy, ale strona której szukasz nie istnieje lub została przeniesiona."
         };
       case "500":
         return {
           title: "500",
           message: "Błąd serwera",
-          description: "Przepraszamy, wystąpił błąd serwera. Spróbuj ponownie później."
+          description: "Przepraszamy, wystąpił wewnętrzny błąd serwera. Spróbuj ponownie później."
         };
       case "403":
         return {
           title: "403",
           message: "Dostęp zabroniony",
-          description: "Nie masz uprawnień do wyświetlenia tej strony."
+          description: "Nie masz uprawnień do przeglądania tej strony."
         };
       default:
         return {
-          title: "Błąd",
+          title: "Error",
           message: "Coś poszło nie tak",
-          description: "Wystąpił nieoczekiwany błąd. Spróbuj ponownie lub wróć do strony głównej."
+          description: "Przepraszamy, wystąpił nieoczekiwany błąd. Spróbuj ponownie później."
         };
     }
   };
@@ -79,7 +79,7 @@ const NotFound = () => {
               } transition-all duration-300 w-full sm:w-auto`}
             >
               <LucideHome className="mr-2 h-4 w-4" />
-              Powrót do strony głównej
+              Strona główna
             </Button>
           </Link>
           
@@ -89,7 +89,7 @@ const NotFound = () => {
             className={`border-white/10 ${theme === 'light' ? 'text-black hover:bg-black hover:text-white' : 'text-gray-300 hover:bg-white/5'} w-full sm:w-auto`}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Wstecz
+            Wróć
           </Button>
         </div>
       </div>

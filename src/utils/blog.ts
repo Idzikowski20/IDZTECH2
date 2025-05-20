@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useNotifications } from './notifications';
+import { NotificationType } from './notifications';
 
 export interface CommentReply {
   id: string;
@@ -51,8 +53,7 @@ interface BlogStore {
   addPost: (post: Omit<BlogPost, 'id' | 'views' | 'date' | 'comments' | 'likes' | 'guestLikes' | 'deviceLikes'>) => void;
   updatePost: (id: string, post: Partial<BlogPost>) => void;
   deletePost: (id: string) => void;
-  incrementView: (id: string) => void; 
-  incrementViews: (id: string) => void; // Alias for incrementView
+  incrementView: (id: string) => void;
   resetStats: () => void;
   getPostBySlug: (slug: string) => BlogPost | undefined;
   addComment: (postId: string, userId: string, userName: string, userAvatar: string | undefined, content: string) => void;
@@ -68,7 +69,6 @@ interface BlogStore {
   getTotalLikes: () => number;
   getPostComments: (postId: string) => BlogComment[];
   hasUserLiked: (postId: string, userId: string) => boolean;
-  isPostLikedByUser: (postId: string) => boolean; // Simplified version
 }
 
 // Generate a unique device ID
@@ -190,15 +190,6 @@ export const useBlogStore = create<BlogStore>()(
         }));
       },
       
-      // Alias for incrementView to handle renamed method
-      incrementViews: (id) => {
-        set((state) => ({
-          posts: state.posts.map((post) => 
-            post.id === id ? { ...post, views: post.views + 1 } : post
-          )
-        }));
-      },
-      
       resetStats: () => {
         set((state) => ({
           posts: state.posts.map(post => ({
@@ -232,6 +223,18 @@ export const useBlogStore = create<BlogStore>()(
             replies: []
           };
           
+          // Add notification for new comment
+          useNotifications.getState().addNotification({
+            title: 'Nowy komentarz',
+            message: `${userName} dodał komentarz do "${post.title}"`,
+            type: 'comment_added' as NotificationType,
+            status: 'unread',
+            fromUserId: userId,
+            fromUserName: userName,
+            targetId: postId,
+            targetType: 'post'
+          });
+
           return {
             posts: state.posts.map((p) => 
               p.id === postId 
@@ -269,6 +272,18 @@ export const useBlogStore = create<BlogStore>()(
             content,
             date: new Date().toISOString()
           };
+          
+          // Add notification for new reply
+          useNotifications.getState().addNotification({
+            title: 'Nowa odpowiedź',
+            message: `${userName} odpowiedział na Twój komentarz w "${post.title}"`,
+            type: 'comment_added' as NotificationType,
+            status: 'unread',
+            fromUserId: userId,
+            fromUserName: userName,
+            targetId: postId,
+            targetType: 'post'
+          });
           
           return {
             posts: state.posts.map((p) => 
@@ -323,6 +338,21 @@ export const useBlogStore = create<BlogStore>()(
             ? likes.filter(id => id !== userId)
             : [...likes, userId];
           
+          // Add notification if it's a new like (not a removal)
+          if (!hasLiked) {
+            // We would typically get the username from the user profile based on userId
+            useNotifications.getState().addNotification({
+              title: 'Nowe polubienie',
+              message: `Użytkownik polubił "${post.title}"`,
+              type: 'like_added' as NotificationType,
+              status: 'unread',
+              fromUserId: userId,
+              fromUserName: "Użytkownik",
+              targetId: postId,
+              targetType: 'post'
+            });
+          }
+          
           return {
             posts: state.posts.map((p) => 
               p.id === postId 
@@ -345,6 +375,18 @@ export const useBlogStore = create<BlogStore>()(
           
           // Ensure post.guestLikes exists before accessing it
           const guestLikes = post.guestLikes || [];
+          
+          // Add notification for new like
+          useNotifications.getState().addNotification({
+            title: 'Nowe polubienie',
+            message: `Gość "${guestName || "Gość"}" polubił "${post.title}"`,
+            type: 'like_added' as NotificationType,
+            status: 'unread',
+            fromUserId: "guest",
+            fromUserName: guestName || "Gość",
+            targetId: postId,
+            targetType: 'post'
+          });
           
           return {
             posts: state.posts.map((p) => 
@@ -390,6 +432,20 @@ export const useBlogStore = create<BlogStore>()(
             ? deviceLikes.filter(id => id !== deviceId)
             : [...deviceLikes, deviceId];
           
+          // Add notification if it's a new like (not a removal)
+          if (!hasLiked) {
+            useNotifications.getState().addNotification({
+              title: 'Nowe polubienie',
+              message: `Gość polubił "${post.title}"`,
+              type: 'like_added' as NotificationType,
+              status: 'unread',
+              fromUserId: "guest",
+              fromUserName: "Gość",
+              targetId: postId,
+              targetType: 'post'
+            });
+          }
+          
           return {
             posts: state.posts.map((p) => 
               p.id === postId 
@@ -432,13 +488,6 @@ export const useBlogStore = create<BlogStore>()(
         const post = posts.find(p => p.id === postId);
         // Add null check before accessing post.likes
         return post && post.likes ? post.likes.includes(userId) : false;
-      },
-      
-      // Simplified version that just returns false for compatibility
-      isPostLikedByUser: (postId) => {
-        const { posts, deviceId } = get();
-        const post = posts.find(p => p.id === postId);
-        return post?.deviceLikes ? post.deviceLikes.includes(deviceId) : false;
       }
     }),
     {

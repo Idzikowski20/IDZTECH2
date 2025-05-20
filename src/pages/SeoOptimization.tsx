@@ -69,7 +69,7 @@ const SeoOptimization = () => {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto rounded-3xl">
+      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto bg-premium-dark/50 rounded-3xl">
         <h2 className="text-3xl font-bold text-center mb-12">Co obejmuje optymalizacja SEO?</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
@@ -90,7 +90,7 @@ const SeoOptimization = () => {
               description: "Dostosowanie strony do urządzeń mobilnych zgodnie z Mobile-First Index."
             }
           ].map((service, index) => (
-            <Card key={index} className="border border-premium-dark/10 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
+            <Card key={index} className="border border-premium-light/10 bg-premium-dark/70 hover:bg-premium-dark/90 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
               <CardContent className="p-8">
                 <h3 className="text-xl font-bold mb-4 text-premium-purple">{service.title}</h3>
                 <p className="text-premium-light/80">{service.description}</p>

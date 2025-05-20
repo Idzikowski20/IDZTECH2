@@ -3,7 +3,6 @@ import Navbar from "@/components/Navbar";
 import LightEffects from "@/components/LightEffects";
 import Hero from "@/components/Hero"; // ⬅️ już nie lazy
 import OurServices from "@/components/OurServices"; // ⬅️ już nie lazy
-import { Demo } from "@/components/moon";
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
 
 // Lazy load components not immediately visible on first screen
@@ -68,7 +67,6 @@ const Index = () => {
 
       {/* Statyczne komponenty - ładują się natychmiast */}
       <Hero />
-      <Demo />
       <OurServices />
 
       {/* Komponenty ładowane później */}

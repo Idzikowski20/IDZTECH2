@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -10,11 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import VerticalProcessSteps from '@/components/VerticalProcessSteps';
 import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { JavaScript, Css3, Html5, TypeScript, ReactIcon } from '@/components/TechnologyIcons';
-import { useTheme } from '@/utils/themeContext';
 
 const WebDevelopment = () => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
 
   const features = [
     "Projektowanie responsywnych stron internetowych",
@@ -43,7 +40,7 @@ const WebDevelopment = () => {
               <ServiceBreadcrumb 
                 items={[
                   { label: 'Strona główna', href: '/' },
-                  { label: 'Usługi', href: null },
+                  { label: 'Usługi', href: '#services' },
                   { label: 'Tworzenie stron internetowych', href: '/tworzenie-stron-www' }
                 ]} 
               />
@@ -57,14 +54,14 @@ const WebDevelopment = () => {
               <div className="flex flex-wrap gap-4">
                 <Button 
                   onClick={() => navigate('/kontakt')} 
-                  className="px-8 py-6 bg-premium-gradient hover:bg-white hover:text-black"
+                  className="px-8 py-6 bg-premium-gradient"
                   size="lg"
                 >
                   Zamów bezpłatną wycenę
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="px-8 py-6 hover:bg-white hover:text-black"
+                  className="px-8 py-6"
                   size="lg"
                   onClick={() => navigate('/portfolio')}
                 >
@@ -185,14 +182,14 @@ const WebDevelopment = () => {
       </section>
 
       {/* Technologies Section */}
-      <section className={`py-16 ${theme === 'dark' ? '' : 'bg-white'}`}>
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Technologie</h2>
-            <p className={`text-xl ${theme === 'dark' ? 'text-white/70' : 'text-black/70'} max-w-3xl mx-auto`}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black">Technologie</h2>
+            <p className="text-xl text-black/70 max-w-3xl mx-auto">
               W czym tworzymy strony internetowe?
             </p>
-            <p className={`mt-4 text-lg max-w-3xl mx-auto ${theme === 'dark' ? 'text-white/70' : 'text-black/70'}`}>
+            <p className="mt-4 text-lg max-w-3xl mx-auto text-black/70">
               Korzystamy z najnowszych technologii, aby zapewnić Ci szybką, bezpieczną i funkcjonalną stronę internetową.
             </p>
           </div>
@@ -202,35 +199,35 @@ const WebDevelopment = () => {
               <div className="w-16 h-16 mb-3">
                 <JavaScript />
               </div>
-              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>JavaScript</p>
+              <p className="font-medium text-black">JavaScript</p>
             </div>
             
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 mb-3">
                 <Css3 />
               </div>
-              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>CSS3</p>
+              <p className="font-medium text-black">CSS3</p>
             </div>
             
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 mb-3">
                 <Html5 />
               </div>
-              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>HTML5</p>
+              <p className="font-medium text-black">HTML5</p>
             </div>
             
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 mb-3">
                 <TypeScript />
               </div>
-              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>TypeScript</p>
+              <p className="font-medium text-black">TypeScript</p>
             </div>
             
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 mb-3">
                 <ReactIcon />
               </div>
-              <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-black'}`}>React</p>
+              <p className="font-medium text-black">React</p>
             </div>
           </div>
         </div>
@@ -254,7 +251,7 @@ const WebDevelopment = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16">
+      <section className="py-16 bg-premium-dark/50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-premium-purple font-medium mb-3">Co otrzymasz</p>
@@ -448,26 +445,24 @@ const WebDevelopment = () => {
       </section>
 
       {/* CTA Section */}
-      <section className={`py-16 ${theme === 'dark' ? 'bg-black' : 'bg-white'}`}>
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-            Gotowy na profesjonalną stronę internetową?
-          </h2>
-          <p className={`text-xl ${theme === 'dark' ? 'text-white/70' : 'text-black/70'} mb-8 max-w-3xl mx-auto`}>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-black">Gotowy na profesjonalną stronę internetową?</h2>
+          <p className="text-xl text-black/70 mb-8 max-w-3xl mx-auto">
             Skontaktuj się z nami już dziś i rozpocznijmy pracę nad Twoją nową stroną,
             która będzie przyciągać klientów i zwiększać sprzedaż.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button 
               onClick={() => navigate('/kontakt')} 
-              className="px-8 py-6 bg-premium-gradient hover:bg-white hover:text-black"
+              className="px-8 py-6 bg-premium-gradient"
               size="lg"
             >
               Skontaktuj się z nami
             </Button>
             <Button 
               variant="outline" 
-              className={`px-8 py-6 ${theme === 'dark' ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white'}`}
+              className="px-8 py-6 hover:bg-black hover:text-white"
               size="lg"
               onClick={() => navigate('/portfolio')}
             >

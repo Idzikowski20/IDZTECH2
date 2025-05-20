@@ -1,371 +1,219 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, Eye, Tag, Share2, MessageSquare, Facebook, Twitter, Linkedin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { formatDate, formatReadingTime } from '@/utils/dateUtils';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/utils/AuthProvider';
-import CommentSection from '@/components/blog/CommentSection';
-import ShareButtons from '@/components/blog/ShareButtons';
-import RelatedPosts from '@/components/blog/RelatedPosts';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Helmet } from 'react-helmet-async';
-import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
+import { ArrowLeft, Clock, Eye, Heart, MessageCircle } from 'lucide-react';
+
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useBlogStore } from '@/utils/blog';
+import { useAuth } from '@/utils/AuthProvider';
+import CommentSection from '@/components/CommentSection';
+import LikeButton from '@/components/LikeButton';
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from '@/utils/themeContext';
+import { supabase } from '@/utils/supabaseClient';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { getPostBySlug, incrementView } = useBlogStore();
   const { user } = useAuth();
+  const viewCountUpdated = useRef(false);
+  const isMobile = useIsMobile();
+  const { theme } = useTheme();
+  const [authorProfile, setAuthorProfile] = useState<any>(null);
   
-  // Get blog data
-  const { getPost, posts } = useFirebaseBlogPosts();
-  const { post, isLoading, error } = getPost(slug || '');
+  const post = slug ? getPostBySlug(slug) : undefined;
   
-  // States
-  const [tableOfContents, setTableOfContents] = useState<{id: string, text: string, level: number}[]>([]);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [formattedContent, setFormattedContent] = useState('');
-  
-  // Extract headings for table of contents
   useEffect(() => {
-    if (post?.content) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = post.content;
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+    
+    // Increment view count only once per component mount
+    if (post?.id && !viewCountUpdated.current) {
+      incrementView(post.id);
+      viewCountUpdated.current = true;
+    }
+  }, [post?.id, incrementView]);
 
-      // Dodaj styl i id do h2 oraz odstępy do p
-      tempDiv.querySelectorAll('h2').forEach((h2, i) => {
-        h2.classList.add('text-2xl', 'font-bold', 'mt-10', 'mb-4', 'scroll-mt-24');
-        if (!h2.id && h2.textContent) {
-          h2.id = h2.textContent.toLowerCase().replace(/\s+/g, '-');
-        }
-      });
-      tempDiv.querySelectorAll('p').forEach(p => {
-        p.classList.add('mb-6', 'text-base');
-      });
-
-      // Spis treści
-      const headings = Array.from(tempDiv.querySelectorAll('h2, h3'));
-      const toc = headings.map(heading => {
-        const id = heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, '-') || '';
-        if (!heading.id && heading.textContent) {
-          heading.id = id;
-        }
-        return {
-          id,
-          text: heading.textContent || '',
-          level: heading.tagName === 'H2' ? 2 : 3
-        };
-      });
-      setTableOfContents(toc);
-      // Ustaw sformatowaną treść
-      setFormattedContent(tempDiv.innerHTML);
-    }
-  }, [post?.content]);
-  
-  // Setup intersection observer for headings
+  // Fetch author profile from Supabase if we have an author ID
   useEffect(() => {
-    if (tableOfContents.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              setActiveSection(entry.target.id);
-            }
-          });
-        },
-        { rootMargin: '-100px 0px -80% 0px' }
-      );
-      
-      tableOfContents.forEach(heading => {
-        const element = document.getElementById(heading.id);
-        if (element) observer.observe(element);
-      });
-      
-      return () => {
-        tableOfContents.forEach(heading => {
-          const element = document.getElementById(heading.id);
-          if (element) observer.unobserve(element);
-        });
-      };
-    }
-  }, [tableOfContents]);
+    const fetchAuthorProfile = async () => {
+      // Use post.author instead of post.authorId since that's what's available in the BlogPost type
+      if (post?.author) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('name', post.author) // Using name instead of ID
+            .single();
+            
+          if (!error && data) {
+            setAuthorProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching author profile:', error);
+        }
+      }
+    };
+    
+    fetchAuthorProfile();
+  }, [post?.author]);
   
-  // Redirect if post not found
-  useEffect(() => {
-    if (!isLoading && !post && posts?.length > 0) {
-      navigate('/blog');
-      toast({
-        title: "Post nie istnieje",
-        description: "Nie znaleziono posta o podanym adresie URL",
-        variant: "destructive"
-      });
-    }
-  }, [post, posts, isLoading, navigate, toast]);
-  
-  // Pobierz wszystkie posty z Firestore
-  const relatedPosts = post && posts ? posts.filter(p => p.id !== post.id).slice(0, 3) : [];
-  
-  if (isLoading) {
+  if (!post) {
     return (
       <div className="min-h-screen bg-premium-dark">
         <Navbar />
-        <div className="container max-w-4xl mx-auto px-4 py-32">
-          <Skeleton className="h-12 w-3/4 mb-4" />
-          <Skeleton className="h-6 w-1/2 mb-8" />
-          <Skeleton className="h-[400px] w-full mb-8" />
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-3/4" />
-          </div>
+        <div className="container mx-auto px-4 pt-40 pb-24 text-center">
+          <h1 className="text-3xl font-bold mb-6">Post nie został znaleziony</h1>
+          <p className="mb-8 text-premium-light/70">Przepraszamy, ale szukany post nie istnieje.</p>
+          <Button onClick={() => navigate('/blog')} className="bg-premium-gradient">
+            Wróć do bloga
+          </Button>
         </div>
         <Footer />
       </div>
     );
   }
-  
-  if (!post) {
-    return null; // Will redirect in useEffect
-  }
-  
+
+  // Używamy danych autora z profilu lub z posta jako fallback
+  const authorDisplayName = authorProfile?.name || post.author || "IDZ.TECH";
+  const authorInitial = authorDisplayName.charAt(0);
+  const authorProfilePicture = authorProfile?.profilePicture || null;
+
+  // Safely access post properties with fallbacks for undefined values
+  const commentsCount = post.comments ? post.comments.length : 0;
+  const likesCount = (post.likes ? post.likes.length : 0) + (post.guestLikes ? post.guestLikes.length : 0);
+
+  // Check if user is admin, moderator or blogger (has special permissions)
+  const hasSpecialRoles = user && (user.role === 'admin' || user.role === 'moderator' || user.role === 'blogger');
+  const isUserLoggedIn = !!user;
+
   return (
     <div className="min-h-screen bg-premium-dark">
-      <Helmet>
-        <title>{post.title} | IDZ.TECH Blog</title>
-        <meta name="description" content={post.excerpt || ''} />
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={post.excerpt || ''} />
-        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
-      </Helmet>
-      
       <Navbar />
       
-      <div className="pt-32 pb-20">
-        {/* Main content */}
-        <div className="mx-auto max-w-3xl px-4 flex flex-col gap-10">
-          {/* Article content */}
-          <div className="w-full">
-            {/* Back button */}
-            <div className="mb-6">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/blog')}
-                className="text-premium-light/70 hover:text-white hover:bg-premium-light/10"
-                size="sm"
-              >
-                <ArrowLeft size={16} className="mr-2" />
-                Wróć do bloga
-              </Button>
-            </div>
-            
-            {/* Post header */}
-            <header className="mb-10">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">{post.title}</h1>
+      {/* Hero section */}
+      <section className="pt-32 pb-10">
+        <div className="container mx-auto px-4">
+          <Link to="/blog">
+            <Button variant="ghost" className={`mb-6 hover:bg-premium-light/5 hover:text-white ${theme === 'light' ? 'text-black hover:text-white' : ''}`}>
+              <ArrowLeft size={18} className="mr-2" /> Wróć do bloga
+            </Button>
+          </Link>
+          
+          <div className="max-w-3xl mx-auto">
+            <div className="flex flex-wrap items-center text-sm text-premium-light/60 mb-4 gap-2">
+              <div className="flex items-center">
+                <Clock size={14} className="mr-1" />
+                <span>{new Date(post.date).toLocaleDateString('pl-PL')}</span>
+              </div>
               
-              <div className="flex flex-wrap items-center gap-4 text-premium-light/70 mb-6">
-                <div className="flex items-center">
-                  <Calendar size={16} className="mr-2" />
-                  <span>{formatDate(post.created_at)}</span>
-                </div>
-                
-                <div className="flex items-center">
-                  <Clock size={16} className="mr-2" />
-                  <span>{formatReadingTime(post.content)}</span>
-                </div>
-              </div>
-            </header>
-            
-            {/* Featured image */}
-            {post.featured_image && (
-              <div className="mb-10">
-                <img 
-                  src={post.featured_image} 
-                  alt={post.title} 
-                  className="w-full h-auto rounded-lg object-cover max-h-[500px]" 
-                />
-              </div>
-            )}
-            
-            {/* Mobile table of contents */}
-            {tableOfContents.length > 0 && (
-              <div className="mb-8 lg:hidden bg-premium-dark/50 border border-premium-light/10 rounded-lg p-4">
-                <h3 className="font-semibold mb-3">Spis treści</h3>
-                <ul className="space-y-2">
-                  {tableOfContents.map(heading => (
-                    <li 
-                      key={heading.id}
-                      className={cn(
-                        "transition-colors",
-                        heading.level === 3 ? "ml-4" : "",
-                        activeSection === heading.id ? "text-premium-purple font-medium" : "text-gray-400"
-                      )}
-                    >
-                      <a 
-                        href={`#${heading.id}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                      >
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            {/* Post content */}
-            <section className="mb-10">
-            <div className="mt-10 bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 ">
-              <h2 className="text-lg font-bold mb-2">Z tego artykułu dowiesz się, że:</h2>
-              <ul className="list-disc pl-6">
-                {tableOfContents.map(heading => (
-                  <li key={heading.id}>
-                    <a href={`#${heading.id}`} className="text-premium-purple hover:underline">{heading.text}</a>
-                  </li>
-                ))}
-              </ul>
-              </div>
-            </section>
-            
-            <article className="prose prose-invert prose-premium max-w-none mb-10">
-              <div dangerouslySetInnerHTML={{ __html: formattedContent || post.content }} />
-            </article>
-            
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mb-8">
-                <div className="flex items-center gap-2 mb-2">
-                  <Tag size={16} />
-                  <span className="font-medium">Tagi:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map(tag => (
-                    <Badge key={tag} variant="outline" className="bg-premium-light/5 hover:bg-premium-light/10 hover:text-white">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Share section */}
-            <div className="mb-10">
-              <div className="flex items-center gap-2 mb-3">
-                <Share2 size={16} />
-                <span className="font-medium">Udostępnij:</span>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-blue-600 hover:text-white">
-                  <Facebook size={18} />
-                </Button>
-                <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-sky-500 hover:text-white">
-                  <Twitter size={18} />
-                </Button>
-                <Button variant="outline" size="sm" className="rounded-full w-10 h-10 p-0 hover:bg-blue-700 hover:text-white">
-                  <Linkedin size={18} />
-                </Button>
-              </div>
-                   {/* CTA Box */}
-                  <div className="mt-10 bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
-                <h3 className="font-semibold text-lg mb-3">Potrzebujesz pomocy z SEO?</h3>
-                <p className="text-sm text-gray-300 mb-4">
-                  Skorzystaj z naszych usług profesjonalnego pozycjonowania stron internetowych
-                </p>
-                <Button 
-                  className="bg-premium-gradient hover:bg-premium-purple hover:text-white"
-                  onClick={() => navigate('/contact')}
-                >
-                  Skontaktuj się z nami
-                </Button>
-              </div>
+              {isUserLoggedIn && (
+                <>
+                  <span className="mx-2">•</span>
+                  <span>{post.categories.join(', ')}</span>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Eye size={14} className="mr-1" />
+                    <span>{post.views} wyświetleń</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <MessageCircle size={14} className="mr-1" />
+                    <span>{commentsCount} komentarzy</span>
+                  </div>
+                  
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center">
+                    <Heart size={14} className="mr-1" />
+                    <span>{likesCount} polubień</span>
+                  </div>
+                </>
+              )}
             </div>
             
-            <Separator className="my-12" />
+            <h1 className="text-3xl md:text-4xl font-bold mb-6">{post.title}</h1>
             
+            <div className="flex items-center mb-4">
+              {/* Używamy avatara z profilem z Supabase */}
+              <Avatar className="h-10 w-10 border">
+                <AvatarImage src={authorProfilePicture || ''} alt={authorDisplayName} />
+                <AvatarFallback className="bg-premium-gradient text-white">
+                  {authorInitial}
+                </AvatarFallback>
+              </Avatar>
+              <div className="ml-3">
+                <div className="font-medium">{authorDisplayName}</div>
+                <div className="text-sm text-premium-light/60">
+                  {authorProfile?.jobTitle || "Autor"}
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <LikeButton postId={post.id} />
+            </div>
           </div>
-         
         </div>
-        {/* Powiązane artykuły - slider */}
-        {relatedPosts && relatedPosts.length > 0 && (
-          <section className="mt-16 mx-auto max-w-3xl w-full">
-            <h2 className="text-xl font-bold mb-6">Powiązane artykuły</h2>
-            <RelatedSlider posts={relatedPosts} />
-          </section>
-        )}
+      </section>
+      
+      {/* Featured Image */}
+      <div className="container mx-auto px-4 mb-10">
+        <div className="max-w-3xl mx-auto">
+          <div className="rounded-xl overflow-hidden">
+            <img src={post.featuredImage} alt={post.title} className="w-full h-auto" />
+          </div>
+        </div>
       </div>
       
+      {/* Post Content */}
+      <section className="pb-12">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto prose prose-invert prose-lg">
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          </div>
+          
+          <div className="max-w-3xl mx-auto mt-8 pt-6 border-t border-premium-light/10">
+            <div className="flex flex-wrap gap-2">
+              {post.tags && post.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-block px-3 py-1 bg-premium-light/5 rounded-full text-sm hover:bg-premium-light hover:text-black"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Comments section - only show when logged in */}
+          {isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto">
+              <CommentSection postId={post.id} />
+            </div>
+          )}
+          
+          {!isUserLoggedIn && (
+            <div className="max-w-3xl mx-auto mt-12 p-6 bg-premium-light/5 rounded-xl text-center">
+              <h3 className="text-xl font-bold mb-4">Zaloguj się, aby zobaczyć komentarze i statystyki</h3>
+              <p className="mb-6 text-premium-light/70">Aby zobaczyć pełne statystyki posta, komentarze i mieć możliwość dodawania własnych, zaloguj się na swoje konto.</p>
+              <Button onClick={() => navigate('/login')} className="bg-premium-gradient">
+                Zaloguj się
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
       
       <Footer />
     </div>
   );
 };
-
-function RelatedSlider({ posts }) {
-  const sliderRef = useRef(null);
-
-  const scroll = (dir) => {
-    if (!sliderRef.current) return;
-    const width = sliderRef.current.offsetWidth;
-    sliderRef.current.scrollBy({ left: dir * (width * 0.8), behavior: 'smooth' });
-  };
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => scroll(-1)}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-premium-dark/80 hover:bg-premium-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
-        aria-label="Poprzedni"
-        style={{ left: '-20px' }}
-      >
-        &#8592;
-      </button>
-      <div
-        ref={sliderRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide py-2 px-1"
-        style={{ scrollSnapType: 'x mandatory' }}
-      >
-        {posts.map((rp) => (
-          <a
-            key={rp.id}
-            href={`/blog/${rp.slug}`}
-            className="min-w-[320px] max-w-[320px] w-[320px]  rounded-2xl flex-shrink-0 flex flex-col items-center p-4 transition hover:scale-105 hover:shadow-xl duration-200"
-            style={{ scrollSnapAlign: 'start' }}
-          >
-            {rp.featured_image && (
-              <img
-                src={rp.featured_image}
-                alt={rp.title}
-                className="rounded-xl w-full h-32 object-cover mb-3"
-              />
-            )}
-            <div className="font-semibold text-lg text-center mb-2 line-clamp-2">{rp.title}</div>
-            <div className="text-sm text-gray-400 text-center mb-2">
-              {rp.excerpt && rp.excerpt.length > 100
-                ? rp.excerpt.slice(0, 100).replace(/\s+\S*$/, '') + '...'
-                : rp.excerpt}
-            </div>
-          </a>
-        ))}
-      </div>
-      <button
-        onClick={() => scroll(1)}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-premium-dark/80 hover:bg-premium-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
-        aria-label="Następny"
-        style={{ right: '-20px' }}
-      >
-        &#8594;
-      </button>
-    </div>
-  );
-}
 
 export default BlogPost;
