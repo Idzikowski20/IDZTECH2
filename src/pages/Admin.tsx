@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Plus, Edit, Trash2, Eye, Search } from 'lucide-react';
+import { FileText, Plus, Edit, Trash2, Eye, Search, Bot } from 'lucide-react';
 import { useAuth } from '@/utils/firebaseAuth';
 import { Button } from '@/components/ui/button';
 import { db } from '@/integrations/firebase/client';
@@ -150,8 +150,13 @@ const Admin = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105 transition-transform">
+              <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105">
                 <Plus size={16} className="mr-2" /> Dodaj nowy post
+              </Button>
+              <Button onClick={() => navigate('/admin/ai-post')} className="bg-premium-gradient hover:scale-105 text-white">
+              <Plus size={16} className="mr-2 text-white"  />
+               Nowy post AI 
+               <Bot  size={16} className="mr-2 text-white" />
               </Button>
             </div>
           </div>

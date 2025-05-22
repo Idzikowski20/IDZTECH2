@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -115,13 +114,13 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   <div className="space-y-2 pl-2">
                     <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-2`}>Strony www</h3>
                     <Link to="/tworzenie-stron-www" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/tworzenie-stron-www') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/tworzenie-stron-www') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/tworzenie-stron-www') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Tworzenie stron www
                     </Link>
                     <Link to="/sklepy-internetowe" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/sklepy-internetowe') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/sklepy-internetowe') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/sklepy-internetowe') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Tworzenie sklepów internetowych
@@ -129,37 +128,37 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isMenuOpen, setIsMenuOpen }) =>
                   
                     <h3 className={`${theme === 'light' ? 'text-black/70' : 'text-white/70'} text-sm font-semibold px-3 mt-4`}>Pozycjonowanie (SEO)</h3>
                     <Link to="/pozycjonowanie-stron" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-stron') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/pozycjonowanie-stron') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/pozycjonowanie-stron') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Pozycjonowanie stron internetowych
                     </Link>
                     <Link to="/pozycjonowanie-lokalne" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/pozycjonowanie-lokalne') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/pozycjonowanie-lokalne') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/pozycjonowanie-lokalne') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Pozycjonowanie lokalne
                     </Link>
                     <Link to="/audyt-seo" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/audyt-seo') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/audyt-seo') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/audyt-seo') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Audyt SEO
                     </Link>
                     <Link to="/optymalizacja-seo" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/optymalizacja-seo') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/optymalizacja-seo') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/optymalizacja-seo') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Optymalizacja SEO
                     </Link>
                     <Link to="/copywriting-seo" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/copywriting-seo') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/copywriting-seo') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/copywriting-seo') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Copywriting SEO
                     </Link>
                     <Link to="/content-plan" 
-                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${isActive('/content-plan') ? 'font-bold' : ''} ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black' : 'hover:bg-white/10 hover:text-white'}`}
+                      className={`${textColor} block transition-colors px-3 py-2 rounded-lg ${theme === 'light' ? (isActive('/content-plan') ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 hover:text-black') : (isActive('/content-plan') ? 'bg-white/20 text-white' : 'hover:bg-white/20 hover:text-white')}`}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Content Plan

@@ -667,7 +667,11 @@
   backdrop-filter: blur(5px);
 }
 
-.text-black {
+.text-white-important {
+  color: #ffffff !important;
+}
+
+.text-black-important {
   color: #000000 !important;
 }
 
@@ -701,4 +705,8 @@ input:-internal-autofill-selected {
 
 .mt-80 {
   margin-top: 80px !important;
+}
+
+.bg-transparent {
+  background-color: transparent !important;
 }

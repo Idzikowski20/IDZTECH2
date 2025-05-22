@@ -1,10 +1,11 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/utils/themeContext';
 
 const Footer = () => {
+  const { theme } = useTheme();
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -13,7 +14,9 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-black text-white pt-16 pb-8">
+    <footer className={
+      `${theme === 'light' ? 'bg-[#f5f5f5] text-black' : 'bg-black text-white'} pt-16 pb-8`
+    }>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Column 1 - About */}
@@ -47,37 +50,37 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4">Usługi</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/tworzenie-stron-www" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/tworzenie-stron-www" className="text-gray-400 transition-colors">
                   Tworzenie stron www
                 </Link>
               </li>
               <li>
-                <Link to="/sklepy-internetowe" className="text-gray-400 hover:text-white transition-colors whitespace-nowrap">
+                <Link to="/sklepy-internetowe" className="text-gray-400 transition-colors whitespace-nowrap">
                   Tworzenie sklepów internetowych
                 </Link>
               </li>
               <li>
-                <Link to="/pozycjonowanie-stron" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/pozycjonowanie-stron" className="text-gray-400  transition-colors">
                   Pozycjonowanie stron
                 </Link>
               </li>
               <li>
-                <Link to="/pozycjonowanie-lokalne" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/pozycjonowanie-lokalne" className="text-gray-400  transition-colors">
                   Pozycjonowanie lokalne
                 </Link>
               </li>
               <li>
-                <Link to="/audyt-seo" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/audyt-seo" className="text-gray-400 transition-colors">
                   Audyt SEO
                 </Link>
               </li>
               <li>
-                <Link to="/optymalizacja-seo" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/optymalizacja-seo" className="text-gray-400  transition-colors">
                   Optymalizacja SEO
                 </Link>
               </li>
               <li>
-                <Link to="/copywriting-seo" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/copywriting-seo" className="text-gray-400  transition-colors">
                   Copywriting SEO
                 </Link>
               </li>
@@ -89,22 +92,22 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4">Firma</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/about" className="text-gray-400 transition-colors">
                   O nas
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/blog" className="text-gray-400  transition-colors">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/contact" className="text-gray-400  transition-colors">
                   Kontakt
                 </Link>
               </li>
               <li>
-                <Link to="/projects" className="text-gray-400 hover:text-white transition-colors">
+                <Link to="/projects" className="text-gray-400  transition-colors">
                   Portfolio
                 </Link>
               </li>
@@ -121,7 +124,7 @@ const Footer = () => {
               <input 
                 type="email" 
                 placeholder="Twój email" 
-                className="bg-gray-800 text-white px-4 py-2 rounded-l outline-none flex-grow"
+                className="bg-transparent text-white px-4 py-2 rounded-l outline-none flex-grow"
               />
               <button 
                 className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r transition-colors"
@@ -147,13 +150,13 @@ const Footer = () => {
       </div>
 
       {/* Back to top button */}
-      <Button
+      {/* <Button
         onClick={scrollToTop}
         className="fixed bottom-6 right-6 p-3 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg z-50"
         aria-label="Przewiń do góry"
       >
         <ArrowUp className="h-5 w-5" />
-      </Button>
+      </Button> */}
     </footer>
   );
 };

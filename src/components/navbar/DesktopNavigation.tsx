@@ -14,13 +14,13 @@ const DesktopNavigation = () => {
   const { theme } = useTheme();
   const location = useLocation();
 
-  const activeClass = 'bg-gray-100 text-black';
+  const activeClass = theme === 'light' ? 'bg-gray-100 text-black' : 'bg-white/20 text-white';
 
   const linkClass = cn(
     "transition-colors duration-300 px-4 py-2 rounded-md",
     theme === 'light'
       ? 'text-black hover:bg-gray-100 hover:text-black'
-      : 'text-white hover:bg-white/10 hover:text-white'
+      : 'text-white hover:bg-white/20 hover:text-white'
   );
 
   const isActive = (path: string) => location.pathname === path;
@@ -66,8 +66,8 @@ const DesktopNavigation = () => {
                                 ? 'bg-gray-100 text-black'
                                 : 'hover:bg-gray-100 text-black'
                               : isActive(item.path)
-                                ? 'bg-gray-700 text-black'
-                                : 'hover:bg-gray-700 text-white'
+                                ? 'bg-white/20 text-white'
+                                : 'hover:bg-white/20 text-white'
                           )}
                         >
                           <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>
@@ -105,8 +105,8 @@ const DesktopNavigation = () => {
                                 ? 'bg-gray-100 text-black'
                                 : 'hover:bg-gray-100 text-black'
                               : isActive(item.path)
-                                ? 'bg-gray-700 text-black'
-                                : 'hover:bg-gray-700 text-white'
+                                ? 'bg-white/20 text-white'
+                                : 'hover:bg-white/20 text-white'
                           )}
                         >
                           <div className={cn('text-sm font-medium leading-none', theme === 'light' ? 'text-black' : 'text-white')}>

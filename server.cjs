@@ -118,6 +118,45 @@ async function fetchFromLLM({ prompt, system, extractJson = false, extractLine =
       // Próbuj dalej
     }
   }
+  // 4. Mistral
+  const apiKeyMistral = process.env.MISTRAL_API_KEY;
+  if (apiKeyMistral) {
+    try {
+      console.log('[AI Fallback] Próbuję Mistral...');
+      const response = await fetch('https://api.mistral.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKeyMistral}`
+        },
+        body: JSON.stringify({
+          model: 'mistral-medium',
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7
+        })
+      });
+      const data = await response.json();
+      console.log('[AI RAW DATA]', data);
+      const text = data.choices?.[0]?.message?.content || '';
+      let cleanText = text.replace(/```json|```/g, '').trim();
+      cleanText = cleanText.replace(/\\n|\\t|\\r/g, ' ');
+      if (extractJson) {
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('Nie znaleziono fragmentu JSON w odpowiedzi Mistral');
+        return JSON.parse(jsonMatch[0]);
+      }
+      if (extractLine) {
+        return cleanText;
+      }
+      return cleanText;
+    } catch (e) {
+      console.error('[AI Fallback] Błąd Mistral:', e);
+      // Próbuj dalej
+    }
+  }
   console.error('[AI Fallback] Brak dostępnych kluczy API lub wszystkie modele zawiodły.');
   throw new Error('Brak dostępnych kluczy API lub wszystkie modele zawiodły.');
 }
@@ -159,8 +198,23 @@ ${cta ? 'Dodaj sekcję z wezwaniem do działania.' : ''}
 ${meta ? 'Dodaj meta description.' : ''}
 ${questions ? 'Dodaj listę pytań, które artykuł odpowiada.' : ''}
 ${summary ? 'Dodaj podsumowanie na końcu.' : ''}
-${links ? 'Na początku artykułu wygeneruj listę sekcji (h2) z linkami do nich.' : ''}
+${links ? 'Na początku artykułu wygeneruj listę sekcji (h2) z linkami do nich, ale NIE twórz sekcji o nazwie "Spis treści".' : ''}
 Język: ${language || 'polski'}.
+
+Dla każdej sekcji (h2) wygeneruj diagram w formacie napkin.ai. Diagram powinien być zapisany jako JSON w następującym formacie:
+{
+  "diagram": {
+    "nodes": [
+      {"id": "1", "text": "Tytuł węzła", "type": "rectangle"},
+      {"id": "2", "text": "Inny węzeł", "type": "circle"}
+    ],
+    "edges": [
+      {"from": "1", "to": "2", "text": "Opis połączenia"}
+    ]
+  }
+}
+
+WAŻNE: Nie twórz sekcji ani nagłówka o nazwie "Spis treści" w treści artykułu. Nie generuj dodatkowego spisu treści w żadnej sekcji. Jeśli w artykule pojawia się sekcja porównawcza (np. "Porównanie WordPress vs dedykowana strona"), wygeneruj ją jako dwie osobne podsekcje: najpierw zalety i wady WordPressa (każda lista z emoji: ✅ zalety, ❌ wady, ⚠️ ostrzeżenia), potem zalety i wady strony dedykowanej (również z emoji). Użyj <div class="comparison-list">...</div> bez nagłówków h2/h3. Przykład:\n<div class="comparison-list">\n  <div><b>Zalety WordPressa:</b><ul><li>✅ Łatwy w obsłudze</li><li>✅ Duża społeczność</li></ul></div>\n  <div><b>Wady WordPressa:</b><ul><li>❌ Ograniczona elastyczność</li><li>⚠️ Wymaga aktualizacji</li></ul></div>\n  <div><b>Zalety strony dedykowanej:</b><ul><li>✅ Pełna elastyczność</li></ul></div>\n  <div><b>Wady strony dedykowanej:</b><ul><li>❌ Wyższy koszt</li></ul></div>\n</div>\nDodawaj emoji i emocje w całym artykule.
 Artykuł ma być zoptymalizowany pod SEO, dobierz słowa i frazy pod wybrane słowa kluczowe, tak aby uzyskać SEO rating score 65-90.
 Odpowiedz TYLKO poprawnym JSON, bez żadnych wyjaśnień, komentarzy, tekstu przed ani po. Nie dodawaj żadnych słów poza JSON-em!
 Format odpowiedzi:
@@ -168,7 +222,16 @@ Format odpowiedzi:
   "title": "...",
   "meta": "...",
   "lead": "...",
-  "sections": [{ "heading": "...", "content": "..." }],
+  "sections": [
+    { 
+      "heading": "...", 
+      "content": "...",
+      "diagram": {
+        "nodes": [...],
+        "edges": [...]
+      }
+    }
+  ],
   "summary": "...",
   "cta": "...",
   "tags": ["..."]

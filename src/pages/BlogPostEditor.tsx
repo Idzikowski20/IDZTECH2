@@ -284,12 +284,13 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
                     <FormControl
-                    className='ql-editor-white'>
+                    className=''>
                       <RichTextEditor 
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Treść posta w formacie HTML"
                         rows={15}
+                        className='ql-editor-white'
                       />
                     </FormControl>
                     <FormMessage />

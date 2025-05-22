@@ -49,9 +49,61 @@ const BlogPost = () => {
       tempDiv.querySelectorAll('p').forEach(p => {
         p.classList.add('mb-6', 'text-base');
       });
-
-      // Spis treści
-      const headings = Array.from(tempDiv.querySelectorAll('h2, h3'));
+      // Dodaj style do tabel
+      tempDiv.querySelectorAll('table').forEach(table => {
+        table.classList.add(
+          'w-full',
+          'my-8',
+          'border',
+          'border-premium-light/20',
+          'rounded-lg',
+          'overflow-hidden',
+          'bg-premium-dark/80',
+          'text-sm',
+          'text-left'
+        );
+      });
+      tempDiv.querySelectorAll('th').forEach(th => {
+        th.classList.add('bg-premium-purple/80', 'text-white', 'px-4', 'py-2', 'font-semibold', 'border', 'border-premium-light/20');
+      });
+      tempDiv.querySelectorAll('td').forEach(td => {
+        td.classList.add('px-4', 'py-2', 'border', 'border-premium-light/20');
+      });
+      // Dodaj stylowanie do comparison-list
+      tempDiv.querySelectorAll('.comparison-list').forEach(div => {
+        div.classList.add(
+          'my-8',
+          'p-6',
+          'rounded-xl',
+          'bg-yellow-100/10',
+          'border',
+          'border-yellow-300/30',
+          'shadow',
+          'text-base',
+          'font-medium'
+        );
+        div.querySelectorAll('li').forEach(li => {
+          li.classList.add('flex', 'items-center', 'gap-2', 'mb-2', 'text-lg');
+          // Powiększ emoji na początku li
+          const firstChild = li.firstChild;
+          if (firstChild && firstChild.nodeType === 3 && /[✅❌⚠️]/.test(firstChild.textContent)) {
+            const span = document.createElement('span');
+            span.textContent = firstChild.textContent.trim();
+            span.className = 'text-2xl mr-2';
+            li.replaceChild(span, firstChild);
+          }
+        });
+      });
+      // Spis treści - pomijaj sekcje z comparison-list
+      const headings = Array.from(tempDiv.querySelectorAll('h2, h3')).filter(h => {
+        // Jeśli nagłówek jest w comparison-list, pomiń
+        let parent = h.parentElement;
+        while (parent) {
+          if (parent.classList.contains('comparison-list')) return false;
+          parent = parent.parentElement;
+        }
+        return true;
+      });
       const toc = headings.map(heading => {
         const id = heading.id || heading.textContent?.toLowerCase().replace(/\s+/g, '-') || '';
         if (!heading.id && heading.textContent) {

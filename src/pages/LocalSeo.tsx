@@ -34,12 +34,6 @@ const LocalSeo = () => {
                 <ChevronRight className="h-4 w-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/pozycjonowanie-stron-internetowych">Pozycjonowanie</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
                 <BreadcrumbLink className="text-premium-light">Pozycjonowanie lokalne</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>

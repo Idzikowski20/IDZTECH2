@@ -617,6 +617,14 @@ export default function AIPostPage() {
                   <path d="M6.5 4L6.303 4.5915C6.24777 4.75718 6.15472 4.90774 6.03123 5.03123C5.90774 5.15472 5.75718 5.24777 5.5915 5.303L5 5.5L5.5915 5.697C5.75718 5.75223 5.90774 5.84528 6.03123 5.96877C6.15472 6.09226 6.24777 6.24282 6.303 6.4085L6.5 7L6.697 6.4085C6.75223 6.24282 6.84528 6.09226 6.96877 5.96877C7.09226 5.84528 7.24282 5.75223 7.4085 5.697L8 5.5L7.4085 5.303C7.24282 5.24777 7.09226 5.15472 6.96877 5.03123C6.84528 4.90774 6.75223 4.75718 6.697 4.5915L6.5 4Z" fill="black" stroke="black" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span className="text">Generuj z AI</span>
+                {loadingAI && (
+                  <span className="ml-2 inline-block align-middle">
+                    <svg className="animate-spin h-5 w-5 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                  </span>
+                )}
               </button>
             </div>
           </StyledWrapper>
@@ -671,7 +679,7 @@ export default function AIPostPage() {
                   >
                     {s.heading}
                   </h2>
-                  <p className="mb-6 text-base">{s.content}</p>
+                  <div className="mb-6 text-base" dangerouslySetInnerHTML={{ __html: s.content }} />
                 </div>
               ))}
               {aiPost.summary && (
@@ -695,7 +703,15 @@ export default function AIPostPage() {
         </div>
       )}
       {accepted && (
-        <div className="mt-8 text-green-700 font-bold">Post zaakceptowany i zapisany w bazie!</div>
+        <div className="mt-8 text-green-700 font-bold flex flex-col items-center gap-4">
+          <span>Post zaakceptowany i zapisany w bazie!</span>
+          <button
+            className="bg-purple-700 hover:bg-purple-800 text-white px-6 py-2 rounded-2xl transition"
+            onClick={() => navigate('/blog')}
+          >
+            Przejdź do bloga
+          </button>
+        </div>
       )}
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={500} recycle={true} style={{ position: 'fixed', top: 0, left: 0 }} />}
     </div>
