@@ -14,4 +14,9 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: MISTRAL_API_KEY
-        sync: false 
+        sync: false
+      - key: RENDER_EXTERNAL_URL
+        fromService:
+          type: web
+          name: premium-digital-harvest-api
+          envVarKey: RENDER_EXTERNAL_URL 

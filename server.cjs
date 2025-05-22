@@ -249,7 +249,7 @@ Format odpowiedzi:
 app.post('/api/cron-generate-daily-post', async (req, res) => {
   const topic = "Nowoczesne trendy w marketingu internetowym 2024";
   try {
-    const aiResponse = await fetch('http://localhost:10000/api/generate-blog-post', {
+    const aiResponse = await fetch(`${process.env.RENDER_EXTERNAL_URL || 'http://localhost:10000'}/api/generate-blog-post`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic })
@@ -286,5 +286,5 @@ app.get('*', (req, res, next) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
