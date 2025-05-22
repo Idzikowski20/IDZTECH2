@@ -33,7 +33,7 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] 
   const { theme } = useTheme();
   
   return (
-    <div className={`${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark/60 backdrop-blur-sm border-white/10'} rounded-xl p-6 h-full flex flex-col`}>
+    <div className={`${theme === 'light' ? 'bg-white border-gray-300' : 'bg-premium-dark/60 border-white/10'} rounded-xl p-6 h-full flex flex-col`}>
       <div className="flex space-x-1 mb-4">
         {[...Array(5)].map((_, i) => (
           <Star 

@@ -124,7 +124,7 @@ const WhyWorkWithUs = () => {
                 {teamMembers.map((member, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center gap-4 p-4 rounded-lg bg-premium-dark/40 animate-float"
+                    className="flex items-center gap-4 p-4 rounded-lg bg-premium-dark/40"
                   >
                     <img 
                       src={member.image} 
