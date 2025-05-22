@@ -7,7 +7,12 @@ const app = express();
 
 // Dodaj obsługę CORS
 app.use((req, res, next) => {
-  const allowedOrigins = ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:5173', 'https://idztech.onrender.com'];
+  const allowedOrigins = ['https://idztech.onrender.com'];
+  // W trybie developerskim dodaj localhost
+  if (process.env.NODE_ENV !== 'production') {
+    allowedOrigins.push('http://localhost:8080', 'http://localhost:3000', 'http://localhost:5173');
+  }
+  
   const origin = req.headers.origin;
   
   if (allowedOrigins.includes(origin)) {
@@ -268,7 +273,7 @@ Format odpowiedzi:
 app.post('/api/cron-generate-daily-post', async (req, res) => {
   const topic = "Nowoczesne trendy w marketingu internetowym 2024";
   try {
-    const aiResponse = await fetch(`${process.env.RENDER_EXTERNAL_URL || 'http://localhost:10000'}/api/generate-blog-post`, {
+    const aiResponse = await fetch(`${process.env.RENDER_EXTERNAL_URL || 'https://idztech.onrender.com'}/api/generate-blog-post`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ topic })
