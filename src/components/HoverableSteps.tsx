@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
@@ -66,7 +65,7 @@ const HoverableSteps: React.FC<HoverableStepsProps> = ({ steps, className = "" }
         </div>
         
         {/* Right side - Content */}
-        <div className={`rounded-xl p-6 ${theme === 'light' ? 'bg-white shadow-lg' : 'bg-white/5 backdrop-blur-sm border border-white/10'}`}>
+        <div className={`rounded-xl p-6 ${theme === 'light' ? 'bg-white shadow-lg' : 'bg-white/5 border border-white/10'}`}>
           <h3 className={`text-2xl font-semibold mb-4 ${theme === 'light' ? 'text-black' : 'text-white'}`}>
             {activeStepData.title}
           </h3>

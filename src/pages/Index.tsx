@@ -1,6 +1,5 @@
 import React, { useEffect, lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
-import LightEffects from "@/components/LightEffects";
 import Hero from "@/components/Hero"; // ⬅️ już nie lazy
 import OurServices from "@/components/OurServices"; // ⬅️ już nie lazy
 import { Demo } from "@/components/moon";
@@ -63,7 +62,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <LightEffects />
       <Navbar />
 
       {/* Statyczne komponenty - ładują się natychmiast */}

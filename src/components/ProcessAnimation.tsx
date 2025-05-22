@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
@@ -181,7 +180,6 @@ const ProcessAnimation: React.FC<ProcessAnimationProps> = ({ className = "", ima
             alt="Proces tworzenia strony"
             className="rounded-xl shadow-lg border border-premium-light/10"
           />
-          <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-premium-gradient opacity-20 blur-3xl rounded-full"></div>
         </div>
       </div>
     </div>

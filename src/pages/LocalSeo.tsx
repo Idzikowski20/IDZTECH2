@@ -13,11 +13,7 @@ const LocalSeo = () => {
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
-        {/* Background elements */}
-        <div className="absolute top-32 right-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-pink/20 rounded-full blur-[120px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 lg:px-8">
+        <div className="container mx-auto px-4">
           {/* Breadcrumb */}
           <Breadcrumb className="mb-8">
             <BreadcrumbList className="text-premium-light/60">
@@ -442,10 +438,7 @@ const LocalSeo = () => {
       
       {/* CTA Section */}
       <section className="py-16 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 lg:px-8">
+        <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl lg:text-4xl font-bold mb-6 animate-fade-in">Zwiększ widoczność Twojego biznesu lokalnie</h2>
             <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>

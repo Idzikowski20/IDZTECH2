@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Plus, Edit, Trash2, Eye, Search, Bot } from 'lucide-react';
+import { FileText, Plus, Edit, Trash2, Eye, Search, Bot, ArrowUpDown } from 'lucide-react';
 import { useAuth } from '@/utils/firebaseAuth';
 import { Button } from '@/components/ui/button';
 import { db } from '@/integrations/firebase/client';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import AdminLayout from '@/components/AdminLayout';
 import { 
   Table,
@@ -25,6 +25,13 @@ import {
   PaginationPrevious 
 } from '@/components/ui/pagination';
 import AdminAIButton from '@/components/AdminAIButton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BlogPost {
   id: string;
@@ -48,6 +55,11 @@ const Admin = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Sorting and filtering state
+  const [sortField, setSortField] = useState<'title' | 'date'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   
   // Pagination state
   const [currentPostsPage, setCurrentPostsPage] = useState(1);
@@ -84,17 +96,91 @@ const Admin = () => {
     }
   };
 
-  // Filtering posts by title
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Data niedostępna';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date');
+      }
+      return date.toLocaleDateString('pl-PL', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return 'Data niedostępna';
+    }
+  };
+
+  const handleStatusChange = async (postId: string, newStatus: boolean) => {
+    try {
+      const postRef = doc(db, 'blog_posts', postId);
+      await updateDoc(postRef, {
+        published: newStatus,
+        published_at: newStatus ? new Date().toISOString() : null
+      });
+      
+      setPosts(posts.map(post => 
+        post.id === postId 
+          ? { ...post, published: newStatus, published_at: newStatus ? new Date().toISOString() : null }
+          : post
+      ));
+      
+      toast({ 
+        title: 'Zaktualizowano', 
+        description: `Post został ${newStatus ? 'opublikowany' : 'oznaczony jako szkic'}.`
+      });
+    } catch (err) {
+      console.error(err);
+      toast({ 
+        title: 'Błąd', 
+        description: 'Nie udało się zmienić statusu posta.', 
+        variant: 'destructive' 
+      });
+    }
+  };
+
+  // Filtering and sorting posts
   useEffect(() => {
     if (!Array.isArray(posts)) {
       setFilteredPosts([]);
       return;
     }
-    const filtered = searchTerm
-      ? posts.filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()))
-      : posts;
+
+    let filtered = [...posts];
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(post => 
+        statusFilter === 'published' ? post.published : !post.published
+      );
+    }
+
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(post => 
+        post.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      if (sortField === 'title') {
+        return sortDirection === 'asc' 
+          ? a.title.localeCompare(b.title)
+          : b.title.localeCompare(a.title);
+      } else {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+    });
+
     setFilteredPosts(filtered);
-  }, [posts, searchTerm]);
+  }, [posts, searchTerm, sortField, sortDirection, statusFilter]);
   
   // Calculate pagination
   const postsStartIndex = (currentPostsPage - 1) * postsPerPage;
@@ -142,14 +228,29 @@ const Admin = () => {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">Blog</h2>
             <div className="flex gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-premium-light/50" size={16} />
-                <Input
-                  placeholder="Wyszukaj po tytule..."
-                  className="pl-10 bg-premium-dark/30 border-premium-light/10 w-64"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+              <div className="flex items-center gap-4">
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value: 'all' | 'published' | 'draft') => setStatusFilter(value)}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filtruj po statusie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Wszystkie</SelectItem>
+                    <SelectItem value="published">Opublikowane</SelectItem>
+                    <SelectItem value="draft">Szkice</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-premium-light/50" size={16} />
+                  <Input
+                    placeholder="Wyszukaj po tytule..."
+                    className="pl-10 bg-premium-dark/30 border-premium-light/10 w-64"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
               </div>
               <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105">
                 <Plus size={16} className="mr-2" /> Dodaj nowy post
@@ -163,8 +264,40 @@ const Admin = () => {
               <table className="w-full">
                 <thead className="border-b border-premium-light/10">
                   <tr>
-                    <th className="py-3 px-4 text-left">Tytuł</th>
-                    <th className="py-3 px-4 text-left">Data</th>
+                    <th className="py-3 px-4 text-left">
+                      <Button
+                        variant="ghost"
+                        className="hover:bg-transparent"
+                        onClick={() => {
+                          if (sortField === 'title') {
+                            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+                          } else {
+                            setSortField('title');
+                            setSortDirection('asc');
+                          }
+                        }}
+                      >
+                        Tytuł
+                        <ArrowUpDown size={16} className="ml-2" />
+                      </Button>
+                    </th>
+                    <th className="py-3 px-4 text-left">
+                      <Button
+                        variant="ghost"
+                        className="hover:bg-transparent"
+                        onClick={() => {
+                          if (sortField === 'date') {
+                            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+                          } else {
+                            setSortField('date');
+                            setSortDirection('desc');
+                          }
+                        }}
+                      >
+                        Data
+                        <ArrowUpDown size={16} className="ml-2" />
+                      </Button>
+                    </th>
                     <th className="py-3 px-4 text-left">Status</th>
                     <th className="py-3 px-4 text-left">Akcje</th>
                   </tr>
@@ -187,12 +320,23 @@ const Admin = () => {
                       <tr key={post.id}>
                         <td className="py-3 px-4 font-medium">{post.title}</td>
                         <td className="py-3 px-4 text-premium-light/70">
-                          {new Date(post.created_at).toLocaleDateString('pl-PL')}
+                          {post.published 
+                            ? formatDate(post.published_at || post.created_at)
+                            : formatDate(post.created_at)}
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 rounded text-xs ${post.published ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleStatusChange(post.id, !post.published)}
+                            className={`px-2 py-1 rounded text-xs ${
+                              post.published 
+                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
+                                : 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
+                            }`}
+                          >
                             {post.published ? 'Opublikowany' : 'Szkic'}
-                          </span>
+                          </Button>
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">

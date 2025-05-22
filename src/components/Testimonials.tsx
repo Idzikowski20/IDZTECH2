@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Star, ArrowLeft, ArrowRight } from 'lucide-react';
 import { useTheme } from '@/utils/themeContext';
@@ -65,10 +64,6 @@ const Testimonials = () => {
   
   return (
     <section className="py-20 relative overflow-hidden">
-      {/* Background elements with fixed position */}
-      <div className="fixed top-1/4 left-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[100px] -z-10"></div>
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-premium-blue/20 rounded-full blur-[100px] -z-10"></div>
-
       <div className="container mx-auto px-4 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
           <div className="max-w-2xl">

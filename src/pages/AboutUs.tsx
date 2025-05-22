@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -47,13 +46,7 @@ const AboutUs = () => {
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
       
-      <section className="pt-32 pb-20 relative overflow-hidden">
-        {/* Background elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute top-10 right-10 w-80 h-80 bg-premium-purple/20 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-12 left-10 w-80 h-60 bg-premium-blue/20 rounded-full blur-[100px]"></div>
-        </div>
-        
+      <section className="pt-32 pb-16 relative overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             <div className="w-full lg:w-1/2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
@@ -80,16 +73,13 @@ const AboutUs = () => {
               </div>
             </div>
             
-            <div className="w-full lg:w-1/2 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-              <div className="relative">
-                <div className="absolute -inset-1 bg-premium-gradient rounded-xl blur-sm opacity-75"></div>
-                <div className="relative bg-premium-dark p-1 rounded-xl overflow-hidden">
-                  <img 
-                    src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" 
-                    alt="IDZ.TECH Team" 
-                    className="w-full h-auto rounded-lg object-cover aspect-video" 
-                  />
-                </div>
+            <div className="relative">
+              <div className="relative bg-premium-dark p-1 rounded-xl overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" 
+                  alt="IDZ.TECH Team" 
+                  className="w-full h-auto rounded-lg object-cover aspect-video" 
+                />
               </div>
             </div>
           </div>

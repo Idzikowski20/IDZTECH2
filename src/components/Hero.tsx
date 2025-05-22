@@ -23,14 +23,7 @@ const Hero = () => {
   
   return (
     <section id="hero" className={`${isMobile ? 'pt-28' : 'pt-20'} pb-16 md:pt-28 md:pb-32 relative overflow-hidden`}>
-      {/* Reduced quantity and opacity of light effects for better performance */}
-      {showContent && (
-        <>
-          <div className="hidden md:block fixed top-40 left-20 w-24 h-24 bg-premium-purple/10 rounded-full blur-[70px] animate-pulse-slow"></div>
-          <div className="hidden md:block fixed top-20 right-20 w-32 h-32 bg-premium-blue/10 rounded-full blur-[80px] animate-pulse-slow delay-150"></div>
-        </>
-      )}
-      
+      {/* Reszta komponentu bez efektów świetlnych */}
       <div className="mt-80 container mx-auto px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-8">
           {/* Hero content on the left */}

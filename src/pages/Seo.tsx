@@ -14,11 +14,7 @@ const Seo = () => {
       
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
-        {/* Background elements */}
-        <div className="absolute top-32 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
-        
-        <div className="container mx-auto px-4 lg:px-8">
+        <div className="container mx-auto px-4">
           {/* Breadcrumb */}
           <Breadcrumb className="mb-8">
             <BreadcrumbList className="text-premium-light/60">
