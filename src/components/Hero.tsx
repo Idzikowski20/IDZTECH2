@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "@/utils/themeContext";
 import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobile } from '@/hooks/use-mobile';
 import { useState, useEffect } from "react";
 import HeroImage from "@/components/HeroImage";
 
 const Hero = () => {
   const { theme } = useTheme();
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   const [showContent, setShowContent] = useState(false);
   
   useEffect(() => {

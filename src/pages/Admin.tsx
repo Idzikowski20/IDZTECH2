@@ -24,6 +24,7 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import AdminAIButton from '@/components/AdminAIButton';
 
 interface BlogPost {
   id: string;
@@ -153,11 +154,7 @@ const Admin = () => {
               <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105">
                 <Plus size={16} className="mr-2" /> Dodaj nowy post
               </Button>
-              <Button onClick={() => navigate('/admin/ai-post')} className="bg-premium-gradient hover:scale-105 text-white">
-              <Plus size={16} className="mr-2 text-white"  />
-               Nowy post AI 
-               <Bot  size={16} className="mr-2 text-white" />
-              </Button>
+              <AdminAIButton onClick={() => navigate('/admin/ai-post')} />
             </div>
           </div>
 

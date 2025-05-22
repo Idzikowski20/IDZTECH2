@@ -232,14 +232,9 @@ export function useFirebaseBlogPosts() {
   // Create post
   const createPost = async (newPost: Omit<BlogPost, 'id'>) => {
     try {
-      // Handle image if it's a data URL (from editor)
+      // Zamiast uploadować do storage, po prostu użyj base64 (data URL)
       let imageUrl = newPost.featured_image;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        const storageRef = ref(storage, `blog_images/${Date.now()}`);
-        const uploadTask = await uploadString(storageRef, imageUrl, 'data_url');
-        imageUrl = await getDownloadURL(uploadTask.ref);
-      }
-
+      // Nie uploadujemy do storage!
       const postData = {
         ...newPost,
         excerpt: newPost.excerpt || newPost.summary, // Ensure excerpt exists
@@ -247,11 +242,8 @@ export function useFirebaseBlogPosts() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-
       const docRef = await addDoc(collection(db, 'blog_posts'), postData);
       toast.success('Post dodany!');
-      
-      // Update local state
       setPosts(prevPosts => {
         const newPosts = [
           { id: docRef.id, ...postData },
@@ -259,7 +251,6 @@ export function useFirebaseBlogPosts() {
         ];
         return newPosts;
       });
-      
       return { id: docRef.id, ...postData };
     } catch (err) {
       console.error('Error creating post:', err);
@@ -271,14 +262,9 @@ export function useFirebaseBlogPosts() {
   // Update post
   const updatePost = async ({ id, ...updates }: BlogPost) => {
     try {
-      // Handle image if it's a data URL (from editor)
+      // Zamiast uploadować do storage, po prostu użyj base64 (data URL)
       let imageUrl = updates.featured_image;
-      if (imageUrl && imageUrl.startsWith('data:')) {
-        const storageRef = ref(storage, `blog_images/${Date.now()}`);
-        const uploadTask = await uploadString(storageRef, imageUrl, 'data_url');
-        imageUrl = await getDownloadURL(uploadTask.ref);
-      }
-
+      // Nie uploadujemy do storage!
       const postRef = doc(db, 'blog_posts', id);
       const postData = {
         ...updates,
@@ -286,18 +272,14 @@ export function useFirebaseBlogPosts() {
         featured_image: imageUrl,
         updated_at: new Date().toISOString(),
       };
-      
       await updateDoc(postRef, postData);
       toast.success('Post zaktualizowany!');
-      
-      // Update local state
       setPosts(prevPosts => {
         if (!prevPosts) return prevPosts;
         return prevPosts.map(post => 
           post.id === id ? { ...post, ...postData } : post
         );
       });
-      
       return { id, ...postData };
     } catch (err) {
       console.error('Error updating post:', err);

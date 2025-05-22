@@ -1,12 +1,12 @@
 import React, { Suspense } from "react";
 import { useState, useEffect } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/use-mobile';
 
 const Spline = React.lazy(() => import('@splinetool/react-spline'));
 
 const HeroImage = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   
   const handleSplineLoad = () => {
     setIsLoading(false);

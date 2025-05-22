@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/utils/firebaseAuth';
 import AdminLayout from '@/components/AdminLayout';
-import RichTextEditor from '@/components/RichTextEditor';
+import TipTapEditor from '@/components/TipTapEditor';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import { db } from '@/integrations/firebase/client';
 import { toast } from 'sonner';
@@ -39,6 +39,7 @@ const BlogPostEditor = () => {
   const [imagePreview, setImagePreview] = useState<string>('');
   const [existingPost, setExistingPost] = useState<any>(null);
   const isEditing = !!id;
+  const [editorContent, setEditorContent] = useState('');
 
   // Fetch post from database if editing
   useEffect(() => {
@@ -97,6 +98,12 @@ const BlogPostEditor = () => {
     }
   }, [existingPost]);
 
+  useEffect(() => {
+    if (existingPost?.content) {
+      setEditorContent(existingPost.content);
+    }
+  }, [existingPost]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -136,9 +143,8 @@ const BlogPostEditor = () => {
         title: values.title,
         slug: values.slug,
         summary: values.summary,
-        // Add excerpt field - use summary if no excerpt is available
         excerpt: values.summary,
-        content: values.content,
+        content: editorContent,
         featured_image: imageUrl,
         author_id: user.uid,
         categories: (values.categories || '').split(',').map(cat => cat.trim()),
@@ -280,17 +286,14 @@ const BlogPostEditor = () => {
               <FormField 
                 control={form.control} 
                 name="content" 
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Treść (HTML)</FormLabel>
-                    <FormControl
-                    className=''>
-                      <RichTextEditor 
-                        value={field.value}
-                        onChange={field.onChange}
+                    <FormControl>
+                      <TipTapEditor 
+                        value={editorContent}
+                        onChange={setEditorContent}
                         placeholder="Treść posta w formacie HTML"
-                        rows={15}
-                        className='ql-editor-white'
                       />
                     </FormControl>
                     <FormMessage />

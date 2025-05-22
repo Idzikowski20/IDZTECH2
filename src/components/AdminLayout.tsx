@@ -94,45 +94,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
-        <aside
-          className={`${
-            isSidebarOpen ? "w-64" : "w-16"
-          } bg-premium-dark/50 border-r border-premium-light/10 h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out fixed left-0 top-16 z-40`}
-        >
-          <nav className="p-4 space-y-2">
-            <h2 className="text-lg font-bold mb-4">Panel administracyjny</h2>
-            <nav>
-              <ul>
-                <li className="mb-2">
-                  <Link 
-                    to="/admin" 
-                    className={`block px-4 py-2 rounded-md transition-colors ${pathname === '/admin' ? 'bg-premium-light/10 text-white' : 'text-premium-light/70 hover:bg-white hover:text-black'}`}
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-            
-            {/* Logout button at the bottom */}
-            <div className="pt-4 mt-6 border-t border-premium-light/10">
-              <button
-                onClick={handleLogout}
-                className="flex items-center w-full p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors group"
-              >
-                <LogOut className="w-5 h-5 mr-3" />
-                {isSidebarOpen && <span>Wyloguj</span>}
-                {!isSidebarOpen && (
-                  <span className="absolute left-full ml-2 p-2 bg-premium-dark/90 text-premium-light rounded whitespace-nowrap border border-premium-light/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Wyloguj
-                  </span>
-                )}
-              </button>
-            </div>
-          </nav>
-        </aside>
-        
+
         {/* Main content */}
         <div
           className={`flex-1 transition-all duration-300 ease-in-out ${

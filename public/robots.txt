@@ -12,4 +12,4 @@ Disallow: /reset-password
 Disallow: /profile
 
 # Sitemap
-Sitemap: https://idz.tech/sitemap.xml
+Sitemap: https://idztech.pl/sitemap.xml

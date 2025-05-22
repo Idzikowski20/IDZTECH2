@@ -1,11 +1,10 @@
-
 import { useState } from 'react';
 import Spline from '@splinetool/react-spline';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMobile } from '@/hooks/use-mobile';
 
 const SplineSEO = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   
   const handleSplineLoad = () => {
     setIsLoading(false);

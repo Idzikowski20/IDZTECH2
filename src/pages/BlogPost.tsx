@@ -201,7 +201,7 @@ const BlogPost = () => {
       
       <div className="pt-32 pb-20">
         {/* Main content */}
-        <div className="mx-auto max-w-3xl px-4 flex flex-col gap-10">
+        <div className="mx-auto max-w-5xl px-4 flex flex-col gap-10">
           {/* Article content */}
           <div className="w-full">
             {/* Back button */}
@@ -341,9 +341,7 @@ const BlogPost = () => {
                 <p className="text-sm text-gray-300 mb-4">
                   Skorzystaj z naszych usług profesjonalnego pozycjonowania stron internetowych
                 </p>
-                <Button className="bg-premium-gradient hover:bg-premium-purple hover:text-white">
-                  Skontaktuj się z nami
-                </Button>
+                                <Button                   className="bg-premium-gradient hover:bg-premium-purple hover:text-white"                  onClick={() => navigate('/contact')}                >                  Skontaktuj się z nami                </Button>
               </div>
             </div>
             
