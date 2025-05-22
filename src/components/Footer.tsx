@@ -15,7 +15,7 @@ const Footer = () => {
 
   return (
     <footer className={
-      `${theme === 'light' ? 'bg-[#f5f5f5] text-black' : 'bg-black text-white'} pt-16 pb-8`
+      `${theme === 'light' ? 'bg-[#f5f5f5] text-black' : 'text-white'} pt-16 pb-8`
     }>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">

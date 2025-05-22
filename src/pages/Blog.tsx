@@ -32,7 +32,7 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-premium-dark">
       <Helmet>
-        <title>Blog o SEO i tworzeniu stron | IDZ.TECH</title>
+        <title>Dev blog by IDZTECH</title>
         <meta name="description" content="Blog o SEO, pozycjonowaniu stron internetowych i tworzeniu stron www. Porady, artykuły i case study." />
       </Helmet>
       
@@ -42,9 +42,9 @@ const Blog = () => {
       <section className="pt-32 pb-12 relative">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Dev blog.</h1>
             <p className="text-xl text-gray-300 mb-8 max-w-3xl">
-              Najnowsze informacje, porady i trendy z świata SEO i tworzenia stron internetowych
+              Najnowsze informacje, porady i trendy ze świata IT. 
             </p>
           </div>
         </div>

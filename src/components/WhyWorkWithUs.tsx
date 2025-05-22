@@ -48,6 +48,9 @@ const WhyWorkWithUs = () => {
                 src="/lovable-uploads/0a84b382-c65c-4f3a-bfdc-56f91938ef33.png" 
                 alt="Team collaboration" 
                 className="rounded-lg w-full object-cover"
+                width="600"
+                height="400"
+                loading="lazy"
               />
             </div>
             
@@ -129,7 +132,10 @@ const WhyWorkWithUs = () => {
                     <img 
                       src={member.image} 
                       alt={member.name} 
-                      className="w-16 h-16 object-cover rounded-full border-2 border-premium-purple/50" 
+                      className="w-16 h-16 object-cover rounded-full border-2 border-premium-purple/50"
+                      width="64"
+                      height="64"
+                      loading="lazy"
                     />
                     <div>
                       <h4 className={`font-medium ${theme === 'light' ? 'text-black hover:text-white' : 'text-white'}`}>{member.name}</h4>

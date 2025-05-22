@@ -48,7 +48,10 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] 
         <img 
           src={testimonial.image} 
           alt={testimonial.author} 
-          className="w-12 h-12 rounded-full object-cover mr-4" 
+          className="w-12 h-12 rounded-full object-cover mr-4"
+          width="48"
+          height="48"
+          loading="lazy"
         />
         <div>
           <h4 className="font-medium">{testimonial.author}</h4>

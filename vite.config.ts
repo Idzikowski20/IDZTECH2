@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import * as sass from 'sass-embedded';
+import compression from 'vite-plugin-compression';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -19,7 +20,17 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    compression({
+      algorithm: 'gzip',
+      ext: '.gz',
+    }),
+    compression({
+      algorithm: 'brotliCompress',
+      ext: '.br',
+    }),
+  ],
   css: {
     preprocessorOptions: {
       scss: {
@@ -29,10 +40,33 @@ export default defineConfig({
         },
       },
     },
+    modules: {
+      localsConvention: 'camelCaseOnly',
+    },
+  },
+  build: {
+    target: 'esnext',
+    minify: 'terser',
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@/components/ui'],
+          utils: ['@/utils'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', 'lodash.debounce'],
+    exclude: ['@splinetool/react-spline'],
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      'lodash.debounce': 'lodash.debounce/index.js'
     },
   },
 });

@@ -4,22 +4,11 @@ import { CheckCircle2 } from "lucide-react";
 import { useTheme } from "@/utils/themeContext";
 import { BlinkingUnderscore } from "@/components/ui/BlinkingUnderscore";
 import { useMobile } from '@/hooks/use-mobile';
-import { useState, useEffect } from "react";
 import HeroImage from "@/components/HeroImage";
 
 const Hero = () => {
   const { theme } = useTheme();
   const isMobile = useMobile();
-  const [showContent, setShowContent] = useState(false);
-  
-  useEffect(() => {
-    // Delay setting visibility to improve perceived performance
-    const timer = setTimeout(() => {
-      setShowContent(true);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, []);
   
   return (
     <section id="hero" className={`${isMobile ? 'pt-28' : 'pt-20'} pb-16 md:pt-28 md:pb-32 relative overflow-hidden`}>
@@ -33,13 +22,13 @@ const Hero = () => {
             </h1>
             
             <p
-              className={`text-lg md:text-xl text-premium-light/80 dark:text-premium-light/80 mb-6 md:mb-8 leading-relaxed transition-opacity duration-500 ${showContent ? 'opacity-100 delay-100' : 'opacity-0'}`}
+              className='text-lg md:text-xl text-premium-light/80 dark:text-premium-light/80 mb-6 md:mb-8 leading-relaxed'
             >
               Dostarczamy rozwiązania, które budują online obecność i konwertują odwiedzających w klientów. Specjalizujemy się w tworzeniu stron www, SEO i marketingu cyfrowym.
             </p>
             
             <div
-              className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-3 md:gap-4 mb-6 md:mb-10 transition-opacity duration-500 ${showContent ? 'opacity-100 delay-200' : 'opacity-0'} ${isMobile ? 'w-full' : ''}`}
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-3 md:gap-4 mb-6 md:mb-10 transition-opacity duration-500 ${isMobile ? 'w-full' : ''}`}
             >
               <Link to="/contact" className={isMobile ? 'w-full' : ''}>
                 <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full">
@@ -54,7 +43,7 @@ const Hero = () => {
             </div>
             
             <div
-              className={`flex flex-wrap gap-3 md:gap-4 transition-opacity duration-500 ${showContent ? 'opacity-100 delay-300' : 'opacity-0'}`}
+              className='flex flex-wrap gap-3 md:gap-4 transition-opacity duration-500'
             >
               <div className="flex items-center justify-start gap-2 text-sm text-premium-light/70">
                 <CheckCircle2 className="text-premium-purple h-4 w-4" />
