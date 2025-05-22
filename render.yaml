@@ -2,7 +2,7 @@ services:
   - type: web
     name: premium-digital-harvest-api
     env: node
-    buildCommand: npm install
+    buildCommand: npm install --production=false && npm run build
     startCommand: node server.cjs
     envVars:
       - key: NODE_ENV
