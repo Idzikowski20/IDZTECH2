@@ -9,8 +9,7 @@ import { toast } from 'sonner';
 import GenerateAIButton from '@/components/GenerateAIButton';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:10000';
+import { API_URL } from '@/config';
 
 function slugify(text) {
   return text
@@ -70,7 +69,7 @@ export default function AIPostPage() {
     }
     const timeout = setTimeout(() => {
       // Pobierz słowa kluczowe
-      fetch(`${API_BASE}/api/generate-keywords`, {
+      fetch(`${API_URL}/api/generate-keywords`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic })
@@ -78,7 +77,7 @@ export default function AIPostPage() {
         .then(res => res.json())
         .then(data => setKeywords(data.keywords || ''));
       // Pobierz grupę docelową
-      fetch(`${API_BASE}/api/generate-audience`, {
+      fetch(`${API_URL}/api/generate-audience`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic })
@@ -119,7 +118,7 @@ export default function AIPostPage() {
     else if (length === 'Średni') lengthPrompt = 'Długość: 500-900 słów.';
     else if (length === 'Długi') lengthPrompt = 'Długość: 900-1500 słów.';
     try {
-      const res = await fetch(`${API_BASE}/api/generate-blog-post`, {
+      const res = await fetch(`${API_URL}/api/generate-blog-post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic, keywords, style, length, audience, cta, meta, questions, summary, links, language, lengthPrompt }),
@@ -147,7 +146,7 @@ export default function AIPostPage() {
     setLoadingThumb(true);
     setThumbnail('');
     try {
-      const res = await fetch(`${API_BASE}/api/generate-thumbnail`, {
+      const res = await fetch(`${API_URL}/api/generate-thumbnail`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: topic, keywords }),
@@ -164,7 +163,7 @@ export default function AIPostPage() {
     if (!topic) return;
     setLoadingAI(true);
     try {
-      const res = await fetch(`${API_BASE}/api/generate-keywords`, {
+      const res = await fetch(`${API_URL}/api/generate-keywords`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic })
@@ -179,7 +178,7 @@ export default function AIPostPage() {
     if (!topic) return;
     setLoadingAI(true);
     try {
-      const res = await fetch(`${API_BASE}/api/generate-audience`, {
+      const res = await fetch(`${API_URL}/api/generate-audience`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic })
@@ -194,7 +193,7 @@ export default function AIPostPage() {
     if (!topic) return;
     setLoadingAI(true);
     try {
-      const res = await fetch(`${API_BASE}/api/generate-tags`, {
+      const res = await fetch(`${API_URL}/api/generate-tags`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic })

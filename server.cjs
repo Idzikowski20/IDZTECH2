@@ -4,6 +4,18 @@ const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const app = express();
+
+// Dodaj obsługę CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(express.json());
 
 // Uniwersalna funkcja do pobierania odpowiedzi z LLM z fallbackami
@@ -273,15 +285,14 @@ app.post('/api/generate-tags', async (req, res) => {
   }
 });
 
-// --- Obsługa frontendu Vite (statyczne pliki) ---
+// Obsługa statycznych plików
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Catch-all tylko dla NIE-API
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    return next(); // NIE obsługuj API przez frontend!
+// Przekierowanie wszystkich pozostałych zapytań do index.html
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   }
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 10000;
