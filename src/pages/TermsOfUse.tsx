@@ -1,6 +1,6 @@
 
 import React from 'react';
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageDotAnimation from '@/components/PageDotAnimation';
 import { useTheme } from '@/utils/themeContext';

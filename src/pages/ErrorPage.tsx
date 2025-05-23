@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate, useRouteError } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PageDotAnimation from "@/components/PageDotAnimation";
 import { ArrowLeft, AlertTriangle } from "lucide-react";

@@ -1,22 +1,17 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Clock, Eye, Tag, Share2, MessageSquare, Facebook, Twitter, Linkedin } from 'lucide-react';
+import React, { useEffect, useState} from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Calendar, Clock, Tag, Share2,  Facebook, Twitter, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatReadingTime } from '@/utils/dateUtils';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/utils/AuthProvider';
-import CommentSection from '@/components/blog/CommentSection';
-import ShareButtons from '@/components/blog/ShareButtons';
-import RelatedPosts from '@/components/blog/RelatedPosts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet-async';
 import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { cn } from '@/lib/utils';
 import { useTheme } from '@/utils/themeContext';
 
 const BlogPost = () => {

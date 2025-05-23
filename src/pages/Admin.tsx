@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Plus, Edit, Trash2, Eye, Search, Bot, ArrowUpDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Search, ArrowUpDown } from 'lucide-react';
 import { useAuth } from '@/utils/firebaseAuth';
 import { Button } from '@/components/ui/button';
 import { db } from '@/integrations/firebase/client';
@@ -33,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTheme } from '@/utils/themeContext';
+
+const API_BASE = 'https://idztech.onrender.com';
 
 interface BlogPost {
   id: string;
@@ -212,10 +214,9 @@ const Admin = () => {
   const handleGenerateSitemap = async () => {
     setIsGeneratingSitemap(true);
     try {
-      const res = await fetch('/api/generate-sitemap', { method: 'POST' });
+      const res = await fetch(`${API_BASE}/api/generate-sitemap`, { method: 'POST' });
       if (!res.ok) throw new Error('Błąd generowania sitemap');
-      // Po wygenerowaniu pobierz nową datę
-      const updateRes = await fetch('/api/sitemap-last-update');
+      const updateRes = await fetch(`${API_BASE}/api/sitemap-last-update`);
       const updateData = await updateRes.json();
       setSitemapLastUpdate(updateData.lastUpdate);
       toast({ title: 'Sitemap wygenerowana', description: 'Sitemap została zaktualizowana.' });
@@ -297,7 +298,7 @@ const Admin = () => {
               <table className="w-full">
                 <thead className="border-b border-premium-light/10 sticky top-0 bg-premium-dark/80 z-10">
                   <tr>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                       <Button
                         variant="ghost"
                         className="hover:bg-transparent p-0"
@@ -314,7 +315,7 @@ const Admin = () => {
                         <ArrowUpDown size={16} className="ml-2" />
                       </Button>
                     </th>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap hidden xs:table-cell ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap hidden xs:table-cell ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                       <Button
                         variant="ghost"
                         className="hover:bg-transparent p-0"
@@ -331,8 +332,8 @@ const Admin = () => {
                         <ArrowUpDown size={16} className="ml-2" />
                       </Button>
                     </th>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Status</th>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Akcje</th>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Status</th>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Akcje</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
@@ -366,7 +367,7 @@ const Admin = () => {
                           </button>
                         </td>
                         <td className={`py-2 sm:py-3 px-2 sm:px-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 justify-center">
                             <Button 
                               variant="outline" 
                               size="sm" 

@@ -13,7 +13,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Slider } from "@/components/ui/slider";
 import AdminLayout from '@/components/AdminLayout';
 import { useTheme } from '@/utils/themeContext';
-import { Switch } from '@/components/ui/switch';
 import AIPostEditor from '@/components/AIPostEditor';
 
 function slugify(text: string) {

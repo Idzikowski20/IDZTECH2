@@ -23,7 +23,6 @@ import Error404 from '@/pages/Error404';
 import NotFound from '@/pages/NotFound';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfUse from '@/pages/TermsOfUse';
-import LanguageController from './components/LanguageController';
 import RequireAuth from '@/components/RequireAuth';
 import ErrorPage from '@/pages/ErrorPage';
 import Admin from '@/pages/Admin';
@@ -33,7 +32,6 @@ import AIPostPage from './pages/ai-post';
 const App = () => {
   return (
     <>
-      <LanguageController />
       <Toaster position="top-right" />
       <Routes>
         <Route path="/" element={<Index />} errorElement={<ErrorPage />} />

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { KeyRound, Loader2 } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import PageDotAnimation from '@/components/PageDotAnimation';
 
