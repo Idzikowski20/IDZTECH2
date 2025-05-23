@@ -322,6 +322,15 @@ app.get('/api/sitemap-last-update', (req, res) => {
   }
 });
 
+app.post('/api/generate-sitemap', async (req, res) => {
+  try {
+    await generateSitemap();
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Serwer działa! ❤️`);
