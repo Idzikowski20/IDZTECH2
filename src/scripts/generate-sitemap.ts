@@ -79,7 +79,9 @@ async function generateSitemap() {
     '\n</urlset>\n';
 
   fs.writeFileSync(path.join(__dirname, '../../public/sitemap.xml'), sitemap, 'utf8');
-  console.log('Sitemap wygenerowana!');
+  const now = new Date().toISOString();
+  fs.writeFileSync(path.join(__dirname, 'public/sitemap-last-update.txt'), now, 'utf8');
+  console.log('Sitemap wygenerowana! Data:', now);
 }
 
 generateSitemap();

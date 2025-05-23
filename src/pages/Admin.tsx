@@ -70,6 +70,8 @@ const Admin = () => {
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
+  const [sitemapLastUpdate, setSitemapLastUpdate] = useState<string | null>(null);
+  const [isGeneratingSitemap, setIsGeneratingSitemap] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -207,6 +209,23 @@ const Admin = () => {
     }
   };
 
+  const handleGenerateSitemap = async () => {
+    setIsGeneratingSitemap(true);
+    try {
+      const res = await fetch('/api/generate-sitemap', { method: 'POST' });
+      if (!res.ok) throw new Error('Błąd generowania sitemap');
+      // Po wygenerowaniu pobierz nową datę
+      const updateRes = await fetch('/api/sitemap-last-update');
+      const updateData = await updateRes.json();
+      setSitemapLastUpdate(updateData.lastUpdate);
+      toast({ title: 'Sitemap wygenerowana', description: 'Sitemap została zaktualizowana.' });
+    } catch (err) {
+      toast({ title: 'Błąd', description: 'Nie udało się wygenerować sitemap.', variant: 'destructive' });
+    } finally {
+      setIsGeneratingSitemap(false);
+    }
+  };
+
   if (loadingPosts) {
     return <div>Ładowanie...</div>;
   }
@@ -227,8 +246,20 @@ const Admin = () => {
 
         {/* Blog Posts Management */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-2 gap-4 flex-wrap">
             <h2 className="text-xl font-bold">Blog</h2>
+            <div className="flex items-center gap-3 flex-wrap">
+              <Button size="sm" onClick={handleGenerateSitemap} disabled={isGeneratingSitemap} className="bg-premium-gradient hover:scale-105">
+                {isGeneratingSitemap ? 'Generowanie...' : 'Generuj sitemapę'}
+              </Button>
+              <span className="text-xs text-premium-light/60">
+                {sitemapLastUpdate
+                  ? `Ostatnia aktualizacja sitemap: ${new Date(sitemapLastUpdate).toLocaleString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                  : 'Sitemap jeszcze nie zaktualizowany'}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between mb-6">
             <div className="flex gap-4">
               <div className="flex items-center gap-4">
                 <Select

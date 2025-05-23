@@ -21,9 +21,6 @@ import SeoCopywriting from '@/pages/SeoCopywriting';
 import ContentPlan from '@/pages/ContentPlan';
 import Error404 from '@/pages/Error404';
 import NotFound from '@/pages/NotFound';
-import PasswordGenerator from '@/pages/tools/PasswordGenerator';
-import PrivacyPolicyGenerator from '@/pages/tools/PrivacyPolicyGenerator';
-import DomainNameCreator from '@/pages/tools/DomainNameCreator';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfUse from '@/pages/TermsOfUse';
 import LanguageController from './components/LanguageController';
@@ -57,9 +54,6 @@ const App = () => {
         <Route path="/copywriting-seo" element={<SeoCopywriting />} />
         <Route path="/content-plan" element={<ContentPlan />} />
         <Route path="/404" element={<Error404 />} />
-        <Route path="/password-generator" element={<PasswordGenerator />} />
-        <Route path="/privacy-policy-generator" element={<PrivacyPolicyGenerator />} />
-        <Route path="/domain-creator" element={<DomainNameCreator />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
         
