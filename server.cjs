@@ -411,9 +411,10 @@ async function generateSitemap() {
         .join('\n') +
       '\n</urlset>\n';
     fs.writeFileSync(path.join(__dirname, 'public/sitemap.xml'), sitemap, 'utf8');
-    const now = new Date().toISOString();
-    fs.writeFileSync(path.join(__dirname, 'public/sitemap-last-update.txt'), now, 'utf8');
-    console.log('Sitemap wygenerowana! Data:', now);
+    const lastUpdatePath = path.join(__dirname, 'public', 'sitemap-last-update.txt');
+    console.log('Zapisuję datę do:', lastUpdatePath);
+    fs.writeFileSync(lastUpdatePath, new Date().toISOString(), 'utf8');
+    console.log('Sitemap wygenerowana! Data:', new Date().toISOString());
   } catch (e) {
     console.error('Błąd generowania sitemap:', e);
   }
