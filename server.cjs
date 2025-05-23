@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 
@@ -330,8 +330,6 @@ app.listen(PORT, () => {
 // --- GENEROWANIE SITEMAPY ---
 const { initializeApp } = require('firebase/app');
 const { getFirestore, collection, getDocs, query, where } = require('firebase/firestore');
-const fs = require('fs');
-const path = require('path');
 
 const firebaseConfig = {
   apiKey: "AIzaSyBGBbWqNBsSzAPvoX7gY2062V-nOJif6IA",
