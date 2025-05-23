@@ -77,3 +77,39 @@ body {
   background-color: #b4d5ff; /* Domyślny niebieski kolor zaznaczenia */
   color: #000; /* Kolor tekstu na zaznaczeniu */
 }
+
+.editor-force-text-color .tiptap.ProseMirror {
+  color: #111 !important;
+}
+
+.dark .editor-force-text-color .tiptap.ProseMirror {
+  color: #fff !important;
+}
+
+.dark .tiptap.ProseMirror,
+.dark .tiptap.ProseMirror h1,
+.dark .tiptap.ProseMirror h2,
+.dark .tiptap.ProseMirror h3,
+.dark .tiptap.ProseMirror h4,
+.dark .tiptap.ProseMirror h5,
+.dark .tiptap.ProseMirror h6,
+.dark .tiptap.ProseMirror p,
+.dark .tiptap.ProseMirror span,
+.dark .tiptap.ProseMirror li,
+.dark .tiptap.ProseMirror ul,
+.dark .tiptap.ProseMirror ol,
+.dark .tiptap.ProseMirror blockquote,
+.dark .tiptap.ProseMirror strong,
+.dark .tiptap.ProseMirror em,
+.dark .tiptap.ProseMirror code,
+.dark .tiptap.ProseMirror pre,
+.dark .tiptap.ProseMirror a,
+.dark .tiptap.ProseMirror table,
+.dark .tiptap.ProseMirror th,
+.dark .tiptap.ProseMirror td,
+.dark .tiptap.ProseMirror tr,
+.dark .tiptap.ProseMirror thead,
+.dark .tiptap.ProseMirror tbody,
+.dark .tiptap.ProseMirror tfoot {
+  color: #fff !important;
+}

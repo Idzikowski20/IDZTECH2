@@ -17,12 +17,14 @@ import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/utils/themeContext';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { theme } = useTheme();
   
   // Get blog data
   const { getPost, posts } = useFirebaseBlogPosts();
@@ -32,6 +34,11 @@ const BlogPost = () => {
   const [tableOfContents, setTableOfContents] = useState<{id: string, text: string, level: number}[]>([]);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [formattedContent, setFormattedContent] = useState('');
+  const [relatedPage, setRelatedPage] = useState(0);
+  const postsPerPage = 5;
+  const filteredPosts = post && posts ? posts.filter(p => p.id !== post.id) : [];
+  const paginatedPosts = filteredPosts.slice(relatedPage * postsPerPage, (relatedPage + 1) * postsPerPage);
+  const hasMoreRelated = (relatedPage + 1) * postsPerPage < filteredPosts.length;
   
   // Extract headings for table of contents
   useEffect(() => {
@@ -161,9 +168,6 @@ const BlogPost = () => {
     }
   }, [post, posts, isLoading, navigate, toast]);
   
-  // Pobierz wszystkie posty z Firestore
-  const relatedPosts = post && posts ? posts.filter(p => p.id !== post.id).slice(0, 3) : [];
-  
   if (isLoading) {
     return (
       <div className="min-h-screen bg-premium-dark">
@@ -254,35 +258,6 @@ const BlogPost = () => {
               </div>
             )}
             
-            {/* Mobile table of contents */}
-            {tableOfContents.length > 0 && (
-              <div className="mb-8 lg:hidden bg-premium-dark/50 border border-premium-light/10 rounded-lg p-4">
-                <h3 className="font-semibold mb-3">Spis treści</h3>
-                <ul className="space-y-2">
-                  {tableOfContents.map(heading => (
-                    <li 
-                      key={heading.id}
-                      className={cn(
-                        "transition-colors",
-                        heading.level === 3 ? "ml-4" : "",
-                        activeSection === heading.id ? "text-premium-purple font-medium" : "text-gray-400"
-                      )}
-                    >
-                      <a 
-                        href={`#${heading.id}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          document.getElementById(heading.id)?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                      >
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
             {/* Post content */}
             <section className="mb-10">
             <div className="mt-10 bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 ">
@@ -336,13 +311,14 @@ const BlogPost = () => {
                 </Button>
               </div>
                    {/* CTA Box */}
-                  <div className="mt-10 bg-gradient-to-br from-premium-purple/20 to-indigo-900/20 border border-premium-light/10 rounded-lg p-6 text-center">
-                <h3 className="font-semibold text-lg mb-3">Potrzebujesz pomocy z SEO?</h3>
-                <p className="text-sm text-gray-300 mb-4">
-                  Skorzystaj z naszych usług profesjonalnego pozycjonowania stron internetowych
-                </p>
-                                <Button                   className="bg-premium-gradient hover:bg-premium-purple hover:text-white"                  onClick={() => navigate('/contact')}                >                  Skontaktuj się z nami                </Button>
-              </div>
+                  <div
+                    className={`mt-10 border border-premium-light/10 rounded-lg p-6 text-center ${theme === 'light' ? 'bg-[#f5f5f5]' : 'bg-premium-dark/80'}`}
+                  >
+                    <h3 className="font-semibold text-lg mb-3">Potrzebujesz pomocy z SEO?</h3>
+                    <p className="text-sm text-gray-300 mb-4">
+                      Chcesz zlecić stronę internetową profesjonalistom? Skorzystaj z naszych usług 😊</p>
+                    <Button className="bg-premium-gradient hover:bg-premium-purple hover:text-white" onClick={() => navigate('/contact')}>                  Skontaktuj się z nami                </Button>
+                  </div>
             </div>
             
             <Separator className="my-12" />
@@ -350,11 +326,38 @@ const BlogPost = () => {
           </div>
          
         </div>
-        {/* Powiązane artykuły - slider */}
-        {relatedPosts && relatedPosts.length > 0 && (
+        {/* Powiązane artykuły - paginacja */}
+        {paginatedPosts && paginatedPosts.length > 0 && (
           <section className="mt-16 mx-auto max-w-3xl w-full">
             <h2 className="text-xl font-bold mb-6">Powiązane artykuły</h2>
-            <RelatedSlider posts={relatedPosts} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 justify-center">
+              {paginatedPosts.map((rp) => (
+                <a
+                  key={rp.id}
+                  href={`/blog/${rp.slug}`}
+                  className="rounded-2xl flex flex-col items-center p-4 transition hover:scale-105 hover:shadow-xl duration-200 mx-auto md:mx-0"
+                >
+                  {rp.featured_image && (
+                    <img
+                      src={rp.featured_image}
+                      alt={rp.title}
+                      className="rounded-xl w-full h-32 object-cover mb-3"
+                    />
+                  )}
+                  <div className={`font-semibold text-lg text-center mb-2 line-clamp-2 ${theme === 'dark' ? 'text-white' : ''}`}>{rp.title}</div>
+                  <div className="text-sm text-gray-400 text-center mb-2">
+                    {rp.excerpt && rp.excerpt.length > 100
+                      ? rp.excerpt.slice(0, 100).replace(/\s+\S*$/, '') + '...'
+                      : rp.excerpt}
+                  </div>
+                </a>
+              ))}
+            </div>
+            {hasMoreRelated && (
+              <div className="flex justify-center">
+                <Button onClick={() => setRelatedPage(relatedPage + 1)} className="btn-next">Załaduj więcej</Button>
+              </div>
+            )}
           </section>
         )}
       </div>
@@ -364,64 +367,5 @@ const BlogPost = () => {
     </div>
   );
 };
-
-function RelatedSlider({ posts }) {
-  const sliderRef = useRef(null);
-
-  const scroll = (dir) => {
-    if (!sliderRef.current) return;
-    const width = sliderRef.current.offsetWidth;
-    sliderRef.current.scrollBy({ left: dir * (width * 0.8), behavior: 'smooth' });
-  };
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => scroll(-1)}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-premium-dark/80 hover:bg-premium-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
-        aria-label="Poprzedni"
-        style={{ left: '-20px' }}
-      >
-        &#8592;
-      </button>
-      <div
-        ref={sliderRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide py-2 px-1"
-        style={{ scrollSnapType: 'x mandatory' }}
-      >
-        {posts.map((rp) => (
-          <a
-            key={rp.id}
-            href={`/blog/${rp.slug}`}
-            className="min-w-[320px] max-w-[320px] w-[320px]  rounded-2xl flex-shrink-0 flex flex-col items-center p-4 transition hover:scale-105 hover:shadow-xl duration-200"
-            style={{ scrollSnapAlign: 'start' }}
-          >
-            {rp.featured_image && (
-              <img
-                src={rp.featured_image}
-                alt={rp.title}
-                className="rounded-xl w-full h-32 object-cover mb-3"
-              />
-            )}
-            <div className="font-semibold text-lg text-center mb-2 line-clamp-2">{rp.title}</div>
-            <div className="text-sm text-gray-400 text-center mb-2">
-              {rp.excerpt && rp.excerpt.length > 100
-                ? rp.excerpt.slice(0, 100).replace(/\s+\S*$/, '') + '...'
-                : rp.excerpt}
-            </div>
-          </a>
-        ))}
-      </div>
-      <button
-        onClick={() => scroll(1)}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-premium-dark/80 hover:bg-premium-purple text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg"
-        aria-label="Następny"
-        style={{ right: '-20px' }}
-      >
-        &#8594;
-      </button>
-    </div>
-  );
-}
 
 export default BlogPost;

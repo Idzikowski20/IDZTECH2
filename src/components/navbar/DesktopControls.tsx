@@ -52,24 +52,26 @@ const DesktopControls = () => {
       
       <Link to={isAuthenticated ? "/admin" : "/login"}>
         <Button 
-            variant="ghost" 
-            size="icon" 
-            className={`transition-colors ${theme === 'light' ? 'hover:bg-gray-100 hover:text-black text-black' : 'bg-gray-50 hover:bg-white/10 hover:text-black text-black'}`}
-          >
-            {theme === 'light' ? (
-        <LogIn 
-          className="h-[1.2rem] w-[1.2rem]" 
-          stroke="#000000" 
-          fill="none"
-        />
-        ) : (
-                  <LogIn 
-          className="h-[1.2rem] w-[1.2rem]" 
-          stroke="#000000" 
-          fill="none"
-        />
-        )}
-            <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
+          variant="ghost" 
+          size="icon" 
+          className={`transition-colors ${theme === 'light' 
+            ? 'hover:bg-gray-100 hover:text-black text-black' 
+            : 'hover:bg-white/10 hover:text-white text-white bg-transparent'}`}
+        >
+          {theme === 'light' ? (
+            <LogIn 
+              className="h-[1.2rem] w-[1.2rem]" 
+              stroke="#000000" 
+              fill="none"
+            />
+          ) : (
+            <LogIn 
+              className="h-[1.2rem] w-[1.2rem]" 
+              stroke="#FFFFFF" 
+              fill="none"
+            />
+          )}
+          <span className="sr-only">{isAuthenticated ? "Panel administracyjny" : "Zaloguj"}</span>
         </Button>
       </Link>
     </div>

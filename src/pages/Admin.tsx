@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTheme } from '@/utils/themeContext';
 
 interface BlogPost {
   id: string;
@@ -50,6 +51,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { theme } = useTheme();
   
   // State for blog posts
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -262,12 +264,12 @@ const Admin = () => {
           <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b border-premium-light/10">
+                <thead className="border-b border-premium-light/10 sticky top-0 bg-premium-dark/80 z-10">
                   <tr>
-                    <th className="py-3 px-4 text-left">
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                       <Button
                         variant="ghost"
-                        className="hover:bg-transparent"
+                        className="hover:bg-transparent p-0"
                         onClick={() => {
                           if (sortField === 'title') {
                             setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
@@ -281,10 +283,10 @@ const Admin = () => {
                         <ArrowUpDown size={16} className="ml-2" />
                       </Button>
                     </th>
-                    <th className="py-3 px-4 text-left">
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap hidden xs:table-cell ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                       <Button
                         variant="ghost"
-                        className="hover:bg-transparent"
+                        className="hover:bg-transparent p-0"
                         onClick={() => {
                           if (sortField === 'date') {
                             setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
@@ -298,8 +300,8 @@ const Admin = () => {
                         <ArrowUpDown size={16} className="ml-2" />
                       </Button>
                     </th>
-                    <th className="py-3 px-4 text-left">Status</th>
-                    <th className="py-3 px-4 text-left">Akcje</th>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Status</th>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-left whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Akcje</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
@@ -318,27 +320,21 @@ const Admin = () => {
                   ) : (
                     paginatedPosts.map(post => (
                       <tr key={post.id}>
-                        <td className="py-3 px-4 font-medium">{post.title}</td>
-                        <td className="py-3 px-4 text-premium-light/70">
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 font-medium break-words max-w-[180px] ${theme === 'dark' ? 'text-white' : 'text-black'}`}>{post.title}</td>
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 ${theme === 'dark' ? 'text-premium-light/70' : 'text-gray-600'} hidden xs:table-cell`}>
                           {post.published 
                             ? formatDate(post.published_at || post.created_at)
                             : formatDate(post.created_at)}
                         </td>
-                        <td className="py-3 px-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 text-center ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                          <button
                             onClick={() => handleStatusChange(post.id, !post.published)}
-                            className={`px-2 py-1 rounded text-xs ${
-                              post.published 
-                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' 
-                                : 'bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30'
-                            }`}
+                            className={`${post.published ? 'status-published' : 'status-draft'} cursor-pointer transition-transform hover:scale-105`}
                           >
                             {post.published ? 'Opublikowany' : 'Szkic'}
-                          </Button>
+                          </button>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                           <div className="flex items-center space-x-2">
                             <Button 
                               variant="outline" 
@@ -380,8 +376,12 @@ const Admin = () => {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious 
-                        onClick={() => setCurrentPostsPage(prev => Math.max(prev - 1, 1))} 
-                        className={currentPostsPage === 1 ? "pointer-events-none opacity-50" : "hover:bg-white hover:text-black"}
+                        onClick={() => setCurrentPostsPage(prev => Math.max(prev - 1, 1))}
+                        className={
+                          currentPostsPage === 1
+                            ? 'pointer-events-none opacity-50'
+                            : `${theme === 'dark' ? 'text-white' : 'text-black'} hover:underline`
+                        }
                       />
                     </PaginationItem>
                     
@@ -400,10 +400,14 @@ const Admin = () => {
                       
                       return (
                         <PaginationItem key={i}>
-                          <PaginationLink 
+                          <PaginationLink
                             onClick={() => setCurrentPostsPage(pageNum)}
                             isActive={currentPostsPage === pageNum}
-                            className={currentPostsPage !== pageNum ? "hover:bg-white hover:text-black" : ""}
+                            className={
+                              currentPostsPage === pageNum
+                                ? `${theme === 'dark' ? 'bg-premium-dark text-white border border-premium-light/10' : 'bg-white text-black border border-gray-300'} !shadow-none`
+                                : `${theme === 'dark' ? 'text-white' : 'text-black'} hover:bg-premium-light/10`
+                            }
                           >
                             {pageNum}
                           </PaginationLink>
@@ -413,8 +417,12 @@ const Admin = () => {
                     
                     <PaginationItem>
                       <PaginationNext 
-                        onClick={() => setCurrentPostsPage(prev => Math.min(prev + 1, totalPostsPages))} 
-                        className={currentPostsPage === totalPostsPages ? "pointer-events-none opacity-50" : "hover:bg-white hover:text-black"}
+                        onClick={() => setCurrentPostsPage(prev => Math.min(prev + 1, totalPostsPages))}
+                        className={
+                          currentPostsPage === totalPostsPages
+                            ? 'pointer-events-none opacity-50'
+                            : `${theme === 'dark' ? 'text-white' : 'text-black'} hover:underline`
+                        }
                       />
                     </PaginationItem>
                   </PaginationContent>

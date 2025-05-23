@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut } from 'lucide-react';
+import { Home, LogOut, Moon, Sun } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/utils/AuthProvider';
 import { useTheme } from '@/utils/themeContext';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { trackEvent } from '@/utils/analytics';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -23,7 +24,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { theme } = useTheme();
+  const { theme, toggleDarkMode } = useTheme();
   const { pathname } = useLocation();
   
   console.log("AdminLayout rendered, user:", user);
@@ -61,6 +62,37 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, activeNavItem = 'da
           <div className="flex items-center">
             <span className="font-mono">IDZ.TECH</span>
           </div>
+
+          {/* Theme Toggle Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              toggleDarkMode();
+              trackEvent(
+                'toggle_theme',
+                'ui',
+                `Theme toggled to ${theme === 'light' ? 'dark' : 'light'}`
+              );
+            }}
+            className={`
+              transition-colors 
+              ${theme === 'light' 
+                ? 'text-black hover:bg-gray-100 hover:text-black' 
+                : 'text-white hover:bg-white/10 hover:text-white'}
+            `}
+          >
+            {theme === 'light' ? (
+              <Moon 
+                className="h-[1.2rem] w-[1.2rem]" 
+                stroke="#000000" 
+                fill="none"
+              />
+            ) : (
+              <Sun className="h-[1.2rem] w-[1.2rem]" stroke="currentColor" />
+            )}
+            <span className="sr-only">Toggle theme</span>
+          </Button>
 
           <div className="flex items-center ml-4">
             <DropdownMenu>

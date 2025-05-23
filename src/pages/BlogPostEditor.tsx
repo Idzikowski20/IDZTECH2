@@ -16,6 +16,7 @@ import { doc, getDoc, collection } from 'firebase/firestore';
 import { db } from '@/integrations/firebase/client';
 import { toast } from 'sonner';
 import { useFirebaseBlogPosts } from '@/hooks/useFirebaseBlogPosts';
+import { useTheme } from '@/utils/themeContext';
 
 const blogPostSchema = z.object({
   title: z.string().min(5, 'Tytuł musi mieć co najmniej 5 znaków'),
@@ -40,6 +41,7 @@ const BlogPostEditor = () => {
   const [existingPost, setExistingPost] = useState<any>(null);
   const isEditing = !!id;
   const [editorContent, setEditorContent] = useState('');
+  const { theme } = useTheme();
 
   // Fetch post from database if editing
   useEffect(() => {
@@ -237,7 +239,7 @@ const BlogPostEditor = () => {
                   name="title" 
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tytuł</FormLabel>
+                      <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Tytuł</FormLabel>
                       <FormControl>
                         <Input 
                           {...field} 
@@ -247,6 +249,7 @@ const BlogPostEditor = () => {
                               generateSlug();
                             }
                           }} 
+                          className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`}
                         />
                       </FormControl>
                       <FormMessage />
@@ -259,9 +262,9 @@ const BlogPostEditor = () => {
                   name="slug" 
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Slug (URL)</FormLabel>
+                      <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Slug (URL)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="url-posta" />
+                        <Input {...field} placeholder="url-posta" className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -274,9 +277,9 @@ const BlogPostEditor = () => {
                 name="summary" 
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Zajawka</FormLabel>
+                    <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} />
+                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -288,12 +291,13 @@ const BlogPostEditor = () => {
                 name="content" 
                 render={() => (
                   <FormItem>
-                    <FormLabel>Treść (HTML)</FormLabel>
+                    <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Treść (HTML)</FormLabel>
                     <FormControl>
                       <TipTapEditor 
                         value={editorContent}
                         onChange={setEditorContent}
                         placeholder="Treść posta w formacie HTML"
+                        className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`}
                       />
                     </FormControl>
                     <FormMessage />
@@ -303,7 +307,7 @@ const BlogPostEditor = () => {
               
               {/* Featured Image Upload */}
               <div className="space-y-2">
-                <FormLabel>Zdjęcie główne</FormLabel>
+                <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Zdjęcie główne</FormLabel>
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center space-x-4">
                     <label className="cursor-pointer">
@@ -319,7 +323,7 @@ const BlogPostEditor = () => {
                       />
                     </label>
                     {featuredImage && (
-                      <span className="text-sm text-premium-light/70">
+                      <span className={`${theme === 'dark' ? 'text-white' : 'text-gray-400'} text-sm`}>
                         {featuredImage.name} ({Math.round(featuredImage.size / 1024)} KB)
                       </span>
                     )}
@@ -353,8 +357,8 @@ const BlogPostEditor = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Author information display (not editable) */}
                 <div className="space-y-2">
-                  <FormLabel>Autor</FormLabel>
-                  <div className="border transition-colors rounded-lg px-4 py-2 flex items-center">
+                  <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Autor</FormLabel>
+                  <div className={`${theme === 'dark' ? 'text-white border-gray-700 bg-black' : ''} border transition-colors rounded-lg px-4 py-2 flex items-center`}>
                     {user?.email || 'Nieznany autor'}
                   </div>
                 </div>
@@ -364,9 +368,9 @@ const BlogPostEditor = () => {
                   name="categories" 
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Kategorie (oddzielone przecinkami)</FormLabel>
+                      <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Kategorie (oddzielone przecinkami)</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" />
+                        <Input {...field} placeholder="SEO, Marketing Cyfrowy" className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -379,9 +383,9 @@ const BlogPostEditor = () => {
                 name="tags" 
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tagi (oddzielone przecinkami)</FormLabel>
+                    <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Tagi (oddzielone przecinkami)</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" />
+                      <Input {...field} placeholder="pozycjonowanie, SEO, Google" className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -396,7 +400,7 @@ const BlogPostEditor = () => {
                 >
                   {isLoading ? 'Zapisywanie...' : isEditing ? 'Aktualizuj post' : 'Opublikuj post'}
                 </Button>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className={`${theme === 'dark' ? 'text-premium-light/70' : 'text-gray-400'} text-xs mt-2`}>
                   Post zostanie automatycznie dodany do sitemap.xml dla lepszego indeksowania w Google.
                 </p>
               </div>

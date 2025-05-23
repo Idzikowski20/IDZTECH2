@@ -3,15 +3,20 @@ import { useAuth } from '@/utils/firebaseAuth';
 import { useNavigate } from 'react-router-dom';
 import Confetti from 'react-confetti';
 import { db } from '@/integrations/firebase/client';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 import { toast } from 'sonner';
-import GenerateAIButton from '@/components/GenerateAIButton';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, Image as ImageIcon, Sparkles, X, Home as HomeIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { API_URL } from '@/config';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import AdminLayout from '@/components/AdminLayout';
+import { useTheme } from '@/utils/themeContext';
+import { Switch } from '@/components/ui/switch';
+import AIPostEditor from '@/components/AIPostEditor';
 
-function slugify(text) {
+function slugify(text: string) {
   return text
     .toString()
     .toLowerCase()
@@ -21,20 +26,49 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-function aiPostToHtml(aiPost) {
+function aiPostToHtml(aiPost: any) {
   return (
     `<h1>${aiPost.title || ''}</h1><p>${aiPost.lead || ''}</p>` +
-    (Array.isArray(aiPost.sections) ? aiPost.sections.map(s => `<h2>${s.heading}</h2><p>${s.content}</p>`).join('') : '')
+    (Array.isArray(aiPost.sections) ? aiPost.sections.map((s: any) => `<h2>${s.heading}</h2><p>${s.content}</p>`).join('') : '')
   );
 }
+
+const postLengths = {
+  short: { name: 'Krótki', words: '300-500 słów' },
+  medium: { name: 'Średni', words: '500-900 słów' },
+  long: { name: 'Długi', words: '900-1500 słów' }
+};
+
+const postStyles = [
+  { id: 'expert', name: 'Ekspercki', description: 'Profesjonalny ton z technicznym podejściem' },
+  { id: 'casual', name: 'Przyjazny', description: 'Luźny i konwersacyjny styl' },
+  { id: 'formal', name: 'Formalny', description: 'Oficjalny i biznesowy ton' },
+  { id: 'creative', name: 'Kreatywny', description: 'Artystyczne i ekspresyjne podejście' }
+];
+
+const postPresentations = [
+  { id: 'instruction', name: 'Instruktaż', description: 'Krok po kroku, praktyczny przewodnik' },
+  { id: 'explanation', name: 'Wyjaśnienie', description: 'Dogłębne tłumaczenie zagadnienia' },
+  { id: 'guide', name: 'Poradnik', description: 'Praktyczne wskazówki i porady' },
+  { id: 'case', name: 'Case study', description: 'Opis przypadku, analiza sytuacji' },
+  { id: 'overview', name: 'Przegląd', description: 'Podsumowanie, przegląd tematu' },
+  { id: 'review', name: 'Recenzja', description: 'Ocena produktu, usługi lub zjawiska' },
+];
 
 export default function AIPostPage() {
   const { user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  
+  // Stan dla kroków
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [topic, setTopic] = useState('');
+  const [postLength, setPostLength] = useState(0); // zmiana wartości początkowej na 0
+  const [selectedStyle, setSelectedStyle] = useState('expert');
+  const [selectedPresentation, setSelectedPresentation] = useState('instruction');
+  
+  // Pozostałe stany
   const [keywords, setKeywords] = useState('');
-  const [style, setStyle] = useState('Ekspercki');
-  const [length, setLength] = useState('Standardowy');
   const [audience, setAudience] = useState('');
   const [language, setLanguage] = useState('polski');
   const [cta, setCta] = useState(true);
@@ -45,180 +79,181 @@ export default function AIPostPage() {
   const [loadingAI, setLoadingAI] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [thumbnail, setThumbnail] = useState('');
-  const [loadingThumb, setLoadingThumb] = useState(false);
-  const [aiPost, setAiPost] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isGeneratingModalOpen, setIsGeneratingModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editedPost, setEditedPost] = useState('');
+  const [aiPost, setAiPost] = useState<any>(null);
   const [accepted, setAccepted] = useState(false);
   const [tags, setTags] = useState('');
   const [status, setStatus] = useState('published');
-
-  // Ref for the generated post preview section
-  const postPreviewRef = useRef<HTMLDivElement>(null);
+  const [showMissingThumbnailModal, setShowMissingThumbnailModal] = useState(false);
+  const [postId, setPostId] = useState<string | null>(null);
+  const [postStatus, setPostStatus] = useState<'published' | 'draft'>('published');
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [exitAction, setExitAction] = useState<'back' | 'cancel' | 'panel' | 'home' | null>(null);
+  const [exitTarget, setExitTarget] = useState<'back' | 'cancel' | 'panel' | 'home' | null>(null);
+  const [aiEditorStep, setAiEditorStep] = useState(false);
+  const [aiEditorInitialData, setAiEditorInitialData] = useState<any>(null);
 
   React.useEffect(() => {
     if (!loading && !isAuthenticated) navigate('/login');
   }, [isAuthenticated, loading, navigate]);
 
-  // Dodaj efekt do automatycznego pobierania słów kluczowych i grupy docelowej na podstawie tytułu
-  React.useEffect(() => {
-    if (!topic) {
-      setKeywords('');
-      setAudience('');
-      return;
-    }
-    const timeout = setTimeout(() => {
-      // Pobierz słowa kluczowe
-      fetch(`${API_URL}/api/generate-keywords`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
-      })
-        .then(res => res.json())
-        .then(data => setKeywords(data.keywords || ''));
-      // Pobierz grupę docelową
-      fetch(`${API_URL}/api/generate-audience`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
-      })
-        .then(res => res.json())
-        .then(data => setAudience(data.audience || ''));
-    }, 500); // 500ms opóźnienia
-    return () => clearTimeout(timeout);
-  }, [topic]);
-
-  if (loading || !isAuthenticated) return <div className="min-h-screen flex items-center justify-center bg-black text-white">Ładowanie...</div>;
-
-  const handleChange = e => {
-    const { name, value, type, checked } = e.target;
-    if (name === 'topic') setTopic(value);
-    else if (name === 'keywords') setKeywords(value);
-    else if (name === 'style') setStyle(value);
-    else if (name === 'length') setLength(value);
-    else if (name === 'audience') setAudience(value);
-    else if (name === 'language') setLanguage(value);
-    else if (name === 'cta') setCta(checked);
-    else if (name === 'meta') setMeta(checked);
-    else if (name === 'questions') setQuestions(checked);
-    else if (name === 'summary') setSummary(checked);
-    else if (name === 'links') setLinks(checked);
-    else if (name === 'tags') setTags(value);
-    else if (name === 'status') setStatus(value);
+  // Funkcje pomocnicze
+  const getPostLengthFromSlider = (value: number) => {
+    if (value < 33) return 'short';
+    if (value < 66) return 'medium';
+    return 'long';
   };
 
-  const handleGenerate = async (e: React.FormEvent) => {
+  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          setThumbnail(event.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (typeof event.target?.result === 'string') {
+          setThumbnail(event.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleNextStep = () => {
+    if (currentStep === 3) {
+      if (!selectedStyle || !selectedPresentation) {
+        toast.error('Wybierz styl i sposób przedstawienia artykułu!');
+        return;
+      }
+    }
+    if (currentStep < 4) {
+      setCurrentStep(prev => prev + 1);
+    } else {
+      handleGenerate();
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleGenerate = async () => {
+    setIsGeneratingModalOpen(true);
     setLoadingAI(true);
     setShowConfetti(false);
     setAiPost(null);
-    // Ustal zakres słów dla długości
-    let lengthPrompt = '';
-    if (length === 'Krótki') lengthPrompt = 'Długość: 300-500 słów.';
-    else if (length === 'Średni') lengthPrompt = 'Długość: 500-900 słów.';
-    else if (length === 'Długi') lengthPrompt = 'Długość: 900-1500 słów.';
+    const lengthType = getPostLengthFromSlider(postLength);
+    if (!selectedStyle || !selectedPresentation) {
+      toast.error('Wybierz styl i sposób przedstawienia artykułu!');
+      setCurrentStep(3);
+      setLoadingAI(false);
+      setIsGeneratingModalOpen(false);
+      return;
+    }
     try {
       const res = await fetch(`${API_URL}/api/generate-blog-post`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, keywords, style, length, audience, cta, meta, questions, summary, links, language, lengthPrompt }),
+        body: JSON.stringify({ 
+          topic, 
+          keywords, 
+          style: selectedStyle, 
+          presentation: selectedPresentation,
+          length: lengthType, 
+          audience, 
+          cta, 
+          meta, 
+          questions, 
+          summary, 
+          links, 
+          language 
+        }),
       });
       if (!res.ok) {
         const err = await res.json();
         toast.error(err.error || 'Błąd generowania posta przez AI');
         setLoadingAI(false);
+        setIsGeneratingModalOpen(false);
         return;
       }
       const data = await res.json();
       setAiPost(data);
       setLoadingAI(false);
       setShowConfetti(true);
-      // Scroll to the generated post preview
-      postPreviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setIsGeneratingModalOpen(false);
+      setEditedPost(aiPostToHtml(data));
+      // Automatycznie pobierz target i tagi na podstawie tytułu
+      let target = '';
+      let tags = '';
+      try {
+        const resTarget = await fetch('/api/generate-audience', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic: data?.title || '' })
+        });
+        if (resTarget.ok) {
+          const d = await resTarget.json();
+          if (d.audience) target = d.audience;
+        }
+        const resTags = await fetch('/api/generate-tags', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic: data?.title || '' })
+        });
+        if (resTags.ok) {
+          const d = await resTags.json();
+          if (d.tags) tags = d.tags;
+        }
+      } catch (e) { /* ignoruj */ }
+      setAiEditorInitialData({
+        title: data?.title || '',
+        slug: data?.title ? slugify(data.title) : '',
+        summary: data?.lead || '',
+        content: aiPostToHtml(data),
+        featured_image: thumbnail || '',
+        target,
+        tags
+      });
       setTimeout(() => setShowConfetti(false), 3000);
     } catch (e) {
       toast.error('Błąd połączenia z API');
       setLoadingAI(false);
+      setIsGeneratingModalOpen(false);
     }
   };
 
-  const handleGenerateThumbnail = async () => {
-    setLoadingThumb(true);
-    setThumbnail('');
-    try {
-      const res = await fetch(`${API_URL}/api/generate-thumbnail`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: topic, keywords }),
-      });
-      const data = await res.json();
-      setThumbnail(data.imageUrl);
-    } catch (e) {
-      setThumbnail('');
-    }
-    setLoadingThumb(false);
-  };
-
-  const handleGenerateKeywords = async () => {
-    if (!topic) return;
-    setLoadingAI(true);
-    try {
-      const res = await fetch(`${API_URL}/api/generate-keywords`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
-      });
-      const data = await res.json();
-      setKeywords(data.keywords || '');
-    } catch (e) {}
-    setLoadingAI(false);
-  };
-
-  const handleGenerateAudience = async () => {
-    if (!topic) return;
-    setLoadingAI(true);
-    try {
-      const res = await fetch(`${API_URL}/api/generate-audience`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
-      });
-      const data = await res.json();
-      setAudience(data.audience || '');
-    } catch (e) {}
-    setLoadingAI(false);
-  };
-
-  const handleGenerateTags = async () => {
-    if (!topic) return;
-    setLoadingAI(true);
-    try {
-      const res = await fetch(`${API_URL}/api/generate-tags`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
-      });
-      const data = await res.json();
-      setTags(data.tags || '');
-    } catch (e) {}
-    setLoadingAI(false);
-  };
-
-  const handleEdit = () => {
-    if (aiPost) setEditedPost(aiPostToHtml(aiPost));
-    setIsEditing(true);
-  };
-
-  const handleAccept = async () => {
-    setAccepted(true);
-    setIsEditing(false);
+  const handlePublish = async () => {
     if (!aiPost) return;
     if (!user || !user.uid) {
       toast.error('Musisz być zalogowany, aby zapisać post!');
       return;
     }
+    if (!thumbnail) {
+      setShowMissingThumbnailModal(true);
+      return;
+    }
     try {
-      await addDoc(collection(db, "blog_posts"), {
+      const docRef = await addDoc(collection(db, "blog_posts"), {
         title: aiPost?.title || "",
         lead: typeof aiPost?.lead === 'string' ? aiPost.lead : "",
         sections: Array.isArray(aiPost?.sections) ? aiPost.sections : [],
@@ -231,247 +266,571 @@ export default function AIPostPage() {
         author: user?.email || "anonim",
         author_id: user?.uid || "",
         status: status,
-        content: isEditing ? editedPost : null,
+        content: editedPost,
         published: true
       });
-      toast.success('Post zapisany w bazie!');
-    } catch (e) {
+      toast.success('Post opublikowany!');
+      setIsEditModalOpen(false);
+      setAccepted(true);
+      setPostId(docRef.id);
+      setPostStatus('published');
+      setAiEditorInitialData({
+        title: aiPost?.title || '',
+        slug: aiPost?.title ? slugify(aiPost.title) : '',
+        summary: aiPost?.lead || '',
+        content: editedPost,
+        featured_image: thumbnail || '',
+        target: '',
+        tags: ''
+      });
+      setPostId(docRef.id);
+    } catch (e: any) {
       toast.error('Błąd zapisu do bazy: ' + (e.message || e));
-      // Dodatkowo loguj błąd do konsoli
       console.error('Błąd zapisu do Firestore:', e);
     }
   };
 
-  const handleReject = () => {
-    setAiPost(null);
-    setIsEditing(false);
-    setAccepted(false);
-  };
-
-  const handleThumbnailUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (typeof e.target.result === 'string') {
-          setThumbnail(e.target.result);
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleDeletePost = async () => {
+    if (!postId) return;
+    try {
+      await deleteDoc(doc(db, 'blog_posts', postId));
+      toast.success('Post usunięty!');
+      setAccepted(false);
+      setPostId(null);
+      setAiPost(null);
+    } catch (e: any) {
+      toast.error('Błąd usuwania posta: ' + (e.message || e));
     }
   };
 
+  const handleToggleStatus = async () => {
+    if (!postId) return;
+    try {
+      const newStatus = postStatus === 'published' ? 'draft' : 'published';
+      await updateDoc(doc(db, 'blog_posts', postId), { status: newStatus });
+      setPostStatus(newStatus);
+      toast.success(`Status zmieniony na: ${newStatus === 'published' ? 'Publiczny' : 'Szkic'}`);
+    } catch (e: any) {
+      toast.error('Błąd zmiany statusu: ' + (e.message || e));
+    }
+  };
+
+  // Sprawdź czy są wprowadzone zmiany (np. tytuł lub lead)
+  const hasUnsavedChanges = topic.trim().length > 0 || (aiPost && (aiPost.title || aiPost.lead));
+
+  const handleBack = () => {
+    handlePrevStep();
+  };
+
+  const handleCancelPreview = () => {
+    setExitAction('cancel');
+    setShowExitModal(true);
+  };
+
+  const handleGoPanel = () => {
+    navigate('/admin');
+  };
+
+  const handleGoHome = () => {
+    if (hasUnsavedChanges) {
+      setExitAction('home');
+      setShowExitModal(true);
+    } else {
+      navigate('/');
+    }
+  };
+
+  const confirmExit = () => {
+    setShowExitModal(false);
+    if (exitAction === 'back') {
+      handlePrevStep();
+    } else if (exitAction === 'cancel') {
+      setIsEditModalOpen(false);
+      setAiPost(null);
+    } else if (exitAction === 'panel') {
+      navigate('/admin');
+    } else if (exitAction === 'home') {
+      navigate('/');
+    }
+    setExitAction(null);
+  };
+
+  if (loading || !isAuthenticated) {
+    return <div className="min-h-screen flex items-center justify-center bg-black text-white">Ładowanie...</div>;
+  }
+
+  const isDark = theme === 'dark';
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative">
-      <div className="z-10 flex flex-col items-center mb-6">
-        <div className="mb-6 w-full max-w-4xl px-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/admin')}
-            className="text-gray-400 hover:text-white hover:bg-gray-700"
-            size="sm"
-          >
-            <ArrowLeft size={16} className="mr-2" />
-            Wróć do administracji
-          </Button>
-        </div>
-        <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center mb-4 shadow-lg">
-          <span className="text-5xl">🤖</span>
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center">AI Kreator Postów Blogowych</h1>
-        <p className="text-gray-300 text-lg text-center mb-6">Wpisz temat, wybierz opcje i wygeneruj gotowy post!</p>
-      </div>
-      <form onSubmit={handleGenerate} className="z-10 flex flex-col md:flex-column items-center gap-8 w-full max-w-4xl  rounded-2xl ">
-        <div className="flex-1 flex flex-col gap-4 w-full">
-          <input
-            type="text"
-            className="bg-black text-white placeholder-gray-400 border border-black-700 rounded-3xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-600 text-lg"
-            placeholder="O czym chcesz napisać?"
-            name="topic"
-            value={topic}
-            onChange={handleChange}
-            required
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="bg-gradient-to-r from-purple-700 to-black text-white rounded-3xl px-4 py-2 flex items-center gap-2 hover:from-purple-500 transition"
-              onClick={handleGenerateKeywords}
-              disabled={loadingAI}
-            >🔑 Słowa kluczowe</button>
-            <button
-              type="button"
-              className="bg-gradient-to-r from-blue-700 to-black text-white rounded-3xl px-4 py-2 flex items-center gap-2 hover:from-blue-500 transition"
-              onClick={handleGenerateAudience}
-              disabled={loadingAI}
-            >🎯 Grupa docelowa</button>
-            <button
-              type="button"
-              className="bg-gradient-to-r from-pink-700 to-black text-white rounded-3xl px-4 py-2 flex items-center gap-2 hover:from-pink-500 transition"
-              onClick={handleGenerateTags}
-              disabled={loadingAI}
-            >🏷️ Tagi</button>
-          </div>
-          <input
-            type="text"
-            className="bg-black text-white placeholder-gray-400 border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-            placeholder="Słowa kluczowe (przecinek)"
-            name="keywords"
-            value={keywords}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            className="bg-black text-white placeholder-gray-400 border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-            placeholder="Grupa docelowa"
-            name="audience"
-            value={audience}
-            onChange={handleChange}
-          />
-          <input
-            type="text"
-            className="bg-black text-white placeholder-gray-400 border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-            placeholder="Tagi (przecinek)"
-            name="tags"
-            value={tags}
-            onChange={handleChange}
-          />
-          <div className="flex gap-2">
-            <select
-              className="flex-1 bg-black text-white border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-              value={style}
-              onChange={handleChange}
-              name="style"
+    <AdminLayout>
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <Button 
+              variant="ghost" 
+              onClick={handleGoPanel}
+              className={`${
+                isDark 
+                  ? 'text-white hover:bg-white/10' 
+                  : 'text-black hover:bg-gray-100'
+              }`}
             >
-              <option>Ekspercki</option>
-              <option>Przyjazny</option>
-              <option>Formalny</option>
-              <option>Luźny</option>
-            </select>
-            <select
-              className="flex-1 bg-black text-white border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-              value={length}
-              onChange={handleChange}
-              name="length"
-            >
-              <option>Krótki</option>
-              <option>Średni</option>
-              <option>Długi</option>
-            </select>
+              <ArrowLeft size={18} className="mr-2" /> Wróć do panelu
+            </Button>
+            <h1 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              {aiEditorInitialData ? 'Podsumowanie utworzonego posta' : 'Nowy post AI'}
+            </h1>
           </div>
-          <input
-            type="text"
-            className="bg-black text-white placeholder-gray-400 border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-            placeholder="Język"
-            name="language"
-            value={language}
-            onChange={handleChange}
+        </div>
+
+        {aiEditorInitialData ? (
+          <AIPostEditor
+            postId={postId}
+            initialData={aiEditorInitialData}
+            onSave={async (values) => {
+              // Zapisz do bazy
+              if (!user || !user.uid) {
+                toast.error('Musisz być zalogowany, aby zapisać post!');
+                return;
+              }
+              if (!values.featured_image) {
+                setShowMissingThumbnailModal(true);
+                return;
+              }
+              try {
+                await addDoc(collection(db, "blog_posts"), {
+                  title: values.title || "",
+                  lead: values.summary || "",
+                  sections: [],
+                  summary: values.summary || "",
+                  tags: [],
+                  created_at: serverTimestamp(),
+                  slug: values.slug || '',
+                  featured_image: values.featured_image || '',
+                  excerpt: values.summary || "",
+                  author: user?.email || "anonim",
+                  author_id: user?.uid || "",
+                  status: status,
+                  content: values.content,
+                  published: true
+                });
+                toast.success('Post opublikowany!');
+                setAiEditorInitialData(null);
+                navigate('/admin');
+              } catch (e) {
+                toast.error('Błąd zapisu do bazy');
+              }
+            }}
+            onCancel={() => {
+              setAiEditorInitialData(null);
+              navigate('/admin');
+            }}
           />
-          <div className="flex flex-wrap gap-4 text-gray-200 text-sm">
-            <label className="flex items-center gap-1"><input type="checkbox" checked={cta} onChange={handleChange} name="cta" /> CTA</label>
-            <label className="flex items-center gap-1"><input type="checkbox" checked={meta} onChange={handleChange} name="meta" /> Meta</label>
-            <label className="flex items-center gap-1"><input type="checkbox" checked={questions} onChange={handleChange} name="questions" /> Pytania</label>
-            <label className="flex items-center gap-1"><input type="checkbox" checked={summary} onChange={handleChange} name="summary" /> Podsumowanie</label>
-            <label className="flex items-center gap-1"><input type="checkbox" checked={links} onChange={handleChange} name="links" /> Linki do sekcji</label>
-          </div>
-          <select
-            className="bg-black text-white border border-black-700 rounded-3xl px-4 py-2 focus:outline-none"
-            value={status}
-            onChange={e => setStatus(e.target.value)}
-            name="status"
-          >
-            <option value="published">Opublikowany</option>
-            <option value="draft">Szkic</option>
-          </select>
-        </div>
-        <div className="flex flex-col items-center gap-4 w-full md:w-72">
-          <div className="sp">
-            <GenerateAIButton onClick={handleGenerate} disabled={loadingAI} />
-          </div>
-          {loadingAI && (
-            <p className="text-gray-400 text-sm mt-4 text-center">Generowanie może zająć minutę lub dwie - prosimy o cierpliwość...</p>
-          )}
-        </div>
-      </form>
-      {aiPost && !accepted && (
-        <div ref={postPreviewRef} className="mt-8 w-full max-w-3xl rounded-xl shadow-lg p-6">
-          {/* Spis treści */}
-          {Array.isArray(aiPost.sections) && aiPost.sections.length > 0 && (
-            <div className="mb-8 p-4 bg-white/10 rounded-2xl">
-              <div className="font-bold text-lg mb-2 text-white">Spis treści</div>
-              <ul className="flex flex-col gap-2">
-                {aiPost.sections.map((s, i) => (
-                  <li key={i}>
-                    <a
-                      href={`#${s.heading ? s.heading.replace(/\s+/g, '-').toLowerCase() : `section-${i}`}`}
-                      className="text-purple-300 hover:text-white transition-colors underline cursor-pointer"
-                      onClick={e => {
-                        e.preventDefault();
-                        const el = document.getElementById(s.heading ? s.heading.replace(/\s+/g, '-').toLowerCase() : `section-${i}`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }}
-                    >
-                      {s.heading}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <h2 className="text-xl font-bold mb-4 mt-10 text-center">Podgląd wygenerowanego posta</h2>
-          {isEditing ? (
-            <SimpleEditor
-              value={editedPost}
-              onChange={setEditedPost}
-              isToolbarFixed={true}
-            />
-          ) : (
-            <div>
-              <h3 className="text-3xl font-bold mb-6">{aiPost.title}</h3>
-              <p className="mb-6 text-lg">{aiPost.lead}</p>
-              {Array.isArray(aiPost.sections) && aiPost.sections.map((s, i) => (
-                <div key={i}>
-                  <h2
-                    id={s.heading ? s.heading.replace(/\s+/g, '-').toLowerCase() : `section-${i}`}
-                    className="text-2xl font-bold mt-10 mb-4 scroll-mt-24"
-                  >
-                    {s.heading}
-                  </h2>
-                  <div className="mb-6 text-base" dangerouslySetInnerHTML={{ __html: s.content }} />
+        ) : (
+          <div className="flex gap-8">
+            {/* Lewa kolumna - miniaturka */}
+            <div className={`w-1/3 rounded-xl p-6 border ${
+              isDark 
+                ? 'bg-premium-dark/50 border-premium-light/10' 
+                : 'bg-white border-gray-200'
+            }`}>
+              <div className="flex flex-col items-center gap-4">
+                <div 
+                  className={`w-full aspect-video rounded-lg border-2 border-dashed flex flex-col items-center justify-center p-6 cursor-pointer transition-all hover:scale-105 ${
+                    isDark 
+                      ? 'bg-premium-dark/50 backdrop-blur-[5px] border-premium-light/20 hover:border-premium-light/50' 
+                      : 'bg-gray-50 border-gray-300 hover:border-gray-400'
+                  }`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onClick={() => document.getElementById('thumbnail-upload')?.click()}
+                >
+                  {thumbnail ? (
+                    <img src={thumbnail} alt="Miniatura" className="w-full h-full object-cover rounded-lg" />
+                  ) : (
+                    <>
+                      <ImageIcon size={48} className={`mb-4 ${isDark ? 'text-premium-light/50' : 'text-gray-400'}`} />
+                      <p className={`text-center text-sm mb-4 ${isDark ? 'text-premium-light/70' : 'text-gray-500'}`}>
+                        Przeciągnij i upuść lub kliknij, aby dodać miniaturę
+                      </p>
+                      <input
+                        id="thumbnail-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleThumbnailUpload}
+                      />
+                      <Button 
+                        variant="outline" 
+                        className={isDark ? 'btn-back' : 'bg-white border-gray-200 text-black hover:bg-gray-50'}
+                      >
+                        <Upload size={16} className="mr-2" />
+                        Wybierz plik
+                      </Button>
+                    </>
+                  )}
                 </div>
-              ))}
-              {aiPost.summary && (
-                <>
-                  <h2 className="text-2xl font-bold mt-10 mb-4">Podsumowanie</h2>
-                  <p className="mb-6 text-base">{aiPost.summary}</p>
-                </>
-              )}
+                {thumbnail && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setThumbnail('')}
+                    className={isDark ? 'btn-back' : 'bg-white border-gray-200 text-black hover:bg-gray-50'}
+                  >
+                    Usuń miniaturę
+                  </Button>
+                )}
+              </div>
             </div>
-          )}
-          <div className="flex gap-4 mt-[70px]">
-            {!isEditing && <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={handleEdit}>Edytuj</button>}
-            {isEditing && <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={handleAccept}>Akceptuj</button>}
-            <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleReject}>Odrzuć</button>
-            <label className="bg-gray-400 text-white px-4 py-2 rounded cursor-pointer flex items-center justify-center">
-              Dodaj miniaturę
-              <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailUpload} />
-            </label>
+            {/* Prawa kolumna - kreator */}
+            <div className={`w-2/3 rounded-xl p-6 border ${
+              isDark 
+                ? 'bg-premium-dark/50 border-premium-light/10' 
+                : 'bg-white border-gray-200'
+            }`}>
+              <div className="flex flex-col gap-8">
+                {/* Krok 1 - Temat */}
+                {currentStep === 1 && (
+                  <div className="space-y-4">
+                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                      O czym chcesz napisać?
+                    </h2>
+                    <textarea
+                      className={`w-full h-32 rounded-xl px-4 py-3 text-lg resize-none transition-all focus:outline-none focus:ring-2 ${
+                        isDark 
+                          ? 'btn-back' 
+                          : 'bg-gray-50 text-gray-900 placeholder-gray-500 border-gray-300 focus:ring-blue-500 hover:border-gray-400'
+                      }`}
+                      placeholder="Opisz temat swojego artykułu..."
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                    />
+                  </div>
+                )}
+                {/* Krok 2 - Długość */}
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                      Jak długi ma być artykuł?
+                    </h2>
+                    <div className="space-y-8">
+                      <Slider
+                        min={0}
+                        max={100}
+                        step={1}
+                        defaultValue={[0]}
+                        value={[postLength]}
+                        onValueChange={(values) => setPostLength(values[0])}
+                        className="w-full [&_[role=slider]]:bg-white [&_[role=slider]]:border-white [&_[role=track]]:bg-gray-700/50 [&_[role=track].data-[orientation=horizontal]]:h-2 [&_[role=range]]:bg-white [&_[role=range]]:data-[orientation=horizontal]:bg-white [&_[role=track]]:data-[orientation=horizontal]:bg-gray-700/50"
+                      />
+                      <div className={`flex justify-between ${isDark ? 'text-white' : 'text-gray-700'}`}>
+                        <span className="flex-1">Krótki<br/>(300-500 słów)</span>
+                        <span className="flex-1 text-center">Średni<br/>(500-900 słów)</span>
+                        <span className="flex-1 text-right">Długi<br/>(900-1500 słów)</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Krok 3 - Styl i sposób przedstawienia */}
+                {currentStep === 3 && (
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
+                        Wybierz styl artykułu
+                      </h2>
+                      <div className="grid grid-cols-2 gap-2">
+                        {postStyles.map((style) => (
+                          <button
+                            key={style.id}
+                            className={
+                              isDark
+                                ? `btn-back p-2 rounded-lg border text-sm transition-all hover:scale-105${selectedStyle === style.id ? ' active' : ''}`
+                                : `p-2 rounded-lg border text-sm transition-all hover:scale-105 ${selectedStyle === style.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:border-blue-500 text-gray-700'}`
+                            }
+                            onClick={() => setSelectedStyle(style.id)}
+                          >
+                            <h3 className={`font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                              {style.name}
+                            </h3>
+                            <p className={`text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {style.description}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h2 className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
+                        Sposób przedstawienia artykułu
+                      </h2>
+                      <div className="grid grid-cols-2 gap-2">
+                        {postPresentations.map((presentation) => (
+                          <button
+                            key={presentation.id}
+                            className={
+                              isDark
+                                ? `btn-back p-2 rounded-lg border text-sm transition-all hover:scale-105${selectedPresentation === presentation.id ? ' active' : ''}`
+                                : `p-2 rounded-lg border text-sm transition-all hover:scale-105 ${selectedPresentation === presentation.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 hover:border-blue-500 text-gray-700'}`
+                            }
+                            onClick={() => setSelectedPresentation(presentation.id)}
+                          >
+                            <h3 className={`font-semibold mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                              {presentation.name}
+                            </h3>
+                            <p className={`text-xs ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {presentation.description}
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Krok 4 - Generowanie */}
+                {currentStep === 4 && (
+                  <div className="space-y-6">
+                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-black'}`}>
+                      Gotowy do wygenerowania?
+                    </h2>
+                    <div className="space-y-4">
+                      <div className={`rounded-lg p-4 space-y-2 ${
+                        isDark 
+                          ? 'bg-black/50 border border-gray-700' 
+                          : 'bg-gray-50 border border-gray-200'
+                      }`}>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
+                          Temat: <span className={isDark ? 'text-white' : 'text-gray-900'}>{topic}</span>
+                        </p>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
+                          Długość: <span className={isDark ? 'text-white' : 'text-gray-900'}>
+                            {postLengths[getPostLengthFromSlider(postLength)].name}
+                          </span>
+                        </p>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
+                          Styl: <span className={isDark ? 'text-white' : 'text-gray-900'}>
+                            {postStyles.find(s => s.id === selectedStyle)?.name}
+                          </span>
+                        </p>
+                        <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
+                          Sposób przedstawienia: <span className={isDark ? 'text-white' : 'text-gray-900'}>
+                            {postPresentations.find(p => p.id === selectedPresentation)?.name}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {/* Przyciski nawigacji */}
+                <div className="flex justify-between mt-8">
+                  {currentStep > 1 && (
+                    <Button
+                      variant="outline"
+                      onClick={handleBack}
+                      className="btn-back"
+                    >
+                      Wstecz
+                    </Button>
+                  )}
+                  <div className="flex-1" />
+                  <Button
+                    onClick={handleNextStep}
+                    className="btn-next"
+                    disabled={currentStep === 1 && !topic.trim()}
+                  >
+                    {currentStep === 4 ? (
+                      <>
+                        <Sparkles className="mr-2" size={16} />
+                        Generuj z AI
+                      </>
+                    ) : (
+                      'Dalej'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
-          {thumbnail && <img src={thumbnail} alt="Miniatura" className="mt-4 rounded-3xl w-full max-w-md mx-auto" />}
-        </div>
+        )}
+      </div>
+
+      {/* Modalne okna */}
+      <Dialog open={isGeneratingModalOpen}>
+        <DialogContent
+          onInteractOutside={e => e.preventDefault()}
+          hideCloseButton={true}
+          className={`p-8 rounded-xl max-w-lg w-full ${
+            isDark 
+              ? 'bg-black/95 border border-gray-200' 
+              : 'bg-white border border-gray-200'
+          }`}
+        >
+          <DialogHeader>
+            <DialogTitle className={`text-xl font-semibold text-center ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              Generowanie posta...
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center gap-4">
+            <Loader2 className={`w-12 h-12 animate-spin ${
+              isDark ? 'text-purple-500' : 'text-blue-500'
+            }`} />
+            <p className={isDark ? 'text-white' : 'text-gray-700'}>
+              To może potrwać kilka minut. Proszę o cierpliwość.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className={`p-4 rounded-xl w-[90vw] max-w-[1400px] h-[90vh] overflow-hidden ${
+          isDark 
+            ? 'bg-black/50 backdrop-blur-[5px] border border-purple-500/30' 
+            : 'bg-white border border-gray-200'
+        }`}>
+          <DialogHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className={`text-xl font-semibold ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}>
+                Edycja posta
+              </DialogTitle>
+              <Button
+                variant="ghost"
+                className={`transition-all hover:scale-105 ${
+                  isDark 
+                    ? 'text-white hover:bg-purple-600/20' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </DialogHeader>
+          <div className="flex gap-4 h-[calc(90vh-120px)] mt-4">
+            <div className="flex-1 flex flex-col">
+              <div className={`sticky top-0 z-10 rounded-lg border-0 ${
+                isDark ? 'bg-black/50 backdrop-blur-[5px]' : 'bg-white'
+              }`}>
+                <div className="tiptap-toolbar-container p-2">
+                  {/* Toolbar będzie tutaj */}
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto mt-4 pr-4">
+                <div className={`rounded-lg border-0 ${
+                  isDark ? 'bg-black/50 backdrop-blur-[5px]' : 'bg-white'
+                }`}>
+                  <SimpleEditor
+                    value={editedPost}
+                    onChange={setEditedPost}
+                    isToolbarFixed={true}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="w-48 flex flex-col gap-4 ml-4">
+              <Button
+                className="btn-save w-full py-6"
+                onClick={handlePublish}
+              >
+                Zapisz
+              </Button>
+              <Button
+                className="btn-cancel w-full py-6"
+                onClick={handleCancelPreview}
+              >
+                Anuluj
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showMissingThumbnailModal} onOpenChange={setShowMissingThumbnailModal}>
+        <DialogContent className={`p-8 rounded-xl max-w-lg w-full ${
+          isDark 
+            ? 'bg-black/95 border border-purple-500/30' 
+            : 'bg-white border border-gray-200'
+        }`}>
+          <DialogHeader>
+            <DialogTitle className={`text-xl font-semibold text-center ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              Zapomniałeś dodać miniaturę!
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center gap-4 mt-4">
+            <p className={isDark ? 'text-white' : 'text-gray-700'}>
+              Aby opublikować post, musisz dodać miniaturę.
+            </p>
+            <input
+              id="thumbnail-upload-modal"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    if (typeof event.target?.result === 'string') {
+                      setThumbnail(event.target.result);
+                      setShowMissingThumbnailModal(false);
+                    }
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+            <Button
+              className={isDark ? 'btn-next' : 'bg-blue-600 text-white hover:bg-blue-700'}
+              onClick={() => document.getElementById('thumbnail-upload-modal')?.click()}
+            >
+              Wybierz plik
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showExitModal} onOpenChange={setShowExitModal}>
+        <DialogContent className={`p-8 rounded-xl max-w-lg w-full ${
+          isDark 
+            ? 'bg-black/95 border border-gray-700' 
+            : 'bg-white border border-gray-200'
+        }`}>
+          <DialogHeader>
+            <DialogTitle className={`text-xl font-semibold text-center ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}>
+              Czy na pewno chcesz wyjść?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center gap-4 mt-4">
+            <p className={isDark ? 'text-white' : 'text-gray-700'}>
+              Wprowadzone zmiany nie zostaną zapisane.
+            </p>
+            <div className="flex gap-4 mt-4">
+              <Button className="btn-exit-cancel" onClick={() => setShowExitModal(false)}>
+                Wróć
+              </Button>
+              <Button className="btn-exit-confirm" onClick={confirmExit}>
+                Wyjdź
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={500}
+          recycle={true}
+          style={{ position: 'fixed', top: 0, left: 0 }}
+        />
       )}
-      {accepted && (
-        <div className="mt-8 text-green-700 font-bold flex flex-col items-center gap-4">
-          <span>Post zaakceptowany i zapisany w bazie!</span>
-          <button
-            className="bg-purple-700 hover:bg-purple-800 text-white px-6 py-2 rounded-2xl transition"
-            onClick={() => navigate('/blog')}
-          >
-            Przejdź do bloga
-          </button>
-        </div>
-      )}
-      {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={500} recycle={true} style={{ position: 'fixed', top: 0, left: 0 }} />}
-    </div>
+    </AdminLayout>
   );
 }

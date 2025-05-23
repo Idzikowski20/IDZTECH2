@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/utils/AuthProvider';
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useTheme } from '@/utils/themeContext';
 
@@ -32,17 +31,16 @@ const Login = () => {
   const state = location.state as LocationState;
   const from = state?.from?.pathname || '/admin';
 
-  // Redirect if already authenticated
   useEffect(() => {
-    // Prevent redirect loop with ref
     if (isAuthenticated && user && !redirected.current) {
-      console.log("User is authenticated in Login page, redirecting to:", from);
       redirected.current = true;
-      navigate(from, { replace: true });
+      console.log("Redirecting to:", from);
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 100);
     }
-  }, [isAuthenticated, navigate, from, user]);
+  }, [isAuthenticated, user, navigate, from]);
 
-  // Login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -71,13 +69,6 @@ const Login = () => {
         return;
       }
       
-      toast({
-        title: "Zalogowano pomyślnie",
-        description: "Witamy z powrotem!"
-      });
-      
-      // We don't need to navigate here
-      // Authentication state change will trigger the useEffect above
     } catch (error: any) {
       console.error("Unexpected error during login:", error);
       toast({
@@ -85,6 +76,7 @@ const Login = () => {
         description: error.message || "Wystąpił nieoczekiwany błąd",
         variant: "destructive"
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -180,20 +172,6 @@ const Login = () => {
                 </span>
               ) : "Zaloguj się"}
             </Button>
-            
-            <div className="text-center mt-4">
-              <span className={`text-sm ${theme === 'light' ? "text-gray-600" : "text-gray-400"}`}>
-                Nie masz jeszcze konta?{" "}
-              </span>
-              <Button
-                variant="link"
-                type="button"
-                className={`p-0 text-sm ${theme === 'light' ? "text-premium-purple hover:text-black" : "text-premium-purple hover:text-white"}`}
-                onClick={() => navigate('/register')}
-              >
-                Zarejestruj się
-              </Button>
-            </div>
           </form>
         </div>
       </div>

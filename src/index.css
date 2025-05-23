@@ -6,6 +6,86 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Variable font */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.woff2') format('woff2'),
+       url('/fonts/Satoshi-Variable.woff') format('woff'),
+       url('/fonts/Satoshi-Variable.ttf') format('truetype'),
+       url('/fonts/Satoshi-Variable.eot') format('embedded-opentype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* Variable font - Italic */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-VariableItalic.woff2') format('woff2'),
+       url('/fonts/Satoshi-VariableItalic.woff') format('woff'),
+       url('/fonts/Satoshi-VariableItalic.ttf') format('truetype'),
+       url('/fonts/Satoshi-VariableItalic.eot') format('embedded-opentype');
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: italic;
+}
+
+/* Static fonts - dla lepszej kompatybilności */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Light.woff2') format('woff2'),
+       url('/fonts/Satoshi-Light.woff') format('woff'),
+       url('/fonts/Satoshi-Light.ttf') format('truetype'),
+       url('/fonts/Satoshi-Light.eot') format('embedded-opentype');
+  font-weight: 300;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Regular.woff2') format('woff2'),
+       url('/fonts/Satoshi-Regular.woff') format('woff'),
+       url('/fonts/Satoshi-Regular.ttf') format('truetype'),
+       url('/fonts/Satoshi-Regular.eot') format('embedded-opentype');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Medium.woff2') format('woff2'),
+       url('/fonts/Satoshi-Medium.woff') format('woff'),
+       url('/fonts/Satoshi-Medium.ttf') format('truetype'),
+       url('/fonts/Satoshi-Medium.eot') format('embedded-opentype');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Bold.woff2') format('woff2'),
+       url('/fonts/Satoshi-Bold.woff') format('woff'),
+       url('/fonts/Satoshi-Bold.ttf') format('truetype'),
+       url('/fonts/Satoshi-Bold.eot') format('embedded-opentype');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Black.woff2') format('woff2'),
+       url('/fonts/Satoshi-Black.woff') format('woff'),
+       url('/fonts/Satoshi-Black.ttf') format('truetype'),
+       url('/fonts/Satoshi-Black.eot') format('embedded-opentype');
+  font-weight: 900;
+  font-display: swap;
+  font-style: normal;
+}
+
 @layer utilities {
   .animate-float-1 {
     animation: float1 4s ease-in-out infinite;
@@ -122,9 +202,11 @@
   }
 
   body {
-    font-family: Gelion, Helvetica, "Helvetica Neue", Arial;;
-    @apply bg-background text-foreground;
+    font-family: 'Satoshi', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
     scrollbar-width: thin;
     scrollbar-color: #000000 transparent;
     overscroll-behavior-y: none;
@@ -132,6 +214,7 @@
     -webkit-overflow-scrolling: touch;
     text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
+    font-weight: 400;
   }
   
   @supports (-webkit-touch-callout: none) {
@@ -204,19 +287,75 @@
     @apply bg-white text-premium-dark;
   }
   
+  /* Style dla tabeli w jasnej wersji */
+  .light td,
+  .light th {
+    color: #000000 !important;
+  }
+
+  .light thead th {
+    color: #000000 !important;
+    font-weight: 600;
+  }
+
+  .light tbody td {
+    color: #000000 !important;
+  }
+
+  /* Uproszczone style dla hover w jasnej wersji */
+  .light button,
+  .light .button,
+  .light [role="button"] {
+    transition: transform 0.3s ease;
+    color: inherit !important;
+  }
+
+  .light button:hover,
+  .light .button:hover,
+  .light [role="button"]:hover {
+    transform: scale(1.05);
+    color: inherit !important;
+    background-color: transparent !important;
+  }
+
+  /* Usuwam niepotrzebne style hover dla jasnej wersji */
+  .light .hover\:bg-white:hover,
+  .light .hover\:bg-black:hover,
+  .light .hover\:text-white:hover,
+  .light .outline.hover\:bg-black:hover,
+  .light .border-black.hover\:bg-black:hover {
+    transform: scale(1.05);
+    color: inherit !important;
+    background-color: transparent !important;
+  }
+
+  .light button:hover svg,
+  .light a:hover svg {
+    transform: scale(1);
+    color: inherit !important;
+  }
+
+  /* Zachowaj oryginalny kolor dla przycisków z explicit color */
+  .light .text-white {
+    color: #FFFFFF !important;
+  }
+
+  .light .text-black {
+    color: #000000 !important;
+  }
+  
   .dark {
-    @apply bg-premium-dark text-premium-light;
+    @apply text-premium-light;
   }
   
   .light h1, .light h2, .light h3, .light h4, .light h5, .light h6, 
-  .light p, .light span, div {
+  .light p, .light span {
     @apply text-premium-dark;
   }
   
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
-  .dark p, .dark span, div {
+  .dark p, .dark span {
     @apply text-premium-light;
-    font-weight: 700 !important;
   }
   
   .light .hover\:bg-white:hover,
@@ -226,7 +365,9 @@
 
   .dark .hover\:bg-white:hover,
   .dark .hover\:bg-black:hover {
-    color: #000000 !important;
+    background-color: transparent !important;
+    color: #FFFFFF !important;
+    transform: scale(1.05);
   }
 
   .light .hover\:text-white:hover {
@@ -234,7 +375,7 @@
   }
 
   .dark .hover\:text-black:hover {
-    color: #000000 !important;
+    color: #FFFFFF !important;
   }
   
   .light .bg-black\/80 .text-white,
@@ -248,10 +389,6 @@
   
   .light .bg-premium-dark {
     background-color: #FFFFFF;
-  }
-  
-  .light .text-white {
-    color: #000000;
   }
   
   .light .w-80.bg-premium-dark\/95 {
@@ -344,31 +481,41 @@
     color: #FFFFFF;
   }
   
+  .dark button,
+  .dark .button,
+  .dark [role="button"] {
+    background-color: transparent !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    transition: all 0.3s ease;
+  }
+  
+  .dark button:hover,
+  .dark .button:hover,
+  .dark [role="button"]:hover {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .dark button.hover\:bg-black:hover,
+  .dark .button.hover\:bg-black:hover,
+  .dark [role="button"].hover\:bg-black:hover {
+    background-color: transparent !important;
+    color: #FFFFFF !important;
+    transform: scale(1.05);
+  }
+
   .dark button:hover svg,
-  .dark a:hover svg {
-    color: #000000;
-  }
-  
-  .light .outline.hover\:bg-black:hover,
-  .light .hover\:bg-black:hover {
+  .dark .button:hover svg,
+  .dark [role="button"]:hover svg {
     color: #FFFFFF !important;
-    background-color: #000000 !important;
   }
-  
-  .dark .outline.hover\:bg-black:hover,
-  .dark .hover\:bg-black:hover {
-    color: #000000 !important;
-    background-color: #FFFFFF !important;
-  }
-  
-  .light .border-black.hover\:bg-black:hover {
-    color: #FFFFFF !important;
-    background-color: #000000 !important;
-  }
-  
+
   .dark .border-black.hover\:bg-white:hover {
-    color: #000000 !important;
-    background-color: #FFFFFF !important;
+    background-color: transparent !important;
+    color: #FFFFFF !important;
+    transform: scale(1.05);
+    border: none !important;
   }
   
   .light input,
@@ -392,13 +539,13 @@
   }
 
   .dark .hover\:bg-black {
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
   }
 
   .dark .hover\:bg-black:hover {
     transform: scale(1.05);
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
+    background-color: transparent !important;
+    color: #FFFFFF !important;
   }
   
   @keyframes float-1 {
@@ -477,6 +624,105 @@
   
   .animate-floating-light-3 {
     animation: floating-light-3 20s ease-in-out infinite;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+  }
+
+  /* Style dla Select w trybie ciemnym */
+  .dark .SelectContent,
+  .dark select,
+  .dark [role="listbox"] {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+
+  .dark .SelectItem,
+  .dark .SelectContent [role="option"] {
+    color: white !important;
+  }
+
+  .dark .SelectItem:hover,
+  .dark .SelectContent [role="option"]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+
+  .dark .SelectTrigger {
+    background-color: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+
+  .dark .SelectTrigger:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Dodatkowe style dla menu rozwijanego */
+  .dark [role="menu"],
+  .dark [role="menuitem"] {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border: none !important;
+    color: white !important;
+  }
+
+  .dark [role="menuitem"]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+
+  /* Style dla ikon w panelu admina */
+  .light button[class*="text-blue-400"] {
+    color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+  }
+
+  .light button[class*="text-green-400"] {
+    color: #22c55e !important;
+    border-color: #22c55e !important;
+  }
+
+  .light button[class*="text-red-400"] {
+    color: #ef4444 !important;
+    border-color: #ef4444 !important;
+  }
+
+  .light button[class*="text-blue-400"]:hover {
+    background-color: #3b82f6 !important;
+    color: white !important;
+  }
+
+  .light button[class*="text-green-400"]:hover {
+    background-color: #22c55e !important;
+    color: white !important;
+  }
+
+  .light button[class*="text-red-400"]:hover {
+    background-color: #ef4444 !important;
+    color: white !important;
+  }
+
+  .light button[class*="text-blue-400"] svg,
+  .light button[class*="text-green-400"] svg,
+  .light button[class*="text-red-400"] svg {
+    color: inherit !important;
+  }
+
+  /* Jasny motyw - niebieska kulka suwaka */
+  .light [role="slider"] {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+  }
+
+  /* Jasny motyw - przycisk X w modalu generowania posta */
+  .light .DialogContent button svg,
+  .light .dialog-content button svg,
+  .light .dialog__content button svg {
+    color: #111827 !important;
   }
 }
 
@@ -699,4 +945,315 @@ input:-internal-autofill-selected {
   padding: 1em;
   font-size: 1rem;
   border-radius: 6px / 0.375rem;
+}
+
+/* Style dla statusów postów w panelu admina */
+.status-published {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white !important;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.status-draft {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+  color: white !important;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Style dla submenu w ciemnej wersji */
+.dark .SelectContent,
+.dark [role="listbox"],
+.dark select {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dark .SelectItem,
+.dark [role="option"] {
+  color: white !important;
+}
+
+.dark .SelectItem:hover,
+.dark [role="option"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dark .SelectTrigger {
+  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dark .SelectTrigger:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Nadpisanie kolorów dla obu motywów */
+.light .status-published,
+.dark .status-published {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white !important;
+}
+
+.light .status-draft,
+.dark .status-draft {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+  color: white !important;
+}
+
+/* Hover efekt dla statusów */
+.status-published:hover,
+.status-draft:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.border-radius20 {
+  border-radius: 20px;
+}
+
+/* Style dla suwaka w trybie ciemnym */
+.dark [role="slider"] {
+  background-color: white !important;
+  border-color: white !important;
+  height: 20px !important;
+  width: 20px !important;
+  transform: none !important;
+}
+
+.dark [role="track"] {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+  height: 8px !important;
+}
+
+.dark [role="range"] {
+  background-color: white !important;
+  transform: none !important;
+}
+
+/* Naprawienie odwróconego tekstu */
+.dark .flex.justify-between span {
+  transform: none !important;
+  text-align: center !important;
+}
+
+.dark [data-orientation="horizontal"] {
+  transform: none !important;
+}
+
+/* Dodatkowe style dla pewności */
+.dark .slider-container {
+  transform: none !important;
+}
+
+.dark .slider-text {
+  transform: none !important;
+}
+
+/* Kolory tła dla jasnego i ciemnego motywu */
+.bg-primary {
+  background-color: hsl(var(--primary)) !important;
+}
+
+.bg-secondary {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+.dark .bg-primary {
+  background-color: white !important;
+  color: #000000 !important;
+}
+
+.dark .bg-primary button {
+  background: transparent !important;
+}
+
+.dark .bg-secondary {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+/* Style dla przycisków nawigacji */
+.btn-next {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-next:hover {
+  transform: scale(1.05) !important;
+  background-color: #2563eb !important;
+}
+
+.btn-back {
+  background-color: transparent !important;
+  color: #111827 !important; /* domyślnie czarny */
+  border: 1px solid #e5e7eb !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-back:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+/* Jasny motyw */
+.light .btn-next {
+  background-color: #3b82f6 !important;
+}
+
+.light .btn-next:hover {
+  background-color: #2563eb !important;
+}
+
+.light .btn-back {
+  background-color: #4b556300 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #000000 !important;
+}
+
+.light .btn-back:hover {
+  scale: 1.05;
+}
+
+/* Ciemny motyw */
+.dark .btn-next {
+  background-color: #3b82f6 !important;
+}
+
+.dark .btn-next:hover {
+  background-color: #2563eb !important;
+}
+
+.dark .btn-back {
+  background-color: transparent !important;
+  color: #fff !important;
+  border: 1px solid #4b5563 !important;
+}
+
+.dark .btn-back:hover {
+  background-color: rgba(255,255,255,0.05) !important;
+  color: #fff !important;
+}
+
+.btn-back.active {
+  border-color: #3b82f6 !important;
+}
+
+.dark .btn-back.active {
+  background-color: rgb(239 246 255 / 0.08) !important;
+}
+
+.btn-save {
+  background-color: #22c55e !important;
+  color: #fff !important;
+  transition: all 0.3s ease !important;
+}
+.btn-save:hover {
+  transform: scale(1.05) !important;
+}
+
+.btn-cancel {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+  transition: all 0.3s ease !important;
+}
+.btn-cancel:hover {
+  transform: scale(1.05) !important;;
+}
+
+.light .btn-save {
+  background-color: #22c55e !important;
+}
+.light .btn-save:hover {
+  background-color: #16a34a !important;
+}
+.light .btn-cancel {
+  background-color: #ef4444 !important;
+}
+.light .btn-cancel:hover {
+  scale: 1.05;
+}
+
+.dark .btn-save {
+  background-color: #22c55e !important;
+}
+.dark .btn-save:hover {
+  background-color: #16a34a !important;
+}
+.dark .btn-cancel {
+  background-color: #ef4444 !important;
+}
+.dark .btn-cancel:hover {
+  background-color: #b91c1c !important;
+}
+
+/* Modal wyjścia - border */
+.dark .DialogContent,
+.dark .dialog-content,
+.dark .dialog__content {
+  border: 1px solid #4b5563 !important;
+}
+
+/* Przycisk WRÓĆ */
+.btn-exit-cancel {
+  background: transparent !important;
+  border: 1px solid #e5e7eb !important;
+  color: #111827 !important;
+  transition: all 0.3s;
+}
+.btn-exit-cancel:hover {
+  background: #f3f4f6 !important;
+}
+.dark .btn-exit-cancel {
+  background-color: transparent !important;
+  border: 1px solid #4b5563 !important;
+  color: #fff !important;
+}
+.dark .btn-exit-cancel:hover {
+  scale: 1.05;
+}
+
+/* Przycisk WYJDŹ */
+.btn-exit-confirm {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+  border: none !important;
+  transition: all 0.3s !important;
+}
+.dark .btn-exit-confirm:hover {
+  background-color: #b91c1c !important;
+  scale: 1.05;
+}
+
+.light .btn-exit-cancel {
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+  background: transparent !important;
+}
+.light .btn-exit-cancel:hover {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+.text-gray-400 {
+  --tw-text-opacity: 1;
+  color: rgb(156 163 175 / var(--tw-text-opacity, 1)) !important;
 }

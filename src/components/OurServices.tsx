@@ -85,7 +85,7 @@ const OurServices = () => {
               </p>
               <Link 
                 to={service.link} 
-                className="inline-flex items-center text-premium-purple hover:text-white hover:bg-premium-light/5"
+                className="inline-flex items-center text-premium-purple hover:text-white hover:bg-premium-light/5 border-radius20"
               >
                 <span>Dowiedz się więcej</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
