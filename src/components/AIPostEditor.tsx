@@ -212,7 +212,7 @@ const AIPostEditor: React.FC<AIPostEditorProps> = ({ postId, initialData, onSave
                     value={editorContent}
                     onChange={setEditorContent}
                     placeholder="Treść posta w formacie HTML"
-                    className={theme === 'dark' ? 'editor-force-text-color' : ''}
+                    className={theme === 'dark' ? 'editor-force-text-color' : 'shadow-sm'}
                   />
                 </FormControl>
                 <FormMessage />

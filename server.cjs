@@ -331,6 +331,18 @@ app.post('/api/generate-sitemap', async (req, res) => {
   }
 });
 
+app.get('/api/test-write', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const testPath = path.join(process.cwd(), 'public/test-write.txt');
+  try {
+    fs.writeFileSync(testPath, 'test zapis z rendera', 'utf8');
+    res.json({ ok: true, message: 'Zapisano test-write.txt!' });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Serwer działa! ❤️`);
@@ -410,8 +422,8 @@ async function generateSitemap() {
         })
         .join('\n') +
       '\n</urlset>\n';
-    fs.writeFileSync(path.join(__dirname, 'public/sitemap.xml'), sitemap, 'utf8');
-    const lastUpdatePath = path.join(__dirname, 'public', 'sitemap-last-update.txt');
+    fs.writeFileSync(path.join(process.cwd(), 'public/sitemap.xml'), sitemap, 'utf8');
+    const lastUpdatePath = path.join(process.cwd(), 'public', 'sitemap-last-update.txt');
     console.log('Zapisuję datę do:', lastUpdatePath);
     fs.writeFileSync(lastUpdatePath, new Date().toISOString(), 'utf8');
     console.log('Sitemap wygenerowana! Data:', new Date().toISOString());

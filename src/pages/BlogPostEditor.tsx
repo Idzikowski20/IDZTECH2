@@ -279,7 +279,7 @@ const BlogPostEditor = () => {
                   <FormItem>
                     <FormLabel className={`${theme === 'dark' ? 'text-white' : ''}`}>Zajawka</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''}`} />
+                      <Textarea {...field} placeholder="Krótki opis posta (będzie widoczny na liście postów)" rows={2} className={`${theme === 'dark' ? 'bg-black text-white border-gray-700 placeholder-gray-400' : ''} shadow-sm`} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -179,8 +179,9 @@ const Admin = () => {
           ? a.title.localeCompare(b.title)
           : b.title.localeCompare(a.title);
       } else {
-        const dateA = new Date(a.created_at).getTime();
-        const dateB = new Date(b.created_at).getTime();
+        // Sortuj po published_at jeśli istnieje, w przeciwnym razie po created_at
+        const dateA = new Date(a.published_at || a.created_at).getTime();
+        const dateB = new Date(b.published_at || b.created_at).getTime();
         return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
       }
     });
@@ -249,19 +250,12 @@ const Admin = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2 gap-4 flex-wrap">
             <h2 className="text-xl font-bold">Blog</h2>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Button size="sm" onClick={handleGenerateSitemap} disabled={isGeneratingSitemap} className="bg-premium-gradient hover:scale-105">
+          </div>
+          <div className="flex items-center justify-end mb-6">
+            <div className="flex gap-4">
+              <Button size="sm" onClick={handleGenerateSitemap} disabled={isGeneratingSitemap} className={`bg-premium-gradient hover:scale-105 ${theme !== 'dark' ? 'text-white' : ''}`}>
                 {isGeneratingSitemap ? 'Generowanie...' : 'Generuj sitemapę'}
               </Button>
-              <span className="text-xs text-premium-light/60">
-                {sitemapLastUpdate
-                  ? `Ostatnia aktualizacja sitemap: ${new Date(sitemapLastUpdate).toLocaleString('pl-PL', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-                  : 'Sitemap jeszcze nie zaktualizowany'}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex gap-4">
               <div className="flex items-center gap-4">
                 <Select
                   value={statusFilter}
@@ -286,19 +280,21 @@ const Admin = () => {
                   />
                 </div>
               </div>
-              <Button onClick={() => navigate('/admin/new-post')} className="bg-premium-gradient hover:scale-105">
+              <Button onClick={() => navigate('/admin/new-post')} className={`bg-premium-gradient hover:scale-105 ${theme !== 'dark' ? 'text-white' : ''}`}>
                 <Plus size={16} className="mr-2" /> Dodaj nowy post
               </Button>
-              <AdminAIButton onClick={() => navigate('/admin/ai-post')} />
+              <Button onClick={() => navigate('/admin/ai-post')} className={`bg-premium-gradient hover:scale-105 ${theme !== 'dark' ? 'text-white' : ''}`}>
+                <Plus size={16} className="mr-2" /> Generuj z AI
+              </Button>
             </div>
           </div>
 
           <div className="bg-premium-dark/50 border border-premium-light/10 rounded-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="border-b border-premium-light/10 sticky top-0 bg-premium-dark/80 z-10">
+                <thead className=" border-premium-light/10 sticky top-0 bg-transparent z-10">
                   <tr>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap border-l border-r border-gray-400/20 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                       <Button
                         variant="ghost"
                         className="hover:bg-transparent p-0"
@@ -315,7 +311,7 @@ const Admin = () => {
                         <ArrowUpDown size={16} className="ml-2" />
                       </Button>
                     </th>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap hidden xs:table-cell ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap  border-l border-r border-gray-400/20 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                       <Button
                         variant="ghost"
                         className="hover:bg-transparent p-0"
@@ -332,8 +328,8 @@ const Admin = () => {
                         <ArrowUpDown size={16} className="ml-2" />
                       </Button>
                     </th>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Status</th>
-                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Akcje</th>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap  border-l border-r border-gray-400/20 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Status</th>
+                    <th className={`py-2 sm:py-3 px-2 sm:px-4 text-center whitespace-nowrap  border-l border-r border-gray-400/20 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Akcje</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-premium-light/10">
@@ -352,8 +348,8 @@ const Admin = () => {
                   ) : (
                     paginatedPosts.map(post => (
                       <tr key={post.id}>
-                        <td className={`py-2 sm:py-3 px-2 sm:px-4 font-medium break-words max-w-[180px] ${theme === 'dark' ? 'text-white' : 'text-black'}`}>{post.title}</td>
-                        <td className={`py-2 sm:py-3 px-2 sm:px-4 ${theme === 'dark' ? 'text-premium-light/70' : 'text-gray-600'} hidden xs:table-cell`}>
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 font-medium break-words max-w-[180px] text-center ${theme === 'dark' ? 'text-white' : 'text-black'}`}>{post.title}</td>
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 text-center ${theme === 'dark' ? 'text-premium-light/70' : 'text-gray-600'}`}>
                           {post.published 
                             ? formatDate(post.published_at || post.created_at)
                             : formatDate(post.created_at)}
@@ -366,7 +362,7 @@ const Admin = () => {
                             {post.published ? 'Opublikowany' : 'Szkic'}
                           </button>
                         </td>
-                        <td className={`py-2 sm:py-3 px-2 sm:px-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                        <td className={`py-2 sm:py-3 px-2 sm:px-4 text-center ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
                           <div className="flex items-center space-x-2 justify-center">
                             <Button 
                               variant="outline" 
