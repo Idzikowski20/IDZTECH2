@@ -30,6 +30,26 @@ type AIPostEditorProps = {
   onCancel?: () => void;
 };
 
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/ą/g, 'a')
+    .replace(/ć/g, 'c')
+    .replace(/ę/g, 'e')
+    .replace(/ł/g, 'l')
+    .replace(/ń/g, 'n')
+    .replace(/ó/g, 'o')
+    .replace(/ś/g, 's')
+    .replace(/ż/g, 'z')
+    .replace(/ź/g, 'z')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-\s]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 const AIPostEditor: React.FC<AIPostEditorProps> = ({ postId, initialData, onSave, onCancel }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
@@ -128,13 +148,7 @@ const AIPostEditor: React.FC<AIPostEditorProps> = ({ postId, initialData, onSave
   const generateSlug = () => {
     const title = form.getValues('title');
     if (title) {
-      const slug = title
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/\[\u0300-\u036f]/g, '')
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
+      const slug = slugify(title);
       form.setValue('slug', slug);
     }
   };

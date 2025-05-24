@@ -389,11 +389,31 @@ const EXCLUDE_PATHS = [
   '/panel'
 ];
 
+function slugify(str) {
+  return str
+    .toLowerCase()
+    .replace(/ą/g, 'a')
+    .replace(/ć/g, 'c')
+    .replace(/ę/g, 'e')
+    .replace(/ł/g, 'l')
+    .replace(/ń/g, 'n')
+    .replace(/ó/g, 'o')
+    .replace(/ś/g, 's')
+    .replace(/ż/g, 'z')
+    .replace(/ź/g, 'z')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9-\s]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 async function getAllBlogSlugs() {
   const postsRef = collection(db, 'blog_posts');
   const q = query(postsRef, where('published', '==', true));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => `/blog/${doc.data().slug}`);
+  return snapshot.docs.map(doc => `/blog/${slugify(doc.data().slug)}`);
 }
 
 function getPriorityAndFreq(url) {
