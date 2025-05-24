@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -6,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, ShoppingCart, CreditCard, Truck, Package, BarChart, Shield } from "lucide-react";
 import { WooCommerceIcon, ShopifyIcon, MagentoIcon } from "@/components/ECommerceIcons";
+import { useTheme } from '@/utils/themeContext';
+import { Link } from "react-router-dom";
 
 const ECommerce = () => {
+  const { theme } = useTheme();
+
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
@@ -19,50 +22,36 @@ const ECommerce = () => {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-pink/20 rounded-full blur-[120px] -z-10"></div>
         
         <div className="container mx-auto px-4 lg:px-8">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-8">
-            <BreadcrumbList className="text-premium-light/60">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Strona główna</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <span className="cursor-default">Usługi</span>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink className="text-premium-light">Tworzenie sklepów internetowych</BreadcrumbLink>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          
+        
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
               <span className="text-premium-blue font-medium">E-commerce</span>
-              <h1 className="text-4xl lg:text-5xl font-bold mt-4 mb-6 text-white">Tworzenie sklepów internetowych</h1>
-              <p className="text-premium-light/70 text-lg mb-8">
+              <h1 className={`text-4xl lg:text-5xl font-bold mt-4 mb-6 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
+                Tworzenie sklepów internetowych
+              </h1>
+              <p className={`${theme === 'dark' ? 'text-premium-light/70' : 'text-gray-700'} text-lg mb-8`}>
                 Projektujemy i wdrażamy profesjonalne sklepy internetowe, które zwiększają sprzedaż 
                 i zapewniają doskonałe doświadczenia zakupowe dla Twoich klientów.
               </p>
               <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
                 <Button 
                   size="lg" 
                   className="bg-premium-gradient hover:bg-white hover:text-black transition-colors group relative overflow-hidden"
                 >
-                  <span className="relative z-10">Darmowa wycena</span>
+                  <span className="relative z-10 text-white">Darmowa wycena</span>
                   <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                 </Button>
+                </Link>
+                <Link to="/projects">
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white/10 hover:bg-white hover:text-black text-gray-50 group"
+                  className="border-white/10 hover:bg-white hover:text-black text-gray-50 group border border-gray-200"
                 >
                   <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz realizacje</span>
                 </Button>
+                </Link>
               </div>
             </div>
             
@@ -479,7 +468,7 @@ const ECommerce = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 bg-premium-dark/40 relative overflow-hidden">
+      <section className="py-16  relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
         
@@ -489,14 +478,16 @@ const ECommerce = () => {
             <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
               Skontaktuj się z nami i umów się na bezpłatną konsultację. Omówimy Twoje potrzeby i zaproponujemy optymalne rozwiązanie.
             </p>
+            <Link to="/contact">
             <Button 
               size="lg" 
               className="bg-premium-gradient hover:opacity-90 transition-opacity animate-fade-in group relative overflow-hidden"
               style={{animationDelay: "0.4s"}}
             >
-              <span className="relative z-10">Skontaktuj się z nami</span>
+              <span className="relative z-10 text-white">Skontaktuj się z nami</span>
               <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
             </Button>
+            </Link>
           </div>
         </div>
       </section>

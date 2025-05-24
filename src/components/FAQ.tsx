@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowRight } from 'lucide-react';
@@ -9,23 +8,23 @@ import { useTheme } from '@/utils/themeContext';
 const FAQ = () => {
   const { theme } = useTheme();
   const faqItems = [{
-    question: "Jesteśmy skupieni na Twoich celach biznesowych",
-    answer: "Każde działanie marketingowe planujemy pod kątem Twoich celów - sprzedaży, widoczności, skalowania lub pozyskiwania leadów. Dobieramy odpowiednie kanały marketingowe, aby jak najszybciej osiągać założone cele i skalować wyniki."
+    question: "Stawiamy na Twój biznes i realne efekty",
+    answer: "Każdy projekt strony lub sklepu internetowego realizujemy z myślą o Twoich celach – większej sprzedaży, lepszej widoczności w Google, rozwoju firmy. Proponujemy rozwiązania, które naprawdę działają i pomagają rosnąć Twojemu biznesowi."
   }, {
-    question: "Dobieramy rozwiązania do branży i potrzeb biznesu",
-    answer: "Analizujemy specyfikę Twojej branży i dopasowujemy strategie marketingowe, które sprawdzają się w Twoim sektorze. Nasze rozwiązania są szyte na miarę - nie stosujemy uniwersalnych szablonów."
+    question: "Indywidualne podejście do każdej branży i firmy",
+    answer: "Analizujemy specyfikę Twojej branży i dobieramy technologie oraz rozwiązania, które najlepiej sprawdzą się w Twoim przypadku. Nie korzystamy z gotowych szablonów – każda strona i sklep są projektowane na miarę."
   }, {
-    question: "Stawiamy na partnerstwo, nie na relację wykonawca-klient",
-    answer: "Współpracujemy z Tobą jako partner biznesowy. Zależy nam na długoterminowych relacjach, dlatego angażujemy się w Twój biznes, poznajemy cele i wspólnie planujemy strategie rozwoju."
+    question: "Partnerska współpraca na każdym etapie",
+    answer: "Współpracujemy z Tobą jak partnerzy – słuchamy Twoich potrzeb, doradzamy i wspólnie planujemy rozwój strony, sklepu lub działań SEO. Zależy nam na długofalowych relacjach i Twoim sukcesie."
   }, {
-    question: "Jak długo trwa realizacja projektu?",
-    answer: "Czas realizacji projektu zależy od jego skali i złożoności. Zwykle strony internetowe tworzymy w 4-6 tygodni, kampanie reklamowe uruchamiamy w ciągu 1-2 tygodni, a działania SEO to proces długoterminowy, trwający minimum 6 miesięcy."
+    question: "Jak długo trwa realizacja strony lub sklepu?",
+    answer: "Czas realizacji zależy od zakresu projektu. Proste strony wykonujemy w 2-3 tygodnie, rozbudowane sklepy w 4-6 tygodni. Pozycjonowanie i SEO to proces długofalowy, pierwsze efekty widoczne są zwykle po kilku miesiącach."
   }, {
-    question: "Jesteśmy transparentni w działaniach i wycenach",
-    answer: "Zawsze przedstawiamy jasne i szczegółowe wyceny. Raporty z działań są przejrzyste i zrozumiałe. Nie ukrywamy kosztów ani nie stosujemy niejasnych opłat - wiesz dokładnie za co płacisz."
+    question: "Transparentność i jasne wyceny",
+    answer: "Zawsze przedstawiamy szczegółową wycenę przed rozpoczęciem współpracy. Nie ma ukrytych kosztów, a raporty z postępów są przejrzyste i zrozumiałe."
   }, {
-    question: "Posiadamy zespół wielkobszarowych specjalistów od Digital Marketingu",
-    answer: "Nasz zespół tworzą doświadczeni specjaliści z różnych dziedzin marketingu internetowego - od programistów, przez grafików, copywriterów, po specjalistów SEO, PPC i mediów społecznościowych. Każdy projekt prowadzony jest przez ekspertów w swojej dziedzinie."
+    question: "Zespół specjalistów od stron, sklepów i SEO",
+    answer: "Nasz zespół to doświadczeni programiści, graficy, copywriterzy i specjaliści SEO. Każdy projekt realizujemy kompleksowo – od projektu graficznego, przez wdrożenie, po optymalizację i wsparcie techniczne."
   }];
 
   return (
@@ -37,7 +36,7 @@ const FAQ = () => {
           <span className="text-premium-purple font-medium">Dlaczego warto</span>
           <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">z nami pracować:</h2>
           <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'} text-lg`}>
-            Tutaj znajdziesz kilka kluczowych powodów dlaczego warto pracować z naszą agencją marketingową
+            Tutaj znajdziesz kilka kluczowych powodów dlaczego warto z nami współpracować
           </p>
         </div>
 
@@ -67,9 +66,9 @@ const FAQ = () => {
           {/* Right Side - CTA */}
           <div className={`${theme === 'light' ? 'bg-white shadow-md border border-gray-100' : 'bg-premium-dark/60 border-white/10'} rounded-xl p-8 h-full flex flex-col justify-center`}>
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold">Kompleksowa agencja marketingowa, która przynosi realne rezultaty</h3>
+              <h3 className="text-2xl font-bold">Nowoczesne strony, sklepy i skuteczne pozycjonowanie</h3>
               <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'}`}>
-                Nasza agencja pomaga firmom rozwijać się online poprzez skuteczne strategie marketingowe. Niezależnie od wielkości Twojej firmy, pomożemy Ci osiągnąć cele biznesowe i zwiększyć sprzedaż.
+                Tworzymy profesjonalne strony internetowe i sklepy online, które nie tylko świetnie wyglądają, ale są też zoptymalizowane pod SEO i konwersję. Poprawiamy widoczność w Google, zajmujemy się pozycjonowaniem, optymalizacją techniczną oraz skutecznym copywritingiem. Zadbaj o rozwój swojego biznesu w internecie z Premium Digital Harvest.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/contact">

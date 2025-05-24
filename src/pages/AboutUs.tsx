@@ -13,32 +13,32 @@ const AboutUs = () => {
     { 
       name: 'Patryk Idzikowski', 
       role: 'Web Developer',
-      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
+      description: 'Ekspert z 4-letnim doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
+      image: 'https://media.licdn.com/dms/image/v2/D4D03AQFN5Z-Q4Ty3tw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1709119468661?e=1753315200&v=beta&t=MD-IXRwVN_OjQQf96usS4ZJBJ80W5MAMnbZzOu9aUDw'
     },
     { 
       name: 'Lidia Śliwa', 
       role: 'Fullstack Developer',
-      description: 'Ekspert z doświadczeniem w tworzeniu aplikacji pełnostackowych wykorzystujących najnowsze technologie.',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
+      description: 'Ekspert z 10-letnim doświadczeniem w tworzeniu aplikacji pełnostackowych wykorzystujących najnowsze technologie.',
+      image: 'https://media.licdn.com/dms/image/v2/D4E03AQEYvQq3t6S4sw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1709115564928?e=1753315200&v=beta&t=g0_qDY8HNzH53iK90feqkCEfshLCLuSX4gUz_ZV_I0s'
     },
     { 
       name: 'Przemek Idzikowski', 
       role: 'QA',
       description: 'Specjalista od zapewnienia jakości z doświadczeniem w testowaniu aplikacji webowych i mobilnych.',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
+      image: 'https://media.licdn.com/dms/image/v2/D4D03AQHnAB-xHjZuzQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1709126469495?e=1753315200&v=beta&t=j37jqhIfKlFX0WGqpowFNCQuYsNoV6XZ5SHISjU2Kig'
     },
     { 
       name: 'Aleksandra Górecka', 
-      role: 'Web Developer',
-      description: 'Ekspert z doświadczeniem w tworzeniu stron internetowych i optymalizacji SEO dla firm z różnych branż.',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=988&q=80'
+      role: 'Marketing Specialist',
+      description: 'Doświadczony Specjalista w zakresie sprzedaży i marketingu',
+      image: 'https://media.licdn.com/dms/image/v2/D4D03AQGXIT6Ts4PNKA/profile-displayphoto-shrink_200_200/B4DZOGr_alG0Ac-/0/1733131499592?e=1753315200&v=beta&t=pG5ndvFbqCngCLfXaRdUm7mpm_RQdcHjWfvoJn8uwy8'
     },
     { 
       name: 'Jan Śliwa', 
       role: 'Sales Director',
       description: 'Doświadczony dyrektor sprzedaży z szeroką wiedzą w zakresie sprzedaży rozwiązań IT i marketingowych.',
-      image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80'
+      image: 'https://media.licdn.com/dms/image/v2/D4E03AQEODWoax6O9kQ/profile-displayphoto-shrink_200_200/B4EZTNI7ExGYAY-/0/1738608456657?e=1753315200&v=beta&t=xSesI6rQTiqm13EsbJL-xN9vN5ye5aFNoz2__83lG9U'
     }
   ];
   
@@ -51,7 +51,7 @@ const AboutUs = () => {
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
             <div className="w-full lg:w-1/2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
-                Poznaj <span className="bg-premium-gradient text-transparent bg-clip-text">IDZ.TECH</span> - Twojego partnera w web developmencie
+                Poznaj <span className="bg-premium-gradient text-transparent bg-clip-text">IDZTECH</span> - Twojego partnera w web developmencie
               </h1>
               
               <p className="text-xl text-premium-light/80 mb-8">
@@ -60,13 +60,13 @@ const AboutUs = () => {
               
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/contact">
-                  <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white rounded-full px-8 py-6">
+                  <Button className="bg-premium-gradient hover:text-white transition-opacity text-white rounded-full px-8 py-6">
                     Skontaktuj się z nami
                     <ArrowRight size={18} className="ml-2" />
                   </Button>
                 </Link>
                 <Link to="/projects">
-                  <Button className={`border border-gray-200 rounded-full px-8 py-6 transition-all duration-800 bg-transparent ${theme === 'light' ? 'text-black hover:bg-[#1A1F2C] hover:text-white' : 'text-slate-50 hover:bg-[#1A1F2C] hover:text-white'}`}>
+                  <Button className={`border border-gray-200 rounded-full px-8 py-6 transition-all duration-800 bg-transparent ${theme === 'light' ? 'border border-gray-200 text-black hover:scale-105' : 'borderborder-gray-200 text-slate-50 hover:scale-105 hover:text-white'}`}>
                     Zobacz nasze realizacje
                   </Button>
                 </Link>
@@ -74,11 +74,16 @@ const AboutUs = () => {
             </div>
             
             <div className="relative">
-              <div className="relative bg-premium-dark p-1 rounded-xl overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" 
-                  alt="IDZ.TECH Team" 
-                  className="w-full h-auto rounded-lg object-cover aspect-video" 
+              <div className="relative w-full max-w-2xl aspect-video mx-auto min-w-0">
+                <video
+                  src="/video/0524.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  controls
+                  className="w-full h-full rounded-lg object-cover"
+                  style={{ background: '#000' }}
                 />
               </div>
             </div>
@@ -155,18 +160,18 @@ const AboutUs = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-[3rem] justify-items-center">
             {teamMembers.map((member, index) => (
-              <div 
-                key={index} 
-                className={`bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden transition-transform hover:scale-110 duration-300 animate-fade-in animate-float-${index % 3 + 1}`} 
+              <div
+                key={index}
+                className="bg-premium-dark/60 border border-white/10 rounded-xl overflow-hidden duration-300 animate-fade-in w-64"
                 style={{ animationDelay: `${0.6 + index * 0.1}s` }}
               >
                 <div className="relative">
-                  <img 
-                    src={member.image} 
-                    alt={`${member.name} - ${member.role}`} 
-                    className="w-full h-64 object-cover" 
+                  <img
+                    src={member.image}
+                    alt={`${member.name} - ${member.role}`}
+                    className="w-64 rounded-t-xl object-cover"
                   />
                 </div>
                 <div className="p-6">
@@ -189,48 +194,54 @@ const AboutUs = () => {
             <span className="text-premium-purple font-medium">Dlaczego my?</span>
             <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Co nas wyróżnia</h2>
             <p className="text-premium-light/70 text-lg">
-              Wybierając IDZ.TECH, wybierasz firmę, która naprawdę dba o Twój biznes w sieci. Oto, co nas wyróżnia:
+              Wybierając IDZTECH, wybierasz firmę, która naprawdę dba o Twój biznes w sieci. Oto, co nas wyróżnia:
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-              <div className="flex flex-col space-y-6">
-                {[
-                  "Indywidualne podejście do każdego klienta",
-                  "Kompleksowa obsługa w zakresie stron WWW i SEO",
-                  "Przejrzyste zasady współpracy",
-                  "Regularne raportowanie wyników",
-                  "Zespół certyfikowanych specjalistów",
-                  "Ciągły rozwój i poszerzanie kompetencji"
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start">
-                    <CheckCircle size={20} className="text-premium-purple mr-3 mt-1 flex-shrink-0" />
-                    <p className="text-premium-light/80">{item}</p>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-10">
-                <Link to="/contact">
-                  <Button className="bg-premium-gradient hover:opacity-90 transition-opacity text-white rounded-full px-8 py-6">
-                    Skontaktuj się z nami
-                    <ArrowRight size={18} className="ml-2" />
-                  </Button>
-                </Link>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 flex flex-col items-center text-center">
+              <CheckCircle size={32} className="text-premium-purple mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Indywidualne podejście</h3>
+              <p className="text-premium-light/70">Każdy projekt traktujemy indywidualnie, dopasowując rozwiązania do potrzeb klienta.</p>
             </div>
-            
-            <div className="relative animate-fade-in" style={{ animationDelay: '0.8s' }}>
-              <div className="absolute -inset-1 bg-premium-gradient rounded-xl blur-sm opacity-75"></div>
-              <div className="relative bg-premium-dark p-1 rounded-xl overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
-                  alt="IDZ.TECH Workspace" 
-                  className="w-full h-auto rounded-lg object-cover aspect-video" 
-                />
-              </div>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 flex flex-col items-center text-center">
+              <CheckCircle size={32} className="text-premium-purple mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Kompleksowa obsługa</h3>
+              <p className="text-premium-light/70">Zajmujemy się wszystkim: od projektu, przez wdrożenie, po wsparcie i rozwój.</p>
             </div>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 flex flex-col items-center text-center">
+              <CheckCircle size={32} className="text-premium-purple mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Transparentność</h3>
+              <p className="text-premium-light/70">Zapewniamy jasne zasady współpracy i regularne raportowanie postępów.</p>
+            </div>
+            <div className="bg-premium-dark/60 border border-white/10 rounded-xl p-6 flex flex-col items-center text-center">
+              <CheckCircle size={32} className="text-premium-purple mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Zespół ekspertów</h3>
+              <p className="text-premium-light/70">Nasz zespół to certyfikowani specjaliści z wieloletnim doświadczeniem.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16  relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6 animate-fade-in">Gotowy na nowoczesną stronę internetową?</h2>
+            <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
+              Skontaktuj się z nami i umów się na bezpłatną konsultację. Omówimy Twoje potrzeby i zaproponujemy optymalne rozwiązanie.
+            </p>
+            <Link to="/contact">  
+            <Button 
+              size="lg" 
+              className="bg-premium-gradient hover:opacity-90 transition-opacity animate-fade-in group relative overflow-hidden"
+              style={{animationDelay: "0.4s"}}
+            >
+              <span className="relative z-10 text-white">Skontaktuj się z nami</span>
+              <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+            </Button>
+            </Link>
           </div>
         </div>
       </section>

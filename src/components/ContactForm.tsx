@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, AlertCircle } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useForm as useFormspree } from '@formspree/react';
 import {
   Form,
@@ -31,9 +30,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const ContactForm = () => {
-  const { toast } = useToast();
   // Replace with your valid Formspree form ID
-  const [formspreeState, sendToFormspree] = useFormspree("xvqggdkp"); 
+  const [formspreeState, sendToFormspree] = useFormspree("mrbqyaee"); 
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -61,20 +59,16 @@ const ContactForm = () => {
         throw new Error("Błąd wysyłania formularza");
       }
       
-      // Show success message
-      toast({
-        title: "Wiadomość wysłana",
+      // Show success message (TOAST)
+      toast("Wiadomość została wysłana!", {
         description: "Dziękujemy za kontakt. Odezwiemy się wkrótce.",
-        variant: "default",
       });
       
       form.reset();
     } catch (error) {
       console.error("Błąd wysyłania formularza:", error);
-      toast({
-        title: "Błąd",
-        description: "Nie udało się wysłać wiadomości. Spróbuj ponownie później.",
-        variant: "destructive",
+      toast("Błąd", {
+        description: "Nie udało się wysłać wiadomości. Spróbuj ponownie później."
       });
     }
   };
@@ -222,10 +216,6 @@ const ContactForm = () => {
           <Send size={16} className="mr-2" />
           {form.formState.isSubmitting || formspreeState.submitting ? "Wysyłanie..." : "Wyślij wiadomość"}
         </Button>
-        
-        <p className="text-xs text-center text-premium-light/70 mt-4">
-          {formspreeState.succeeded ? "Wiadomość została wysłana!" : ""}
-        </p>
       </form>
     </Form>
   );

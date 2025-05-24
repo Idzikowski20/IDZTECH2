@@ -1,14 +1,11 @@
-
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import PageDotAnimation from '@/components/PageDotAnimation';
 import { useNavigate } from 'react-router-dom';
-import { Check, ExternalLink } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import VerticalProcessSteps from '@/components/VerticalProcessSteps';
-import ServiceBreadcrumb from '@/components/ServiceBreadcrumb';
 import { JavaScript, Css3, Html5, TypeScript, ReactIcon } from '@/components/TechnologyIcons';
 import { useTheme } from '@/utils/themeContext';
 
@@ -29,24 +26,43 @@ const WebDevelopment = () => {
     "Pomoc techniczna po wdrożeniu"
   ];
 
+  const processSteps = [
+    {
+      title: "Analiza branży",
+      description: "Przeprowadzamy dogłębną analizę branży i konkurencji, aby zidentyfikować kluczowe elementy.",
+    },
+    {
+      title: "Planowanie treści",
+      description: "Tworzymy szczegółowy plan treści z nagłówkami i podtytułami dostosowany do potrzeb SEO.",
+    },
+    {
+      title: "Struktura linków",
+      description: "Planujemy nawigację, menu i linkowanie wewnętrzne dla optymalnej struktury strony.",
+    },
+    {
+      title: "Projekt wizualny",
+      description: "Opracowujemy unikalny design dopasowany do Twojej marki i celów biznesowych.",
+    },
+    {
+      title: "Tworzenie treści",
+      description: "Tworzymy angażujące i zoptymalizowane pod SEO treści, które odpowiadają na potrzeby użytkowników.",
+    },
+    {
+      title: "Wsparcie i rozwój",
+      description: "Regularne aktualizacje, monitorowanie wydajności, analityka i raportowanie, ciągłe doskonalenie.",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-premium-dark">
       <Navbar />
 
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
-        <PageDotAnimation />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="flex flex-col lg:flex-row items-center">
             <div className="w-full lg:w-1/2 mb-10 lg:mb-0 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <ServiceBreadcrumb 
-                items={[
-                  { label: 'Strona główna', href: '/' },
-                  { label: 'Usługi', href: null },
-                  { label: 'Tworzenie stron internetowych', href: '/tworzenie-stron-www' }
-                ]} 
-              />
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-8 mb-6">
                 Tworzenie stron <span className="text-transparent bg-clip-text bg-premium-gradient">internetowych</span>
               </h1>
@@ -56,8 +72,8 @@ const WebDevelopment = () => {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button 
-                  onClick={() => navigate('/kontakt')} 
-                  className="px-8 py-6 bg-premium-gradient hover:bg-white hover:text-black"
+                  onClick={() => navigate('/contact')} 
+                  className="px-8 py-6 bg-premium-gradient text-white hover:text-white"
                   size="lg"
                 >
                   Zamów bezpłatną wycenę
@@ -66,7 +82,7 @@ const WebDevelopment = () => {
                   variant="outline" 
                   className="px-8 py-6 hover:bg-white hover:text-black"
                   size="lg"
-                  onClick={() => navigate('/portfolio')}
+                  onClick={() => navigate('/projects')}
                 >
                   Zobacz portfolio
                 </Button>
@@ -246,9 +262,28 @@ const WebDevelopment = () => {
               Poznaj etapy tworzenia skutecznej strony internetowej, która będzie wspierać Twój biznes.
             </p>
           </div>
-          
-          <div className="max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <VerticalProcessSteps />
+          <div className="relative max-w-4xl mx-auto">
+            {/* pionowa linia */}
+            <div className="hidden md:block absolute left-1/2 top-0 h-full w-1 bg-premium-gradient -translate-x-1/2 z-0"></div>
+            <div className="flex flex-col gap-16">
+              {processSteps.map((step, idx) => (
+                <div key={idx} className={`relative flex flex-col md:flex-row items-center w-full ${idx % 2 === 0 ? 'md:justify-start' : 'md:justify-end'}`}>
+                  <div className={`w-full md:w-1/2 ${idx % 2 === 0 ? 'md:pr-8 md:order-1' : 'md:pl-8 md:order-2'} flex ${idx % 2 === 0 ? 'md:justify-end' : 'md:justify-start'} justify-center`}> 
+                    <div className="bg-premium-dark/60 border border-premium-light/10 rounded-xl p-6 shadow-lg max-w-md w-full z-10">
+                      <div className="flex items-center mb-2">
+                        <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center text-white font-bold text-lg mr-3">
+                          {idx + 1}
+                        </div>
+                        <h3 className="text-xl font-bold">{step.title}</h3>
+                      </div>
+                      <p className="text-premium-light/70">{step.description}</p>
+                    </div>
+                  </div>
+                  {/* Punkt na osi */}
+                  <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-premium-gradient border-4 border-white z-20"></div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -260,16 +295,13 @@ const WebDevelopment = () => {
             <p className="text-premium-purple font-medium mb-3">Co otrzymasz</p>
             <h2 className="text-3xl md:text-4xl font-bold">Funkcjonalności stron internetowych</h2>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {features.map((feature, index) => (
-              <div key={index} className="flex items-start">
-                <div className="mr-4 mt-1">
-                  <div className="w-6 h-6 rounded-full bg-premium-gradient flex items-center justify-center">
-                    <Check size={14} className="text-white" />
-                  </div>
+              <div key={index} className="bg-premium-dark/60 border border-premium-light/10 rounded-xl p-6 flex flex-col items-center text-center">
+                <div className="w-10 h-10 rounded-full bg-premium-gradient flex items-center justify-center mb-4">
+                  <Check size={20} className="text-white" />
                 </div>
-                <p className="text-lg">{feature}</p>
+                <p className="text-lg text-white/90 font-medium">{feature}</p>
               </div>
             ))}
           </div>
@@ -459,17 +491,17 @@ const WebDevelopment = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button 
-              onClick={() => navigate('/kontakt')} 
-              className="px-8 py-6 bg-premium-gradient hover:bg-white hover:text-black"
+              onClick={() => navigate('/contact')} 
+              className="px-8 py-6 bg-premium-gradient text-white  hover:text-white"
               size="lg"
             >
               Skontaktuj się z nami
             </Button>
             <Button 
               variant="outline" 
-              className={`px-8 py-6 ${theme === 'dark' ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white'}`}
+              className={`px-8 py-6 ${theme === 'dark' ? 'hover:bg-white hover:text-black' : 'hover:scale-105'}`}
               size="lg"
-              onClick={() => navigate('/portfolio')}
+              onClick={() => navigate('/projects')}
             >
               Zobacz nasze realizacje
             </Button>

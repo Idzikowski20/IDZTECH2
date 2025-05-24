@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Index from '@/pages/Index';
@@ -32,7 +31,13 @@ import AIPostPage from './pages/ai-post';
 const App = () => {
   return (
     <>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        closeButton
+        toastOptions={{
+          className: "custom-toast"
+        }}
+      />
       <Routes>
         <Route path="/" element={<Index />} errorElement={<ErrorPage />} />
         <Route path="/login" element={<Login />} />

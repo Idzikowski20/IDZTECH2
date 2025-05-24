@@ -1257,3 +1257,24 @@ input:-internal-autofill-selected {
   --tw-text-opacity: 1;
   color: rgb(156 163 175 / var(--tw-text-opacity, 1)) !important;
 }
+
+.custom-toast {
+  background: #22c55e !important; /* zielony */
+  color: #fff !important;
+}
+.custom-toast .sonner-close-button {
+  right: 1.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #fff !important;
+}
+
+/* Błąd - czerwone tło, biały tekst */
+.custom-toast:has([data-content*="Błąd"]) {
+  background: #ef4444 !important;
+  color: #fff !important;
+}
+.custom-toast:has([data-content*="nie udało się wysłać"]) {
+  background: #ef4444 !important;
+  color: #fff !important;
+}

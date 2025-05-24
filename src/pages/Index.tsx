@@ -5,7 +5,6 @@ import OurServices from "@/components/OurServices";
 import { applyMobileOptimizations } from "@/utils/performanceUtils";
 
 // Lazy load components with prefetch
-const Demo = lazy(() => import("@/components/moon").then(mod => ({ default: mod.Demo })));
 const WhyWorkWithUs = lazy(() => import("@/components/WhyWorkWithUs"));
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const FAQ = lazy(() => import("@/components/FAQ"));
@@ -15,7 +14,6 @@ const Footer = lazy(() => import("@/components/Footer"));
 // Preload critical components
 const preloadComponents = () => {
   const componentsToPreload = [
-    () => import("@/components/moon"),
     () => import("@/components/WhyWorkWithUs"),
   ];
 

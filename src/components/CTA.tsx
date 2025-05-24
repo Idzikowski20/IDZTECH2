@@ -8,28 +8,29 @@ const CTA = () => {
   const { theme } = useTheme();
 
   return (
-    <section className="py-16 bg-premium-dark">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-            Gotowy na transformację cyfrową?
-          </h2>
-          <p className="text-lg mb-8 text-premium-light/70">
-            Dołącz do społeczności Premium Digital Harvest i odkryj potencjał nowoczesnego marketingu.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild className="bg-premium-gradient hover:scale-105 transition-transform">
-              <Link to="/register">
-                Rozpocznij teraz <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
+      <section className="py-16 relative overflow-hidden" style={{ margin: '20px', borderRadius: '20px' }}>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
+        
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6 animate-fade-in">Wymagasz więcej od strony internetowej?</h2>
+            <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
+              Skontaktuj się z nami i umów się na bezpłatną konsultację. Omówimy Twoje potrzeby i zaproponujemy optymalne rozwiązanie.
+            </p>
+            <Link to="/contact">
+            <Button 
+              size="lg" 
+              className="bg-premium-gradient hover:opacity-90 transition-opacity animate-fade-in group relative overflow-hidden"
+              style={{animationDelay: "0.4s"}}
+            >
+              <span className="relative z-10 text-white">Skontaktuj się z nami</span>
+              <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
             </Button>
-            <Button variant="outline" asChild className="border-premium-light/20 text-white hover:bg-premium-light/10">
-              <Link to="/blog">Dowiedz się więcej</Link>
-            </Button>
+            </Link>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
   );
 };
 

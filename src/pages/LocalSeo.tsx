@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Check, ChevronRight, MapPin, Star, FileText, Settings, Target, TrendingUp, Phone, Building } from "lucide-react";
 import SplineSEO from "@/components/SplineSEO";
+import { FaUtensils, FaStore, FaSpa, FaClinicMedical, FaGavel, FaHardHat, FaCarCrash, FaDumbbell } from 'react-icons/fa';
+import { Link } from "react-router-dom";
 
 const LocalSeo = () => {
   return (
@@ -14,26 +16,6 @@ const LocalSeo = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-8">
-            <BreadcrumbList className="text-premium-light/60">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Strona główna</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink>Usługi</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink className="text-premium-light">Pozycjonowanie lokalne</BreadcrumbLink>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
@@ -44,20 +26,24 @@ const LocalSeo = () => {
                 przyciągając klientów z Twojego obszaru działania.
               </p>
               <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
                 <Button 
                   size="lg" 
                   className="bg-premium-gradient hover:bg-white hover:text-black transition-all group relative overflow-hidden"
                 >
-                  <span className="relative z-10">Darmowa wycena</span>
+                  <span className="relative z-10 text-white">Darmowa wycena</span>
                   <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                 </Button>
+                </Link>
+                <Link to="/projects">
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="hover:bg-black hover:text-white text-gray-50 group"
+                  className="text-gray-50 group"
                 >
                   <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz realizacje</span>
                 </Button>
+                </Link>
               </div>
             </div>
             
@@ -379,56 +365,56 @@ const LocalSeo = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-restaurant-1495593-1267764.png" alt="Restaurant" className="h-10 w-10 object-contain opacity-80" />
+                <FaUtensils size={40} color="#A259FF" />
               </div>
               <h3 className="font-medium mb-2">Restauracje i kawiarnie</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-store-1439799-1214370.png" alt="Retail Store" className="h-10 w-10 object-contain opacity-80" />
+                <FaStore size={40} color="#00C2FF" />
               </div>
               <h3 className="font-medium mb-2">Sklepy stacjonarne</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-spa-1543593-1306118.png" alt="Beauty Salon" className="h-10 w-10 object-contain opacity-80" />
+                <FaSpa size={40} color="#FF6B81" />
               </div>
               <h3 className="font-medium mb-2">Salony piękności</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-hospital-1521298-1289217.png" alt="Medical Clinic" className="h-10 w-10 object-contain opacity-80" />
+                <FaClinicMedical size={40} color="#00C2FF" />
               </div>
               <h3 className="font-medium mb-2">Gabinety medyczne</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-lawyer-1659482-1410018.png" alt="Legal Services" className="h-10 w-10 object-contain opacity-80" />
+                <FaGavel size={40} color="#A259FF" />
               </div>
               <h3 className="font-medium mb-2">Kancelarie prawne</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-construction-worker-2482661-2072200.png" alt="Construction" className="h-10 w-10 object-contain opacity-80" />
+                <FaHardHat size={40} color="#FFB800" />
               </div>
               <h3 className="font-medium mb-2">Firmy budowlane</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-blue/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-car-repair-1464839-1241143.png" alt="Auto Services" className="h-10 w-10 object-contain opacity-80" />
+                <FaCarCrash size={40} color="#00C2FF" />
               </div>
               <h3 className="font-medium mb-2">Warsztaty samochodowe</h3>
             </div>
             
             <div className="bg-premium-dark/60 backdrop-blur-sm border  rounded-xl p-4 hover:border-premium-purple/30 transition-colors flex flex-col items-center text-center group">
               <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
-                <img src="https://cdn.iconscout.com/icon/free/png-256/free-gym-1659484-1410020.png" alt="Fitness" className="h-10 w-10 object-contain opacity-80" />
+                <FaDumbbell size={40} color="#A259FF" />
               </div>
               <h3 className="font-medium mb-2">Siłownie i kluby fitness</h3>
             </div>
@@ -444,14 +430,16 @@ const LocalSeo = () => {
             <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
               Skontaktuj się z nami, aby otrzymać bezpłatną analizę lokalnej widoczności Twojej firmy i indywidualną ofertę pozycjonowania.
             </p>
+            <Link to="/contact">
             <Button 
               size="lg" 
               className="bg-premium-gradient hover:opacity-90 transition-opacity animate-fade-in group relative overflow-hidden"
               style={{animationDelay: "0.4s"}}
             >
-              <span className="relative z-10">Zamów darmową analizę</span>
+              <span className="relative z-10 text-white">Zamów darmową analizę</span>
               <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
             </Button>
+            </Link>
           </div>
         </div>
       </section>

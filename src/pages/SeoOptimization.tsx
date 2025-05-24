@@ -1,158 +1,118 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Card, CardContent } from "@/components/ui/card";
+import { FaCogs, FaFileAlt, FaRegLightbulb, FaMobileAlt, FaChartLine, FaUsers, FaSearch, FaBug } from 'react-icons/fa';
+import SplineSEO from '@/components/SplineSEO';
+import { useTheme } from '@/utils/themeContext';
+import { Link } from 'react-router-dom';
 
 const SeoOptimization = () => {
+  const { theme } = useTheme();
   return (
     <div className="min-h-screen">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 md:px-8 lg:px-16 container mx-auto">
-        <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold bg-premium-gradient bg-clip-text text-transparent">
-            Optymalizacja SEO
-          </h1>
-          <p className="text-xl text-premium-light/80 leading-relaxed">
-            Profesjonalna optymalizacja strony to klucz do wysokich pozycji. Wykorzystaj naszą wiedzę, aby poprawić widoczność w Google.
-          </p>
-          <div className="pt-6">
-            <Button 
-              className="bg-premium-gradient hover:opacity-90 transition-all transform hover:scale-105"
-              size="lg"
-            >
-              Zamów optymalizację SEO
-            </Button>
+      <section className="pt-32 pb-20 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="animate-fade-in">
+              <span className="text-premium-blue font-medium">Optymalizacja SEO</span>
+              <h1 className="text-4xl lg:text-5xl font-bold mt-4 mb-6 bg-premium-gradient bg-clip-text text-transparent">
+                Optymalizacja SEO
+              </h1>
+              <p className="text-premium-light/80 text-lg mb-8">
+                Profesjonalna optymalizacja strony to klucz do wysokich pozycji. Wykorzystaj naszą wiedzę, aby poprawić widoczność w Google.
+              </p>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Link to="/contact">
+                <Button 
+                  className="bg-premium-gradient hover:opacity-90 transition-all group relative overflow-hidden"
+                  size="lg"
+                >
+                  <span className="relative z-10 text-white">Zamów optymalizację SEO</span>
+                  <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                </Button>
+                </Link>
+              </div>
+            </div>
+            <div className="relative animate-slide-up">
+              <SplineSEO />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Kafelki - zakres optymalizacji */}
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-            <h2 className="text-3xl font-bold">Dlaczego optymalizacja SEO jest ważna?</h2>
-            <p className="text-premium-light/80">
-              Optymalizacja SEO to kompleksowe działania mające na celu dostosowanie Twojej strony do wymagań wyszukiwarki Google. Dobrze zoptymalizowana witryna ma szansę na wysokie pozycje w wynikach wyszukiwania, co przekłada się na większy ruch i konwersje.
-            </p>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-premium-purple flex items-center justify-center mt-1">✓</div>
-                <p>Eliminacja błędów technicznych blokujących indeksację</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-premium-purple flex items-center justify-center mt-1">✓</div>
-                <p>Usprawnienie struktury strony i treści</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-premium-purple flex items-center justify-center mt-1">✓</div>
-                <p>Optymalizacja pod kątem wydajności i UX</p>
-              </li>
-              <li className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-premium-purple flex items-center justify-center mt-1">✓</div>
-                <p>Poprawa widoczności w wyszukiwarkach</p>
-              </li>
-            </ul>
-          </div>
-          <div className="rounded-xl overflow-hidden shadow-2xl transform hover:scale-105 transition-all duration-300 animate-fade-in" style={{ animationDelay: "0.7s" }}>
-            <img 
-              src="https://img.freepik.com/free-vector/seo-analysis-concept-illustration_114360-7238.jpg" 
-              alt="Optymalizacja SEO - ilustracja" 
-              className="w-full h-auto object-cover"
-            />
-          </div>
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <span className="text-premium-purple font-medium">Co obejmuje optymalizacja SEO?</span>
+          <h2 className="text-3xl lg:text-4xl font-bold mt-3 mb-6">Zakres optymalizacji SEO</h2>
+          <p className="text-premium-light/70 text-lg">
+            Optymalizacja SEO to kompleksowe działania techniczne, treściowe i UX. Oto, co robimy:
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[
+            { icon: <FaCogs size={40} color="#A259FF" />, title: 'Optymalizacja techniczna', desc: 'Eliminacja błędów technicznych, poprawa indeksacji i struktury strony.' },
+            { icon: <FaFileAlt size={40} color="#00C2FF" />, title: 'Optymalizacja treści', desc: 'Dostosowanie treści do wymogów SEO i intencji użytkowników.' },
+            { icon: <FaRegLightbulb size={40} color="#FFB800" />, title: 'Optymalizacja UX', desc: 'Poprawa doświadczeń użytkownika i wskaźników behawioralnych.' },
+            { icon: <FaMobileAlt size={40} color="#FF6B81" />, title: 'Optymalizacja mobilna', desc: 'Dostosowanie strony do urządzeń mobilnych zgodnie z Mobile-First Index.' },
+            { icon: <FaChartLine size={40} color="#00C2FF" />, title: 'Analiza konkurencji', desc: 'Porównanie z konkurencją i wskazanie przewag.' },
+            { icon: <FaUsers size={40} color="#A259FF" />, title: 'Dostępność', desc: 'Analiza dostępności strony dla wszystkich użytkowników.' },
+            { icon: <FaSearch size={40} color="#FF6B81" />, title: 'Audyt SEO', desc: 'Kompleksowy audyt SEO strony, identyfikacja problemów i blokad.' },
+            { icon: <FaBug size={40} color="#A259FF" />, title: 'Wykrywanie błędów', desc: 'Identyfikacja i eliminacja błędów blokujących widoczność.' },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className={`backdrop-blur-sm border rounded-xl p-6 flex flex-col items-center text-center group ${theme === 'light' ? 'border-gray-200' : 'border-gray-700'}`}
+            >
+              <div className="h-20 w-20 bg-premium-gradient/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-premium-gradient/20 transition-all duration-300">
+                {item.icon}
+              </div>
+              <h3 className="font-medium mb-2">{item.title}</h3>
+              <p className="text-premium-light/80">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* Proces optymalizacji SEO */}
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto rounded-3xl">
-        <h2 className="text-3xl font-bold text-center mb-12">Co obejmuje optymalizacja SEO?</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <h2 className="text-3xl font-bold text-center mb-12">Jak wygląda proces optymalizacji SEO?</h2>
+        <div className="grid md:grid-cols-3 gap-8">
           {[
             {
-              title: "Optymalizacja techniczna",
-              description: "Eliminacja błędów technicznych, poprawa indeksacji i struktury strony."
+              title: "1. Audyt początkowy",
+              description: "Kompleksowy audyt SEO strony, identyfikacja problemów i blokad."
             },
             {
-              title: "Optymalizacja treści",
-              description: "Dostosowanie treści do wymogów SEO i intencji użytkowników."
+              title: "2. Plan optymalizacji",
+              description: "Przygotowanie szczegółowego planu działań optymalizacyjnych."
             },
             {
-              title: "Optymalizacja UX",
-              description: "Poprawa doświadczeń użytkownika i wskaźników behawioralnych."
+              title: "3. Implementacja zmian",
+              description: "Wdrożenie rekomendacji i wykonanie niezbędnych poprawek."
             },
             {
-              title: "Optymalizacja mobilna",
-              description: "Dostosowanie strony do urządzeń mobilnych zgodnie z Mobile-First Index."
+              title: "4. Monitorowanie efektów",
+              description: "Analiza rezultatów i dostosowywanie strategii w razie potrzeby."
             }
-          ].map((service, index) => (
-            <Card key={index} className="border border-premium-dark/10 transition-all hover:border-premium-purple rounded-xl animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
-              <CardContent className="p-8">
-                <h3 className="text-xl font-bold mb-4 text-premium-purple">{service.title}</h3>
-                <p className="text-premium-light/80">{service.description}</p>
+          ].map((step, index) => (
+            <Card key={index} className="border border-premium-dark/10 transition-all hover:border-premium-purple rounded-xl animate-fade-in bg-transparent" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
+              <CardContent className="p-8 bg-transparent">
+                <h3 className="text-xl font-bold mb-4 text-premium-purple">{step.title}</h3>
+                <p className="text-premium-light/80">{step.description}</p>
               </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* Process Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto mt-12">
-        <h2 className="text-3xl font-bold text-center mb-12">Jak wygląda proces optymalizacji SEO?</h2>
-        <div className="max-w-4xl mx-auto">
-          <div className="space-y-12">
-            {[
-              {
-                step: "1",
-                title: "Audyt początkowy",
-                description: "Kompleksowy audyt SEO strony, identyfikacja problemów i blokad."
-              },
-              {
-                step: "2",
-                title: "Plan optymalizacji",
-                description: "Przygotowanie szczegółowego planu działań optymalizacyjnych."
-              },
-              {
-                step: "3",
-                title: "Implementacja zmian",
-                description: "Wdrożenie rekomendacji i wykonanie niezbędnych poprawek."
-              },
-              {
-                step: "4",
-                title: "Monitorowanie efektów",
-                description: "Analiza rezultatów i dostosowywanie strategii w razie potrzeby."
-              }
-            ].map((item, index) => (
-              <div key={index} className="flex gap-6 animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
-                <div className="h-12 w-12 rounded-full bg-premium-gradient flex items-center justify-center shrink-0">
-                  <span className="font-bold text-premium-light">{item.step}</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                  <p className="text-premium-light/80">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto mt-12 mb-12 bg-premium-gradient rounded-3xl">
-        <div className="max-w-3xl mx-auto text-center space-y-6 py-8">
-          <h2 className="text-3xl font-bold text-white">Gotowy na lepszą widoczność w Google?</h2>
-          <p className="text-white/90 text-lg">
-            Zamów profesjonalną optymalizację SEO i zacznij przyciągać więcej klientów!
-          </p>
-          <Button className="bg-white text-premium-purple hover:bg-white/90 transition-all transform hover:scale-105">
-            Zamów bezpłatną wycenę
-          </Button>
-        </div>
-      </section>
 
       {/* FAQ Section */}
       <section className="py-16 px-4 md:px-8 lg:px-16 container mx-auto">
@@ -178,15 +138,39 @@ const SeoOptimization = () => {
           ].map((faq, index) => (
             <HoverCard key={index} openDelay={200} closeDelay={100}>
               <HoverCardTrigger asChild>
-                <div className="p-6 border border-premium-light/10 rounded-xl cursor-pointer hover:border-premium-purple transition-all animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
+                <div className="p-6 border border-premium-light rounded-xl cursor-pointer hover:border-premium-purple transition-all animate-fade-in" style={{ animationDelay: `${0.5 + (index * 0.2)}s` }}>
                   <h3 className="text-xl font-medium">{faq.question}</h3>
                 </div>
               </HoverCardTrigger>
-              <HoverCardContent className="w-80 bg-premium-dark/95 border border-premium-light/10 p-4">
+              <HoverCardContent className="w-80 border border-premium-light p-4">
                 <p className="text-sm">{faq.answer}</p>
               </HoverCardContent>
             </HoverCard>
           ))}
+        </div>
+      </section>
+
+                {/* CTA Section */}
+      <section className="py-16 relative overflow-hidden mx-[30px] rounded-[20px]">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-6 animate-fade-in">Gotowy na lepszą widoczność w Google?</h2>
+            <p className="text-premium-light/70 text-lg mb-8 animate-fade-in" style={{animationDelay: "0.2s"}}>
+              Zamów profesjonalną optymalizację SEO i zacznij przyciągać więcej klientów!
+            </p>
+            <Link to="/contact">
+              <Button 
+                size="lg" 
+                className="bg-premium-gradient hover:opacity-90 transition-opacity animate-fade-in group relative overflow-hidden"
+                style={{animationDelay: "0.4s"}}
+              >
+                <span className="relative z-10 text-white">Zamów bezpłatną wycenę</span>
+                <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 

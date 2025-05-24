@@ -15,26 +15,6 @@ const Seo = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-16 relative overflow-hidden">
         <div className="container mx-auto px-4">
-          {/* Breadcrumb */}
-          <Breadcrumb className="mb-8">
-            <BreadcrumbList className="text-premium-light/60">
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Strona główna</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink>Usługi</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator>
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <BreadcrumbLink className="">Pozycjonowanie stron internetowych</BreadcrumbLink>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
@@ -45,20 +25,24 @@ const Seo = () => {
                 i budujemy trwałą obecność Twojej firmy w Internecie.
               </p>
               <div className="flex flex-wrap gap-4">
+                <Link to="/contact">
                 <Button 
                   size="lg" 
                   className="bg-premium-gradient hover:bg-white hover:text-black transition-all group relative overflow-hidden"
                 >
-                  <span className="relative z-10">Darmowa wycena</span>
+                  <span className="relative z-10 text-white">Darmowa wycena</span>
                   <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
                 </Button>
+                </Link>
+                <Link to="/projects">
                 <Button 
                   size="lg" 
                   variant="outline" 
-                  className="border-white/10 hover:bg-black hover:text-white text-gray-50 group"
+                  className="border-gray-200 text-gray-50 group"
                 >
-                  <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz case studies</span>
+                  <span className="group-hover:translate-x-1 transition-transform duration-200">Zobacz projekty</span>
                 </Button>
+                </Link>
               </div>
             </div>
             
@@ -441,7 +425,7 @@ const Seo = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 bg-premium-dark/40 relative overflow-hidden">
+      <section className="py-16  relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-premium-purple/20 rounded-full blur-[120px] -z-10"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-premium-blue/20 rounded-full blur-[120px] -z-10"></div>
         
@@ -457,7 +441,7 @@ const Seo = () => {
               className="bg-premium-gradient hover:opacity-90 transition-opacity animate-fade-in group relative overflow-hidden"
               style={{animationDelay: "0.4s"}}
               >
-              <span className="relative z-10">Zamów darmowy audyt SEO</span>
+              <span className="relative z-10 text-white">Zamów darmowy audyt SEO</span>
               <span className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
             </Button>
             </Link>

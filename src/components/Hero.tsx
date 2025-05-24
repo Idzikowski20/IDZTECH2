@@ -31,7 +31,7 @@ const Hero = () => {
               className={`flex flex-col sm:flex-row items-start sm:items-center justify-start gap-3 md:gap-4 mb-6 md:mb-10 transition-opacity duration-500 ${isMobile ? 'w-full' : ''}`}
             >
               <Link to="/contact" className={isMobile ? 'w-full' : ''}>
-                <Button size="lg" className="bg-premium-gradient hover:bg-white hover:text-black w-full">
+                <Button size="lg" className="bg-premium-gradient text-white hover:text-white w-full">
                   Skontaktuj się
                 </Button>
               </Link>

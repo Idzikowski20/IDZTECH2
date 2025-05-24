@@ -15,7 +15,7 @@ const Footer = () => {
 
   return (
     <footer className={
-      `${theme === 'light' ? 'bg-[#f5f5f5] text-black' : 'text-white'} pt-16 pb-8`
+      `${theme === 'light' ? 'text-black' : 'text-white'} pt-16 pb-8`
     }>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -140,7 +140,7 @@ const Footer = () => {
 
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
-            © 2025 IDZ.TECH - Wszelkie prawa zastrzeżone
+            © 2025 IDZTECH - Wszelkie prawa zastrzeżone
           </p>
           <div className="flex space-x-4 text-sm">
             <Link to="/privacy" className="text-gray-500 hover:text-white transition-colors">Polityka prywatności</Link>

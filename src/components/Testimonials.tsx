@@ -5,27 +5,24 @@ import { useTheme } from '@/utils/themeContext';
 const testimonials = [
   {
     id: 1,
-    content: "Współpraca z Premium Digital była strzałem w dziesiątkę dla naszej firmy. Dzięki ich strategii SEO zwiększyliśmy ruch na stronie o 150% w ciągu zaledwie 6 miesięcy.",
-    author: "Marek Kowalski",
-    position: "CEO, Tech Solutions",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
+    content: "Współpraca z IDZTECH była bardzo owocna. Dzięki ich wsparciu w zakresie SEO nasza strona zyskała na widoczności, co przełożyło się na większy ruch i zainteresowanie naszymi usługami.",
+    author: "Katarzyna Mazur",
+    position: "CEO, Innowacje24",
+    rating: 5
   },
   {
     id: 2,
-    content: "Profesjonalizm na najwyższym poziomie. Kampanie Google Ads przygotowane przez Premium Digital znacząco zwiększyły nasze konwersje i obniżyły koszt pozyskania klienta.",
-    author: "Anna Nowak",
-    position: "Marketing Manager, Fashion Store",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
+    content: "Profesjonalne podejście i rzetelna praca. Kampanie Google Ads, które dla nas przygotowali, pomogły nam dotrzeć do nowych klientów i zwiększyć sprzedaż.",
+    author: "Michał Zieliński",
+    position: "Marketing Manager, ModaPro",
+    rating: 5
   },
   {
     id: 3,
-    content: "Nowa strona internetowa zaprojektowana przez Premium Digital znacząco poprawiła wizerunek naszej firmy. Cały proces przebiegł sprawnie i zgodnie z naszymi oczekiwaniami.",
-    author: "Tomasz Wiśniewski",
-    position: "Właściciel, Dental Clinic",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
+    content: "Nowa strona internetowa, którą dla nas zaprojektowali, znacząco poprawiła wizerunek naszej firmy. Cały proces przebiegł sprawnie i zgodnie z naszymi oczekiwaniami.",
+    author: "Joanna Wójcik",
+    position: "Właścicielka, Stomatologia Nova",
+    rating: 5
   },
 ];
 
@@ -45,14 +42,6 @@ const TestimonialCard = ({ testimonial }: { testimonial: typeof testimonials[0] 
       </div>
       <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/80'} flex-grow mb-6`}>"{testimonial.content}"</p>
       <div className="flex items-center mt-auto">
-        <img 
-          src={testimonial.image} 
-          alt={testimonial.author} 
-          className="w-12 h-12 rounded-full object-cover mr-4"
-          width="48"
-          height="48"
-          loading="lazy"
-        />
         <div>
           <h4 className="font-medium">{testimonial.author}</h4>
           <p className={`text-sm ${theme === 'light' ? 'text-premium-dark/70' : 'text-premium-light/60'}`}>{testimonial.position}</p>
@@ -75,7 +64,7 @@ const Testimonials = () => {
               Co mówią o nas nasi klienci
             </h2>
             <p className={`${theme === 'light' ? 'text-premium-dark' : 'text-premium-light/70'}`}>
-              Zaufało nam już ponad 200 firm z różnych branż. Poznaj opinie naszych klientów i przekonaj się, że jesteśmy właściwym wyborem dla Twojego biznesu.
+              Zaufało nam już ponad 10 firm z różnych branż. Poznaj opinie naszych klientów i przekonaj się, że jesteśmy właściwym wyborem dla Twojego biznesu.
             </p>
           </div>
           
